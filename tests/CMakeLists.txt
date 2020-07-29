@@ -9,6 +9,9 @@ target_link_libraries(boost_add ${PROJECT_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBR
 ADD_UNIT_TEST(boost_pin boost_pin)
 target_link_libraries(boost_pin ${PROJECT_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
+ADD_UNIT_TEST(boost_croco boost_croco)
+target_link_libraries(boost_croco ${PROJECT_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
 if(BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif()

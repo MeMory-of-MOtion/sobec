@@ -1,4 +1,5 @@
 set(${PY_NAME}_SOURCES
+  croco.cpp
   gepadd.cpp
   main.cpp
   pin.cpp

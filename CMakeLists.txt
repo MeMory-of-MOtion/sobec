@@ -39,7 +39,8 @@ project(${PROJECT_NAME} ${PROJECT_ARGS})
 
 # Project dependencies
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-ADD_PROJECT_DEPENDENCY(pinocchio REQUIRED)
+#ADD_PROJECT_DEPENDENCY(pinocchio REQUIRED)
+ADD_PROJECT_DEPENDENCY(crocoddyl REQUIRED)
 
 if(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
@@ -50,6 +51,7 @@ endif()
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
+  include/${PROJECT_NAME}/croco.hpp
   include/${PROJECT_NAME}/gepadd.hpp
   include/${PROJECT_NAME}/pin.hpp
   include/${PROJECT_NAME}/python.hpp
@@ -58,11 +60,13 @@ set(${PROJECT_NAME}_HEADERS
 set(${PROJECT_NAME}_SOURCES
   src/gepadd.cpp
   src/pin.cpp
+  src/croco.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-target_link_libraries(${PROJECT_NAME} PUBLIC pinocchio::pinocchio)
+#target_link_libraries(${PROJECT_NAME} PUBLIC pinocchio::pinocchio)
+target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
 
 if(SUFFIX_SO_VERSION)
   set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION})

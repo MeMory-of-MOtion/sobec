@@ -12,6 +12,7 @@ namespace gepetto {
 namespace example {
 void exposeExampleAdder();
 void exposeExamplePin();
+void exposeActionUniEx();
 }  // namespace example
 }  // namespace gepetto
 
