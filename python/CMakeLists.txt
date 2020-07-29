@@ -1,6 +1,7 @@
 set(${PY_NAME}_SOURCES
   gepadd.cpp
   main.cpp
+  pin.cpp
   )
 
 add_library(${PY_NAME} SHARED ${${PY_NAME}_SOURCES})

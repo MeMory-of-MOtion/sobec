@@ -1,1 +1,1 @@
-from .example_adder import add, sub  # noqa: F401
+from .example_adder import add, adds, sub, subs  # noqa: F401
