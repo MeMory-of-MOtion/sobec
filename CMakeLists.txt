@@ -80,3 +80,4 @@ add_subdirectory(tests)
 # Installation
 install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
 install(TARGETS ${PROJECT_NAMESPACE}-${PROJECT_NAME} RUNTIME DESTINATION bin)
+install(FILES package.xml DESTINATION share/${PROJECT_NAME})
