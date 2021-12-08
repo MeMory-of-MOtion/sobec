@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>example-adder</name>
-  <version>3.0.2</version>
+  <version>4.0.2</version>
   <description>Example project</description>
   <maintainer email="guilhem.saurel@laas.fr">Guilhem Saurel</maintainer>
   <author email="guilhem.saurel@laas.fr">Guilhem Saurel</author>
