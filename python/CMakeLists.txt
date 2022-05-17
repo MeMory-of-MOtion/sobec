@@ -5,16 +5,16 @@ set(${PY_NAME}_SOURCES
   pin.cpp
   )
 
-add_library(${PY_NAME} SHARED ${${PY_NAME}_SOURCES})
-target_link_libraries(${PY_NAME} PUBLIC ${PROJECT_NAME})
-target_include_directories(${PY_NAME} SYSTEM PRIVATE ${PYTHON_INCLUDE_DIR})
-set_target_properties(${PY_NAME} PROPERTIES
+add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
+target_link_libraries(${PY_NAME}_pywrap PUBLIC ${PROJECT_NAME})
+target_include_directories(${PY_NAME}_pywrap SYSTEM PRIVATE ${PYTHON_INCLUDE_DIR})
+set_target_properties(${PY_NAME}_pywrap PROPERTIES
   INSTALL_RPATH "\$ORIGIN/../../.."
   LIBRARY_OUTPUT_DIRECTORY ${PY_NAME}
   PREFIX ""
   SUFFIX ${PYTHON_EXT_SUFFIX})
-TARGET_LINK_BOOST_PYTHON(${PY_NAME} PRIVATE)
-install(TARGETS ${PY_NAME} DESTINATION ${${PY_NAME}_INSTALL_DIR})
+TARGET_LINK_BOOST_PYTHON(${PY_NAME}_pywrap PRIVATE)
+install(TARGETS ${PY_NAME}_pywrap DESTINATION ${${PY_NAME}_INSTALL_DIR})
 
 set(${PY_NAME}_PYTHON
   __init__.py
