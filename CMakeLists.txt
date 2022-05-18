@@ -53,28 +53,22 @@ endif()
 set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/python.hpp
   include/${PROJECT_NAME}/fwd.hpp
-
   include/${PROJECT_NAME}/residual-com-velocity.hpp
-  include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/activation-quad-ref.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
-  src/sobec.cpp
+  include/${PROJECT_NAME}/residual-com-velocity.hxx
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
 target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 if(SUFFIX_SO_VERSION)
   set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION})
 endif()
-
-# Main Executable
-add_executable(${PROJECT_NAMESPACE}-${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAMESPACE}-${PROJECT_NAME} ${PROJECT_NAME})
-set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "\$ORIGIN/../lib")
 
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
@@ -89,5 +83,4 @@ endif()
 
 # Installation
 install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
-install(TARGETS ${PROJECT_NAMESPACE}-${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES package.xml DESTINATION share/${PROJECT_NAME})
