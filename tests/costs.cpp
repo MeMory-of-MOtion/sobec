@@ -49,7 +49,7 @@ void test_calc_returns_a_cost(CostModelTypes::Type cost_type, StateModelTypes::T
 
   // Generating random values for the state and control
   const Eigen::VectorXd& x = model->get_state()->rand();
-  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(static_cast<Eigen::Index>(model->get_nu()));
 
   // Compute all the pinocchio function needed for the models.
   updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
@@ -83,7 +83,7 @@ void test_calc_against_numdiff(CostModelTypes::Type cost_type, StateModelTypes::
 
   // Generating random values for the state and control
   const Eigen::VectorXd& x = model->get_state()->rand();
-  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(static_cast<Eigen::Index>(model->get_nu()));
 
   // Compute all the pinocchio function needed for the models.
   updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
@@ -119,7 +119,7 @@ void test_partial_derivatives_against_numdiff(CostModelTypes::Type cost_type, St
 
   // Generating random values for the state and control
   const Eigen::VectorXd& x = model->get_state()->rand();
-  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(static_cast<Eigen::Index>(model->get_nu()));
 
   // Compute all the pinocchio function needed for the models.
   updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
@@ -209,7 +209,7 @@ void test_partial_derivatives_in_cost_sum(CostModelTypes::Type cost_type, StateM
 
   // Generating random values for the state and control
   const Eigen::VectorXd& x = state->rand();
-  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(static_cast<Eigen::Index>(model->get_nu()));
 
   // Compute all the pinocchio function needed for the models.
   updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
