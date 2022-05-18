@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/com-velocity.hpp"
+#include "sobec/residual-com-velocity.hpp"
 #include <crocoddyl/core/utils/exception.hpp>
 #include <pinocchio/algorithm/center-of-mass.hpp>
 #include <pinocchio/algorithm/center-of-mass-derivatives.hpp>

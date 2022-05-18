@@ -1,7 +1,7 @@
 set(${PY_NAME}_SOURCES
   main.cpp
 
-  com-velocity.cpp
+  residual-com-velocity.cpp
   activation-quad-ref.cpp
   )
 

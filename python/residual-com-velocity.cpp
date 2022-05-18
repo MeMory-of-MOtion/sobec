@@ -9,7 +9,7 @@
 //#include "python/crocoddyl/multibody/multibody.hpp"
 //#include <crocoddyl/multibody/fwd.hpp>
 #include "sobec/fwd.hpp"
-#include "sobec/com-velocity.hpp"
+#include "sobec/residual-com-velocity.hpp"
 
 #include <pinocchio/fwd.hpp>
 //#include "python/crocoddyl/fwd.hpp"

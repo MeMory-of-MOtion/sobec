@@ -6,8 +6,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SOBEC_COM_VELOCITY_HPP_
-#define SOBEC_COM_VELOCITY_HPP_
+#ifndef SOBEC_RESIDUAL_COM_VELOCITY_HPP_
+#define SOBEC_RESIDUAL_COM_VELOCITY_HPP_
 
 #include "sobec/fwd.hpp"
 #include <crocoddyl/multibody/fwd.hpp>
@@ -146,6 +146,6 @@ struct ResidualDataCoMVelocityTpl : public ResidualDataAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 
-#include "sobec/com-velocity.hxx"
+#include "sobec/residual-com-velocity.hxx"
 
-#endif  // SOBEC_COM_VELOCITY_HPP_
+#endif  // SOBEC_RESIDUAL_COM_VELOCITY_HPP_

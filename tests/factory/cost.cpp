@@ -10,7 +10,7 @@
 #include <crocoddyl/core/costs/residual.hpp>
 #include <crocoddyl/core/residuals/control.hpp>
 #include <crocoddyl/multibody/residuals/com-position.hpp>
-#include "sobec/com-velocity.hpp"
+#include "sobec/residual-com-velocity.hpp"
 #include <crocoddyl/multibody/residuals/control-gravity.hpp>
 #include <crocoddyl/multibody/residuals/state.hpp>
 // #include "crocoddyl/multibody/residuals/centroidal-momentum.hpp"
