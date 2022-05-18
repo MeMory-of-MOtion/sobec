@@ -65,6 +65,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/com-velocity.hpp
   include/${PROJECT_NAME}/com-velocity.hxx
+  include/${PROJECT_NAME}/quadratic-ref.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES

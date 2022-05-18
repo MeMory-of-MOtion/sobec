@@ -12,12 +12,18 @@
 
 namespace sobec {
 
+// Cost COM-vel
 template <typename Scalar>
 class ResidualModelCoMVelocityTpl;
 template <typename Scalar>
 struct ResidualDataCoMVelocityTpl;
 typedef ResidualModelCoMVelocityTpl<double> ResidualModelCoMVelocity;
 typedef ResidualDataCoMVelocityTpl<double> ResidualDataCoMVelocity;
+
+// Activation quad-ref
+template <typename Scalar>
+class ActivationModelQuadRefTpl;
+typedef ActivationModelQuadRefTpl<double> ActivationModelQuadRef;
 
 }  // namespace sobec
 

@@ -18,7 +18,7 @@ namespace unittest {
 struct ActivationModelTypes {
   enum Type {
     ActivationModelQuad,
-    //ActivationModelQuadRef,
+    ActivationModelQuadRef,
     ActivationModelQuadFlatExp,
     ActivationModelQuadFlatLog,
     ActivationModelSmooth1Norm,

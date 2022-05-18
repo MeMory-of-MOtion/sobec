@@ -6,13 +6,18 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "python/crocoddyl/core/core.hpp"
-#include "python/crocoddyl/core/activation-base.hpp"
-#include "crocoddyl/core/activations/quadratic-ref.hpp"
+#include <boost/python.hpp>
+#include <boost/python/enum.hpp>
+// #include "python/crocoddyl/core/core.hpp"
+// #include "python/crocoddyl/core/activation-base.hpp"
+#include <crocoddyl/core/activation-base.hpp>
+#include "sobec/quadratic-ref.hpp"
 
-namespace crocoddyl {
+namespace sobec {
 namespace python {
+namespace bp = boost::python;
 
+ 
 void exposeActivationQuadRef() {
   bp::class_<ActivationModelQuadRef, bp::bases<ActivationModelAbstract> >(
       "ActivationModelQuadRef",
@@ -40,4 +45,4 @@ void exposeActivationQuadRef() {
 }
 
 }  // namespace python
-}  // namespace crocoddyl
+}  // namespace sobec

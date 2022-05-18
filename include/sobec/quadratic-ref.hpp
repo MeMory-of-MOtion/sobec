@@ -6,16 +6,18 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
-#define CROCODDYL_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
+#ifndef SOBEC_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
+#define SOBEC_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
 
 #include <stdexcept>
-#include "crocoddyl/core/fwd.hpp"
-#include "crocoddyl/core/activation-base.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
+#include <crocoddyl/core/fwd.hpp>
+#include <crocoddyl/core/activation-base.hpp>
+#include <crocoddyl/core/utils/exception.hpp>
+#include "sobec/fwd.hpp"
 
-namespace crocoddyl {
-
+namespace sobec {
+using namespace crocoddyl;
+  
 template <typename _Scalar>
 class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
  public:
@@ -75,6 +77,6 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
   VectorXs ref;
 };
 
-}  // namespace crocoddyl
+}  // namespace sobec
 
-#endif  // CROCODDYL_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
+#endif  // SOBEC_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_

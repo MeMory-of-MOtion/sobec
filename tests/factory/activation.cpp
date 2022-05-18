@@ -17,6 +17,7 @@
 #include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/activations/weighted-quadratic-barrier.hpp>
 #include <crocoddyl/core/activations/2norm-barrier.hpp>
+#include "sobec/quadratic-ref.hpp"
 #include <crocoddyl/core/utils/exception.hpp>
 #include "random_generator.hpp"
 
@@ -31,9 +32,9 @@ std::ostream& operator<<(std::ostream& os, ActivationModelTypes::Type type) {
     case ActivationModelTypes::ActivationModelQuad:
       os << "ActivationModelQuad";
       break;
-    // case ActivationModelTypes::ActivationModelQuadRef:
-    //   os << "ActivationModelQuadRef";
-    //   break;
+    case ActivationModelTypes::ActivationModelQuadRef:
+      os << "ActivationModelQuadRef";
+      break;
     case ActivationModelTypes::ActivationModelQuadFlatExp:
       os << "ActivationModelQuadFlatExp";
       break;
@@ -85,9 +86,9 @@ boost::shared_ptr<crocoddyl::ActivationModelAbstract> ActivationModelFactory::cr
     case ActivationModelTypes::ActivationModelQuad:
       activation = boost::make_shared<crocoddyl::ActivationModelQuad>(nr);
       break;
-    // case ActivationModelTypes::ActivationModelQuadRef:
-    //   activation = boost::make_shared<crocoddyl::ActivationModelQuadRef>(lb);
-    //   break;
+    case ActivationModelTypes::ActivationModelQuadRef:
+      activation = boost::make_shared<sobec::ActivationModelQuadRef>(lb);
+      break;
     case ActivationModelTypes::ActivationModelQuadFlatExp:
       activation = boost::make_shared<crocoddyl::ActivationModelQuadFlatExp>(nr, alpha);
       break;

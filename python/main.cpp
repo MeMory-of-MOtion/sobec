@@ -9,5 +9,6 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::exposeActionUniEx();
   //gepetto::sobec::exposeSobec();
   sobec::python::exposeResidualCoMVelocity();
+  sobec::python::exposeActivationQuadRef();
 }
 

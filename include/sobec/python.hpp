@@ -14,6 +14,7 @@ void exposeExamplePin();
 void exposeActionUniEx();
 namespace python{
 void exposeResidualCoMVelocity();
+void exposeActivationQuadRef();
 }  // namespace python
 }  // namespace sobec
 
