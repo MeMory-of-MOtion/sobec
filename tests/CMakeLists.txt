@@ -9,19 +9,7 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}_unittest ${PROJECT_NAME} crocoddyl::crocod
 
 add_definitions(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
-ADD_UNIT_TEST(add add.cpp)
-target_link_libraries(add ${PROJECT_NAME})
-
-ADD_UNIT_TEST(boost_add boost_add.cpp)
-target_link_libraries(boost_add ${PROJECT_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-
-ADD_UNIT_TEST(boost_pin boost_pin)
-target_link_libraries(boost_pin ${PROJECT_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-
-ADD_UNIT_TEST(boost_croco boost_croco)
-target_link_libraries(boost_croco ${PROJECT_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-
-ADD_UNIT_TEST(test_costs test_costs)
+ADD_UNIT_TEST(test_costs costs)
 target_link_libraries(test_costs ${PROJECT_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 target_link_libraries(test_costs ${PROJECT_NAME} ${PROJECT_NAME}_unittest)
 

@@ -366,7 +366,7 @@ us = ddp.us
 ##################################################################################
 
 # Start the client for PyBullet
-physicsClient = p.connect(p.GUI)
+physicsClient = p.connect(p.DIRECT)
 #p.resetSimulation()
 p.setTimeStep(1e-3)
 # Set gravity (disabled by default)

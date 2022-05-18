@@ -57,21 +57,16 @@ endif()
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
-  include/${PROJECT_NAME}/croco.hpp
-  include/${PROJECT_NAME}/gepadd.hpp
-  include/${PROJECT_NAME}/pin.hpp
   include/${PROJECT_NAME}/python.hpp
-
   include/${PROJECT_NAME}/fwd.hpp
+
   include/${PROJECT_NAME}/com-velocity.hpp
   include/${PROJECT_NAME}/com-velocity.hxx
   include/${PROJECT_NAME}/quadratic-ref.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
-  src/gepadd.cpp
-  src/pin.cpp
-  src/croco.cpp
+  src/sobec.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

@@ -1,8 +1,5 @@
 set(${PY_NAME}_SOURCES
-  croco.cpp
-  gepadd.cpp
   main.cpp
-  pin.cpp
 
   com-velocity.cpp
   quadratic-ref.cpp
