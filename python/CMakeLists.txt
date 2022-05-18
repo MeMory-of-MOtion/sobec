@@ -2,7 +2,7 @@ set(${PY_NAME}_SOURCES
   main.cpp
 
   com-velocity.cpp
-  quadratic-ref.cpp
+  activation-quad-ref.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})

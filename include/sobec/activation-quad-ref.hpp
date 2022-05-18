@@ -6,8 +6,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SOBEC_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
-#define SOBEC_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
+#ifndef SOBEC_ACTIVATION_QUAD_REF_HPP_
+#define SOBEC_ACTIVATION_QUAD_REF_HPP_
 
 #include <stdexcept>
 #include <crocoddyl/core/fwd.hpp>
@@ -79,4 +79,4 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
 
 }  // namespace sobec
 
-#endif  // SOBEC_CORE_ACTIVATIONS_QUADRATIC_REF_HPP_
+#endif  // SOBEC_ACTIVATION_QUAD_REF_HPP_

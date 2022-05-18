@@ -17,7 +17,7 @@
 #include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/activations/weighted-quadratic-barrier.hpp>
 #include <crocoddyl/core/activations/2norm-barrier.hpp>
-#include "sobec/quadratic-ref.hpp"
+#include "sobec/activation-quad-ref.hpp"
 #include <crocoddyl/core/utils/exception.hpp>
 #include "random_generator.hpp"
 

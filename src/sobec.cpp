@@ -1,4 +1,4 @@
 #include "sobec/com-velocity.hpp"
-#include "sobec/quadratic-ref.hpp"
+#include "sobec/activation-quad-ref.hpp"
 
 

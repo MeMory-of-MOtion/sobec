@@ -62,7 +62,7 @@ set(${PROJECT_NAME}_HEADERS
 
   include/${PROJECT_NAME}/com-velocity.hpp
   include/${PROJECT_NAME}/com-velocity.hxx
-  include/${PROJECT_NAME}/quadratic-ref.hpp
+  include/${PROJECT_NAME}/activation-quad-ref.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES

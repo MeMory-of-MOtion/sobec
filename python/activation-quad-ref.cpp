@@ -11,7 +11,7 @@
 // #include "python/crocoddyl/core/core.hpp"
 // #include "python/crocoddyl/core/activation-base.hpp"
 #include <crocoddyl/core/activation-base.hpp>
-#include "sobec/quadratic-ref.hpp"
+#include "sobec/activation-quad-ref.hpp"
 
 namespace sobec {
 namespace python {
