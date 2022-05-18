@@ -6,15 +6,15 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_STATE_FACTORY_HPP_
-#define CROCODDYL_STATE_FACTORY_HPP_
+#ifndef SOBEC_STATE_FACTORY_HPP_
+#define SOBEC_STATE_FACTORY_HPP_
 
 #include "pinocchio_model.hpp"
-#include "crocoddyl/core/state-base.hpp"
-#include "crocoddyl/core/numdiff/state.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
+#include <crocoddyl/core/state-base.hpp>
+#include <crocoddyl/core/numdiff/state.hpp>
+#include <crocoddyl/core/utils/exception.hpp>
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
 
 struct StateModelTypes {
@@ -50,6 +50,6 @@ class StateModelFactory {
 };
 
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec
 
-#endif  // CROCODDYL_STATE_FACTORY_HPP_
+#endif  // SOBEC_STATE_FACTORY_HPP_

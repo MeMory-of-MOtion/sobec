@@ -37,10 +37,16 @@ include("${JRL_CMAKE_MODULES}/python.cmake")
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
+SET(CXX_DISABLE_WERROR True)
+ADD_COMPILE_OPTIONS(-Wno-error)
+
 # Project dependencies
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-#ADD_PROJECT_DEPENDENCY(pinocchio REQUIRED)
+#ADD_PROJECT_DEPENDENCY(pinocchio 2.4.7 REQUIRED PKG_CONFIG_REQUIRES "pinocchio >= 2.4.7")
 ADD_PROJECT_DEPENDENCY(crocoddyl REQUIRED)
+#ADD_PROJECT_DEPENDENCY(crocoddyl 1.8.0 REQUIRED PKG_CONFIG_REQUIRES "crocoddyl >= 1.8.0")
+#ADD_PROJECT_DEPENDENCY(eigenpy 2.6.4 REQUIRED PKG_CONFIG_REQUIRES "eigenpy >= 2.6.4")
+#ADD_PROJECT_DEPENDENCY(example-robot-data 3.7.0 REQUIRED PKG_CONFIG_REQUIRES "example-robot-data >= 3.7.0")
 
 if(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
@@ -55,7 +61,11 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/gepadd.hpp
   include/${PROJECT_NAME}/pin.hpp
   include/${PROJECT_NAME}/python.hpp
-  )
+
+  include/${PROJECT_NAME}/fwd.hpp
+  include/${PROJECT_NAME}/com-velocity.hpp
+  include/${PROJECT_NAME}/com-velocity.hxx
+)
 
 set(${PROJECT_NAME}_SOURCES
   src/gepadd.cpp
@@ -67,6 +77,7 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
 #target_link_libraries(${PROJECT_NAME} PUBLIC pinocchio::pinocchio)
 target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
+#target_link_libraries(${PROJECT_NAME} eigenpy::eigenpy)
 
 if(SUFFIX_SO_VERSION)
   set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION})

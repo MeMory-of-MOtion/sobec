@@ -20,12 +20,14 @@
 
 #include <example-robot-data/path.hpp>
 
+#include <crocoddyl/core/utils/exception.hpp>
+
 #include "pinocchio_model.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
-
+using namespace crocoddyl;
+  
 const std::vector<PinocchioModelTypes::Type> PinocchioModelTypes::all(PinocchioModelTypes::init_all());
 
 std::ostream& operator<<(std::ostream& os, PinocchioModelTypes::Type type) {
@@ -142,4 +144,4 @@ void updateAllPinocchio(pinocchio::Model* const model, pinocchio::Data* data, co
 }
 
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec

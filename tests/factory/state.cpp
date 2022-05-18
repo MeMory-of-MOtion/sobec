@@ -11,14 +11,16 @@
 #include <pinocchio/parsers/sample-models.hpp>
 #include <example-robot-data/path.hpp>
 
+#include <crocoddyl/core/states/euclidean.hpp>
+#include <crocoddyl/multibody/states/multibody.hpp>
+#include <crocoddyl/core/utils/exception.hpp>
+
 #include "state.hpp"
-#include "crocoddyl/core/states/euclidean.hpp"
-#include "crocoddyl/multibody/states/multibody.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
-
+using namespace crocoddyl;
+  
 const std::vector<StateModelTypes::Type> StateModelTypes::all(StateModelTypes::init_all());
 
 std::ostream& operator<<(std::ostream& os, StateModelTypes::Type type) {
@@ -81,4 +83,4 @@ boost::shared_ptr<crocoddyl::StateAbstract> StateModelFactory::create(StateModel
 }
 
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec

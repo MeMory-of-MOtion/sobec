@@ -6,11 +6,23 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "python/crocoddyl/multibody/multibody.hpp"
-#include "crocoddyl/multibody/residuals/com-velocity.hpp"
+//#include "python/crocoddyl/multibody/multibody.hpp"
+//#include <crocoddyl/multibody/fwd.hpp>
+#include "sobec/fwd.hpp"
+#include "sobec/com-velocity.hpp"
 
-namespace crocoddyl {
+#include <pinocchio/fwd.hpp>
+//#include "python/crocoddyl/fwd.hpp"
+#include <eigenpy/eigenpy.hpp>
+#include <boost/python.hpp>
+#include <boost/python/enum.hpp>
+
+namespace sobec {
 namespace python {
+
+using namespace crocoddyl;
+//using namespace crocoddyl::python;
+namespace bp = boost::python;
 
 void exposeResidualCoMVelocity() {
   bp::register_ptr_to_python<boost::shared_ptr<ResidualModelCoMVelocity> >();
@@ -80,4 +92,4 @@ void exposeResidualCoMVelocity() {
 }
 
 }  // namespace python
-}  // namespace crocoddyl
+}  // namespace sobec

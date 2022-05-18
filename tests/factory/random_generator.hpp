@@ -6,8 +6,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_RANDOM_GENERATOR_HPP_
-#define CROCODDYL_RANDOM_GENERATOR_HPP_
+#ifndef SOBEC_RANDOM_GENERATOR_HPP_
+#define SOBEC_RANDOM_GENERATOR_HPP_
 
 #include <boost/bind.hpp>
 #include <Eigen/Dense>
@@ -21,7 +21,7 @@ std::mt19937 rng;
 boost::random::mt19937 rng;
 #endif
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
 
 template <typename IntType>
@@ -48,6 +48,6 @@ bool random_boolean() {
 }
 
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec
 
-#endif  // CROCODDYL_RANDOM_GENERATOR_HPP_
+#endif  // SOBEC_RANDOM_GENERATOR_HPP_

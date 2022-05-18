@@ -12,6 +12,10 @@ namespace sobec {
 void exposeExampleAdder();
 void exposeExamplePin();
 void exposeActionUniEx();
+namespace python{
+void exposeResidualCoMVelocity();
+}  // namespace python
 }  // namespace sobec
+
 
 #endif

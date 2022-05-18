@@ -6,8 +6,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_PINOCCHIO_MODEL_FACTORY_HPP_
-#define CROCODDYL_PINOCCHIO_MODEL_FACTORY_HPP_
+#ifndef SOBEC_PINOCCHIO_MODEL_FACTORY_HPP_
+#define SOBEC_PINOCCHIO_MODEL_FACTORY_HPP_
 
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/algorithm/frames.hpp>
@@ -23,9 +23,9 @@
 
 #include <example-robot-data/path.hpp>
 
-#include "crocoddyl/core/utils/exception.hpp"
+#include <crocoddyl/core/utils/exception.hpp>
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
 
 struct PinocchioModelTypes {
@@ -78,6 +78,6 @@ void updateAllPinocchio(pinocchio::Model* const model, pinocchio::Data* data, co
                         const Eigen::VectorXd& u = Eigen::VectorXd());
 
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec
 
-#endif  // CROCODDYL_PINOCCHIO_MODEL_FACTORY_HPP_
+#endif  // SOBEC_PINOCCHIO_MODEL_FACTORY_HPP_

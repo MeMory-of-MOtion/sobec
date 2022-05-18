@@ -6,16 +6,17 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_MULTIBODY_RESIDUALS_COM_VELOCITY_HPP_
-#define CROCODDYL_MULTIBODY_RESIDUALS_COM_VELOCITY_HPP_
+#ifndef SOBEC_COM_VELOCITY_HPP_
+#define SOBEC_COM_VELOCITY_HPP_
 
-#include "crocoddyl/multibody/fwd.hpp"
-#include "crocoddyl/core/residual-base.hpp"
-#include "crocoddyl/multibody/states/multibody.hpp"
-#include "crocoddyl/multibody/data/multibody.hpp"
+#include "sobec/fwd.hpp"
+#include <crocoddyl/multibody/fwd.hpp>
+#include <crocoddyl/core/residual-base.hpp>
+#include <crocoddyl/multibody/states/multibody.hpp>
+#include <crocoddyl/multibody/data/multibody.hpp>
 
-namespace crocoddyl {
-
+namespace sobec {
+using namespace crocoddyl;
 /**
  * @brief CoM velocity residual
  *
@@ -139,11 +140,12 @@ struct ResidualDataCoMVelocityTpl : public ResidualDataAbstractTpl<_Scalar> {
   using Base::shared;
 };
 
-}  // namespace crocoddyl
+}  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "crocoddyl/multibody/residuals/com-velocity.hxx"
 
-#endif  // CROCODDYL_MULTIBODY_RESIDUALS_COM_VELOCITY_HPP_
+#include "sobec/com-velocity.hxx"
+
+#endif  // SOBEC_COM_VELOCITY_HPP_

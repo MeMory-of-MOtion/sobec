@@ -6,30 +6,32 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_COST_FACTORY_HPP_
-#define CROCODDYL_COST_FACTORY_HPP_
+#ifndef SOBEC_COST_FACTORY_HPP_
+#define SOBEC_COST_FACTORY_HPP_
+
+#include <crocoddyl/core/cost-base.hpp>
+#include <crocoddyl/core/costs/cost-sum.hpp>
+#include <crocoddyl/core/numdiff/cost.hpp>
+#include <crocoddyl/multibody/states/multibody.hpp>
 
 #include "activation.hpp"
-#include "crocoddyl/core/cost-base.hpp"
-#include "crocoddyl/core/costs/cost-sum.hpp"
-#include "crocoddyl/core/numdiff/cost.hpp"
-#include "crocoddyl/multibody/states/multibody.hpp"
 #include "state.hpp"
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
 
+using namespace crocoddyl;
+  
 struct CostModelTypes {
   enum Type {
-    CostModelResidualState,
-    CostModelResidualControl,
-    CostModelResidualCoMPosition,
+    // CostModelResidualState,
+    // CostModelResidualControl,
+    // CostModelResidualCoMPosition,
     CostModelResidualCoMVelocity,
-    // CostModelResidualCentroidalMomentum,  // @todo Figure out the pinocchio callbacks.
-    CostModelResidualFramePlacement,
-    CostModelResidualFrameRotation,
-    CostModelResidualFrameTranslation,
-    CostModelResidualFrameVelocity,
+    // CostModelResidualFramePlacement,
+    // CostModelResidualFrameRotation,
+    // CostModelResidualFrameTranslation,
+    // CostModelResidualFrameVelocity,
     NbCostModelTypes
   };
   static std::vector<Type> init_all() {
@@ -80,6 +82,6 @@ class CostModelFactory {
 boost::shared_ptr<crocoddyl::CostModelAbstract> create_random_cost(
     StateModelTypes::Type state_type, std::size_t nu = std::numeric_limits<std::size_t>::max());
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec
 
-#endif  // CROCODDYL_COST_FACTORY_HPP_
+#endif  // SOBEC_COST_FACTORY_HPP_

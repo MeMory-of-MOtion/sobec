@@ -6,19 +6,19 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_ACTIVATION_FACTORY_HPP_
-#define CROCODDYL_ACTIVATION_FACTORY_HPP_
+#ifndef SOBEC_ACTIVATION_FACTORY_HPP_
+#define SOBEC_ACTIVATION_FACTORY_HPP_
 
-#include "crocoddyl/core/activation-base.hpp"
-#include "crocoddyl/core/numdiff/activation.hpp"
+#include <crocoddyl/core/activation-base.hpp>
+#include <crocoddyl/core/numdiff/activation.hpp>
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
 
 struct ActivationModelTypes {
   enum Type {
     ActivationModelQuad,
-    ActivationModelQuadRef,
+    //ActivationModelQuadRef,
     ActivationModelQuadFlatExp,
     ActivationModelQuadFlatLog,
     ActivationModelSmooth1Norm,
@@ -54,6 +54,6 @@ class ActivationModelFactory {
 };
 
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec
 
-#endif  // CROCODDYL_ACTIVATION_FACTORY_HPP_
+#endif  // SOBEC_ACTIVATION_FACTORY_HPP_

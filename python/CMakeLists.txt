@@ -3,9 +3,12 @@ set(${PY_NAME}_SOURCES
   gepadd.cpp
   main.cpp
   pin.cpp
+
+  com-velocity.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
+target_link_libraries(${PY_NAME}_pywrap PUBLIC eigenpy::eigenpy)
 target_link_libraries(${PY_NAME}_pywrap PUBLIC ${PROJECT_NAME})
 target_include_directories(${PY_NAME}_pywrap SYSTEM PRIVATE ${PYTHON_INCLUDE_DIR})
 set_target_properties(${PY_NAME}_pywrap PROPERTIES

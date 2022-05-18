@@ -7,23 +7,23 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "activation.hpp"
-#include "crocoddyl/core/activations/quadratic.hpp"
-#include "crocoddyl/core/activations/quadratic-ref.hpp"
-#include "crocoddyl/core/activations/quadratic-flat-exp.hpp"
-#include "crocoddyl/core/activations/quadratic-flat-log.hpp"
-#include "crocoddyl/core/activations/2norm-barrier.hpp"
-#include "crocoddyl/core/activations/smooth-1norm.hpp"
-#include "crocoddyl/core/activations/smooth-2norm.hpp"
-#include "crocoddyl/core/activations/weighted-quadratic.hpp"
-#include "crocoddyl/core/activations/quadratic-barrier.hpp"
-#include "crocoddyl/core/activations/weighted-quadratic-barrier.hpp"
-#include "crocoddyl/core/activations/2norm-barrier.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
-#include "../random_generator.hpp"
+#include <crocoddyl/core/activations/quadratic.hpp>
+#include <crocoddyl/core/activations/quadratic-flat-exp.hpp>
+#include <crocoddyl/core/activations/quadratic-flat-log.hpp>
+#include <crocoddyl/core/activations/2norm-barrier.hpp>
+#include <crocoddyl/core/activations/smooth-1norm.hpp>
+#include <crocoddyl/core/activations/smooth-2norm.hpp>
+#include <crocoddyl/core/activations/weighted-quadratic.hpp>
+#include <crocoddyl/core/activations/quadratic-barrier.hpp>
+#include <crocoddyl/core/activations/weighted-quadratic-barrier.hpp>
+#include <crocoddyl/core/activations/2norm-barrier.hpp>
+#include <crocoddyl/core/utils/exception.hpp>
+#include "random_generator.hpp"
 
-namespace crocoddyl {
+namespace sobec {
 namespace unittest {
-
+using namespace crocoddyl;
+  
 const std::vector<ActivationModelTypes::Type> ActivationModelTypes::all(ActivationModelTypes::init_all());
 
 std::ostream& operator<<(std::ostream& os, ActivationModelTypes::Type type) {
@@ -31,9 +31,9 @@ std::ostream& operator<<(std::ostream& os, ActivationModelTypes::Type type) {
     case ActivationModelTypes::ActivationModelQuad:
       os << "ActivationModelQuad";
       break;
-    case ActivationModelTypes::ActivationModelQuadRef:
-      os << "ActivationModelQuadRef";
-      break;
+    // case ActivationModelTypes::ActivationModelQuadRef:
+    //   os << "ActivationModelQuadRef";
+    //   break;
     case ActivationModelTypes::ActivationModelQuadFlatExp:
       os << "ActivationModelQuadFlatExp";
       break;
@@ -85,9 +85,9 @@ boost::shared_ptr<crocoddyl::ActivationModelAbstract> ActivationModelFactory::cr
     case ActivationModelTypes::ActivationModelQuad:
       activation = boost::make_shared<crocoddyl::ActivationModelQuad>(nr);
       break;
-    case ActivationModelTypes::ActivationModelQuadRef:
-      activation = boost::make_shared<crocoddyl::ActivationModelQuadRef>(lb);
-      break;
+    // case ActivationModelTypes::ActivationModelQuadRef:
+    //   activation = boost::make_shared<crocoddyl::ActivationModelQuadRef>(lb);
+    //   break;
     case ActivationModelTypes::ActivationModelQuadFlatExp:
       activation = boost::make_shared<crocoddyl::ActivationModelQuadFlatExp>(nr, alpha);
       break;
@@ -121,4 +121,4 @@ boost::shared_ptr<crocoddyl::ActivationModelAbstract> ActivationModelFactory::cr
 }
 
 }  // namespace unittest
-}  // namespace crocoddyl
+}  // namespace sobec

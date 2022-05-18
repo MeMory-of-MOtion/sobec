@@ -6,13 +6,13 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "crocoddyl/multibody/residuals/com-velocity.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
-#include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/algorithm/center-of-mass-derivatives.hpp"
+#include "sobec/com-velocity.hpp"
+#include <crocoddyl/core/utils/exception.hpp>
+#include <pinocchio/algorithm/center-of-mass.hpp>
+#include <pinocchio/algorithm/center-of-mass-derivatives.hpp>
 
-namespace crocoddyl {
-
+namespace sobec {
+using namespace crocoddyl;
 template <typename Scalar>
 ResidualModelCoMVelocityTpl<Scalar>::ResidualModelCoMVelocityTpl(boost::shared_ptr<StateMultibody> state,
                                                                  const Vector3s& vref, const std::size_t nu)
@@ -69,4 +69,4 @@ void ResidualModelCoMVelocityTpl<Scalar>::set_reference(const Vector3s& vref) {
   vref_ = vref;
 }
 
-}  // namespace crocoddyl
+}  // namespace sobec

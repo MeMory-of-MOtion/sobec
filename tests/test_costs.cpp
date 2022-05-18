@@ -8,21 +8,26 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
+// This file is a near direct copy of crocoddyl/unittest/test_cost.cpp
+
+
 #define BOOST_TEST_NO_MAIN
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 
-#include "crocoddyl/multibody/data/multibody.hpp"
+#include <crocoddyl/multibody/data/multibody.hpp>
 
 #include "factory/cost.hpp"
-#include "unittest_common.hpp"
+#include "factory/pinocchio_model.hpp"
+#include "common.hpp"
 
 using namespace boost::unit_test;
-using namespace crocoddyl::unittest;
+using namespace sobec::unittest;
 
 //----------------------------------------------------------------------------//
 
 void test_calc_returns_a_cost(CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
                               ActivationModelTypes::Type activation_type) {
+  std::cout<<"IN "<<__func__<< " with " << cost_type << " :: " << state_type << " :: " << activation_type << std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -46,7 +51,7 @@ void test_calc_returns_a_cost(CostModelTypes::Type cost_type, StateModelTypes::T
   const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
 
   // Compute all the pinocchio function needed for the models.
-  crocoddyl::unittest::updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
+  updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
 
   // Getting the cost value computed by calc()
   model->calc(data, x, u);
@@ -57,6 +62,7 @@ void test_calc_returns_a_cost(CostModelTypes::Type cost_type, StateModelTypes::T
 
 void test_calc_against_numdiff(CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
                                ActivationModelTypes::Type activation_type) {
+  std::cout<<"IN "<<__func__<< " with " << cost_type << " :: " << state_type << " :: " << activation_type << std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -79,7 +85,7 @@ void test_calc_against_numdiff(CostModelTypes::Type cost_type, StateModelTypes::
   const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
 
   // Compute all the pinocchio function needed for the models.
-  crocoddyl::unittest::updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
+  updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
 
   // Computing the cost derivatives
   model->calc(data, x, u);
@@ -92,6 +98,7 @@ void test_calc_against_numdiff(CostModelTypes::Type cost_type, StateModelTypes::
 
 void test_partial_derivatives_against_numdiff(CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
                                               ActivationModelTypes::Type activation_type) {
+  std::cout<<"IN "<<__func__<< " with " << cost_type << " :: " << state_type << " :: " << activation_type << std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -114,11 +121,11 @@ void test_partial_derivatives_against_numdiff(CostModelTypes::Type cost_type, St
   const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
 
   // Compute all the pinocchio function needed for the models.
-  crocoddyl::unittest::updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
+  updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
 
   // set the function that needs to be called at every step of the numdiff
   std::vector<crocoddyl::CostModelNumDiff::ReevaluationFunction> reevals;
-  reevals.push_back(boost::bind(&crocoddyl::unittest::updateAllPinocchio, &pinocchio_model, &pinocchio_data, _1, _2));
+  reevals.push_back(boost::bind(&updateAllPinocchio, &pinocchio_model, &pinocchio_data, _1, _2));
   model_num_diff.set_reevals(reevals);
 
   // Computing the cost derivatives
@@ -147,6 +154,7 @@ void test_partial_derivatives_against_numdiff(CostModelTypes::Type cost_type, St
 
 void test_dimensions_in_cost_sum(CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
                                  ActivationModelTypes::Type activation_type) {
+  std::cout<<"IN "<<__func__<< " with " << cost_type << " :: " << state_type << " :: " << activation_type << std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -167,7 +175,7 @@ void test_dimensions_in_cost_sum(CostModelTypes::Type cost_type, StateModelTypes
   const Eigen::VectorXd& x = state->rand();
 
   // Compute all the pinocchio function needed for the models.
-  crocoddyl::unittest::updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
+  updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
 
   BOOST_CHECK(model->get_state()->get_nx() == cost_sum.get_state()->get_nx());
   BOOST_CHECK(model->get_state()->get_ndx() == cost_sum.get_state()->get_ndx());
@@ -179,6 +187,7 @@ void test_dimensions_in_cost_sum(CostModelTypes::Type cost_type, StateModelTypes
 
 void test_partial_derivatives_in_cost_sum(CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
                                           ActivationModelTypes::Type activation_type) {
+  std::cout<<"IN "<<__func__<< " with " << cost_type << " :: " << state_type << " :: " << activation_type << std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -202,7 +211,7 @@ void test_partial_derivatives_in_cost_sum(CostModelTypes::Type cost_type, StateM
   const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
 
   // Compute all the pinocchio function needed for the models.
-  crocoddyl::unittest::updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
+  updateAllPinocchio(&pinocchio_model, &pinocchio_data, x);
 
   // Computing the cost derivatives
   model->calc(data, x, u);
@@ -230,7 +239,7 @@ void register_cost_model_unit_tests(CostModelTypes::Type cost_type, StateModelTy
   ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, cost_type, state_type, activation_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_against_numdiff, cost_type, state_type, activation_type)));
   ts->add(
-      BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_against_numdiff, cost_type, state_type, activation_type)));
+          BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_against_numdiff, cost_type, state_type, activation_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_dimensions_in_cost_sum, cost_type, state_type, activation_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_in_cost_sum, cost_type, state_type, activation_type)));
   framework::master_test_suite().add(ts);
