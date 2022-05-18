@@ -49,7 +49,7 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
 
     data->Ar = r - ref;
     // The Hessian has constant values which were set in createData.
-    assert_pretty(MatrixXs(data->Arr.diagonal().asDiagonal()).isApprox(MatrixXs::Identity(nr_, nr_)),
+    assert_pretty(MatrixXs(data->Arr.diagonal().asDiagonal()).isApprox(MatrixXs::Identity(static_cast<Eigen::Index>(nr_), static_cast<Eigen::Index>(nr_))),
                   "Arr has wrong value");
   };
 
