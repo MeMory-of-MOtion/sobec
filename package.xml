@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>example-adder</name>
-  <version>4.0.2</version>
-  <description>Example project</description>
+  <name>sobec</name>
+  <version>0.0.1</version>
+  <description>Sandbox for optimal control explicitely for bipeds</description>
   <maintainer email="guilhem.saurel@laas.fr">Guilhem Saurel</maintainer>
-  <author email="guilhem.saurel@laas.fr">Guilhem Saurel</author>
+  <author email="guilhem.saurel@laas.fr">Nicolas Mansard, Ewen Dantec, Sebastien Kleff and others</author>
   <license>BSD</license>
 
-  <url type="website">https://github.com/gepetto/example-adder</url>
+  <url type="website">https://github.com/memory-of-motion/sobec</url>
 
   <build_depend>git</build_depend>
   <build_depend>doxygen</build_depend>

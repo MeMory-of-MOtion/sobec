@@ -1,9 +1,7 @@
-#include "example-adder/gepadd.hpp"
+#include "sobec/gepadd.hpp"
 
-namespace gepetto {
-namespace example {
+namespace sobec {
 long add(const long a, const long b) { return a + b; }
 
 long sub(const long a, const long b) { return a - b; }
-}  // namespace example
-}  // namespace gepetto
+}  // namespace sobec

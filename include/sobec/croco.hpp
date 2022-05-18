@@ -7,8 +7,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __example_adder_croco__
-#define __example_adder_croco__
+#ifndef __sobec_croco__
+#define __sobec_croco__
 
 #include <stdexcept>
 
@@ -16,8 +16,7 @@
 #include "crocoddyl/core/action-base.hpp"
 #include "crocoddyl/core/states/euclidean.hpp"
 
-namespace gepetto {
-namespace example {
+namespace sobec {
 
 using namespace crocoddyl;
 
@@ -92,9 +91,8 @@ struct ActionDataUniExTpl : public ActionDataAbstractTpl<_Scalar> {
   }
 };
 
-}  // namespace example
-}  // namespace gepetto
+}  // namespace sobec
 
-#include "example-adder/croco.hxx"
+#include "sobec/croco.hxx"
 
 #endif

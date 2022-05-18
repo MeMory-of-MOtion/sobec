@@ -7,13 +7,12 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "example-adder/python.hpp"
-#include "example-adder/croco.hpp"
+#include "sobec/python.hpp"
+#include "sobec/croco.hpp"
 
 #include <boost/python.hpp>
 
-namespace gepetto {
-namespace example {
+namespace sobec {
 
 namespace bp = boost::python;
 
@@ -74,5 +73,4 @@ void exposeActionUniEx() {
                                   ":param model: unicycle action model"));
 }
 
-}  // namespace example
-}  // namespace gepetto
+}  // namespace sobec

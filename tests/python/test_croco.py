@@ -2,13 +2,14 @@ import unittest
 
 import crocoddyl
 import numpy as np
+np.random.seed(2)
 
-import example_adder as exa
+import sobec
 
 
 class TestAdderPin(unittest.TestCase):
     def test_uniex(self):
-        model = exa.ActionModelUniEx()
+        model = sobec.ActionModelUniEx()
         problem = crocoddyl.ShootingProblem(np.random.rand(3), [model] * 20, model)
         solver = crocoddyl.SolverDDP(problem)
 

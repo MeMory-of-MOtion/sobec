@@ -1,7 +1,6 @@
-#include "example-adder/pin.hpp"
+#include "sobec/pin.hpp"
 
-namespace gepetto {
-namespace example {
+namespace sobec {
 SE3 adds(const SE3 &a, const SE3 &b) {
   SE3 ret;
   ret = a * b;
@@ -12,5 +11,4 @@ SE3 subs(const SE3 &a, const SE3 &b) {
   ret = a.inverse() * b;
   return ret;
 }
-}  // namespace example
-}  // namespace gepetto
+}  // namespace sobec

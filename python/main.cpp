@@ -1,7 +1,7 @@
-#include "example-adder/python.hpp"
+#include "sobec/python.hpp"
 
-BOOST_PYTHON_MODULE(example_adder_pywrap) {
-  gepetto::example::exposeExampleAdder();
-  gepetto::example::exposeExamplePin();
-  gepetto::example::exposeActionUniEx();
+BOOST_PYTHON_MODULE(sobec_pywrap) {
+  sobec::exposeExampleAdder();
+  sobec::exposeExamplePin();
+  sobec::exposeActionUniEx();
 }

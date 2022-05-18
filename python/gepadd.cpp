@@ -1,10 +1,8 @@
-#include "example-adder/python.hpp"
+#include "sobec/python.hpp"
 
-namespace gepetto {
-namespace example {
+namespace sobec {
 void exposeExampleAdder() {
   boost::python::def("add", add);
   boost::python::def("sub", sub);
 }
-}  // namespace example
-}  // namespace gepetto
+}  // namespace sobec

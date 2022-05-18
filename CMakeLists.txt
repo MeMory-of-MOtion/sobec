@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 
 # Project properties
-set(PROJECT_NAMESPACE gepetto)
-set(PROJECT_NAME example-adder)
-set(PROJECT_DESCRIPTION "This is an example project, to show how to use Gepetto's tools")
+set(PROJECT_NAMESPACE memory-of-motion)
+set(PROJECT_NAME sobec)
+set(PROJECT_DESCRIPTION "Sandbox for optimal control explicitely for bipeds")
 set(PROJECT_URL https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME})
 
 # Project options

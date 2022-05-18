@@ -9,8 +9,7 @@
 
 #include "crocoddyl/core/utils/exception.hpp"
 
-namespace gepetto {
-namespace example {
+namespace sobec {
 template <typename Scalar>
 ActionModelUniExTpl<Scalar>::ActionModelUniExTpl()
     : ActionModelAbstractTpl<Scalar>(boost::make_shared<StateVectorTpl<Scalar> >(3), 2, 5), dt_(Scalar(0.1)) {
@@ -88,5 +87,4 @@ void ActionModelUniExTpl<Scalar>::set_cost_weights(const typename MathBase::Vect
   cost_weights_ = weights;
 }
 
-}  // namespace example
-}  // namespace gepetto
+}  // namespace sobec

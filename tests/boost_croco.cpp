@@ -2,12 +2,12 @@
 
 #include "crocoddyl/core/optctrl/shooting.hpp"
 #include "crocoddyl/core/solvers/ddp.hpp"
-#include "example-adder/croco.hpp"
+#include "sobec/croco.hpp"
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_boost_add_se3) {
-  using namespace gepetto::example;
+  using namespace sobec;
 
   const boost::shared_ptr<crocoddyl::ActionModelAbstract>& model = boost::make_shared<ActionModelUniEx>();
   const std::vector<boost::shared_ptr<crocoddyl::ActionModelAbstract> > running_models(20, model);

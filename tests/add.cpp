@@ -1,10 +1,10 @@
 #include <cassert>
 
-#include "example-adder/gepadd.hpp"
+#include "sobec/gepadd.hpp"
 
 int main() {
-  assert(gepetto::example::add(1, 2) == 3);
-  assert(gepetto::example::add(5, -1) == 4);
-  assert(gepetto::example::add(-3, -1) == -4);
+  assert(sobec::add(1, 2) == 3);
+  assert(sobec::add(5, -1) == 4);
+  assert(sobec::add(-3, -1) == -4);
   return 0;
 }
