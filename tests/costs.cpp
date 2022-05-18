@@ -19,6 +19,7 @@
 #include "factory/cost.hpp"
 #include "factory/pinocchio_model.hpp"
 #include "common.hpp"
+#include <boost/bind/bind.hpp>
 
 using namespace boost::unit_test;
 using namespace sobec::unittest;
