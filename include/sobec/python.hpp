@@ -3,7 +3,6 @@
 
 #include <boost/python.hpp>
 
-
 namespace sobec {
 namespace python{
 

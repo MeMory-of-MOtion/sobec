@@ -92,8 +92,8 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(CostMod
   boost::shared_ptr<crocoddyl::StateMultibody> state =
       boost::static_pointer_cast<crocoddyl::StateMultibody>(state_factory.create(state_type));
 
-  crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() - 1;
-  pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
+  //crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() - 1;
+  //pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
   if (nu == std::numeric_limits<std::size_t>::max()) {
     nu = state->get_nv();
   }
@@ -162,7 +162,7 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(CostMod
   switch (cost_type) {
     case CostModelNoFFTypes::CostModelResidualControlGrav:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
-          state, activation_factory.create(activation_type, state->get_nv()),
+          state, activation_factory.create(activation_type, static_cast<Eigen::Index>(state->get_nv())),
           boost::make_shared<ResidualModelControlGrav>(state, nu));
       break;
     default:

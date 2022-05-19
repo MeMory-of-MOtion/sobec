@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.16)
 
 # Project properties
 set(PROJECT_NAMESPACE memory-of-motion)
@@ -12,7 +12,6 @@ option(SUFFIX_SO_VERSION "Suffix library name with its version" ON)
 
 # Project configuration
 set(PROJECT_USE_CMAKE_EXPORT TRUE)
-set(CUSTOM_HEADER_DIR ${PROJECT_NAME})
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -37,16 +36,10 @@ include("${JRL_CMAKE_MODULES}/python.cmake")
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
-SET(CXX_DISABLE_WERROR True)
 ADD_COMPILE_OPTIONS(-Wno-error)
 
 # Project dependencies
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-#ADD_PROJECT_DEPENDENCY(pinocchio 2.4.7 REQUIRED PKG_CONFIG_REQUIRES "pinocchio >= 2.4.7")
 ADD_PROJECT_DEPENDENCY(crocoddyl REQUIRED)
-#ADD_PROJECT_DEPENDENCY(crocoddyl 1.8.0 REQUIRED PKG_CONFIG_REQUIRES "crocoddyl >= 1.8.0")
-#ADD_PROJECT_DEPENDENCY(eigenpy 2.6.4 REQUIRED PKG_CONFIG_REQUIRES "eigenpy >= 2.6.4")
-#ADD_PROJECT_DEPENDENCY(example-robot-data 3.7.0 REQUIRED PKG_CONFIG_REQUIRES "example-robot-data >= 3.7.0")
 
 if(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
@@ -59,30 +52,22 @@ endif()
 set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/python.hpp
   include/${PROJECT_NAME}/fwd.hpp
-
   include/${PROJECT_NAME}/residual-com-velocity.hpp
-  include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/activation-quad-ref.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
-  src/sobec.cpp
+  include/${PROJECT_NAME}/residual-com-velocity.hxx
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-#target_link_libraries(${PROJECT_NAME} PUBLIC pinocchio::pinocchio)
 target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
-#target_link_libraries(${PROJECT_NAME} eigenpy::eigenpy)
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 if(SUFFIX_SO_VERSION)
   set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION})
 endif()
-
-# Main Executable
-add_executable(${PROJECT_NAMESPACE}-${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAMESPACE}-${PROJECT_NAME} ${PROJECT_NAME})
-set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "\$ORIGIN/../lib")
 
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
@@ -90,9 +75,11 @@ if(BUILD_PYTHON_INTERFACE)
 endif()
 
 # Unit tests
-add_subdirectory(tests)
+if(BUILD_TESTING)
+  find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+  add_subdirectory(tests)
+endif()
 
 # Installation
 install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
-install(TARGETS ${PROJECT_NAMESPACE}-${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES package.xml DESTINATION share/${PROJECT_NAME})

@@ -9,7 +9,7 @@
 #ifndef SOBEC_RANDOM_GENERATOR_HPP_
 #define SOBEC_RANDOM_GENERATOR_HPP_
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <Eigen/Dense>
 
 #if __cplusplus >= 201103L

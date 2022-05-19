@@ -17,7 +17,7 @@
 
 namespace sobec {
 using namespace crocoddyl;
-  
+
 template <typename _Scalar>
 class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
  public:
@@ -30,7 +30,7 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::MatrixXs MatrixXs;
 
-  explicit ActivationModelQuadRefTpl(const VectorXs& reference) : Base(reference.size()), ref(reference) {};
+  explicit ActivationModelQuadRefTpl(const VectorXs& reference) : Base(static_cast<std::size_t>(reference.size())), ref(reference) {};
   virtual ~ActivationModelQuadRefTpl(){};
 
   virtual void calc(const boost::shared_ptr<ActivationDataAbstract>& data, const Eigen::Ref<const VectorXs>& r) {
@@ -49,7 +49,7 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
 
     data->Ar = r - ref;
     // The Hessian has constant values which were set in createData.
-    assert_pretty(MatrixXs(data->Arr.diagonal().asDiagonal()).isApprox(MatrixXs::Identity(nr_, nr_)),
+    assert_pretty(MatrixXs(data->Arr.diagonal().asDiagonal()).isApprox(MatrixXs::Identity(static_cast<Eigen::Index>(nr_), static_cast<Eigen::Index>(nr_))),
                   "Arr has wrong value");
   };
 
@@ -59,7 +59,7 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
     data->Arr.diagonal().fill((Scalar)1.);
     return data;
   };
- 
+
   const VectorXs& get_reference() const { return ref; };
   void set_reference(const VectorXs& reference) {
     if (ref.size() != reference.size()) {
@@ -69,10 +69,10 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
 
     ref = reference;
   };
- 
+
  protected:
   using Base::nr_;
-  
+
  private:
   VectorXs ref;
 };

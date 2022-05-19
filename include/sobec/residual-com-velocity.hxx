@@ -16,12 +16,12 @@ using namespace crocoddyl;
 template <typename Scalar>
 ResidualModelCoMVelocityTpl<Scalar>::ResidualModelCoMVelocityTpl(boost::shared_ptr<StateMultibody> state,
                                                                  const Vector3s& vref, const std::size_t nu)
-    : Base(state, 3, nu, true, true, false), pin_model_(*state->get_pinocchio()), vref_(vref) {}
+    : Base(state, 3, nu, true, true, false), vref_(vref), pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelCoMVelocityTpl<Scalar>::ResidualModelCoMVelocityTpl(boost::shared_ptr<StateMultibody> state,
                                                                  const Vector3s& vref)
-    : Base(state, 3, true, true, false), pin_model_(*state->get_pinocchio()), vref_(vref) {}
+    : Base(state, 3, true, true, false), vref_(vref), pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelCoMVelocityTpl<Scalar>::~ResidualModelCoMVelocityTpl() {}
@@ -33,18 +33,18 @@ void ResidualModelCoMVelocityTpl<Scalar>::calc(const boost::shared_ptr<ResidualD
   Data* d = static_cast<Data*>(data.get());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(state_->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(state_->get_nv());
-  
+
   pinocchio::centerOfMass(pin_model_,*d->pinocchio,q,v);
   data->r = d->pinocchio->vcom[0] - vref_;
 }
 
 template <typename Scalar>
 void ResidualModelCoMVelocityTpl<Scalar>::calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
-                                                   const Eigen::Ref<const VectorXs>&x,
+                                                   const Eigen::Ref<const VectorXs>& /*x*/,
                                                    const Eigen::Ref<const VectorXs>&) {
   Data* d = static_cast<Data*>(data.get());
-  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(state_->get_nq());
-  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(state_->get_nv());
+  //const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(state_->get_nq());
+  //const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(state_->get_nv());
 
   const std::size_t nv = state_->get_nv();
 

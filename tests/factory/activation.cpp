@@ -24,7 +24,7 @@
 namespace sobec {
 namespace unittest {
 using namespace crocoddyl;
-  
+
 const std::vector<ActivationModelTypes::Type> ActivationModelTypes::all(ActivationModelTypes::init_all());
 
 std::ostream& operator<<(std::ostream& os, ActivationModelTypes::Type type) {
@@ -72,12 +72,12 @@ ActivationModelFactory::ActivationModelFactory() {}
 ActivationModelFactory::~ActivationModelFactory() {}
 
 boost::shared_ptr<crocoddyl::ActivationModelAbstract> ActivationModelFactory::create(
-    ActivationModelTypes::Type activation_type, std::size_t nr) const {
+    ActivationModelTypes::Type activation_type, Eigen::Index nr) const {
   boost::shared_ptr<crocoddyl::ActivationModelAbstract> activation;
   Eigen::VectorXd lb = Eigen::VectorXd::Random(nr);
   Eigen::VectorXd ub = lb + Eigen::VectorXd::Ones(nr) + Eigen::VectorXd::Random(nr);
   Eigen::VectorXd weights = 0.1 * Eigen::VectorXd::Random(nr);
-  double threshold = fabs(Eigen::VectorXd::Random(1)[0]);
+  //double threshold = fabs(Eigen::VectorXd::Random(1)[0]);
   double alpha = fabs(Eigen::VectorXd::Random(1)[0]);
   double eps = fabs(Eigen::VectorXd::Random(1)[0]);
   bool hessian = random_boolean();
