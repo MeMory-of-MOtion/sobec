@@ -9,7 +9,6 @@
 #ifndef SOBEC_FWD_HPP_
 #define SOBEC_FWD_HPP_
 
-
 namespace sobec {
 
 // Cost COM-vel
