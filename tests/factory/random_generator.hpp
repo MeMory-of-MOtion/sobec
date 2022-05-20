@@ -9,15 +9,15 @@
 #ifndef SOBEC_RANDOM_GENERATOR_HPP_
 #define SOBEC_RANDOM_GENERATOR_HPP_
 
-#include <boost/bind/bind.hpp>
 #include <Eigen/Dense>
+#include <boost/bind/bind.hpp>
 
 #if __cplusplus >= 201103L
 #include <random>
 std::mt19937 rng;
 #else
-#include <boost/random.hpp>
 #include <boost/nondet_random.hpp>
+#include <boost/random.hpp>
 boost::random::mt19937 rng;
 #endif
 
@@ -43,7 +43,8 @@ RealType random_real_in_range(RealType first = 0, RealType last = 1) {
 }
 
 bool random_boolean() {
-  static auto generator = boost::bind(std::uniform_int_distribution<>(0, 1), std::default_random_engine());
+  static auto generator = boost::bind(std::uniform_int_distribution<>(0, 1),
+                                      std::default_random_engine());
   return generator();
 }
 

@@ -4,7 +4,7 @@
 #include <boost/python.hpp>
 
 namespace sobec {
-namespace python{
+namespace python {
 
 void exposeResidualCoMVelocity();
 void exposeActivationQuadRef();
@@ -12,4 +12,4 @@ void exposeActivationQuadRef();
 }  // namespace python
 }  // namespace sobec
 
-#endif // #ifndef __sobec_python__
+#endif  // #ifndef __sobec_python__

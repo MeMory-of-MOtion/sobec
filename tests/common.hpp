@@ -18,14 +18,15 @@
 
 #define NUMDIFF_MODIFIER 10.
 
-#include <iterator>
-#include <boost/test/included/unit_test.hpp>
-#include <boost/test/execution_monitor.hpp>  // for execution_exception
-#include <boost/function.hpp>
-#include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <string>
+#include <unistd.h>
+
+#include <boost/function.hpp>
+#include <boost/test/execution_monitor.hpp>  // for execution_exception
+#include <boost/test/included/unit_test.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
+#include <iterator>
+#include <string>
 
 #endif  // SOBEC_UNITTEST_COMMON_HPP_
