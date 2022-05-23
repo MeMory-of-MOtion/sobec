@@ -9,14 +9,15 @@
 #ifndef SOBEC_LPF_HPP_
 #define SOBEC_LPF_HPP_
 
-#include "crocoddyl/core/fwd.hpp"
-#include "crocoddyl/core/action-base.hpp"       
-#include "crocoddyl/core/diff-action-base.hpp"  
-#include "crocoddyl/multibody/states/statelpf.hpp"
-#include "crocoddyl/multibody/states/multibody.hpp"  
-#include "crocoddyl/core/activations/quadratic-barrier.hpp"
+#include <crocoddyl/core/fwd.hpp>
+#include <crocoddyl/core/action-base.hpp>
+#include <crocoddyl/core/diff-action-base.hpp>
+#include <crocoddyl/multibody/states/multibody.hpp>
+#include <crocoddyl/core/activations/quadratic-barrier.hpp>
 
 #include <pinocchio/multibody/model.hpp>
+
+#include "sobec/statelpf.hpp"
 
 namespace sobec {
 using namespace crocoddyl;
@@ -153,6 +154,6 @@ struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "crocoddyl/core/integrator/lpf.hxx"
+#include "sobec/lpf.hxx"
 
 #endif  // SOBEC_LPF_HPP_

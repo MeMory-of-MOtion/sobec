@@ -55,10 +55,13 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/residual-com-velocity.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
   include/${PROJECT_NAME}/statelpf.hpp
+  include/${PROJECT_NAME}/lpf.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/residual-com-velocity.hxx
+  include/${PROJECT_NAME}/statelpf.hxx
+  include/${PROJECT_NAME}/lpf.hxx
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

@@ -2,6 +2,7 @@ set(${PY_NAME}_SOURCES
   main.cpp
   residual-com-velocity.cpp
   activation-quad-ref.cpp
+  lpf.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
