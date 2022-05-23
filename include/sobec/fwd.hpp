@@ -24,6 +24,11 @@ template <typename Scalar>
 class ActivationModelQuadRefTpl;
 typedef ActivationModelQuadRefTpl<double> ActivationModelQuadRef;
 
+// State LPF
+template <typename Scalar>
+class StateLPFTpl;
+typedef StateLPFTpl<double> StateLPF;
+
 }  // namespace sobec
 
 #endif  // SOBEC_FWD_HPP_

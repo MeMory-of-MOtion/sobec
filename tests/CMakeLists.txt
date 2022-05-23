@@ -4,10 +4,12 @@ set(${PROJECT_NAME}_FACTORY_TEST
   factory/pinocchio_model.hpp
   factory/random_generator.hpp
   factory/state.hpp
+  factory/statelpf.hpp
   factory/activation.cpp
   factory/cost.cpp
   factory/pinocchio_model.cpp
   factory/state.cpp
+  factory/statelpf.cpp
   )
 
 add_library(${PROJECT_NAME}_unittest SHARED ${${PROJECT_NAME}_FACTORY_TEST})
@@ -15,6 +17,12 @@ target_link_libraries(${PROJECT_NAME}_unittest PUBLIC ${PROJECT_NAME} crocoddyl:
 
 ADD_UNIT_TEST(test_costs test_costs.cpp)
 target_link_libraries(test_costs PUBLIC ${PROJECT_NAME}_unittest)
+
+ADD_UNIT_TEST(test_states test_states.cpp)
+target_link_libraries(test_states PUBLIC ${PROJECT_NAME}_unittest)
+
+ADD_UNIT_TEST(test_stateslpf test_stateslpf.cpp)
+target_link_libraries(test_stateslpf PUBLIC ${PROJECT_NAME}_unittest)
 
 if(BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)

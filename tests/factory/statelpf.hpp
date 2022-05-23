@@ -6,8 +6,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SOBEC_STATE_FACTORY_HPP_
-#define SOBEC_STATE_FACTORY_HPP_
+#ifndef SOBEC_STATELPF_FACTORY_HPP_
+#define SOBEC_STATELPF_FACTORY_HPP_
 
 #include <crocoddyl/core/state-base.hpp>
 #include <crocoddyl/core/numdiff/state.hpp>
@@ -15,22 +15,23 @@
 
 #include "pinocchio_model.hpp"
 
+#include "sobec/statelpf.hpp"
+
 namespace sobec {
 namespace unittest {
 
-struct StateModelTypes {
+struct StateLPFModelTypes {
   enum Type {
-    StateVector,
-    StateMultibody_TalosArm,
-    StateMultibody_HyQ,
-    StateMultibody_Talos,
-    StateMultibody_RandomHumanoid,
-    NbStateModelTypes
+    StateLPF_TalosArm,
+    StateLPF_HyQ,
+    StateLPF_Talos,
+    StateLPF_RandomHumanoid,
+    NbStateLPFModelTypes
   };
   static std::vector<Type> init_all() {
     std::vector<Type> v;
     v.clear();
-    for (int i = 0; i < NbStateModelTypes; ++i) {
+    for (int i = 0; i < NbStateLPFModelTypes; ++i) {
       v.push_back((Type)i);
     }
     return v;
@@ -38,20 +39,20 @@ struct StateModelTypes {
   static const std::vector<Type> all;
 };
 
-std::ostream& operator<<(std::ostream& os, StateModelTypes::Type type);
+std::ostream& operator<<(std::ostream& os, StateLPFModelTypes::Type type);
 
-class StateModelFactory {
+class StateLPFModelFactory {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  explicit StateModelFactory();
-  ~StateModelFactory();
+  explicit StateLPFModelFactory();
+  ~StateLPFModelFactory();
 
-  boost::shared_ptr<crocoddyl::StateAbstract> create(
-      StateModelTypes::Type state_type) const;
+  boost::shared_ptr<sobec::StateLPF> create(
+      StateLPFModelTypes::Type state_type) const;
 };
 
 }  // namespace unittest
 }  // namespace sobec
 
-#endif  // SOBEC_STATE_FACTORY_HPP_
+#endif  // SOBEC_STATELPF_FACTORY_HPP_

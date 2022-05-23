@@ -54,6 +54,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
+  include/${PROJECT_NAME}/statelpf.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
