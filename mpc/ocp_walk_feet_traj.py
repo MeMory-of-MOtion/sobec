@@ -147,12 +147,12 @@ class OCP:
         wrenchConeFrameRight = croc.WrenchCone(
             coneRotationRight, mu, cone_box, 4, True, minNforce, maxNforce
         )
-        boundsFrictionLeft = croc.ActivationBounds(
-            wrenchConeFrameLeft.lb, wrenchConeFrameLeft.ub, 1.0
-        )
-        boundsFrictionRight = croc.ActivationBounds(
-            wrenchConeFrameRight.lb, wrenchConeFrameRight.ub, 1.0
-        )
+        # boundsFrictionLeft = croc.ActivationBounds(
+        #     wrenchConeFrameLeft.lb, wrenchConeFrameLeft.ub, 1.0
+        # )
+        # boundsFrictionRight = croc.ActivationBounds(
+        #     wrenchConeFrameRight.lb, wrenchConeFrameRight.ub, 1.0
+        # )
 
         wrenchRefTwoSupports = np.zeros(len(wrenchConeFrameLeft.ub))
         fz_ref2 = 400
@@ -210,12 +210,6 @@ class OCP:
 
         # ####  Cost for state and control
 
-        runningCosts = np.array(
-            [1000.0, 0.1, 0.001, 0, 1e3, 0.005, 100]
-        )  # [1.,0.02,0.0004,0.0,1e3]
-        # GoalTracking cost, State regularization cost, control cost, limit cost
-        terminalCosts = np.array([8000.0, 0.02, 0.0, 0, 0.0])  # [10.0,0.02,0.0,0.0,0.0]
-
         weightBasePos = [0, 0, 0, 100000, 100000, 100000]
         weightBaseVel = [0, 0, 0, 1000, 1000, 1000]
         weightLegPos = [100, 100, 100, 10000, 100, 100]
@@ -255,7 +249,6 @@ class OCP:
             + weightArmRightVel
         )
 
-        weightuBase = [0, 0, 0, 0, 0, 0]
         weightuLeg = [1, 1, 1, 1, 10, 10]
         weightuArm = [10, 10, 10, 10]
         weightuTorso = [1, 1]

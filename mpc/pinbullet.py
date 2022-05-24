@@ -73,11 +73,13 @@ class SimuProxy:
         self.srdf_filename = srdf_filename
 
         # Load model from URDF
+        urdf_path = os.path.join([model_rootpath,urdf_subpath,urdf_filename])
         self.rmodel, self.gmodel_col, self.gmodel_vis = pin.buildModelsFromUrdf(
             urdf_path, model_rootpath, pin.JointModelFreeFlyer()
         )
 
         # Take rotor inertia and gear ratio into account
+        srdf_path = os.path.join([model_rootpath,srdf_subpath,srdf_filename])
         pin.loadRotorParameters(self.rmodel, srdf_path, False)
         pin.loadReferenceConfigurations(self.rmodel, srdf_path, False)
 
