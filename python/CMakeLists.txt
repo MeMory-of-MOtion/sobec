@@ -5,6 +5,8 @@ set(${PY_NAME}_SOURCES
   lpf.cpp
   contact3d.cpp
   contact1d.cpp
+  multiple-contacts.cpp
+  contact-fwddyn.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})

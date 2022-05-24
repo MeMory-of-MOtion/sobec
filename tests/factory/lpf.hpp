@@ -49,7 +49,9 @@ class ActionModelLPFFactory {
   ~ActionModelLPFFactory();
 
   boost::shared_ptr<sobec::IntegratedActionModelLPF> create(ActionModelLPFTypes::Type iam_type,
-                                                                DifferentialActionModelTypes::Type dam_type) const;
+                                                            DifferentialActionModelTypes::Type dam_type,
+                                                            PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
+                                                            ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) const;
 };
 
 }  // namespace unittest

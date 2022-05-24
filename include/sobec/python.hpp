@@ -11,6 +11,8 @@ void exposeActivationQuadRef();
 void exposeIntegratedActionLPF();
 void exposeContact3D();
 void exposeContact1D();
+void exposeMultipleContacts();
+void exposeDAMContactFwdDyn();
 
 }  // namespace python
 }  // namespace sobec

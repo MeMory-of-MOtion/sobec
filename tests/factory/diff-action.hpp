@@ -11,6 +11,8 @@
 
 #include "state.hpp"
 #include "actuation.hpp"
+#include "contact1d.hpp"
+#include "contact3d.hpp"
 
 #include <crocoddyl/core/diff-action-base.hpp>
 #include <crocoddyl/core/numdiff/diff-action.hpp>
@@ -22,21 +24,12 @@ namespace unittest {
 
 struct DifferentialActionModelTypes {
   enum Type {
-    DifferentialActionModelLQR,
-    DifferentialActionModelLQRDriftFree,
     DifferentialActionModelFreeFwdDynamics_TalosArm,
     DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed,
-    // DifferentialActionModelContactFwdDynamics_TalosArm,
-    // DifferentialActionModelContact2DFwdDynamics_TalosArm,
-    // DifferentialActionModelContact3DFwdDynamics_TalosArm_LOCAL,
-    // DifferentialActionModelContact3DFwdDynamics_TalosArm_WORLD,
-    // DifferentialActionModelContact1DFwdDynamics_TalosArm,
-    // DifferentialActionModelContactFwdDynamics_HyQ,
-    // DifferentialActionModelContactFwdDynamics_Talos,
-    // DifferentialActionModelContactFwdDynamicsWithFriction_TalosArm,
-    // DifferentialActionModelContact2DFwdDynamicsWithFriction_TalosArm,
-    // DifferentialActionModelContactFwdDynamicsWithFriction_HyQ,
-    // DifferentialActionModelContactFwdDynamicsWithFriction_Talos,
+    DifferentialActionModelContact1DFwdDynamics_TalosArm,
+    DifferentialActionModelContact3DFwdDynamics_TalosArm,
+    DifferentialActionModelContact1DFwdDynamics_HyQ,
+    DifferentialActionModelContact3DFwdDynamics_HyQ,
     NbDifferentialActionModelTypes
   };
   static std::vector<Type> init_all() {
@@ -59,14 +52,21 @@ class DifferentialActionModelFactory {
   explicit DifferentialActionModelFactory();
   ~DifferentialActionModelFactory();
 
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> create(DifferentialActionModelTypes::Type type) const;
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> create(DifferentialActionModelTypes::Type type,
+                                                                       PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
+                                                                       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) const;
 
   boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics> create_freeFwdDynamics(
       StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type) const;
 
-  // boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> create_contactFwdDynamics(
-  //     StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type, bool with_friction = true,
-  //     pinocchio::ReferenceFrame ref = pinocchio::LOCAL) const;
+  boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> create_contact3DFwdDynamics(
+      StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type, 
+      PinocchioReferenceTypes::Type ref_type) const;
+
+  boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> create_contact1DFwdDynamics(
+      StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type, 
+      PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type) const;
+
 };
 
 }  // namespace unittest

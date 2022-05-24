@@ -58,6 +58,8 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/lpf.hpp
   include/${PROJECT_NAME}/contact3d.hpp
   include/${PROJECT_NAME}/contact1d.hpp
+  include/${PROJECT_NAME}/multiple-contacts.hpp
+  include/${PROJECT_NAME}/contact-fwddyn.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
@@ -66,6 +68,8 @@ set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/lpf.hxx
   include/${PROJECT_NAME}/contact3d.hxx
   include/${PROJECT_NAME}/contact1d.hxx
+  include/${PROJECT_NAME}/multiple-contacts.hxx
+  include/${PROJECT_NAME}/contact-fwddyn.hxx
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

@@ -54,6 +54,17 @@ template <typename Scalar>
 class ContactData1DTpl;
 typedef ContactData1DTpl<double> ContactData1D;
 
+// multiple contacts
+template <typename Scalar>
+class ContactModelMultipleTpl;
+typedef ContactModelMultipleTpl<double> ContactModelMultiple;
+
+
+// DAM contact fwd dynamics
+template <typename Scalar>
+class DifferentialActionModelContactFwdDynamicsTpl;
+typedef DifferentialActionModelContactFwdDynamicsTpl<double> DifferentialActionModelContactFwdDynamics;
+
 }  // namespace sobec
 
 #endif  // SOBEC_FWD_HPP_

@@ -14,16 +14,16 @@ template <typename Scalar>
 ContactModel3DTpl<Scalar>::ContactModel3DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const std::size_t nu, const Vector2s& gains,
                                              const pinocchio::ReferenceFrame type)
-    : Base(state, 3, nu), xref_(xref), gains_(gains), type_(type) {
-  id_ = id;
+    : Base(state, id, xref, nu, gains) { 
+  type_ = type;
 }
 
 template <typename Scalar>
 ContactModel3DTpl<Scalar>::ContactModel3DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const Vector2s& gains,
                                              const pinocchio::ReferenceFrame type)
-    : Base(state, 3), xref_(xref), gains_(gains), type_(type) {
-  id_ = id;
+    : Base(state, id, xref, gains) { 
+  type_ = type;
 }
 
 
@@ -31,7 +31,7 @@ template <typename Scalar>
 ContactModel3DTpl<Scalar>::~ContactModel3DTpl() {}
 
 template <typename Scalar>
-void ContactModel3DTpl<Scalar>::calc(const boost::shared_ptr<ContactDataAbstract>& data,
+void ContactModel3DTpl<Scalar>::calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
                                      const Eigen::Ref<const VectorXs>& x) {
   Data* d = static_cast<Data*>(data.get());
   pinocchio::updateFramePlacement(*state_->get_pinocchio().get(), *d->pinocchio, id_);
@@ -60,7 +60,7 @@ void ContactModel3DTpl<Scalar>::calc(const boost::shared_ptr<ContactDataAbstract
 }
 
 template <typename Scalar>
-void ContactModel3DTpl<Scalar>::calcDiff(const boost::shared_ptr<ContactDataAbstract>& data,
+void ContactModel3DTpl<Scalar>::calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
                                          const Eigen::Ref<const VectorXs>&) {
   Data* d = static_cast<Data*>(data.get());
   const pinocchio::JointIndex joint = state_->get_pinocchio()->frames[d->frame].parent;
@@ -114,7 +114,7 @@ void ContactModel3DTpl<Scalar>::calcDiff(const boost::shared_ptr<ContactDataAbst
 }
 
 template <typename Scalar>
-void ContactModel3DTpl<Scalar>::updateForce(const boost::shared_ptr<ContactDataAbstract>& data,
+void ContactModel3DTpl<Scalar>::updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
                                             const VectorXs& force) {
   if (force.size() != 3) {
     throw_pretty("Invalid argument: "

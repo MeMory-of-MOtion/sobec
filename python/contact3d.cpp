@@ -21,7 +21,7 @@ namespace bp = boost::python;
 void exposeContact3D() {
   bp::register_ptr_to_python<boost::shared_ptr<sobec::ContactModel3D> >();
 
-  bp::class_<sobec::ContactModel3D, bp::bases<crocoddyl::ContactModelAbstract> >(
+  bp::class_<sobec::ContactModel3D, bp::bases<crocoddyl::ContactModel3D> >(
       "ContactModel3D",
       "Rigid 3D contact model.\n\n"
       "It defines a rigid 3D contact models (point contact) based on acceleration-based holonomic constraints.\n"
@@ -70,8 +70,8 @@ void exposeContact3D() {
            "returns the allocated data for a predefined cost.\n"
            ":param data: Pinocchio data\n"
            ":return contact data.")
-      .add_property("reference", bp::make_function(&ContactModel3D::get_reference, bp::return_internal_reference<>()),
-                    &ContactModel3D::set_reference, "reference contact translation")
+      .add_property("reference", bp::make_function(&sobec::ContactModel3D::get_reference, bp::return_internal_reference<>()),
+                    &sobec::ContactModel3D::set_reference, "reference contact translation")
       .add_property("gains",
                     bp::make_function(&sobec::ContactModel3D::get_gains, bp::return_value_policy<bp::return_by_value>()),
                     "contact gains")
@@ -82,7 +82,7 @@ void exposeContact3D() {
 
   bp::register_ptr_to_python<boost::shared_ptr<sobec::ContactData3D> >();
 
-  bp::class_<sobec::ContactData3D, bp::bases<crocoddyl::ContactDataAbstract> >(
+  bp::class_<sobec::ContactData3D, bp::bases<crocoddyl::ContactData3D> >(
       "ContactData3D", "Data for 3D contact.\n\n",
       bp::init<sobec::ContactModel3D*, pinocchio::Data*>(
           bp::args("self", "model", "data"),
