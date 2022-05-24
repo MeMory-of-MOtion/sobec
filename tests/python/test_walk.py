@@ -153,7 +153,7 @@ zBase_reference = 1.01927
 ##################################################################################
 
 # Total number of nodes of the simulation
-T_total = 2000
+T_total = 20 ## 2000   ### CHANGE ME to 2000 for a full locomotion ... kept shorter for CI duration
 
 # Time step of the DDP
 DT = 1e-2
