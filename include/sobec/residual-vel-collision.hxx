@@ -6,14 +6,16 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "crocoddyl/core/utils/exception.hpp"
+#include <crocoddyl/core/utils/exception.hpp>
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/algorithm/kinematics-derivatives.hpp>
 #include <pinocchio/algorithm/frames-derivatives.hpp>
-#include "crocoddyl/multibody/residuals/vel-collision.hpp"
+#include "sobec/residual-vel-collision.hpp"
 
-namespace crocoddyl {
+namespace sobec {
 
+using namespace crocoddyl;
+  
 template <typename Scalar>
 ResidualModelVelCollisionTpl<Scalar>::ResidualModelVelCollisionTpl(boost::shared_ptr<StateMultibody> state,
                                                                      const std::size_t nu,
@@ -41,8 +43,6 @@ void ResidualModelVelCollisionTpl<Scalar>::calc(const boost::shared_ptr<Residual
   Data *d = static_cast<Data *>(data.get());
 
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(state_->get_nq());
-
-  // omputes the distance for the collision pair pair_id_
   pinocchio::updateGeometryPlacements(*pin_model_.get(), *d->pinocchio, *geom_model_.get(), d->geometry, q);
   pinocchio::computeDistance(*geom_model_.get(), d->geometry, pair_id_);
   
@@ -90,4 +90,4 @@ const pinocchio::GeometryModel &ResidualModelVelCollisionTpl<Scalar>::get_geomet
   return *geom_model_.get();
 }
 
-}  // namespace crocoddyl
+}  // namespace sobec

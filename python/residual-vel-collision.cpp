@@ -8,11 +8,20 @@
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
-#include "python/crocoddyl/multibody/multibody.hpp"
-#include "crocoddyl/multibody/residuals/vel-collision.hpp"
+#include <pinocchio/multibody/fwd.hpp> // Must be included first!
 
-namespace crocoddyl {
+#include <boost/python.hpp>
+#include <boost/python/enum.hpp>
+#include <eigenpy/eigenpy.hpp>
+
+#include "sobec/fwd.hpp"
+#include "sobec/residual-vel-collision.hpp"
+
+namespace sobec {
 namespace python {
+
+using namespace crocoddyl;
+namespace bp = boost::python;
 
 void exposeResidualVelCollision() {
   bp::register_ptr_to_python<boost::shared_ptr<ResidualModelVelCollision> >();
@@ -88,5 +97,7 @@ void exposeResidualVelCollision() {
 }
 
 }  // namespace python
-}  // namespace crocoddyl
-#endif
+}  // namespace sobec
+
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+

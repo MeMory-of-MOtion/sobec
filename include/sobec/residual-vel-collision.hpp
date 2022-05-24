@@ -6,8 +6,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROCODDYL_MULTIBODY_RESIDUALS_VEL_COLLISION_HPP_
-#define CROCODDYL_MULTIBODY_RESIDUALS_VEL_COLLISION_HPP_
+#ifndef SOBEC_RESIDUAL_VEL_COLLISION_HPP_
+#define SOBEC_RESIDUAL_VEL_COLLISION_HPP_
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 #include <pinocchio/multibody/fwd.hpp>
@@ -17,14 +17,18 @@
 #include <pinocchio/algorithm/jacobian.hpp>
 #include <pinocchio/algorithm/geometry.hpp>
 
-#include "crocoddyl/multibody/fwd.hpp"
-#include "crocoddyl/core/residual-base.hpp"
-#include "crocoddyl/multibody/states/multibody.hpp"
-#include "crocoddyl/multibody/data/multibody.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
+#include <crocoddyl/multibody/fwd.hpp>
+#include <crocoddyl/core/residual-base.hpp>
+#include <crocoddyl/multibody/states/multibody.hpp>
+#include <crocoddyl/multibody/data/multibody.hpp>
+#include <crocoddyl/core/utils/exception.hpp>
 
-namespace crocoddyl {
+#include "sobec/fwd.hpp"
 
+namespace sobec {
+
+using namespace crocoddyl;
+ 
 /**
  * @brief Vel collision residual
  *
@@ -168,13 +172,13 @@ struct ResidualDataVelCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
   using Base::shared;
 };
 
-}  // namespace crocoddyl
+}  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "crocoddyl/multibody/residuals/vel-collision.hxx"
+#include "sobec/residual-vel-collision.hxx"
 
 #endif  // PINOCCHIO_WITH_HPP_FCL
 
-#endif  // CROCODDYL_MULTIBODY_RESIDUALS_VEL_COLLISION_HPP_
+#endif  // SOBEC_RESIDUAL_VEL_COLLISION_HPP_
