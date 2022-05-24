@@ -8,6 +8,9 @@ namespace python {
 
 void exposeResidualCoMVelocity();
 void exposeActivationQuadRef();
+void exposeIntegratedActionLPF();
+void exposeContact3D();
+void exposeContact1D();
 
 }  // namespace python
 }  // namespace sobec

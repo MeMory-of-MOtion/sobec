@@ -36,33 +36,33 @@ const std::vector<CostModelNoFFTypes::Type> CostModelNoFFTypes::all(
 
 std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
   switch (type) {
-    // case CostModelTypes::CostModelResidualState:
-    //   os << "CostModelResidualState";
-    //   break;
-    // case CostModelTypes::CostModelResidualControl:
-    //   os << "CostModelResidualControl";
-    //   break;
-    // case CostModelTypes::CostModelResidualCoMPosition:
-    //   os << "CostModelResidualCoMPosition";
-    //   break;
+    case CostModelTypes::CostModelResidualState:
+      os << "CostModelResidualState";
+      break;
+    case CostModelTypes::CostModelResidualControl:
+      os << "CostModelResidualControl";
+      break;
+    case CostModelTypes::CostModelResidualCoMPosition:
+      os << "CostModelResidualCoMPosition";
+      break;
     case CostModelTypes::CostModelResidualCoMVelocity:
       os << "CostModelResidualCoMVelocity";
       break;
-    // case CostModelTypes::CostModelResidualFramePlacement:
-    //   os << "CostModelResidualFramePlacement";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameRotation:
-    //   os << "CostModelResidualFrameRotation";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameTranslation:
-    //   os << "CostModelResidualFrameTranslation";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameVelocity:
-    //   os << "CostModelResidualFrameVelocity";
-    //   break;
-    // case CostModelTypes::NbCostModelTypes:
-    //   os << "NbCostModelTypes";
-    //   break;
+    case CostModelTypes::CostModelResidualFramePlacement:
+      os << "CostModelResidualFramePlacement";
+      break;
+    case CostModelTypes::CostModelResidualFrameRotation:
+      os << "CostModelResidualFrameRotation";
+      break;
+    case CostModelTypes::CostModelResidualFrameTranslation:
+      os << "CostModelResidualFrameTranslation";
+      break;
+    case CostModelTypes::CostModelResidualFrameVelocity:
+      os << "CostModelResidualFrameVelocity";
+      break;
+    case CostModelTypes::NbCostModelTypes:
+      os << "NbCostModelTypes";
+      break;
     default:
       break;
   }
@@ -96,64 +96,64 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
       boost::static_pointer_cast<crocoddyl::StateMultibody>(
           state_factory.create(state_type));
 
-  // crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() -
-  // 1; pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
+  crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() -
+  1; pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
   if (nu == std::numeric_limits<std::size_t>::max()) {
     nu = state->get_nv();
   }
   switch (cost_type) {
-    // case CostModelTypes::CostModelResidualState:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type,
-    //       state->get_ndx()),
-    //       boost::make_shared<crocoddyl::ResidualModelState>(state,
-    //       state->rand(), nu));
-    //   break;
-    // case CostModelTypes::CostModelResidualControl:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, nu),
-    //       boost::make_shared<crocoddyl::ResidualModelControl>(state,
-    //       Eigen::VectorXd::Random(nu)));
-    //   break;
-    // case CostModelTypes::CostModelResidualCoMPosition:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, 3),
-    //       boost::make_shared<crocoddyl::ResidualModelCoMPosition>(state,
-    //       Eigen::Vector3d::Random(), nu));
-    //   break;
+    case CostModelTypes::CostModelResidualState:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type,
+          state->get_ndx()),
+          boost::make_shared<crocoddyl::ResidualModelState>(state,
+          state->rand(), nu));
+      break;
+    case CostModelTypes::CostModelResidualControl:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, nu),
+          boost::make_shared<crocoddyl::ResidualModelControl>(state,
+          Eigen::VectorXd::Random(nu)));
+      break;
+    case CostModelTypes::CostModelResidualCoMPosition:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 3),
+          boost::make_shared<crocoddyl::ResidualModelCoMPosition>(state,
+          Eigen::Vector3d::Random(), nu));
+      break;
     case CostModelTypes::CostModelResidualCoMVelocity:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 3),
           boost::make_shared<sobec::ResidualModelCoMVelocity>(
               state, Eigen::Vector3d::Random(), nu));
       break;
-    // case CostModelTypes::CostModelResidualFramePlacement:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, 6),
-    //       boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state,
-    //       frame_index, frame_SE3, nu));
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameRotation:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, 3),
-    //       boost::make_shared<crocoddyl::ResidualModelFrameRotation>(state,
-    //       frame_index, frame_SE3.rotation(), nu));
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameTranslation:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, 3),
-    //       boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(state,
-    //       frame_index, frame_SE3.translation(),
-    //                                                                    nu));
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameVelocity:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, 6),
-    //       boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(state,
-    //       frame_index, pinocchio::Motion::Random(),
-    //                                                                 pinocchio::ReferenceFrame::LOCAL,
-    //                                                                 nu));
-    //   break;
+    case CostModelTypes::CostModelResidualFramePlacement:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 6),
+          boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state,
+          frame_index, frame_SE3, nu));
+      break;
+    case CostModelTypes::CostModelResidualFrameRotation:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 3),
+          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(state,
+          frame_index, frame_SE3.rotation(), nu));
+      break;
+    case CostModelTypes::CostModelResidualFrameTranslation:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 3),
+          boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(state,
+          frame_index, frame_SE3.translation(),
+                                                                       nu));
+      break;
+    case CostModelTypes::CostModelResidualFrameVelocity:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 6),
+          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(state,
+          frame_index, pinocchio::Motion::Random(),
+                                                                    pinocchio::ReferenceFrame::LOCAL,
+                                                                    nu));
+      break;
     default:
       throw_pretty(__FILE__ ": Wrong CostModelTypes::Type given");
       break;

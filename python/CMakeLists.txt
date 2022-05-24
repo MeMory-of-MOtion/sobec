@@ -3,6 +3,8 @@ set(${PY_NAME}_SOURCES
   residual-com-velocity.cpp
   activation-quad-ref.cpp
   lpf.cpp
+  contact3d.cpp
+  contact1d.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})

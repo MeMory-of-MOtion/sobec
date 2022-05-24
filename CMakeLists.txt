@@ -56,12 +56,16 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/activation-quad-ref.hpp
   include/${PROJECT_NAME}/statelpf.hpp
   include/${PROJECT_NAME}/lpf.hpp
+  include/${PROJECT_NAME}/contact3d.hpp
+  include/${PROJECT_NAME}/contact1d.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/statelpf.hxx
   include/${PROJECT_NAME}/lpf.hxx
+  include/${PROJECT_NAME}/contact3d.hxx
+  include/${PROJECT_NAME}/contact1d.hxx
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
