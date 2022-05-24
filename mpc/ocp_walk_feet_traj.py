@@ -2,12 +2,11 @@ import pinocchio as pin
 import crocoddyl as croc
 import sobec
 import numpy as np
-from numpy.linalg import norm, inv, pinv, svd, eig
 from sys import float_info
 
-################################################################################
-### HYPER PARAMS
-################################################################################
+# ##############################################################################
+# # HYPER PARAMS
+# ##############################################################################
 
 rightFoot = "right_sole_link"
 leftFoot = "left_sole_link"
@@ -60,9 +59,9 @@ wLimit = 1e3
 wVCoM = 0
 wWrenchCone = 0.005
 
-#################################################################################
-################################################################################
-###############################################################################
+# ###############################################################################
+# ##############################################################################
+# #############################################################################
 
 
 class OCP:
@@ -114,9 +113,9 @@ class OCP:
             self.rmodel.frames[rightFootId].name + "_contact", supportContactModelRight
         )
 
-        ######  Create the cost functions
+        # #####  Create the cost functions
 
-        ######  Cost for self-collision
+        # #####  Cost for self-collision
         xlb = np.concatenate(
             [
                 -float_info.max * np.ones(6),  # dimension of the SE(3) manifold
@@ -209,7 +208,7 @@ class OCP:
             wrenchConeResidualRight2,
         )
 
-        #####  Cost for state and control
+        # ####  Cost for state and control
 
         runningCosts = np.array(
             [1000.0, 0.1, 0.001, 0, 1e3, 0.005, 100]
@@ -274,7 +273,7 @@ class OCP:
             state, croc.ActivationModelWeightedQuad(np.array(controlWeight)), uResidual
         )
 
-        #### Foot placement cost
+        # ### Foot placement cost
         startingPosLeftFoot = rdata.oMf[leftFootId].copy()
         startingPosRightFoot = rdata.oMf[rightFootId].copy()
 
@@ -292,17 +291,17 @@ class OCP:
             state, croc.ActivationModelQuadFlatLog(6, 0.002), residualPlacementLeft
         )
 
-        #### CoM velocity regularization
+        # ### CoM velocity regularization
         residualCoMVelocity = sobec.ResidualModelCoMVelocity(
             state, np.array([0, 0, 0]), actuation.nu
         )
         comVelCost = croc.CostModelResidual(state, residualCoMVelocity)
 
-        ##################################################################################
+        # #############################################################################
         #
         # Initialize cost model, action model and DDP
         #
-        ##################################################################################
+        # #############################################################################
 
         # Create cost model per each action model
         runningCostModel = croc.CostModelSum(state, actuation.nu)
@@ -319,7 +318,8 @@ class OCP:
         runningModel = croc.IntegratedActionModelEuler(dmodelRunning, DT)
         self.DT = DT
 
-        # Update control reference to gravity compensating torque in half sitting position
+        # Update control reference to gravity compensating torque
+        # in half sitting position
         temp_data = runningModel.createData()
         uResidual.reference = runningModel.quasiStatic(temp_data, self.defaultState)
 
@@ -532,17 +532,17 @@ class OCP:
         self.ddp.solve(xs, us, ddpIteration, False)
 
 
-################################################################################
-################################################################################
-##############   ##     ##    ###    #### ##    ##   ###########################
-##############   ###   ###   ## ##    ##  ###   ##   ###########################
-##############   #### ####  ##   ##   ##  ####  ##   ###########################
-##############   ## ### ## ##     ##  ##  ## ## ##   ###########################
-##############   ##     ## #########  ##  ##  ####   ###########################
-##############   ##     ## ##     ##  ##  ##   ###   ###########################
-##############   ##     ## ##     ## #### ##    ##   ###########################
-################################################################################
-################################################################################
+# ##############################################################################
+# ##############################################################################
+# ############   ##     ##    ###    #### ##    ##   ###########################
+# ############   ###   ###   ## ##    ##  ###   ##   ###########################
+# ############   #### ####  ##   ##   ##  ####  ##   ###########################
+# ############   ## ### ## ##     ##  ##  ## ## ##   ###########################
+# ############   ##     ## #########  ##  ##  ####   ###########################
+# ############   ##     ## ##     ##  ##  ##   ###   ###########################
+# ############   ##     ## ##     ## #### ##    ##   ###########################
+# ##############################################################################
+# ##############################################################################
 
 if __name__ == "__main__":
 
@@ -550,7 +550,7 @@ if __name__ == "__main__":
 
     import example_robot_data as robex
 
-    ### Load model with some frozen joints
+    # ## Load model with some frozen joints
     robot = robex.load("talos")
     robot.model.q0 = robot.model.referenceConfigurations["half_sitting"]
     blockedJointNames = [
@@ -582,24 +582,21 @@ if __name__ == "__main__":
     )
     rmodel.q0 = rmodel.referenceConfigurations["half_sitting"]
 
-    ### Create OCP
+    # ## Create OCP
     ocp = OCP(rmodel, verbose=False)
     ocp.initLocomotionPattern()
 
-    ### Open display
+    # ## Open display
     viz = pin.visualize.GepettoVisualizer(rmodel, gmodel, gmodel)
-    try:
-        viz.initViewer(loadModel=True)
-    except:
-        print("### No gepetto viewer ... no display")
+    viz.initViewer(loadModel=True)
     viz.display(rmodel.q0)
 
-    ### Open reference logs.
+    # ## Open reference logs.
     npy = np.load("assert_ocp_walk_feet_traj.npy", allow_pickle=True)[()]
     gtx = npy["x"]
     gtu = npy["u"]
 
-    ### Receiding horizon with "perfect" behavior, to be compared against logs.
+    # ## Receiding horizon with "perfect" behavior, to be compared against logs.
     for s in range(1000):
         assert np.linalg.norm(gtx[s] - ocp.ddp.xs[0]) < 1e-6
         ocp.updateOCP(ocp.ddp.xs[0])

@@ -1,8 +1,5 @@
 import hppfcl
 import sys
-import pybullet as p  # PyBullet simulator
-import time  # Time module to sleep()
-import pybullet_data
 
 import numpy as np
 import crocoddyl
@@ -15,7 +12,7 @@ import sobec
 
 import example_robot_data as robex
 
-### Load model with some frozen joints
+# ## Load model with some frozen joints
 robot = robex.load("talos")
 robot.model.q0 = robot.model.referenceConfigurations["half_sitting"]
 blockedJointNames = [
@@ -51,23 +48,20 @@ rmodel, [gmodel_vis, gmodel_col] = pin.buildReducedModel(
 rmodel.q0 = rmodel.referenceConfigurations["half_sitting"]
 
 
-### Open display
+# ## Open display
 viz = pin.visualize.GepettoVisualizer(rmodel, gmodel_col, gmodel_vis)
-try:
-    viz.initViewer(loadModel=True)
-except:
-    print("### No gepetto viewer ... no display")
+viz.initViewer(loadModel=True)
 viz.display(rmodel.q0)
 
 rdata = rmodel.createData()
 
 rmodel.defaultState = np.concatenate([rmodel.q0, np.zeros(rmodel.nv)])
 
-##################################################################################
+# #################################################################################
 #
 # Choose time and walk settings
 #
-##################################################################################
+# #################################################################################
 
 # Total number of nodes of the simulation
 T_total = 2000
@@ -309,7 +303,7 @@ residualCoMVelocity = sobec.ResidualModelCoMVelocity(
 )
 comVelCost = crocoddyl.CostModelResidual(state, residualCoMVelocity)
 
-############################################################################################################
+# #####################################################################################
 se3ObsPose = pin.SE3.Identity()
 se3ObsPose.translation = np.array([0.0, 0.0, -0.05])
 se3FootPose = pin.SE3.Identity()

@@ -1,19 +1,17 @@
 import pinocchio as pin
-import numpy as np
-from numpy.linalg import norm, inv, pinv, svd, eig
 from pinbullet import SimuProxy
 from ocp_walk_feet_traj import OCP
 
 
-################################################################################
-### HYPER PARAMS
-################################################################################
+# ###############################################################################
+# ## HYPER PARAMS
+# ###############################################################################
 
 # Total number of nodes of the simulation
 T_total = 2000
 
-### SIMU #############################################################################################
-### Load urdf model in pinocchio and bullet
+# ## SIMU #############################################################################
+# ## Load urdf model in pinocchio and bullet
 models = SimuProxy()
 models.loadExampleRobot("talos")
 models.loadBulletModel()
@@ -44,13 +42,13 @@ models.setTorqueControlMode()
 models.setTalosDefaultFriction()
 
 
-### OCP ########################################################################
-### OCP ########################################################################
+# ## OCP ########################################################################
+# ## OCP ########################################################################
 # Init crocoddyl
 ocp = OCP(models.rmodel)
 ocp.initLocomotionPattern()
 
-### DISPLAY ####################################################################
+# ## DISPLAY ####################################################################
 # Init Gepetto viewer
 viz = pin.visualize.GepettoVisualizer(
     models.rmodel, models.gmodel_col, models.gmodel_vis
@@ -58,7 +56,7 @@ viz = pin.visualize.GepettoVisualizer(
 viz.initViewer(loadModel=True)
 viz.display(models.rmodel.q0)
 
-### MAIN LOOP ##################################################################
+# ## MAIN LOOP ##################################################################
 
 hx = []
 hu = []
@@ -66,14 +64,14 @@ hu = []
 # FOR LOOP
 for s in range(T_total):
 
-    ################################################################################
-    ## Log and display
+    # ###############################################################################
+    # # Log and display
     viz.display(ocp.ddp.xs[0][: models.rmodel.nq])
     hx.append(ocp.ddp.xs[0].copy())
     hu.append(ocp.ddp.us[0].copy())
 
-    ################################################################################
-    ## For timesteps without MPC updates
+    # ###############################################################################
+    # # For timesteps without MPC updates
     for k in range(int(ocp.DT / 1e-3)):
         # Get simulation state
         x = models.getState()
@@ -84,9 +82,9 @@ for s in range(T_total):
         # Run one step of simu
         models.step(torques)
 
-    ################################################################################
-    ## If mpc update
-    ### Change OCP and build warmstart
+    # ###############################################################################
+    # # If mpc update
+    # ## Change OCP and build warmstart
     ocp.updateOCP(ocp.ddp.xs[0])
-    ### Solve
+    # ## Solve
     ocp.solve(x)
