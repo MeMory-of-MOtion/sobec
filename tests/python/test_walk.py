@@ -50,11 +50,11 @@ def getCurrentState():
     return (q, v)
 
 
-##################################################################################
+# #################################################################################
 #
 # Initialize robot model
 #
-##################################################################################
+# #################################################################################
 
 URDF_FILENAME = "talos_reduced_corrected.urdf"
 SRDF_FILENAME = "talos.srdf"
@@ -146,14 +146,16 @@ comRef = pin.centerOfMass(rmodelComplete, rdataComplete, q0Complete)
 # z coordinate of robot base when standing on ground
 zBase_reference = 1.01927
 
-##################################################################################
+# #################################################################################
 #
 # Choose time and walk settings
 #
-##################################################################################
+# #################################################################################
 
 # Total number of nodes of the simulation
-T_total = 2000
+
+# ## CHANGE ME to 2000 for a full locomotion ... kept shorter for CI duration
+T_total = 20  # 2000
 
 # Time step of the DDP
 DT = 1e-2
@@ -182,11 +184,11 @@ TFootDepth = 220
 # Correction in y to push the feet away from each other
 yCorrection = 0.005
 
-##################################################################################
+# #################################################################################
 #
 # Create cost functions and contacts
 #
-##################################################################################
+# #################################################################################
 
 # Data structure
 state = crocoddyl.StateMultibody(rmodel)

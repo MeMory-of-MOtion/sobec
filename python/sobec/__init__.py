@@ -1,3 +1,9 @@
-import crocoddyl  # noqa: F401
+# flake8: noqa
 
-from .sobec_pywrap import ResidualModelCoMVelocity, ActivationModelQuadRef  # noqa: F401
+import crocoddyl
+
+from .sobec_pywrap import (
+    ResidualModelCoMVelocity,
+    ResidualModelVelCollision,
+    ActivationModelQuadRef,
+)
