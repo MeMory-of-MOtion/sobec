@@ -16,21 +16,21 @@ import sobec
 import example_robot_data as robex
 
 ### Load model with some frozen joints
-robot = robex.load('talos')
+robot = robex.load("talos")
 robot.model.q0 = robot.model.referenceConfigurations["half_sitting"]
 blockedJointNames = [
-    #"universe",
-    #"arm_left_1_joint",
-    #"arm_left_2_joint",
-    #"arm_left_3_joint",
-    #"arm_left_4_joint",
+    # "universe",
+    # "arm_left_1_joint",
+    # "arm_left_2_joint",
+    # "arm_left_3_joint",
+    # "arm_left_4_joint",
     "arm_left_5_joint",
     "arm_left_6_joint",
     "arm_left_7_joint",
-    #"arm_right_1_joint",
-    #"arm_right_2_joint",
-    #"arm_right_3_joint",
-    #"arm_right_4_joint",
+    # "arm_right_1_joint",
+    # "arm_right_2_joint",
+    # "arm_right_3_joint",
+    # "arm_right_4_joint",
     "arm_right_5_joint",
     "arm_right_6_joint",
     "arm_right_7_joint",
@@ -39,23 +39,29 @@ blockedJointNames = [
     "head_1_joint",
     "head_2_joint",
 ]
-blockedJointIds = [ i for (i,n) in enumerate(robot.model.names) if n  in blockedJointNames  ]
-rmodel, [gmodel_vis,gmodel_col] = pin.buildReducedModel(robot.model, [robot.visual_model,robot.collision_model ],
-                                         blockedJointIds,robot.model.q0)
+blockedJointIds = [
+    i for (i, n) in enumerate(robot.model.names) if n in blockedJointNames
+]
+rmodel, [gmodel_vis, gmodel_col] = pin.buildReducedModel(
+    robot.model,
+    [robot.visual_model, robot.collision_model],
+    blockedJointIds,
+    robot.model.q0,
+)
 rmodel.q0 = rmodel.referenceConfigurations["half_sitting"]
 
 
 ### Open display
-viz = pin.visualize.GepettoVisualizer(rmodel,gmodel_col,gmodel_vis)
+viz = pin.visualize.GepettoVisualizer(rmodel, gmodel_col, gmodel_vis)
 try:
     viz.initViewer(loadModel=True)
 except:
-    print('### No gepetto viewer ... no display')
+    print("### No gepetto viewer ... no display")
 viz.display(rmodel.q0)
-    
+
 rdata = rmodel.createData()
 
-rmodel.defaultState = np.concatenate([ rmodel.q0, np.zeros(rmodel.nv) ])
+rmodel.defaultState = np.concatenate([rmodel.q0, np.zeros(rmodel.nv)])
 
 ##################################################################################
 #
@@ -305,57 +311,86 @@ comVelCost = crocoddyl.CostModelResidual(state, residualCoMVelocity)
 
 ############################################################################################################
 se3ObsPose = pin.SE3.Identity()
-se3ObsPose.translation = np.array([0.,0.,-0.05])
+se3ObsPose.translation = np.array([0.0, 0.0, -0.05])
 se3FootPose = pin.SE3.Identity()
-se3FootPose.translation = np.array([0.,0.,0.])
+se3FootPose.translation = np.array([0.0, 0.0, 0.0])
 
-obstSize = [3,1,0.0]
+obstSize = [3, 1, 0.0]
 
 # Add geometry objects for the feet
-rightObstacle = 'leg_right_6_link'
+rightObstacle = "leg_right_6_link"
 rightObstacleId = rmodel.getFrameId(rightObstacle)
-leftObstacle = 'leg_left_6_link'
+leftObstacle = "leg_left_6_link"
 leftObstacleId = rmodel.getFrameId(leftObstacle)
 
-ig_foot_right = gmodel_col.addGeometryObject(pin.GeometryObject("right_foot",
-                                                     rightFootId,
-                                                     rmodel.frames[rightFootId].parent,
-                                                     hppfcl.Sphere(0),
-                                                     se3FootPose),rmodel)
-                                                     
-ig_foot_left = gmodel_col.addGeometryObject(pin.GeometryObject("left_foot",
-                                                     leftFootId,
-                                                     rmodel.frames[leftFootId].parent,
-                                                     hppfcl.Sphere(0),
-                                                     se3FootPose),rmodel)
+ig_foot_right = gmodel_col.addGeometryObject(
+    pin.GeometryObject(
+        "right_foot",
+        rightFootId,
+        rmodel.frames[rightFootId].parent,
+        hppfcl.Sphere(0),
+        se3FootPose,
+    ),
+    rmodel,
+)
+
+ig_foot_left = gmodel_col.addGeometryObject(
+    pin.GeometryObject(
+        "left_foot",
+        leftFootId,
+        rmodel.frames[leftFootId].parent,
+        hppfcl.Sphere(0),
+        se3FootPose,
+    ),
+    rmodel,
+)
 # Add obstacle in the world
-ig_obs_ground = gmodel_col.addGeometryObject(pin.GeometryObject("obstacle",
-                                                         rmodel.getFrameId("universe"),
-                                                         rmodel.frames[rmodel.getFrameId("universe")].parent,
-                                                         hppfcl.Box(obstSize[0],obstSize[1],obstSize[2]),
-                                                         se3ObsPose),rmodel)
+ig_obs_ground = gmodel_col.addGeometryObject(
+    pin.GeometryObject(
+        "obstacle",
+        rmodel.getFrameId("universe"),
+        rmodel.frames[rmodel.getFrameId("universe")].parent,
+        hppfcl.Box(obstSize[0], obstSize[1], obstSize[2]),
+        se3ObsPose,
+    ),
+    rmodel,
+)
 
-ig_obs_left = gmodel_col.addGeometryObject(pin.GeometryObject("obstacle_left",
-                                                         leftObstacleId,
-                                                         rmodel.frames[leftObstacleId].parent,
-                                                         hppfcl.Sphere(0),
-                                                         se3FootPose),rmodel)
-ig_obs_right = gmodel_col.addGeometryObject(pin.GeometryObject("obstacle_right",
-                                                         rightObstacleId,
-                                                         rmodel.frames[rightObstacleId].parent,
-                                                         hppfcl.Sphere(0),
-                                                         se3FootPose),rmodel)
+ig_obs_left = gmodel_col.addGeometryObject(
+    pin.GeometryObject(
+        "obstacle_left",
+        leftObstacleId,
+        rmodel.frames[leftObstacleId].parent,
+        hppfcl.Sphere(0),
+        se3FootPose,
+    ),
+    rmodel,
+)
+ig_obs_right = gmodel_col.addGeometryObject(
+    pin.GeometryObject(
+        "obstacle_right",
+        rightObstacleId,
+        rmodel.frames[rightObstacleId].parent,
+        hppfcl.Sphere(0),
+        se3FootPose,
+    ),
+    rmodel,
+)
 
-gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_right,ig_obs_ground))
-gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_left,ig_obs_ground))
-gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_left,ig_obs_right))
-gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_right,ig_obs_left))
+gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_right, ig_obs_ground))
+gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_left, ig_obs_ground))
+gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_left, ig_obs_right))
+gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_right, ig_obs_left))
 
 
-residualPairCollisionRight = sobec.ResidualModelVelCollision(state,actuation.nu, gmodel_col, 0, rightFootId,pin.WORLD,0.01)
+residualPairCollisionRight = sobec.ResidualModelVelCollision(
+    state, actuation.nu, gmodel_col, 0, rightFootId, pin.WORLD, 0.01
+)
 obstacleCostRight = crocoddyl.CostModelResidual(state, residualPairCollisionRight)
 
-residualPairCollisionLeft = sobec.ResidualModelVelCollision(state,actuation.nu, gmodel_col, 1, leftFootId,pin.WORLD,0.01)
+residualPairCollisionLeft = sobec.ResidualModelVelCollision(
+    state, actuation.nu, gmodel_col, 1, leftFootId, pin.WORLD, 0.01
+)
 obstacleCostLeft = crocoddyl.CostModelResidual(state, residualPairCollisionLeft)
 
 ##################################################################################
@@ -426,7 +461,9 @@ runningModelRightSwing = crocoddyl.IntegratedActionModelEuler(
     dmodelRunningRightSwing, DT
 )
 
-problem = crocoddyl.ShootingProblem(rmodel.defaultState, [runningModel] * T, runningModel)
+problem = crocoddyl.ShootingProblem(
+    rmodel.defaultState, [runningModel] * T, runningModel
+)
 
 # Creating the DDP solver for this OC problem, defining a logger
 
@@ -437,7 +474,9 @@ ddp.th_grad = 1e-9
 # Solving it with the DDP algorithm
 xs0 = [rmodel.defaultState] * (T + 1)
 us0 = [
-    ddp.problem.runningModels[0].quasiStatic(ddp.problem.runningDatas[0], rmodel.defaultState)
+    ddp.problem.runningModels[0].quasiStatic(
+        ddp.problem.runningDatas[0], rmodel.defaultState
+    )
 ] * T
 
 ddp.solve(xs0, us0, 500, False)
@@ -445,5 +484,4 @@ ddp.solve(xs0, us0, 500, False)
 xs = ddp.xs
 us = ddp.us
 
-viz.play(np.array(xs)[:,:rmodel.nq].T,DT)
-
+viz.play(np.array(xs)[:, : rmodel.nq].T, DT)
