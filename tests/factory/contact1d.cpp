@@ -65,7 +65,8 @@ ContactModel1DFactory::~ContactModel1DFactory() {}
 
 boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModel1DFactory::create(
     ContactModelMaskTypes::Type mask_type, PinocchioModelTypes::Type model_type,
-    PinocchioReferenceTypes::Type reference_type, const std::string frame_name, std::size_t nu) const {
+    PinocchioReferenceTypes::Type reference_type, Eigen::Vector2d gains, 
+    const std::string frame_name, std::size_t nu) const {
   PinocchioModelFactory model_factory(model_type);
   boost::shared_ptr<crocoddyl::StateMultibody> state =
       boost::make_shared<crocoddyl::StateMultibody>(model_factory.create());
@@ -80,8 +81,8 @@ boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModel1DFactory::create
     nu = state->get_nv();
   }
 
-  Eigen::Vector2d gains = Eigen::Vector2d::Ones();
-  Eigen::Vector3d xref = Eigen::Vector3d::Zero();
+  // Eigen::Vector2d gains = Eigen::Vector2d::Random();
+  Eigen::Vector3d xref = Eigen::Vector3d::Random();
   switch (mask_type) {
     case ContactModelMaskTypes::X: {
       if (reference_type == PinocchioReferenceTypes::LOCAL) {

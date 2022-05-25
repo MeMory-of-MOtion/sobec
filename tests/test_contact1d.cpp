@@ -29,7 +29,7 @@ void test_construct_data(ContactModelMaskTypes::Type mask_type, PinocchioModelTy
                          PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type);
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // Run the print function
   std::ostringstream tmp;
@@ -45,7 +45,7 @@ void test_calc_fetch_jacobians(ContactModelMaskTypes::Type mask_type, PinocchioM
                                PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type);
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -72,7 +72,7 @@ void test_calc_diff_fetch_derivatives(ContactModelMaskTypes::Type mask_type, Pin
                                       PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type);
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -100,7 +100,7 @@ void test_update_force(ContactModelMaskTypes::Type mask_type, PinocchioModelType
                        PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type);
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -125,7 +125,7 @@ void test_update_force_diff(ContactModelMaskTypes::Type mask_type, PinocchioMode
                             PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type);
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -154,7 +154,7 @@ void test_partial_derivatives_against_numdiff(ContactModelMaskTypes::Type mask_t
 #endif
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type);
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   pinocchio::Model& pinocchio_model = *model->get_state()->get_pinocchio().get();
@@ -186,26 +186,26 @@ void test_partial_derivatives_against_numdiff(ContactModelMaskTypes::Type mask_t
 
   // Checking the partial derivatives against NumDiff
   double tol = sqrt(model_num_diff.get_disturbance());
-  if(model_type==PinocchioModelTypes::TalosArm && mask_type==ContactModelMaskTypes::X){
-    boost::shared_ptr<sobec::ContactModel1D> md = boost::static_pointer_cast<sobec::ContactModel1D>(model);
-    boost::shared_ptr<sobec::ContactData1D> dd = boost::static_pointer_cast<sobec::ContactData1D>(data);
-    std::cout << " xref : " << std::endl;
-    std::cout << md->get_reference() << std::endl;
-    std::cout << " type : " << std::endl;
-    std::cout << md->get_type() << std::endl;
-    std::cout << " mask : " << std::endl;
-    std::cout << md->get_mask() << std::endl;
-    std::cout << " a0_3d_ analytic : " << std::endl;
-    std::cout << dd->a0_3d_ << std::endl;
-    std::cout << " data mask : " << std::endl;
-    std::cout << dd->mask << std::endl;
-    std::cout << " data type : " << std::endl;
-    std::cout << dd->type << std::endl;
-    std::cout << " da0 analytic : " << std::endl;
-    std::cout << data->da0_dx << std::endl;
-    std::cout << " da0 numdiff : " << std::endl;
-    std::cout << data_num_diff->da0_dx << std::endl;
-  }
+  // if(model_type==PinocchioModelTypes::TalosArm && mask_type==ContactModelMaskTypes::X){
+  //   boost::shared_ptr<sobec::ContactModel1D> md = boost::static_pointer_cast<sobec::ContactModel1D>(model);
+  //   boost::shared_ptr<sobec::ContactData1D> dd = boost::static_pointer_cast<sobec::ContactData1D>(data);
+  //   std::cout << " xref : " << std::endl;
+  //   std::cout << md->get_reference() << std::endl;
+  //   std::cout << " type : " << std::endl;
+  //   std::cout << md->get_type() << std::endl;
+  //   std::cout << " mask : " << std::endl;
+  //   std::cout << md->get_mask() << std::endl;
+  //   std::cout << " a0_3d_ analytic : " << std::endl;
+  //   std::cout << dd->a0_3d_ << std::endl;
+  //   std::cout << " data mask : " << std::endl;
+  //   std::cout << dd->mask << std::endl;
+  //   std::cout << " data type : " << std::endl;
+  //   std::cout << dd->type << std::endl;
+  //   std::cout << " da0 analytic : " << std::endl;
+  //   std::cout << data->da0_dx << std::endl;
+  //   std::cout << " da0 numdiff : " << std::endl;
+  //   std::cout << data_num_diff->da0_dx << std::endl;
+  // }
   BOOST_CHECK((data->da0_dx - data_num_diff->da0_dx).isZero(tol));
 }
 

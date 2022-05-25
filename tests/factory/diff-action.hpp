@@ -55,7 +55,7 @@ class DifferentialActionModelFactory {
 
   boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> create(DifferentialActionModelTypes::Type type,
                                                                        PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
-                                                                       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) const;
+                                                                       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::X) const;
 
   boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics> create_freeFwdDynamics(
       StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type) const;

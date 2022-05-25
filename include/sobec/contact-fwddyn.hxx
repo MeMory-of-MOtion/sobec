@@ -26,9 +26,7 @@ DifferentialActionModelContactFwdDynamicsTpl<Scalar>::DifferentialActionModelCon
     boost::shared_ptr<StateMultibody> state, boost::shared_ptr<ActuationModelAbstract> actuation,
     boost::shared_ptr<crocoContactModelMultiple> contacts, boost::shared_ptr<CostModelSum> costs,
     const Scalar JMinvJt_damping, const bool enable_force)
-    : Base(state, actuation, contacts, costs, JMinvJt_damping, enable_force) {
-        enable_force_ = enable_force;
-    }
+    : Base(state, actuation, contacts, costs, JMinvJt_damping, false), enable_force_(enable_force) {}
 
 
 template <typename Scalar>

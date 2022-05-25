@@ -15,14 +15,14 @@ template <typename Scalar>
 ContactModel1DTpl<Scalar>::ContactModel1DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const std::size_t nu, const Vector2s& gains,
                                              const Vector3MaskType& mask, const pinocchio::ReferenceFrame type)
-    : Base(state, id, Scalar(0.), nu, Vector2s::Zero(2)), xref_(xref), gains_(gains), mask_(mask), type_(type) {}
+    : Base(state, id, Scalar(0.), nu, Vector2s::Zero()), xref_(xref), gains_(gains), mask_(mask), type_(type) {}
 
 
 template <typename Scalar>
 ContactModel1DTpl<Scalar>::ContactModel1DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const Vector2s& gains,
                                              const pinocchio::ReferenceFrame type)
-    : Base(state, id, Scalar(0.), Vector2s::Zero(2)), xref_(xref), gains_(gains), mask_(Vector3MaskType::z), type_(type) {}
+    : Base(state, id, Scalar(0.), Vector2s::Zero()), xref_(xref), gains_(gains), mask_(Vector3MaskType::z), type_(type) {}
 
 
 template <typename Scalar>

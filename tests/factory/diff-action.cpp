@@ -158,6 +158,7 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Typ
      {
       contact->addContact("lf", ContactModel3DFactory().create(PinocchioModelTypes::TalosArm, 
                                                                ref_type, 
+                                                               Eigen::Vector2d::Zero(),
                                                                "gripper_left_fingertip_1_link",
                                                                actuation->get_nu()), true);
       // force regularization
@@ -172,16 +173,16 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Typ
     case StateModelTypes::StateMultibody_HyQ:
      {
       contact->addContact(
-          "lf", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, "lf_foot",
+          "lf", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lf_foot",
                                              actuation->get_nu()));
       contact->addContact(
-          "rf", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, "rf_foot",
+          "rf", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "rf_foot",
                                              actuation->get_nu()));
       contact->addContact(
-          "lh", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, "lh_foot",
+          "lh", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lh_foot",
                                              actuation->get_nu()));
       contact->addContact(
-          "rh", ContactModel3DFactory().create(PinocchioModelTypes::HyQ,  ref_type, "rh_foot",
+          "rh", ContactModel3DFactory().create(PinocchioModelTypes::HyQ,  ref_type, Eigen::Vector2d::Zero(), "rh_foot",
                                              actuation->get_nu()));
       break;
      }
@@ -228,6 +229,7 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(StateModelTypes::Typ
       contact->addContact("lf", ContactModel1DFactory().create(mask_type,
                                                                PinocchioModelTypes::TalosArm, 
                                                                ref_type, 
+                                                               Eigen::Vector2d::Zero(),
                                                                "gripper_left_fingertip_1_link",
                                                                actuation->get_nu()), true);
       // force regularization
@@ -242,16 +244,16 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(StateModelTypes::Typ
     case StateModelTypes::StateMultibody_HyQ:
      {
       contact->addContact(
-          "lf", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, "lf_foot",
+          "lf", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lf_foot",
                                              actuation->get_nu()));
       contact->addContact(
-          "rf", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, "rf_foot",
+          "rf", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "rf_foot",
                                              actuation->get_nu()));
       contact->addContact(
-          "lh", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, "lh_foot",
+          "lh", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lh_foot",
                                              actuation->get_nu()));
       contact->addContact(
-          "rh", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ,  ref_type, "rh_foot",
+          "rh", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ,  ref_type, Eigen::Vector2d::Zero(), "rh_foot",
                                              actuation->get_nu()));
       break;
      }
@@ -267,8 +269,7 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(StateModelTypes::Typ
                 CostModelFactory().create(CostModelTypes::CostModelResidualControl, state_type,
                                           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
                 0.1);
-  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost,
-                                                                                    0., true);
+  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost, 0., true);
   return action;
 }
 
