@@ -80,44 +80,44 @@ boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModel1DFactory::create
     nu = state->get_nv();
   }
 
-  Eigen::Vector2d gains = Eigen::Vector2d::Zero();
-  Eigen::Vector3d xref = Eigen::Vector3d::Random();
+  Eigen::Vector2d gains = Eigen::Vector2d::Ones();
+  Eigen::Vector3d xref = Eigen::Vector3d::Zero();
   switch (mask_type) {
     case ContactModelMaskTypes::X: {
       if (reference_type == PinocchioReferenceTypes::LOCAL) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::x,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::x,
                                                                 pinocchio::LOCAL);
       } else if (reference_type == PinocchioReferenceTypes::WORLD) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::x,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::x,
                                                                 pinocchio::WORLD);
       } else if (reference_type == PinocchioReferenceTypes::LOCAL_WORLD_ALIGNED) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::x,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::x,
                                                                 pinocchio::LOCAL_WORLD_ALIGNED);
       }
       break;
     }
     case ContactModelMaskTypes::Y: {
       if (reference_type == PinocchioReferenceTypes::LOCAL) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::y,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::y,
                                                                 pinocchio::LOCAL);
       } else if (reference_type == PinocchioReferenceTypes::WORLD) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::y,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::y,
                                                                 pinocchio::WORLD);
       } else if (reference_type == PinocchioReferenceTypes::LOCAL_WORLD_ALIGNED) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::y,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::y,
                                                                 pinocchio::LOCAL_WORLD_ALIGNED);
       }
       break;
     }
     case ContactModelMaskTypes::Z:
       if (reference_type == PinocchioReferenceTypes::LOCAL) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::z,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::z,
                                                                 pinocchio::LOCAL);
       } else if (reference_type == PinocchioReferenceTypes::WORLD) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::z,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::z,
                                                                 pinocchio::WORLD);
       } else if (reference_type == PinocchioReferenceTypes::LOCAL_WORLD_ALIGNED) {
-        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, Vector3MaskType::z,
+        contact = boost::make_shared<sobec::ContactModel1D>(state, frame_id, xref, nu, gains, sobec::Vector3MaskType::z,
                                                                 pinocchio::LOCAL_WORLD_ALIGNED);
       }
       break;

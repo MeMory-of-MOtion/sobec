@@ -16,8 +16,8 @@
 #include "crocoddyl/core/costs/cost-sum.hpp"
 #include "crocoddyl/multibody/states/multibody.hpp"
 #include "crocoddyl/core/actuation-base.hpp"
-// #include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
-#include "crocoddyl/multibody/data/contacts.hpp"
+#include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
+// #include "crocoddyl/multibody/data/contacts.hpp"
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
 
 #include "sobec/fwd.hpp"
@@ -71,8 +71,7 @@ class DifferentialActionModelContactFwdDynamicsTpl : public crocoddyl::Different
   typedef crocoddyl::MathBaseTpl<Scalar> MathBase;
   typedef crocoddyl::CostModelSumTpl<Scalar> CostModelSum;
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
-  typedef ContactModelMultipleTpl<Scalar> ContactModelMultiple;
-  // typedef crocoddyl::ContactModelMultipleTpl<Scalar> CrocoContactModelMultiple;
+  typedef crocoddyl::ContactModelMultipleTpl<Scalar> crocoContactModelMultiple;
   typedef crocoddyl::ActuationModelAbstractTpl<Scalar> ActuationModelAbstract;
   typedef crocoddyl::DifferentialActionDataAbstractTpl<Scalar> DifferentialActionDataAbstract;
   typedef typename MathBase::VectorXs VectorXs;
@@ -93,7 +92,7 @@ class DifferentialActionModelContactFwdDynamicsTpl : public crocoddyl::Different
    */
   DifferentialActionModelContactFwdDynamicsTpl(boost::shared_ptr<StateMultibody> state,
                                                boost::shared_ptr<ActuationModelAbstract> actuation,
-                                               boost::shared_ptr<ContactModelMultiple> contacts,
+                                               boost::shared_ptr<crocoContactModelMultiple> contacts,
                                                boost::shared_ptr<CostModelSum> costs,
                                                const Scalar JMinvJt_damping = Scalar(0.),
                                                const bool enable_force = false);

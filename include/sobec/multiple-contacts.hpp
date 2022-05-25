@@ -75,6 +75,18 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
   ContactModelMultipleTpl(boost::shared_ptr<StateMultibody> state);
   ~ContactModelMultipleTpl();
 
+  /**
+   * @brief Update the Jacobian of the spatial force defined in frame coordinate
+   *
+   * @param[in] data   Multi-contact data
+   * @param[in] df_dx  Jacobian of the spatial impulse defined in frame coordinate
+   * \f$\frac{\partial{}^o\underline{\boldsymbol{\lambda}}_c}{\partial\mathbf{x}}\in\mathbb{R}^{nc\times{ndx}}\f$
+   * @param[in] df_du  Jacobian of the spatial impulse defined in frame coordinate
+   * \f$\frac{\partial{}^o\underline{\boldsymbol{\lambda}}_c}{\partial\mathbf{u}}\in\mathbb{R}^{nc\times{nu}}\f$
+   */
+  void updateForceDiff(const boost::shared_ptr<ContactDataMultiple>& data, const boost::shared_ptr<MatrixXs> df_dx,
+                       const boost::shared_ptr<MatrixXs> df_du) const;
+
 
   /**
    * @brief Update the RNEA derivatives dtau_dq by adding the skew term (necessary for contacts expressed in

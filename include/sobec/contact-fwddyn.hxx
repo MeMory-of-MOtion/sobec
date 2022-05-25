@@ -8,7 +8,6 @@
 
 #include "crocoddyl/core/utils/exception.hpp"
 #include "crocoddyl/core/utils/math.hpp"
-// #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
 
 #include <pinocchio/algorithm/compute-all-terms.hpp>
 #include <pinocchio/algorithm/frames.hpp>
@@ -25,11 +24,16 @@ namespace sobec {
 template <typename Scalar>
 DifferentialActionModelContactFwdDynamicsTpl<Scalar>::DifferentialActionModelContactFwdDynamicsTpl(
     boost::shared_ptr<StateMultibody> state, boost::shared_ptr<ActuationModelAbstract> actuation,
-    boost::shared_ptr<ContactModelMultiple> contacts, boost::shared_ptr<CostModelSum> costs,
+    boost::shared_ptr<crocoContactModelMultiple> contacts, boost::shared_ptr<CostModelSum> costs,
     const Scalar JMinvJt_damping, const bool enable_force)
-    : Base(state, actuation, boost::static_pointer_cast<crocoddyl::ContactModelMultipleTpl<Scalar>>(contacts), costs, JMinvJt_damping, enable_force) {
+    : Base(state, actuation, contacts, costs, JMinvJt_damping, enable_force) {
         enable_force_ = enable_force;
     }
+
+
+template <typename Scalar>
+DifferentialActionModelContactFwdDynamicsTpl<Scalar>::~DifferentialActionModelContactFwdDynamicsTpl() {}
+
 
 
 template <typename Scalar>
@@ -68,7 +72,6 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
   // see https://www.overleaf.com/read/tzvrrxxtntwk for detailed calculations
   boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts = boost::static_pointer_cast<sobec::ContactModelMultipleTpl<Scalar>>(this->get_contacts());
   sobec_contacts->updateRneaDerivatives(d->multibody.contacts, d->pinocchio);
-  // this->get_contacts()->updateRneaDerivatives(d->multibody.contacts, d->pinocchio);
 
   const Eigen::Block<MatrixXs> a_partial_dtau = d->Kinv.topLeftCorner(nv, nv);
   const Eigen::Block<MatrixXs> a_partial_da = d->Kinv.topRightCorner(nv, nc);
@@ -88,10 +91,8 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
     d->df_dx.topRows(nc).noalias() += f_partial_da * d->multibody.contacts->da0_dx.topRows(nc);
     d->df_dx.topRows(nc).noalias() -= f_partial_dtau * d->multibody.actuation->dtau_dx;
     d->df_du.topRows(nc).noalias() = -f_partial_dtau * d->multibody.actuation->dtau_du;
-    // const boost::shared_ptr<MatrixXs> df_dx = boost::make_shared<MatrixXs>(d->df_dx.topRows(nc));
-    // const boost::shared_ptr<MatrixXs> df_du = boost::make_shared<MatrixXs>(d->df_du.topRows(nc));
-    const MatrixXs df_dx = MatrixXs(d->df_dx.topRows(nc));
-    const MatrixXs df_du = MatrixXs(d->df_du.topRows(nc));
+    const boost::shared_ptr<MatrixXs> df_dx = boost::make_shared<MatrixXs>(d->df_dx.topRows(nc));
+    const boost::shared_ptr<MatrixXs> df_du = boost::make_shared<MatrixXs>(d->df_du.topRows(nc));
     sobec_contacts->updateAccelerationDiff(d->multibody.contacts, d->Fx.bottomRows(nv));
     sobec_contacts->updateForceDiff(d->multibody.contacts, df_dx, df_du);
   }

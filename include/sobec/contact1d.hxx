@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/contact3d.hpp"
+#include "sobec/contact1d.hpp"
 
 
 namespace sobec {
@@ -15,23 +15,21 @@ template <typename Scalar>
 ContactModel1DTpl<Scalar>::ContactModel1DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const std::size_t nu, const Vector2s& gains,
                                              const Vector3MaskType& mask, const pinocchio::ReferenceFrame type)
-    : Base(state, 1, nu), xref_(xref), gains_(gains), mask_(mask), type_(type) {
-  id_ = id;
-}
+    : Base(state, id, Scalar(0.), nu, Vector2s::Zero(2)), xref_(xref), gains_(gains), mask_(mask), type_(type) {}
+
 
 template <typename Scalar>
 ContactModel1DTpl<Scalar>::ContactModel1DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const Vector2s& gains,
                                              const pinocchio::ReferenceFrame type)
-    : Base(state, 1), xref_(xref), gains_(gains), type_(type), mask_(Vector3MaskType::z) {
-  id_ = id;
-}
+    : Base(state, id, Scalar(0.), Vector2s::Zero(2)), xref_(xref), gains_(gains), mask_(Vector3MaskType::z), type_(type) {}
+
 
 template <typename Scalar>
 ContactModel1DTpl<Scalar>::~ContactModel1DTpl() {}
 
 template <typename Scalar>
-void ContactModel1DTpl<Scalar>::calc(const boost::shared_ptr<ContactDataAbstract>& data,
+void ContactModel1DTpl<Scalar>::calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
                                      const Eigen::Ref<const VectorXs>& x) {
   Data* d = static_cast<Data*>(data.get());
   pinocchio::updateFramePlacement(*state_->get_pinocchio().get(), *d->pinocchio, id_);
@@ -61,7 +59,7 @@ void ContactModel1DTpl<Scalar>::calc(const boost::shared_ptr<ContactDataAbstract
 }
 
 template <typename Scalar>
-void ContactModel1DTpl<Scalar>::calcDiff(const boost::shared_ptr<ContactDataAbstract>& data,
+void ContactModel1DTpl<Scalar>::calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
                                          const Eigen::Ref<const VectorXs>&) {
   Data* d = static_cast<Data*>(data.get());
   const pinocchio::JointIndex joint = state_->get_pinocchio()->frames[d->frame].parent;
@@ -116,7 +114,7 @@ void ContactModel1DTpl<Scalar>::calcDiff(const boost::shared_ptr<ContactDataAbst
 }
 
 template <typename Scalar>
-void ContactModel1DTpl<Scalar>::updateForce(const boost::shared_ptr<ContactDataAbstract>& data,
+void ContactModel1DTpl<Scalar>::updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
                                             const VectorXs& force) {
   if (force.size() != 1) {
     throw_pretty("Invalid argument: "

@@ -109,8 +109,8 @@ void test_partial_derivatives_against_numdiff(const boost::shared_ptr<sobec::Int
   // std::cout << " Fx - Fx_nd [q]: " << std::endl;
   // std::cout << (data->Fx - data_num_diff->Fx).leftCols(nq) << std::endl;
   // // std::cout << " Fx - Fx_nd [v]: " << std::endl;
-  // std::cout << " Fx - Fx_nd [tau]: " << std::endl;
-  // std::cout << (data->Fx - data_num_diff->Fx).rightCols(nq) << std::endl;
+  std::cout << " Lx - Lx_nd : " << std::endl;
+  std::cout << data->Lx - data_num_diff->Lx << std::endl;
   
   BOOST_CHECK((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Fu - data_num_diff->Fu).isZero(NUMDIFF_MODIFIER * tol));

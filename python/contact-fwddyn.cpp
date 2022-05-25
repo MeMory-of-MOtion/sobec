@@ -20,15 +20,14 @@ namespace bp = boost::python;
 void exposeDAMContactFwdDyn() {
   bp::register_ptr_to_python<boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> >();
 
-  bp::class_<sobec::DifferentialActionModelContactFwdDynamics, bp::bases<crocoddyl::DifferentialActionModelContactFwdDynamics> >(
-      "DifferentialActionModelContactFwdDynamics",
+  bp::class_<sobec::DifferentialActionModelContactFwdDynamics, bp::bases<crocoddyl::DifferentialActionModelContactFwdDynamics> >("DifferentialActionModelContactFwdDynamics",
       "Differential action model for contact forward dynamics in multibody systems.\n\n"
       "The contact is modelled as holonomic constraits in the contact frame. There\n"
       "is also a custom implementation in case of system with armatures. If you want to\n"
       "include the armature, you need to use set_armature(). On the other hand, the\n"
       "stack of cost functions are implemented in CostModelSum().",
       bp::init<boost::shared_ptr<crocoddyl::StateMultibody>, boost::shared_ptr<crocoddyl::ActuationModelAbstract>,
-               boost::shared_ptr<sobec::ContactModelMultiple>, boost::shared_ptr<crocoddyl::CostModelSum>, bp::optional<double, bool> >(
+               boost::shared_ptr<crocoddyl::ContactModelMultiple>, boost::shared_ptr<crocoddyl::CostModelSum>, bp::optional<double, bool> >(
           bp::args("self", "state", "actuation", "contacts", "costs", "inv_damping", "enable_force"),
           "Initialize the constrained forward-dynamics action model.\n\n"
           "The damping factor is needed when the contact Jacobian is not full-rank. Otherwise,\n"

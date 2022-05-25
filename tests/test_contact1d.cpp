@@ -186,6 +186,26 @@ void test_partial_derivatives_against_numdiff(ContactModelMaskTypes::Type mask_t
 
   // Checking the partial derivatives against NumDiff
   double tol = sqrt(model_num_diff.get_disturbance());
+  if(model_type==PinocchioModelTypes::TalosArm && mask_type==ContactModelMaskTypes::X){
+    boost::shared_ptr<sobec::ContactModel1D> md = boost::static_pointer_cast<sobec::ContactModel1D>(model);
+    boost::shared_ptr<sobec::ContactData1D> dd = boost::static_pointer_cast<sobec::ContactData1D>(data);
+    std::cout << " xref : " << std::endl;
+    std::cout << md->get_reference() << std::endl;
+    std::cout << " type : " << std::endl;
+    std::cout << md->get_type() << std::endl;
+    std::cout << " mask : " << std::endl;
+    std::cout << md->get_mask() << std::endl;
+    std::cout << " a0_3d_ analytic : " << std::endl;
+    std::cout << dd->a0_3d_ << std::endl;
+    std::cout << " data mask : " << std::endl;
+    std::cout << dd->mask << std::endl;
+    std::cout << " data type : " << std::endl;
+    std::cout << dd->type << std::endl;
+    std::cout << " da0 analytic : " << std::endl;
+    std::cout << data->da0_dx << std::endl;
+    std::cout << " da0 numdiff : " << std::endl;
+    std::cout << data_num_diff->da0_dx << std::endl;
+  }
   BOOST_CHECK((data->da0_dx - data_num_diff->da0_dx).isZero(tol));
 }
 

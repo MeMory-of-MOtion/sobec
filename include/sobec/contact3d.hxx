@@ -22,7 +22,7 @@ template <typename Scalar>
 ContactModel3DTpl<Scalar>::ContactModel3DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const Vector2s& gains,
                                              const pinocchio::ReferenceFrame type)
-    : Base(state, id, xref, gains) { 
+    : Base(state, id, xref, gains) {
   type_ = type;
 }
 

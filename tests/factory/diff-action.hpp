@@ -17,7 +17,8 @@
 #include <crocoddyl/core/diff-action-base.hpp>
 #include <crocoddyl/core/numdiff/diff-action.hpp>
 #include <crocoddyl/multibody/actions/free-fwddyn.hpp>
-#include <crocoddyl/multibody/actions/contact-fwddyn.hpp>
+// #include <crocoddyl/multibody/actions/contact-fwddyn.hpp>
+#include "sobec/contact-fwddyn.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -59,11 +60,11 @@ class DifferentialActionModelFactory {
   boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics> create_freeFwdDynamics(
       StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type) const;
 
-  boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> create_contact3DFwdDynamics(
+  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> create_contact3DFwdDynamics(
       StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type, 
       PinocchioReferenceTypes::Type ref_type) const;
 
-  boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> create_contact1DFwdDynamics(
+  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> create_contact1DFwdDynamics(
       StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type, 
       PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type) const;
 

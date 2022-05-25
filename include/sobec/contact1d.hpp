@@ -17,6 +17,8 @@
 #include <crocoddyl/core/utils/exception.hpp>
 #include <crocoddyl/multibody/contact-base.hpp>
 
+#include <crocoddyl/multibody/contacts/contact-1d.hpp>
+
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -25,16 +27,15 @@ namespace sobec {
 enum Vector3MaskType { x = 0, y = 1, z = 2 };
 
 template <typename _Scalar>
-class ContactModel1DTpl : public crocoddyl::ContactModelAbstractTpl<_Scalar> {
+class ContactModel1DTpl : public crocoddyl::ContactModel1DTpl<_Scalar> {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;
   typedef crocoddyl::MathBaseTpl<Scalar> MathBase;
-  typedef crocoddyl::ContactModelAbstractTpl<Scalar> Base;
+  typedef crocoddyl::ContactModel1DTpl<Scalar> Base;
   typedef ContactData1DTpl<Scalar> Data;
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
-  typedef crocoddyl::ContactDataAbstractTpl<Scalar> ContactDataAbstract;
   typedef typename MathBase::Vector2s Vector2s;
   typedef typename MathBase::Vector3s Vector3s;
   typedef typename MathBase::VectorXs VectorXs;
@@ -79,7 +80,7 @@ class ContactModel1DTpl : public crocoddyl::ContactModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ContactDataAbstract>& data, const Eigen::Ref<const VectorXs>& x);
+  virtual void calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Compute the derivatives of the 1d contact holonomic constraint
@@ -88,7 +89,7 @@ class ContactModel1DTpl : public crocoddyl::ContactModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ContactDataAbstract>& data, const Eigen::Ref<const VectorXs>& x);
+  virtual void calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Convert the force into a stack of spatial forces
@@ -96,12 +97,12 @@ class ContactModel1DTpl : public crocoddyl::ContactModelAbstractTpl<_Scalar> {
    * @param[in] data   1d contact data
    * @param[in] force  1d force
    */
-  virtual void updateForce(const boost::shared_ptr<ContactDataAbstract>& data, const VectorXs& force);
+  virtual void updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const VectorXs& force);
 
   /**
    * @brief Create the 1d contact data
    */
-  virtual boost::shared_ptr<ContactDataAbstract> createData(pinocchio::DataTpl<Scalar>* const data);
+  virtual boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> createData(pinocchio::DataTpl<Scalar>* const data);
 
   /**
    * @brief Return the reference frame translation
@@ -159,12 +160,12 @@ class ContactModel1DTpl : public crocoddyl::ContactModelAbstractTpl<_Scalar> {
 };
 
 template <typename _Scalar>
-struct ContactData1DTpl : public crocoddyl::ContactDataAbstractTpl<_Scalar> {
+struct ContactData1DTpl : public crocoddyl::ContactData1DTpl<_Scalar> {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;
   typedef crocoddyl::MathBaseTpl<Scalar> MathBase;
-  typedef crocoddyl::ContactDataAbstractTpl<Scalar> Base;
+  typedef crocoddyl::ContactData1DTpl<Scalar> Base;
   typedef typename MathBase::Matrix2s Matrix2s;
   typedef typename MathBase::Matrix3s Matrix3s;
   typedef typename MathBase::Matrix6xs Matrix6xs;

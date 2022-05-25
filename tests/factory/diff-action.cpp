@@ -139,11 +139,11 @@ DifferentialActionModelFactory::create_freeFwdDynamics(StateModelTypes::Type sta
 
 
 
-boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics>
+boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics>
 DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Type state_type,
                                                             ActuationModelTypes::Type actuation_type,
                                                             PinocchioReferenceTypes::Type ref_type) const {
-  boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> action;
+  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> action;
   boost::shared_ptr<crocoddyl::StateMultibody> state;
   boost::shared_ptr<crocoddyl::ActuationModelAbstract> actuation;
   boost::shared_ptr<crocoddyl::ContactModelMultiple> contact;
@@ -197,7 +197,7 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Typ
                 CostModelFactory().create(CostModelTypes::CostModelResidualControl, state_type,
                                           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
                 0.1);
-  action = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost,
+  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost,
                                                                                     0., true);
   return action;
 }
@@ -207,12 +207,12 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Typ
 
 
 
-boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics>
+boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics>
 DifferentialActionModelFactory::create_contact1DFwdDynamics(StateModelTypes::Type state_type,
                                                             ActuationModelTypes::Type actuation_type,
                                                             PinocchioReferenceTypes::Type ref_type, 
                                                             ContactModelMaskTypes::Type mask_type) const {
-  boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> action;
+  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> action;
   boost::shared_ptr<crocoddyl::StateMultibody> state;
   boost::shared_ptr<crocoddyl::ActuationModelAbstract> actuation;
   boost::shared_ptr<crocoddyl::ContactModelMultiple> contact;
@@ -267,7 +267,7 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(StateModelTypes::Typ
                 CostModelFactory().create(CostModelTypes::CostModelResidualControl, state_type,
                                           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
                 0.1);
-  action = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost,
+  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost,
                                                                                     0., true);
   return action;
 }
