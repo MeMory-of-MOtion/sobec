@@ -21,10 +21,12 @@
 #include <crocoddyl/multibody/residuals/frame-translation.hpp>
 #include <crocoddyl/multibody/residuals/contact-friction-cone.hpp>
 #include <crocoddyl/multibody/residuals/contact-wrench-cone.hpp>
-#include <crocoddyl/multibody/residuals/contact-force.hpp>
+// #include <crocoddyl/multibody/residuals/contact-force.hpp>
 #include <crocoddyl/core/activations/quadratic.hpp>
 #include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
+
+#include "sobec/contact-force.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -159,12 +161,12 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Typ
       contact->addContact("lf", ContactModel3DFactory().create(PinocchioModelTypes::TalosArm, 
                                                                ref_type, 
                                                                Eigen::Vector2d::Zero(),
-                                                               "gripper_left_fingertip_1_link",
+                                                               "gripper_left_fingertip_1_link", 
                                                                actuation->get_nu()), true);
       // force regularization
       cost->addCost("lf",
                     boost::make_shared<crocoddyl::CostModelResidual>(
-                        state, boost::make_shared<crocoddyl::ResidualModelContactForce>(
+                        state, boost::make_shared<sobec::ResidualModelContactForce>(
                                    state, state->get_pinocchio()->getFrameId("gripper_left_fingertip_1_link"), force,
                                    3, actuation->get_nu())),
                     0.1);
@@ -174,16 +176,16 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Typ
      {
       contact->addContact(
           "lf", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lf_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       contact->addContact(
           "rf", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "rf_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       contact->addContact(
           "lh", ContactModel3DFactory().create(PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lh_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       contact->addContact(
           "rh", ContactModel3DFactory().create(PinocchioModelTypes::HyQ,  ref_type, Eigen::Vector2d::Zero(), "rh_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       break;
      }
     default:
@@ -198,8 +200,7 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(StateModelTypes::Typ
                 CostModelFactory().create(CostModelTypes::CostModelResidualControl, state_type,
                                           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
                 0.1);
-  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost,
-                                                                                    0., true);
+  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(state, actuation, contact, cost, 0., true);
   return action;
 }
 
@@ -235,7 +236,7 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(StateModelTypes::Typ
       // force regularization
       cost->addCost("lf",
                     boost::make_shared<crocoddyl::CostModelResidual>(
-                        state, boost::make_shared<crocoddyl::ResidualModelContactForce>(
+                        state, boost::make_shared<sobec::ResidualModelContactForce>(
                                    state, state->get_pinocchio()->getFrameId("gripper_left_fingertip_1_link"), force,
                                    1, actuation->get_nu())),
                     0.1);
@@ -245,16 +246,16 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(StateModelTypes::Typ
      {
       contact->addContact(
           "lf", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lf_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       contact->addContact(
           "rf", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "rf_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       contact->addContact(
           "lh", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ, ref_type, Eigen::Vector2d::Zero(), "lh_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       contact->addContact(
           "rh", ContactModel1DFactory().create(mask_type, PinocchioModelTypes::HyQ,  ref_type, Eigen::Vector2d::Zero(), "rh_foot",
-                                             actuation->get_nu()));
+                                             actuation->get_nu()), true);
       break;
      }
     default:

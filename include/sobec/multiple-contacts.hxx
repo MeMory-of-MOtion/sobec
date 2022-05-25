@@ -81,6 +81,8 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(const boost::shared_
         ContactModel3DTpl<Scalar>* cm_i = static_cast<ContactModel3DTpl<Scalar>*>(m_i->contact.get());
         ContactData3DTpl<Scalar>* cd_i = static_cast<ContactData3DTpl<Scalar>*>(d_i.get());
         if (cm_i->get_type() == pinocchio::WORLD || cm_i->get_type() == pinocchio::LOCAL_WORLD_ALIGNED) {
+          // std::cout << " rnea skew term [contactmultiple] = " << std::endl;
+          // std::cout << cd_i->drnea_skew_term_ << std::endl;
           pinocchio.dtau_dq.block(0, 0, this->get_nu(), nv) += cd_i->drnea_skew_term_;
         }
       }

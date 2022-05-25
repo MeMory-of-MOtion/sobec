@@ -37,7 +37,7 @@ boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModel3DFactory::create
   // std::cout << "created contact3D for frame id = " << frame_name << std::endl;
 
   // Eigen::Vector2d gains = Eigen::Vector2d::Random();
-  Eigen::Vector3d xref = Eigen::Vector3d::Random();
+  Eigen::Vector3d xref = Eigen::Vector3d::Zero();
   if (reference_type == PinocchioReferenceTypes::LOCAL) {
     contact = boost::make_shared<sobec::ContactModel3D>(state, frame_id, xref, nu, gains,
                                                             pinocchio::LOCAL);

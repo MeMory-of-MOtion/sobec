@@ -84,18 +84,13 @@ void test_quasi_static(DifferentialActionModelTypes::Type action_type, Pinocchio
   model->quasiStatic(data, u, x);
   model->calc(data, x, u);
 
-  // Checking that the acceleration is zero as supposed to be in a quasi static condition
-//   if (action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ ||
-//       action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ){
-//       std::cout << "xout = " << std::endl;
-//       std::cout << data->xout << std::endl;
-//   }
   BOOST_CHECK(data->xout.norm() <= 1e-8);
 
   // Check for inactive contacts
-  if (action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ ||
-      action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ){ // ||
-    //   action_type == DifferentialActionModelTypes::DifferentialActionModelContactFwdDynamics_Talos) {
+  if (action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
+      action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
+      action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ ||
+      action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ){ 
     boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> m =
         boost::static_pointer_cast<sobec::DifferentialActionModelContactFwdDynamics>(model);
     m->get_contacts()->changeContactStatus("lf", false);
@@ -131,6 +126,13 @@ void test_partial_derivatives_against_numdiff(DifferentialActionModelTypes::Type
   model_num_diff.calcDiff(data_num_diff, x, u);
 
   // Checking the partial derivatives against NumDiff
+  if(action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ &&
+     ref_type == PinocchioReferenceTypes::LOCAL_WORLD_ALIGNED){
+    std::cout << "Fx - FxND (/dq) " << std::endl;
+    std::cout << (data->Fx - data_num_diff->Fx).leftCols(model->get_state()->get_nq()) << std::endl;
+    // std::cout << "Fx - FxND (/dv) " << std::endl;
+    // std::cout << (data->Fx - data_num_diff->Fx).rightCols(model->get_state()->get_nv()) << std::endl;
+  }
   double tol = sqrt(model_num_diff.get_disturbance());
   BOOST_CHECK((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Fu - data_num_diff->Fu).isZero(NUMDIFF_MODIFIER * tol));
@@ -208,16 +210,26 @@ bool init_function() {
   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
     if(DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm ||
        DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed){ 
-    //   std::cout << "Register " << DifferentialActionModelTypes::all[i] << std::endl;
       register_action_model_unit_tests(DifferentialActionModelTypes::all[i]);
     }
   }
+
+//   // 3D contact
+//   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
+//     for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j){
+//       if(DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm &&
+//        PinocchioReferenceTypes::all[j] == PinocchioReferenceTypes::LOCAL_WORLD_ALIGNED){
+//         register_action_model_unit_tests(DifferentialActionModelTypes::all[i], PinocchioReferenceTypes::all[j]);
+//       }
+//     }
+//   }   
+
+
   // 3D contact
   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
     if(DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
        DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ){
       for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j){
-        // std::cout << "Register " << DifferentialActionModelTypes::all[i] << "_" <<  PinocchioReferenceTypes::all[j] << std::endl;
         register_action_model_unit_tests(DifferentialActionModelTypes::all[i], PinocchioReferenceTypes::all[j]);
       }
     }
@@ -229,16 +241,13 @@ bool init_function() {
 //        DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ){
 //       for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j){
 //         for (size_t k = 0; k < ContactModelMaskTypes::all.size(); ++k){
-//             // std::cout << "Register " << DifferentialActionModelTypes::all[i] << "_" <<  PinocchioReferenceTypes::all[j] << "_" << ContactModelMaskTypes::all[k] << std::endl;
 //           register_action_model_unit_tests(DifferentialActionModelTypes::all[i], PinocchioReferenceTypes::all[j], ContactModelMaskTypes::all[k]);
 //         }
 //       }
 //     }
 //   }
 
-//   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
-//     register_action_model_unit_tests(DifferentialActionModelTypes::all[i]);
-//   }
+
   return true;
 }
 

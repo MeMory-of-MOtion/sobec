@@ -23,7 +23,7 @@ void exposeContact1D() {
   bp::enum_<sobec::Vector3MaskType>("Vector3MaskType").value("x", x).value("y", y).value("z", z).export_values();
 
   bp::class_<sobec::ContactModel1D, bp::bases<crocoddyl::ContactModel1D> >(
-      "sobec::ContactModel1D",
+      "ContactModel1D",
       "Rigid 1D contact model.\n\n"
       "It defines a rigid 1D contact model (point contact) based on acceleration-based holonomic constraints, in the "
       "x, y or z direction.\n"

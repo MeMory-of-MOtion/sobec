@@ -65,6 +65,14 @@ template <typename Scalar>
 class DifferentialActionModelContactFwdDynamicsTpl;
 typedef DifferentialActionModelContactFwdDynamicsTpl<double> DifferentialActionModelContactFwdDynamics;
 
+// Residual contact force
+template <typename Scalar>
+class ResidualModelContactForceTpl;
+typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
+
+enum ContactType { ContactUndefined, Contact1D, Contact2D, Contact3D, Contact6D };
+
+
 }  // namespace sobec
 
 #endif  // SOBEC_FWD_HPP_

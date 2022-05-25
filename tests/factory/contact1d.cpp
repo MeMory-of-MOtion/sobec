@@ -82,7 +82,7 @@ boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModel1DFactory::create
   }
 
   // Eigen::Vector2d gains = Eigen::Vector2d::Random();
-  Eigen::Vector3d xref = Eigen::Vector3d::Random();
+  Eigen::Vector3d xref = Eigen::Vector3d::Zero();
   switch (mask_type) {
     case ContactModelMaskTypes::X: {
       if (reference_type == PinocchioReferenceTypes::LOCAL) {

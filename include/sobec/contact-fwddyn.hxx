@@ -26,7 +26,9 @@ DifferentialActionModelContactFwdDynamicsTpl<Scalar>::DifferentialActionModelCon
     boost::shared_ptr<StateMultibody> state, boost::shared_ptr<ActuationModelAbstract> actuation,
     boost::shared_ptr<crocoContactModelMultiple> contacts, boost::shared_ptr<CostModelSum> costs,
     const Scalar JMinvJt_damping, const bool enable_force)
-    : Base(state, actuation, contacts, costs, JMinvJt_damping, false), enable_force_(enable_force) {}
+    : Base(state, actuation, contacts, costs, JMinvJt_damping, true), enable_force_(enable_force) {
+      sobec_contacts_ = boost::static_pointer_cast<sobec::ContactModelMultipleTpl<Scalar>>(contacts);
+    }
 
 
 template <typename Scalar>
@@ -48,7 +50,7 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
   }
 
   const std::size_t nv = this->get_state()->get_nv();
-  const std::size_t nc = this->get_contacts()->get_nc();
+  const std::size_t nc = sobec_contacts_->get_nc(); //this->get_contacts()->get_nc();
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
 
@@ -64,13 +66,16 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
                                                d->Kinv);
 
   this->get_actuation()->calcDiff(d->multibody.actuation, x, u);
-  this->get_contacts()->calcDiff(d->multibody.contacts, x);
+  sobec_contacts_->calcDiff(d->multibody.contacts, x); //this->get_contacts()->calcDiff(d->multibody.contacts, x);
 
   // Add skew term to rnea derivative for contacs expressed in LOCAL_WORLD_ALIGNED
   // see https://www.overleaf.com/read/tzvrrxxtntwk for detailed calculations
-  boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts = boost::static_pointer_cast<sobec::ContactModelMultipleTpl<Scalar>>(this->get_contacts());
-  sobec_contacts->updateRneaDerivatives(d->multibody.contacts, d->pinocchio);
-
+  // boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts = boost::static_pointer_cast<sobec::ContactModelMultipleTpl<Scalar>>(this->get_contacts());
+  // std::cout << "BEFORE updatedRneaDerivatives (DAMcontact) : " << std::endl;
+  // std::cout << d->pinocchio.dtau_dq << std::endl;
+  sobec_contacts_->updateRneaDerivatives(d->multibody.contacts, d->pinocchio);
+  // std::cout << "AFTER updatedRneaDerivatives (DAMcontact) : " << std::endl;
+  // std::cout << d->pinocchio.dtau_dq << std::endl;
   const Eigen::Block<MatrixXs> a_partial_dtau = d->Kinv.topLeftCorner(nv, nv);
   const Eigen::Block<MatrixXs> a_partial_da = d->Kinv.topRightCorner(nv, nc);
   const Eigen::Block<MatrixXs> f_partial_dtau = d->Kinv.bottomLeftCorner(nc, nv);
@@ -91,8 +96,8 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
     d->df_du.topRows(nc).noalias() = -f_partial_dtau * d->multibody.actuation->dtau_du;
     const boost::shared_ptr<MatrixXs> df_dx = boost::make_shared<MatrixXs>(d->df_dx.topRows(nc));
     const boost::shared_ptr<MatrixXs> df_du = boost::make_shared<MatrixXs>(d->df_du.topRows(nc));
-    sobec_contacts->updateAccelerationDiff(d->multibody.contacts, d->Fx.bottomRows(nv));
-    sobec_contacts->updateForceDiff(d->multibody.contacts, df_dx, df_du);
+    sobec_contacts_->updateAccelerationDiff(d->multibody.contacts, d->Fx.bottomRows(nv));
+    sobec_contacts_->updateForceDiff(d->multibody.contacts, df_dx, df_du);
   }
   this->get_costs()->calcDiff(d->costs, x, u);
 }

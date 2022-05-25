@@ -110,6 +110,7 @@ class DifferentialActionModelContactFwdDynamicsTpl : public crocoddyl::Different
 
   private:
   bool enable_force_;
+  boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts_;
 };
 
 }  // namespace sobec

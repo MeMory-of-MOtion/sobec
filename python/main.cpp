@@ -10,4 +10,5 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeContact1D();
   sobec::python::exposeMultipleContacts();
   sobec::python::exposeDAMContactFwdDyn();
+  sobec::python::exposeResidualContactForce();
 }

@@ -60,6 +60,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact1d.hpp
   include/${PROJECT_NAME}/multiple-contacts.hpp
   include/${PROJECT_NAME}/contact-fwddyn.hpp
+  include/${PROJECT_NAME}/contact-force.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
@@ -70,6 +71,7 @@ set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/contact1d.hxx
   include/${PROJECT_NAME}/multiple-contacts.hxx
   include/${PROJECT_NAME}/contact-fwddyn.hxx
+  include/${PROJECT_NAME}/contact-force.hxx
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
