@@ -126,7 +126,6 @@ void ContactModel3DTpl<Scalar>::updateForce(const boost::shared_ptr<crocoddyl::C
     // Compute skew term to be added to rnea derivatives
     pinocchio::skew(d->oRf.transpose() * force, d->tmp_skew_);
     d->drnea_skew_term_ = -d->fJf.topRows(3).transpose() * d->tmp_skew_ * d->fJf.bottomRows(3);
-    // std::cout << " rnea skew term [contact3d] = " << d->drnea_skew_term_ << std::endl;
   }
 }
 

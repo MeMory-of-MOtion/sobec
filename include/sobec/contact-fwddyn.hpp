@@ -108,6 +108,13 @@ class DifferentialActionModelContactFwdDynamicsTpl : public crocoddyl::Different
   virtual void calcDiff(const boost::shared_ptr<DifferentialActionDataAbstract>& data,
                         const Eigen::Ref<const VectorXs>& x, const Eigen::Ref<const VectorXs>& u);
 
+  // /**
+  //  * @brief @copydoc Base::quasiStatic()
+  //  */
+  // virtual void quasiStatic(const boost::shared_ptr<DifferentialActionDataAbstract>& data, Eigen::Ref<VectorXs> u,
+  //                          const Eigen::Ref<const VectorXs>& x, const std::size_t maxiter = 100,
+  //                          const Scalar tol = Scalar(1e-9));
+
   private:
   bool enable_force_;
   boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts_;

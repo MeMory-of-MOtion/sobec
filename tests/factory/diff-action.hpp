@@ -17,7 +17,6 @@
 #include <crocoddyl/core/diff-action-base.hpp>
 #include <crocoddyl/core/numdiff/diff-action.hpp>
 #include <crocoddyl/multibody/actions/free-fwddyn.hpp>
-// #include <crocoddyl/multibody/actions/contact-fwddyn.hpp>
 
 #include "sobec/contact-fwddyn.hpp"
 

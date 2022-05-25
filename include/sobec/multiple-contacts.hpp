@@ -98,6 +98,9 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
    */
   void updateRneaDerivatives(const boost::shared_ptr<ContactDataMultiple>& data,
                              pinocchio::DataTpl<Scalar>& pinocchio) const;
+
+
+//   MatrixXs rotateJacobians(const boost::shared_ptr<MatrixXs> Jin);
 };
 
 }  // namespace sobec

@@ -67,7 +67,6 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(const boost::shared_
     throw_pretty("Invalid argument: "
                  << "it doesn't match the number of contact datas and models");
   }
-
   typename ContactModelContainer::const_iterator it_m, end_m;
   typename ContactDataContainer::const_iterator it_d, end_d;
   for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(), end_d = data->contacts.end();
@@ -81,20 +80,49 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(const boost::shared_
         ContactModel3DTpl<Scalar>* cm_i = static_cast<ContactModel3DTpl<Scalar>*>(m_i->contact.get());
         ContactData3DTpl<Scalar>* cd_i = static_cast<ContactData3DTpl<Scalar>*>(d_i.get());
         if (cm_i->get_type() == pinocchio::WORLD || cm_i->get_type() == pinocchio::LOCAL_WORLD_ALIGNED) {
-          // std::cout << " rnea skew term [contactmultiple] = " << std::endl;
-          // std::cout << cd_i->drnea_skew_term_ << std::endl;
-          pinocchio.dtau_dq.block(0, 0, this->get_nu(), nv) += cd_i->drnea_skew_term_;
+          pinocchio.dtau_dq.block(0, 0, nv, nv) += cd_i->drnea_skew_term_;
         }
       }
       if (nc_i == 1) {
         ContactModel1DTpl<Scalar>* cm_i = static_cast<ContactModel1DTpl<Scalar>*>(m_i->contact.get());
         ContactData1DTpl<Scalar>* cd_i = static_cast<ContactData1DTpl<Scalar>*>(d_i.get());
         if (cm_i->get_type() == pinocchio::WORLD || cm_i->get_type() == pinocchio::LOCAL_WORLD_ALIGNED) {
-          pinocchio.dtau_dq.block(0, 0, this->get_nu(), nv) += cd_i->drnea_skew_term_;
+          pinocchio.dtau_dq.block(0, 0, nv, nv) += cd_i->drnea_skew_term_;
         }
       }
     }
   }
 }
+
+
+// template <typename Scalar>
+// MathBase::MatrixXs ContactModelMultipleTpl<Scalar>::rotateJacobians(const boost::shared_ptr<MathBase::MatrixXs>& Jin) {
+//   MathBase::MatrixXs Jout = MatrixXs(Jin);
+//   std::size_t nc = 0;
+//   const std::size_t nv = this->get_state()->get_nv();
+//   typename ContactModelContainer::const_iterator it_m, end_m;
+//   typename ContactDataContainer::const_iterator it_d, end_d;
+//   for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(), end_d = data->contacts.end();
+//        it_m != end_m || it_d != end_d; ++it_m, ++it_d) {
+//     const boost::shared_ptr<ContactItem>& m_i = it_m->second;
+//     const boost::shared_ptr<ContactDataAbstract>& d_i = it_d->second;
+//     assert_pretty(it_m->first == it_d->first, "it doesn't match the contact name between data and model");
+//     if (m_i->active) {
+//       const std::size_t nc_i = m_i->contact->get_nc();
+//       // if (nc_i == 3) {
+//       //   ContactModel3DTpl<Scalar>* cm_i = static_cast<ContactModel3DTpl<Scalar>*>(m_i->contact.get());
+//       //   ContactData3DTpl<Scalar>* cd_i = static_cast<ContactData3DTpl<Scalar>*>(d_i.get());
+//       //   Jout.block(nc, 0, nc_i, nv) = m_i->contact->Jc;
+//       // }
+//       if (nc_i == 1) {
+//         ContactModel1DTpl<Scalar>* cm_i = static_cast<ContactModel1DTpl<Scalar>*>(m_i->contact.get());
+//         ContactData1DTpl<Scalar>* cd_i = static_cast<ContactData1DTpl<Scalar>*>(d_i.get());
+//         Jout.block(nc, 0, nc_i, nv) = (d_i->oRf * d_i->fJf.topRows(3)).row(cm_i->get_mask()); // d->oRf * d->fJf
+//       }
+//       nc += nc_i;
+//     } 
+//   }
+//   return Jout
+// }
 
 }  // namespace sobec

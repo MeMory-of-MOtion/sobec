@@ -10,7 +10,6 @@
 #include "cost.hpp"
 #include "contact3d.hpp"
 
-#include <crocoddyl/core/actions/diff-lqr.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 #include <crocoddyl/multibody/actuations/full.hpp>
 #include <crocoddyl/multibody/actuations/floating-base.hpp>
@@ -18,12 +17,6 @@
 #include <crocoddyl/multibody/residuals/state.hpp>
 #include <crocoddyl/core/residuals/control.hpp>
 #include <crocoddyl/multibody/residuals/frame-placement.hpp>
-#include <crocoddyl/multibody/residuals/frame-translation.hpp>
-#include <crocoddyl/multibody/residuals/contact-friction-cone.hpp>
-#include <crocoddyl/multibody/residuals/contact-wrench-cone.hpp>
-// #include <crocoddyl/multibody/residuals/contact-force.hpp>
-#include <crocoddyl/core/activations/quadratic.hpp>
-#include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
 
 #include "sobec/contact-force.hpp"

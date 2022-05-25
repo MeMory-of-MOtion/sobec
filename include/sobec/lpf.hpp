@@ -84,7 +84,8 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   std::size_t nw_;                  //!< Unfiltered torque dimension
   std::size_t ny_;                  //!< Augmented state dimension
   using Base::state_;               //!< Model of the state
-
+  // boost::shared_ptr<StateLPF> state_;
+ 
  public:
   boost::shared_ptr<ActivationModelQuadraticBarrier> activation_model_w_lim_;  //!< for lim cost
 

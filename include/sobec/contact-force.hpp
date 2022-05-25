@@ -14,21 +14,12 @@
 #include "crocoddyl/core/residual-base.hpp"
 #include "crocoddyl/multibody/states/multibody.hpp"
 #include "crocoddyl/multibody/contact-base.hpp"
-// #include "crocoddyl/multibody/impulse-base.hpp"
-#include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
-// #include "crocoddyl/multibody/contacts/contact-1d.hpp"
-// #include "crocoddyl/multibody/contacts/contact-3d.hpp"
 #include "crocoddyl/multibody/contacts/contact-6d.hpp"
-// #include "crocoddyl/multibody/impulses/multiple-impulses.hpp"
-// #include "crocoddyl/multibody/impulses/impulse-3d.hpp"
-// #include "crocoddyl/multibody/impulses/impulse-6d.hpp"
 #include "crocoddyl/multibody/data/contacts.hpp"
-// #include "crocoddyl/multibody/data/impulses.hpp"
 #include "crocoddyl/core/utils/exception.hpp"
 
 #include "contact3d.hpp"
 #include "contact1d.hpp"
-#include "multiple-contacts.hpp"
 
 #include "sobec/fwd.hpp"
 
@@ -66,7 +57,6 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
   typedef crocoddyl::ResidualDataContactForceTpl<Scalar> Data;
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
   typedef crocoddyl::ResidualDataAbstractTpl<Scalar> ResidualDataAbstract;
-//   typedef crocoddyl::DataCollectorAbstractTpl<Scalar> DataCollectorAbstract;
   typedef pinocchio::ForceTpl<Scalar> Force;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::MatrixXs MatrixXs;

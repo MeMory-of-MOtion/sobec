@@ -188,10 +188,16 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
   const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nq = differential_->get_state()->get_nq();
   const std::size_t& nx = differential_->get_state()->get_nx();
+  const std::size_t& ndx = differential_->get_state()->get_ndx();
   const std::size_t& ny = state_->get_nx();
   const std::size_t& nu = differential_->get_nu();
+  const std::size_t& ndy = ndx + nu; //state_->get_ndy();
   const std::size_t& nw = nu;
 
+  // if (ndx + nu != ndy) {
+  //   throw_pretty("Invalid state size: "
+  //                << "ndy is wrong (it should be " + std::to_string(ndx + nu) + ")");
+  // }
   if (static_cast<std::size_t>(y.size()) != ny) {
     throw_pretty("Invalid argument: "
                  << "y has wrong dimension (it should be " + std::to_string(ny) + ")");
@@ -224,11 +230,11 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       const MatrixXs& da_dx = d->differential->Fx;
       const MatrixXs& da_du = d->differential->Fu;
       // d(x+)/dy
-      d->Fy.block(0, 0, nv, nx).noalias() = da_dx * time_step2_;
-      d->Fy.block(nv, 0, nv, nx).noalias() = da_dx * time_step_;
-      d->Fy.block(0, nq, nv, nv).diagonal().array() += Scalar(time_step_);
-      d->Fy.block(0, nx, nv, nu).noalias() = da_du * time_step2_;
-      d->Fy.block(nv, nx, nv, nu).noalias() = da_du * time_step_;
+      d->Fy.block(0, 0, nv, ndx).noalias() = da_dx * time_step2_;
+      d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
+      d->Fy.block(0, nv, nv, nv).diagonal().array() += Scalar(time_step_);
+      d->Fy.block(0, ndx, nv, nu).noalias() = da_du * time_step2_;
+      d->Fy.block(nv, ndx, nv, nu).noalias() = da_du * time_step_;
       d->Fy.bottomRightCorner(nv, nu).diagonal().array() = Scalar(alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);           // add identity to Fx = d(x+dx)/dx = d(q,v)/d(q,v)
@@ -238,11 +244,11 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       d->Fw.bottomRows(nu).diagonal().array() = Scalar(1 - alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fw, second);
       // d(cost+)/dy
-      d->Ly.head(nx).noalias() = time_step_ * d->differential->Lx;
+      d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
       d->Ly.tail(nu).noalias() = time_step_ * d->differential->Lu;
-      d->Lyy.topLeftCorner(nx, nx).noalias() = time_step_ * d->differential->Lxx;
-      d->Lyy.block(0, nx, nx, nu).noalias() = time_step_ * d->differential->Lxu;
-      d->Lyy.block(nx, 0, nu, nx).noalias() = time_step_ * d->differential->Lxu.transpose();
+      d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
+      d->Lyy.block(0, ndx, ndx, nu).noalias() = time_step_ * d->differential->Lxu;
+      d->Lyy.block(ndx, 0, nu, ndx).noalias() = time_step_ * d->differential->Lxu.transpose();
       d->Lyy.bottomRightCorner(nu, nu).noalias() = time_step_ * d->differential->Luu;
       // Partials of hard-coded cost+(wreg) & cost+(wlim) w.r.t. (y,w)
       if(wreg_ != 0){
@@ -259,11 +265,11 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
     else {
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy);
       d->Fw.setZero();
-      d->Ly.head(nx).noalias() = d->differential->Lx;
+      d->Ly.head(ndx).noalias() = d->differential->Lx;
       d->Ly.tail(nu).noalias() = d->differential->Lu;
-      d->Lyy.topLeftCorner(nx, nx).noalias() = d->differential->Lxx;
-      d->Lyy.block(0, nx, nx, nu).noalias() = d->differential->Lxu;
-      d->Lyy.block(nx, 0, nu, nx).noalias() = d->differential->Lxu.transpose();
+      d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
+      d->Lyy.block(0, ndx, ndx, nu).noalias() = d->differential->Lxu;
+      d->Lyy.block(ndx, 0, nu, ndx).noalias() = d->differential->Lxu.transpose();
       d->Lyy.bottomRightCorner(nu, nu).noalias() = d->differential->Luu;
       d->Lw.setZero();
       d->Lww.setZero();
@@ -286,10 +292,10 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
     if (enable_integration_) {
       const MatrixXs& da_dx = d->differential->Fx;
       const MatrixXs& da_du = d->differential->Fu;
-      d->Fy.block(0, 0, nv, nx).noalias() = da_dx * time_step2_;
-      d->Fy.block(nv, 0, nv, nx).noalias() = da_dx * time_step_;
-      d->Fy.block(0, nx, nv, nu).noalias() = alpha_ * alpha_ * da_du * time_step2_;
-      d->Fy.block(nv, nx, nv, nu).noalias() = alpha_ * da_du * time_step_;
+      d->Fy.block(0, 0, nv, ndx).noalias() = da_dx * time_step2_;
+      d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
+      d->Fy.block(0, ndx, nv, nu).noalias() = alpha_ * alpha_ * da_du * time_step2_;
+      d->Fy.block(nv, ndx, nv, nu).noalias() = alpha_ * da_du * time_step_;
       d->Fy.block(0, nq, nv, nv).diagonal().array() +=
           Scalar(time_step_);  // dt*identity top row middle col (eq. Jsecond = d(xnext)/d(dx))
       // d->Fy.topLeftCorner(nx, nx).diagonal().array() += Scalar(1.);     // managed by Jintegrate (eq. Jsecond =
@@ -301,14 +307,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       state_->JintegrateTransport(y, d->dy, d->Fy, second);      // it this correct?
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);  // for d(x+dx)/d(x)
       state_->JintegrateTransport(y, d->dy, d->Fw, second);      // it this correct?
-      d->Ly.head(nx).noalias() = time_step_ * d->differential->Lx;
+      d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
       d->Ly.tail(nu).noalias() = alpha_ * time_step_ * d->differential->Lu;
       d->Lw.noalias() = (1 - alpha_) * time_step_ * d->differential->Lu;
-      d->Lyy.topLeftCorner(nx, nx).noalias() = time_step_ * d->differential->Lxx;
-      d->Lyy.block(0, nx, nx, nu).noalias() = alpha_ * time_step_ * d->differential->Lxu;
-      d->Lyy.block(nx, 0, nu, nx).noalias() = alpha_ * time_step_ * d->differential->Lxu.transpose();
+      d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
+      d->Lyy.block(0, ndx, ndx, nu).noalias() = alpha_ * time_step_ * d->differential->Lxu;
+      d->Lyy.block(ndx, 0, nu, ndx).noalias() = alpha_ * time_step_ * d->differential->Lxu.transpose();
       d->Lyy.bottomRightCorner(nu, nu).noalias() = alpha_ * alpha_ * time_step_ * d->differential->Luu;
-      d->Lyw.topRows(nx).noalias() = (1 - alpha_) * time_step_ * d->differential->Lxu;
+      d->Lyw.topRows(ndx).noalias() = (1 - alpha_) * time_step_ * d->differential->Lxu;
       d->Lyw.bottomRows(nu).noalias() = (1 - alpha_) * alpha_ * time_step_ * d->differential->Luu;
       d->Lww.noalias() = (1 - alpha_) * (1 - alpha_) * time_step_ * d->differential->Luu;
       // Add partials related to unfiltered torque costs w_reg, w_lim (only for running models)
@@ -323,14 +329,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
     } else {
       // state_->Jintegrate(y, d->dy, d->Fy, d->Fy);
       d->Fw.setZero();
-      d->Ly.head(nx).noalias() = d->differential->Lx;
+      d->Ly.head(ndx).noalias() = d->differential->Lx;
       d->Ly.tail(nu).noalias() = alpha_ * d->differential->Lu;
       d->Lw.noalias() = (1 - alpha_) * d->differential->Lu;
-      d->Lyy.topLeftCorner(nx, nx).noalias() = d->differential->Lxx;
-      d->Lyy.block(0, nx, nx, nu).noalias() = alpha_ * d->differential->Lxu;
-      d->Lyy.block(nx, 0, nu, nx).noalias() = alpha_ * d->differential->Lxu.transpose();
+      d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
+      d->Lyy.block(0, ndx, ndx, nu).noalias() = alpha_ * d->differential->Lxu;
+      d->Lyy.block(ndx, 0, nu, ndx).noalias() = alpha_ * d->differential->Lxu.transpose();
       d->Lyy.bottomRightCorner(nu, nu).noalias() = alpha_ * alpha_ * d->differential->Luu;
-      d->Lyw.topRows(nx).noalias() = (1 - alpha_) * d->differential->Lxu;
+      d->Lyw.topRows(ndx).noalias() = (1 - alpha_) * d->differential->Lxu;
       d->Lyw.bottomRows(nu).noalias() = (1 - alpha_) * alpha_ * d->differential->Luu;
       d->Lww.noalias() = (1 - alpha_) * (1 - alpha_) * d->differential->Luu;
       // Add partials related to unfiltered torque costs w_reg, w_lim (only for running models)
