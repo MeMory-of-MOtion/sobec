@@ -99,19 +99,15 @@ void test_partial_derivatives_against_numdiff(const boost::shared_ptr<sobec::Int
   // Checking the partial derivatives against NumDiff
   double tol = sqrt(model_num_diff.get_disturbance());
 
-  // const std::size_t nq = model->get_state()->get_nq();
   // const std::size_t nv = model->get_state()->get_nv();
-  // const std::size_t nu = nq;
-  // std::cout << " m.state.nq = " << model->get_state()->get_nq() << std::endl;
-  // std::cout << " m.state.nv = " << model->get_state()->get_nv() << std::endl;
-  // std::cout << " m.state.ny = " << model->get_state()->get_nx() << std::endl;
-  // std::cout << " m.state.nw = " << model->get_state()->get_nw() << std::endl;
+  // const std::size_t nu = model->get_differential()->get_nu();
   // std::cout << " Fx - Fx_nd [q]: " << std::endl;
-  // std::cout << (data->Fx - data_num_diff->Fx).leftCols(nq) << std::endl;
-  // // std::cout << " Fx - Fx_nd [v]: " << std::endl;
-  // std::cout << " Lx - Lx_nd : " << std::endl;
-  // std::cout << data->Lx - data_num_diff->Lx << std::endl;
-  
+  // std::cout << (data->Fx - data_num_diff->Fx).leftCols(nv).lpNorm<Eigen::Infinity>() << std::endl;
+  // std::cout << " Fx - Fx_nd [v]: " << std::endl;
+  // std::cout << (data->Fx - data_num_diff->Fx).block(0, nv, 2*nv+nu, nv).lpNorm<Eigen::Infinity>() << std::endl;
+  // std::cout << " Fx - Fx_nd [tau]: " << std::endl;
+  // std::cout << (data->Fx - data_num_diff->Fx).rightCols(nu).lpNorm<Eigen::Infinity>() << std::endl;
+
   BOOST_CHECK((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Fu - data_num_diff->Fu).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol));
@@ -180,20 +176,20 @@ bool init_function() {
       }
     }
   }
-  // // 1D contact
-  // for (size_t i = 0; i < ActionModelLPFTypes::all.size(); ++i) {
-  //   for (size_t j = 0; j < DifferentialActionModelTypes::all.size(); ++j) {
-  //     if(DifferentialActionModelTypes::all[j] == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
-  //        DifferentialActionModelTypes::all[j] == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ){
-  //       for (size_t k = 0; k < PinocchioReferenceTypes::all.size(); ++k){
-  //         for (size_t l = 0; l < ContactModelMaskTypes::all.size(); ++l){
-  //           register_action_model_unit_tests(ActionModelLPFTypes::all[i], DifferentialActionModelTypes::all[j], 
-  //                                             PinocchioReferenceTypes::all[k], ContactModelMaskTypes::all[l]);
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  // 1D contact
+  for (size_t i = 0; i < ActionModelLPFTypes::all.size(); ++i) {
+    for (size_t j = 0; j < DifferentialActionModelTypes::all.size(); ++j) {
+      if(DifferentialActionModelTypes::all[j] == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
+         DifferentialActionModelTypes::all[j] == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ){
+        for (size_t k = 0; k < PinocchioReferenceTypes::all.size(); ++k){
+          for (size_t l = 0; l < ContactModelMaskTypes::all.size(); ++l){
+            register_action_model_unit_tests(ActionModelLPFTypes::all[i], DifferentialActionModelTypes::all[j], 
+                                              PinocchioReferenceTypes::all[k], ContactModelMaskTypes::all[l]);
+          }
+        }
+      }
+    }
+  }
 
   return true;
 }

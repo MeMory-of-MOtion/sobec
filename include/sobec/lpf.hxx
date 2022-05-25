@@ -235,10 +235,10 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       d->Fy.block(0, nv, nv, nv).diagonal().array() += Scalar(time_step_);
       d->Fy.block(0, ndx, nv, nu).noalias() = da_du * time_step2_;
       d->Fy.block(nv, ndx, nv, nu).noalias() = da_du * time_step_;
-      d->Fy.bottomRightCorner(nv, nu).diagonal().array() = Scalar(alpha_);
+      d->Fy.bottomRightCorner(nu, nu).diagonal().array() = Scalar(alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);           // add identity to Fx = d(x+dx)/dx = d(q,v)/d(q,v)
-      d->Fy.bottomRightCorner(nu, nu).diagonal().array() -= Scalar(1.);   // remove identity to Ftau (stateLPF)
+      d->Fy.bottomRightCorner(nu, nu).diagonal().array() -= Scalar(1.);   // remove identity from Ftau (due to stateLPF.Jintegrate)
       // d(x+)/dw
       d->Fw.setZero();
       d->Fw.bottomRows(nu).diagonal().array() = Scalar(1 - alpha_);
@@ -296,16 +296,16 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
       d->Fy.block(0, ndx, nv, nu).noalias() = alpha_ * alpha_ * da_du * time_step2_;
       d->Fy.block(nv, ndx, nv, nu).noalias() = alpha_ * da_du * time_step_;
-      d->Fy.block(0, nq, nv, nv).diagonal().array() +=
-          Scalar(time_step_);  // dt*identity top row middle col (eq. Jsecond = d(xnext)/d(dx))
+      d->Fy.block(0, nq, nv, nv).diagonal().array() += Scalar(time_step_);  // dt*identity top row middle col (eq. Jsecond = d(xnext)/d(dx))
       // d->Fy.topLeftCorner(nx, nx).diagonal().array() += Scalar(1.);     // managed by Jintegrate (eq. Jsecond =
       // d(xnext)/d(dx))
-      d->Fy.bottomRightCorner(nv, nu).diagonal().array() = Scalar(alpha_);
+      d->Fy.bottomRightCorner(nu, nu).diagonal().array() = Scalar(alpha_);
       d->Fw.topRows(nv).noalias() = da_du * time_step2_ * (1 - alpha_);
       d->Fw.block(nv, 0, nv, nu).noalias() = da_du * time_step_ * (1 - alpha_);
       d->Fw.bottomRows(nv).diagonal().array() = Scalar(1 - alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);      // it this correct?
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);  // for d(x+dx)/d(x)
+      d->Fy.bottomRightCorner(nu, nu).diagonal().array() -= Scalar(1.);   // remove identity from Ftau (due to stateLPF.Jintegrate)
       state_->JintegrateTransport(y, d->dy, d->Fw, second);      // it this correct?
       d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
       d->Ly.tail(nu).noalias() = alpha_ * time_step_ * d->differential->Lu;

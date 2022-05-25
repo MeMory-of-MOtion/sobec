@@ -40,11 +40,11 @@ boost::shared_ptr<sobec::IntegratedActionModelLPF> ActionModelLPFFactory::create
   switch (iam_type) {
     case ActionModelLPFTypes::IntegratedActionModelLPF:
       {
-        double time_step = 0.001;
+        double time_step = 1e-6;
         bool with_cost_residual = true;
-        double fc = 10;
+        double fc = 5;
         bool tau_plus_integration = false; 
-        int filter = 0;
+        int filter = 1;
         bool is_terminal = false;
         iam = boost::make_shared<sobec::IntegratedActionModelLPF>(dam, 
                                                                   time_step,
