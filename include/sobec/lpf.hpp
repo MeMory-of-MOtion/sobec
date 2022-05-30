@@ -41,11 +41,10 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   typedef ActivationModelQuadraticBarrierTpl<Scalar> ActivationModelQuadraticBarrier;
   typedef ActivationBoundsTpl<Scalar> ActivationBounds;
 
-
   IntegratedActionModelLPFTpl(boost::shared_ptr<DifferentialActionModelAbstract> model,
                               const Scalar& time_step = Scalar(1e-3), const bool& with_cost_residual = true,
-                              const Scalar& fc = 0, const bool& tau_plus_integration = true,
-                              const int& filter = 0, const bool& is_terminal = false);
+                              const Scalar& fc = 0, const bool& tau_plus_integration = true, const int& filter = 0,
+                              const bool& is_terminal = false);
   virtual ~IntegratedActionModelLPFTpl();
 
   virtual void calc(const boost::shared_ptr<ActionDataAbstract>& data, const Eigen::Ref<const VectorXs>& y,
@@ -68,8 +67,7 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   void set_differential(boost::shared_ptr<DifferentialActionModelAbstract> model);
 
   // hard-coded costs
-  void set_control_reg_cost(const Scalar& cost_weight_w_reg, 
-                            const VectorXs& cost_ref_w_reg);
+  void set_control_reg_cost(const Scalar& cost_weight_w_reg, const VectorXs& cost_ref_w_reg);
   void set_control_lim_cost(const Scalar& cost_weight_w_lim);
 
   void compute_alpha(const Scalar& fc);
@@ -84,8 +82,8 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   std::size_t nw_;                  //!< Unfiltered torque dimension
   std::size_t ny_;                  //!< Augmented state dimension
   using Base::state_;               //!< Model of the state
-  // boost::shared_ptr<StateLPF> state_;
- 
+                                    // boost::shared_ptr<StateLPF> state_;
+
  public:
   boost::shared_ptr<ActivationModelQuadraticBarrier> activation_model_w_lim_;  //!< for lim cost
 
@@ -97,14 +95,15 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   Scalar alpha_;
   bool with_cost_residual_;
   bool enable_integration_;
-  Scalar wreg_;                                   //!< Cost weight for unfiltered torque regularization
-  VectorXs wref_;                                 //!< Cost reference for unfiltered torque regularization
-  // bool gravity_reg_;                           //!< Use gravity torque for unfiltered torque reg, or user-provided reference?
-  Scalar wlim_;                                   //!< Cost weight for unfiltered torque limits
-  bool tau_plus_integration_;                     //!< Use tau+ = LPF(tau,w) in acceleration computation, or tau
-  int filter_;                                    //!< Type of LPF used>
-  boost::shared_ptr<PinocchioModel> pin_model_;   //!< for reg cost
-  bool is_terminal_;                              //!< is it a terminal model or not ? (deactivate cost on w if true)
+  Scalar wreg_;    //!< Cost weight for unfiltered torque regularization
+  VectorXs wref_;  //!< Cost reference for unfiltered torque regularization
+  // bool gravity_reg_;                           //!< Use gravity torque for unfiltered torque reg, or user-provided
+  // reference?
+  Scalar wlim_;                                  //!< Cost weight for unfiltered torque limits
+  bool tau_plus_integration_;                    //!< Use tau+ = LPF(tau,w) in acceleration computation, or tau
+  int filter_;                                   //!< Type of LPF used>
+  boost::shared_ptr<PinocchioModel> pin_model_;  //!< for reg cost
+  bool is_terminal_;                             //!< is it a terminal model or not ? (deactivate cost on w if true)
 };
 
 template <typename _Scalar>
@@ -135,7 +134,7 @@ struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
   VectorXs dy;
 
   // PinocchioData pinocchio;                                       // for reg cost
-  boost::shared_ptr<ActivationDataQuadraticBarrier> activation;     // for lim cost
+  boost::shared_ptr<ActivationDataQuadraticBarrier> activation;  // for lim cost
 
   using Base::cost;
   using Base::r;
@@ -150,7 +149,7 @@ struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
   MatrixXs& Lww = Base::Luu;
 };
 
-}  // namespace crocoddyl
+}  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */

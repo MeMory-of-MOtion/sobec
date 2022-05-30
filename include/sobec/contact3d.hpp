@@ -23,10 +23,8 @@
 
 #include "sobec/fwd.hpp"
 
-
 namespace sobec {
 // using namespace crocoddyl;
-
 
 template <typename _Scalar>
 class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
@@ -76,7 +74,8 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const Eigen::Ref<const VectorXs>& x);
+  virtual void calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                    const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Compute the derivatives of the 3d contact holonomic constraint
@@ -85,7 +84,8 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const Eigen::Ref<const VectorXs>& x);
+  virtual void calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                        const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Convert the force into a stack of spatial forces
@@ -93,12 +93,14 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] data   3d contact data
    * @param[in] force  3d force
    */
-  virtual void updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const VectorXs& force);
+  virtual void updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                           const VectorXs& force);
 
   /**
    * @brief Create the 3d contact data
    */
-  virtual boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> createData(pinocchio::DataTpl<Scalar>* const data);
+  virtual boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> createData(
+      pinocchio::DataTpl<Scalar>* const data);
 
   /**
    * @brief Return the reference frame translation
@@ -143,7 +145,6 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
   Vector2s gains_;                  //!< Baumgarte stabilization gains
   pinocchio::ReferenceFrame type_;  //!< Reference type of contact
 };
-
 
 template <typename _Scalar>
 struct ContactData3DTpl : public crocoddyl::ContactData3DTpl<_Scalar> {

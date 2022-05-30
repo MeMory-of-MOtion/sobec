@@ -10,7 +10,6 @@
 #define BOOST_TEST_NO_MAIN
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 
-
 #include "factory/statelpf.hpp"
 #include "common.hpp"
 
@@ -46,7 +45,7 @@ void test_integrate_against_difference(StateLPFModelTypes::Type state_type) {
 
   Eigen::VectorXd dxi(state->get_ndy());
   state->diff(x2i, x2, dxi);
-  
+
   // Checking that both states agree
   BOOST_CHECK(dxi.isZero(1e-9));
 }

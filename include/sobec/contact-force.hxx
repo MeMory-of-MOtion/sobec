@@ -14,18 +14,16 @@ template <typename Scalar>
 ResidualModelContactForceTpl<Scalar>::ResidualModelContactForceTpl(boost::shared_ptr<StateMultibody> state,
                                                                    const pinocchio::FrameIndex id, const Force& fref,
                                                                    const std::size_t nc, const std::size_t nu)
-    : Base(state, id, fref, nc, nu) {} 
+    : Base(state, id, fref, nc, nu) {}
 
 template <typename Scalar>
 ResidualModelContactForceTpl<Scalar>::ResidualModelContactForceTpl(boost::shared_ptr<StateMultibody> state,
                                                                    const pinocchio::FrameIndex id, const Force& fref,
                                                                    const std::size_t nc)
-    : Base(state, id, fref, nc) {} 
-
+    : Base(state, id, fref, nc) {}
 
 template <typename Scalar>
 ResidualModelContactForceTpl<Scalar>::~ResidualModelContactForceTpl() {}
-
 
 template <typename Scalar>
 void ResidualModelContactForceTpl<Scalar>::calc(const boost::shared_ptr<ResidualDataAbstract>& data,
@@ -50,7 +48,8 @@ void ResidualModelContactForceTpl<Scalar>::calc(const boost::shared_ptr<Residual
       if (d3d->type == pinocchio::LOCAL) {
         data->r = (d->contact->jMf.rotation().transpose() * d->contact->f.linear() - this->get_reference().linear());
       } else if (d3d->type == pinocchio::WORLD || d3d->type == pinocchio::LOCAL_WORLD_ALIGNED) {
-        data->r = (d3d->oRf * d->contact->jMf.rotation().transpose() * d->contact->f.linear() - this->get_reference().linear());
+        data->r = (d3d->oRf * d->contact->jMf.rotation().transpose() * d->contact->f.linear() -
+                   this->get_reference().linear());
       }
       break;
     }
@@ -61,7 +60,6 @@ void ResidualModelContactForceTpl<Scalar>::calc(const boost::shared_ptr<Residual
       break;
   }
 }
-
 
 template <typename Scalar>
 void ResidualModelContactForceTpl<Scalar>::calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
@@ -91,7 +89,5 @@ void ResidualModelContactForceTpl<Scalar>::calcDiff(const boost::shared_ptr<Resi
       break;
   }
 }
-
-
 
 }  // namespace sobec

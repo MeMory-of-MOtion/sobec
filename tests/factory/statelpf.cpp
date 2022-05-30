@@ -23,8 +23,7 @@ namespace sobec {
 namespace unittest {
 using namespace crocoddyl;
 
-const std::vector<StateLPFModelTypes::Type> StateLPFModelTypes::all(
-    StateLPFModelTypes::init_all());
+const std::vector<StateLPFModelTypes::Type> StateLPFModelTypes::all(StateLPFModelTypes::init_all());
 
 std::ostream& operator<<(std::ostream& os, StateLPFModelTypes::Type type) {
   switch (type) {
@@ -52,47 +51,41 @@ std::ostream& operator<<(std::ostream& os, StateLPFModelTypes::Type type) {
 StateLPFModelFactory::StateLPFModelFactory() {}
 StateLPFModelFactory::~StateLPFModelFactory() {}
 
-boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
-    StateLPFModelTypes::Type state_type) const {
+boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(StateLPFModelTypes::Type state_type) const {
   boost::shared_ptr<pinocchio::Model> model;
   boost::shared_ptr<sobec::StateLPF> state;
   switch (state_type) {
-    case StateLPFModelTypes::StateLPF_TalosArm:
-    {
-      model =
-          PinocchioModelFactory(PinocchioModelTypes::TalosArm).create();
-      boost::shared_ptr<crocoddyl::ActuationModelFull> actuation = 
-        boost::make_shared<crocoddyl::ActuationModelFull>(StateModelFactory().create(StateModelTypes::StateMultibody_TalosArm));
+    case StateLPFModelTypes::StateLPF_TalosArm: {
+      model = PinocchioModelFactory(PinocchioModelTypes::TalosArm).create();
+      boost::shared_ptr<crocoddyl::ActuationModelFull> actuation = boost::make_shared<crocoddyl::ActuationModelFull>(
+          StateModelFactory().create(StateModelTypes::StateMultibody_TalosArm));
       state = boost::make_shared<sobec::StateLPF>(model, actuation->get_nu());
       break;
     }
-    case StateLPFModelTypes::StateLPF_HyQ:
-    {
-      model =
-          PinocchioModelFactory(PinocchioModelTypes::HyQ).create();
-      boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation = 
-        boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
-            boost::static_pointer_cast<crocoddyl::StateMultibody>(StateModelFactory().create(StateModelTypes::StateMultibody_HyQ)));
+    case StateLPFModelTypes::StateLPF_HyQ: {
+      model = PinocchioModelFactory(PinocchioModelTypes::HyQ).create();
+      boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
+          boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
+              boost::static_pointer_cast<crocoddyl::StateMultibody>(
+                  StateModelFactory().create(StateModelTypes::StateMultibody_HyQ)));
       state = boost::make_shared<sobec::StateLPF>(model, actuation->get_nu());
       break;
     }
-    case StateLPFModelTypes::StateLPF_Talos:
-    {
-      model =
-          PinocchioModelFactory(PinocchioModelTypes::Talos).create();
-      boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation = 
-        boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
-            boost::static_pointer_cast<crocoddyl::StateMultibody>(StateModelFactory().create(StateModelTypes::StateMultibody_Talos)));
+    case StateLPFModelTypes::StateLPF_Talos: {
+      model = PinocchioModelFactory(PinocchioModelTypes::Talos).create();
+      boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
+          boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
+              boost::static_pointer_cast<crocoddyl::StateMultibody>(
+                  StateModelFactory().create(StateModelTypes::StateMultibody_Talos)));
       state = boost::make_shared<sobec::StateLPF>(model, actuation->get_nu());
       break;
     }
-    case StateLPFModelTypes::StateLPF_RandomHumanoid:
-    {
-      model =
-          PinocchioModelFactory(PinocchioModelTypes::RandomHumanoid).create();
-      boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation = 
-        boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
-            boost::static_pointer_cast<crocoddyl::StateMultibody>(StateModelFactory().create(StateModelTypes::StateMultibody_RandomHumanoid)));
+    case StateLPFModelTypes::StateLPF_RandomHumanoid: {
+      model = PinocchioModelFactory(PinocchioModelTypes::RandomHumanoid).create();
+      boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
+          boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
+              boost::static_pointer_cast<crocoddyl::StateMultibody>(
+                  StateModelFactory().create(StateModelTypes::StateMultibody_RandomHumanoid)));
       state = boost::make_shared<sobec::StateLPF>(model, actuation->get_nu());
       break;
     }

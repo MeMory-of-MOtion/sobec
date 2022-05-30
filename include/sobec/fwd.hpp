@@ -37,7 +37,6 @@ template <typename Scalar>
 class IntegratedActionDataLPFTpl;
 typedef IntegratedActionDataLPFTpl<double> IntegratedActionDataLPF;
 
-
 // contact 3D
 template <typename Scalar>
 class ContactModel3DTpl;
@@ -59,7 +58,6 @@ template <typename Scalar>
 class ContactModelMultipleTpl;
 typedef ContactModelMultipleTpl<double> ContactModelMultiple;
 
-
 // DAM contact fwd dynamics
 template <typename Scalar>
 class DifferentialActionModelContactFwdDynamicsTpl;
@@ -71,7 +69,6 @@ class ResidualModelContactForceTpl;
 typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
 
 enum ContactType { ContactUndefined, Contact1D, Contact2D, Contact3D, Contact6D };
-
 
 }  // namespace sobec
 

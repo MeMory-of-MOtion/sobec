@@ -24,7 +24,6 @@
 
 #include "sobec/fwd.hpp"
 
-
 namespace sobec {
 
 /**
@@ -40,7 +39,7 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;
-  typedef crocoddyl::ContactModelMultipleTpl<Scalar> Base; 
+  typedef crocoddyl::ContactModelMultipleTpl<Scalar> Base;
   typedef crocoddyl::MathBaseTpl<Scalar> MathBase;
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
   typedef crocoddyl::ContactDataAbstractTpl<Scalar> ContactDataAbstract;
@@ -87,7 +86,6 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
   void updateForceDiff(const boost::shared_ptr<ContactDataMultiple>& data, const boost::shared_ptr<MatrixXs> df_dx,
                        const boost::shared_ptr<MatrixXs> df_du) const;
 
-
   /**
    * @brief Update the RNEA derivatives dtau_dq by adding the skew term (necessary for contacts expressed in
    * LOCAL_WORLD_ALIGNED)
@@ -99,8 +97,7 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
   void updateRneaDerivatives(const boost::shared_ptr<ContactDataMultiple>& data,
                              pinocchio::DataTpl<Scalar>& pinocchio) const;
 
-
-//   MatrixXs rotateJacobians(const boost::shared_ptr<MatrixXs> Jin);
+  //   MatrixXs rotateJacobians(const boost::shared_ptr<MatrixXs> Jin);
 };
 
 }  // namespace sobec

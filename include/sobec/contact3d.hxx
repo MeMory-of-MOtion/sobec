@@ -22,7 +22,6 @@ ContactModel3DTpl<Scalar>::ContactModel3DTpl(boost::shared_ptr<StateMultibody> s
                                              const pinocchio::ReferenceFrame type)
     : Base(state, id, Vector3s::Zero(), Vector2s::Zero()), xref_(xref), gains_(gains), type_(type) {}
 
-
 template <typename Scalar>
 ContactModel3DTpl<Scalar>::~ContactModel3DTpl() {}
 
@@ -130,7 +129,7 @@ void ContactModel3DTpl<Scalar>::updateForce(const boost::shared_ptr<crocoddyl::C
 }
 
 template <typename Scalar>
-boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar> > ContactModel3DTpl<Scalar>::createData(
+boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> ContactModel3DTpl<Scalar>::createData(
     pinocchio::DataTpl<Scalar>* const data) {
   return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this, data);
 }
@@ -144,7 +143,6 @@ template <typename Scalar>
 const typename crocoddyl::MathBaseTpl<Scalar>::Vector3s& ContactModel3DTpl<Scalar>::get_reference() const {
   return xref_;
 }
-
 
 template <typename Scalar>
 const typename crocoddyl::MathBaseTpl<Scalar>::Vector2s& ContactModel3DTpl<Scalar>::get_gains() const {
@@ -166,4 +164,4 @@ const pinocchio::ReferenceFrame ContactModel3DTpl<Scalar>::get_type() const {
   return type_;
 }
 
-}  // namespace crocoddyl
+}  // namespace sobec

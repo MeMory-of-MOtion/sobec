@@ -59,8 +59,7 @@ class ContactModel1DFactory {
 
   boost::shared_ptr<crocoddyl::ContactModelAbstract> create(
       ContactModelMaskTypes::Type mask_type, PinocchioModelTypes::Type model_type,
-      PinocchioReferenceTypes::Type reference_type, 
-      Eigen::Vector2d gains = Eigen::Vector2d::Zero(),
+      PinocchioReferenceTypes::Type reference_type, Eigen::Vector2d gains = Eigen::Vector2d::Zero(),
       const std::string frame_name = std::string(""),
       const std::size_t nu = std::numeric_limits<std::size_t>::max()) const;
 };

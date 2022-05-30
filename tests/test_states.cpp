@@ -10,7 +10,6 @@
 #define BOOST_TEST_NO_MAIN
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 
-
 #include "factory/state.hpp"
 #include "common.hpp"
 

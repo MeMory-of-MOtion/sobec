@@ -17,10 +17,12 @@ using namespace sobec::unittest;
 
 //----------------------------------------------------------------------------//
 
-void test_check_data(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type ) {
+void test_check_data(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type,
+                     ContactModelMaskTypes::Type mask_type) {
   // create the model
   DifferentialActionModelFactory factory;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model = factory.create(action_type, ref_type, mask_type);
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model =
+      factory.create(action_type, ref_type, mask_type);
 
   // Run the print function
   std::ostringstream tmp;
@@ -32,10 +34,12 @@ void test_check_data(DifferentialActionModelTypes::Type action_type, PinocchioRe
   BOOST_CHECK(model->checkData(data));
 }
 
-void test_calc_returns_state(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type ) {
+void test_calc_returns_state(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type,
+                             ContactModelMaskTypes::Type mask_type) {
   // create the model
   DifferentialActionModelFactory factory;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model = factory.create(action_type, ref_type, mask_type);
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model =
+      factory.create(action_type, ref_type, mask_type);
 
   // create the corresponding data object
   boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract> data = model->createData();
@@ -50,10 +54,12 @@ void test_calc_returns_state(DifferentialActionModelTypes::Type action_type, Pin
   BOOST_CHECK(static_cast<std::size_t>(data->xout.size()) == model->get_state()->get_nv());
 }
 
-void test_calc_returns_a_cost(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type ) {
+void test_calc_returns_a_cost(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type,
+                              ContactModelMaskTypes::Type mask_type) {
   // create the model
   DifferentialActionModelFactory factory;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model = factory.create(action_type, ref_type, mask_type);
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model =
+      factory.create(action_type, ref_type, mask_type);
 
   // create the corresponding data object and set the cost to nan
   boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract> data = model->createData();
@@ -68,11 +74,13 @@ void test_calc_returns_a_cost(DifferentialActionModelTypes::Type action_type, Pi
   BOOST_CHECK(!std::isnan(data->cost));
 }
 
-void test_quasi_static(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type ) {
+void test_quasi_static(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type,
+                       ContactModelMaskTypes::Type mask_type) {
   if (action_type == DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed) return;
   // create the model
   DifferentialActionModelFactory factory;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model = factory.create(action_type, ref_type, mask_type);
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model =
+      factory.create(action_type, ref_type, mask_type);
 
   // create the corresponding data object and set the cost to nan
   boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract> data = model->createData();
@@ -82,26 +90,29 @@ void test_quasi_static(DifferentialActionModelTypes::Type action_type, Pinocchio
   x.tail(model->get_state()->get_nv()).setZero();
   Eigen::VectorXd u = Eigen::VectorXd::Zero(model->get_nu());
   model->quasiStatic(data, u, x);
-  if(action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ && 
-     ref_type == PinocchioReferenceTypes::LOCAL && mask_type == ContactModelMaskTypes::X){
+  if (action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ &&
+      ref_type == PinocchioReferenceTypes::LOCAL && mask_type == ContactModelMaskTypes::X) {
     std::cout << "1D contact -> a0 ( q, vq=0, aq=0 ) for each 4 feet" << std::endl;
-    boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics> cd = boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(data);
-    boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> cm = boost::static_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(model);
+    boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics> cd =
+        boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(data);
+    boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> cm =
+        boost::static_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(model);
     std::cout << cd->multibody.contacts->a0.head(cm->get_contacts()->get_nc()) << std::endl;
     // std::cout << "Fx - FxND (/dv) " << std::endl;
     // std::cout << (data->Fx - data_num_diff->Fx).rightCols(model->get_state()->get_nv()) << std::endl;
   }
   model->calc(data, x, u);
-  if(action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ && 
-     ref_type == PinocchioReferenceTypes::LOCAL && mask_type == ContactModelMaskTypes::X){
+  if (action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ &&
+      ref_type == PinocchioReferenceTypes::LOCAL && mask_type == ContactModelMaskTypes::X) {
     std::cout << "xout = fwdDyn(q, vq=0, tau=u, a0, Jc) : " << std::endl;
-    // boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics> cd = boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(data);
-    // boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> cm = boost::static_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(model);
-    // std::cout << cd->multibody.contacts->a0.head(cm->get_contacts()->get_nc()) << std::endl;
+    // boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics> cd =
+    // boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(data);
+    // boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> cm =
+    // boost::static_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(model); std::cout <<
+    // cd->multibody.contacts->a0.head(cm->get_contacts()->get_nc()) << std::endl;
     std::cout << data->xout << std::endl;
     // std::cout << (data->Fx - data_num_diff->Fx).rightCols(model->get_state()->get_nv()) << std::endl;
   }
-
 
   BOOST_CHECK(data->xout.norm() <= 1e-8);
 
@@ -109,7 +120,7 @@ void test_quasi_static(DifferentialActionModelTypes::Type action_type, Pinocchio
   if (action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
       action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
       action_type == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ ||
-      action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ){ 
+      action_type == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ) {
     boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> m =
         boost::static_pointer_cast<sobec::DifferentialActionModelContactFwdDynamics>(model);
     m->get_contacts()->changeContactStatus("lf", false);
@@ -122,10 +133,13 @@ void test_quasi_static(DifferentialActionModelTypes::Type action_type, Pinocchio
   }
 }
 
-void test_partial_derivatives_against_numdiff(DifferentialActionModelTypes::Type action_type, PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type ) {
+void test_partial_derivatives_against_numdiff(DifferentialActionModelTypes::Type action_type,
+                                              PinocchioReferenceTypes::Type ref_type,
+                                              ContactModelMaskTypes::Type mask_type) {
   // create the model
   DifferentialActionModelFactory factory;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model = factory.create(action_type, ref_type, mask_type);
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model =
+      factory.create(action_type, ref_type, mask_type);
 
   // create the corresponding data object and set the cost to nan
   boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract> data = model->createData();
@@ -179,32 +193,32 @@ void test_partial_derivatives_against_numdiff(DifferentialActionModelTypes::Type
 
 //----------------------------------------------------------------------------//
 
-void register_action_model_unit_tests(DifferentialActionModelTypes::Type action_type, 
-                                      PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL, 
+void register_action_model_unit_tests(DifferentialActionModelTypes::Type action_type,
+                                      PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
                                       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) {
   boost::test_tools::output_test_stream test_name;
-  switch(action_type){
-      case DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm:
-        test_name << "test_" << action_type << "_" << ref_type << "_" << mask_type;
-        break;
-      case DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ:
-        test_name << "test_" << action_type << "_" << ref_type << "_" << mask_type;
-        break;
-      case DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm:
-        test_name << "test_" << action_type << "_" << ref_type;
-        break;
-      case DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ:
-        test_name << "test_" << action_type << "_" << ref_type;
-        break;
-      case DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm:
-        test_name << "test_" << action_type;
-        break;
-      case DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed:
-        test_name << "test_" << action_type;
-        break;
-      default:
-        throw_pretty(__FILE__ ": Wrong DifferentialActionModelTypes::Type given");
-        break;
+  switch (action_type) {
+    case DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm:
+      test_name << "test_" << action_type << "_" << ref_type << "_" << mask_type;
+      break;
+    case DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ:
+      test_name << "test_" << action_type << "_" << ref_type << "_" << mask_type;
+      break;
+    case DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm:
+      test_name << "test_" << action_type << "_" << ref_type;
+      break;
+    case DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ:
+      test_name << "test_" << action_type << "_" << ref_type;
+      break;
+    case DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm:
+      test_name << "test_" << action_type;
+      break;
+    case DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed:
+      test_name << "test_" << action_type;
+      break;
+    default:
+      throw_pretty(__FILE__ ": Wrong DifferentialActionModelTypes::Type given");
+      break;
   }
   std::cout << "Running " << test_name.str() << std::endl;
   test_suite* ts = BOOST_TEST_SUITE(test_name.str());
@@ -217,37 +231,42 @@ void register_action_model_unit_tests(DifferentialActionModelTypes::Type action_
 }
 
 bool init_function() {
-
   // free
   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
-    if(DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm ||
-       DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed){ 
+    if (DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm ||
+        DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed) {
       register_action_model_unit_tests(DifferentialActionModelTypes::all[i]);
     }
   }
 
   // 3D contact
   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
-    if(DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
-       DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ){
-      for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j){
+    if (DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
+        DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ) {
+      for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j) {
         register_action_model_unit_tests(DifferentialActionModelTypes::all[i], PinocchioReferenceTypes::all[j]);
-      }
-    }
-  }   
-
-  // 1D contact
-  for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
-    if(DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
-       DifferentialActionModelTypes::all[i] == DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ){
-      for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j){
-        for (size_t k = 0; k < ContactModelMaskTypes::all.size(); ++k){
-          register_action_model_unit_tests(DifferentialActionModelTypes::all[i], PinocchioReferenceTypes::all[j], ContactModelMaskTypes::all[k]);
-        }
       }
     }
   }
 
+  // 1D contact
+  for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
+    if (DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
+        DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ) {
+      for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j) {
+        for (size_t k = 0; k < ContactModelMaskTypes::all.size(); ++k) {
+          register_action_model_unit_tests(DifferentialActionModelTypes::all[i], PinocchioReferenceTypes::all[j],
+                                           ContactModelMaskTypes::all[k]);
+        }
+      }
+    }
+  }
 
   return true;
 }

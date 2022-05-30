@@ -23,7 +23,6 @@
 
 #include "sobec/fwd.hpp"
 
-
 namespace sobec {
 
 /**
@@ -72,7 +71,7 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
    */
   ResidualModelContactForceTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                const Force& fref, const std::size_t nc, const std::size_t nu);
-                            //    const std::size_t type = 2);
+  //    const std::size_t type = 2);
 
   /**
    * @brief Initialize the contact force residual model
@@ -115,7 +114,6 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
    */
   virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
                         const Eigen::Ref<const VectorXs>& u);
-
 };
 
 }  // namespace sobec

@@ -10,15 +10,13 @@ namespace sobec {
 
 template <typename Scalar>
 ContactModelMultipleTpl<Scalar>::ContactModelMultipleTpl(boost::shared_ptr<StateMultibody> state, const std::size_t nu)
-    : Base(state, nu) {} 
+    : Base(state, nu) {}
 
 template <typename Scalar>
-ContactModelMultipleTpl<Scalar>::ContactModelMultipleTpl(boost::shared_ptr<StateMultibody> state)
-    : Base(state) {} 
+ContactModelMultipleTpl<Scalar>::ContactModelMultipleTpl(boost::shared_ptr<StateMultibody> state) : Base(state) {}
 
 template <typename Scalar>
 ContactModelMultipleTpl<Scalar>::~ContactModelMultipleTpl() {}
-
 
 template <typename Scalar>
 void ContactModelMultipleTpl<Scalar>::updateForceDiff(const boost::shared_ptr<ContactDataMultiple>& data,
@@ -27,13 +25,14 @@ void ContactModelMultipleTpl<Scalar>::updateForceDiff(const boost::shared_ptr<Co
   const std::size_t ndx = this->get_state()->get_ndx();
   if (static_cast<std::size_t>(df_dx->rows()) != this->get_nc() || static_cast<std::size_t>(df_dx->cols()) != ndx) {
     throw_pretty("Invalid argument: "
-                 << "df_dx has wrong dimension (it should be " + std::to_string(this->get_nc()) + "," + std::to_string(ndx) +
-                        ")");
+                 << "df_dx has wrong dimension (it should be " + std::to_string(this->get_nc()) + "," +
+                        std::to_string(ndx) + ")");
   }
-  if (static_cast<std::size_t>(df_du->rows()) != this->get_nc() || static_cast<std::size_t>(df_du->cols()) != this->get_nu()) {
+  if (static_cast<std::size_t>(df_du->rows()) != this->get_nc() ||
+      static_cast<std::size_t>(df_du->cols()) != this->get_nu()) {
     throw_pretty("Invalid argument: "
-                 << "df_du has wrong dimension (it should be " + std::to_string(this->get_nc()) + "," + std::to_string(this->get_nu()) +
-                        ")");
+                 << "df_du has wrong dimension (it should be " + std::to_string(this->get_nc()) + "," +
+                        std::to_string(this->get_nu()) + ")");
   }
   if (static_cast<std::size_t>(data->contacts.size()) != this->get_contacts().size()) {
     throw_pretty("Invalid argument: "
@@ -43,7 +42,8 @@ void ContactModelMultipleTpl<Scalar>::updateForceDiff(const boost::shared_ptr<Co
   std::size_t nc = 0;
   typename ContactModelContainer::const_iterator it_m, end_m;
   typename ContactDataContainer::const_iterator it_d, end_d;
-  for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(), end_d = data->contacts.end();
+  for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(),
+      end_d = data->contacts.end();
        it_m != end_m || it_d != end_d; ++it_m, ++it_d) {
     const boost::shared_ptr<ContactItem>& m_i = it_m->second;
     const boost::shared_ptr<ContactDataAbstract>& d_i = it_d->second;
@@ -58,7 +58,6 @@ void ContactModelMultipleTpl<Scalar>::updateForceDiff(const boost::shared_ptr<Co
   }
 }
 
-
 template <typename Scalar>
 void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(const boost::shared_ptr<ContactDataMultiple>& data,
                                                             pinocchio::DataTpl<Scalar>& pinocchio) const {
@@ -69,7 +68,8 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(const boost::shared_
   }
   typename ContactModelContainer::const_iterator it_m, end_m;
   typename ContactDataContainer::const_iterator it_d, end_d;
-  for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(), end_d = data->contacts.end();
+  for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(),
+      end_d = data->contacts.end();
        it_m != end_m || it_d != end_d; ++it_m, ++it_d) {
     const boost::shared_ptr<ContactItem>& m_i = it_m->second;
     const boost::shared_ptr<ContactDataAbstract>& d_i = it_d->second;
@@ -94,15 +94,16 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(const boost::shared_
   }
 }
 
-
 // template <typename Scalar>
-// MathBase::MatrixXs ContactModelMultipleTpl<Scalar>::rotateJacobians(const boost::shared_ptr<MathBase::MatrixXs>& Jin) {
+// MathBase::MatrixXs ContactModelMultipleTpl<Scalar>::rotateJacobians(const boost::shared_ptr<MathBase::MatrixXs>&
+// Jin) {
 //   MathBase::MatrixXs Jout = MatrixXs(Jin);
 //   std::size_t nc = 0;
 //   const std::size_t nv = this->get_state()->get_nv();
 //   typename ContactModelContainer::const_iterator it_m, end_m;
 //   typename ContactDataContainer::const_iterator it_d, end_d;
-//   for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(), end_d = data->contacts.end();
+//   for (it_m = this->get_contacts().begin(), end_m = this->get_contacts().end(), it_d = data->contacts.begin(), end_d
+//   = data->contacts.end();
 //        it_m != end_m || it_d != end_d; ++it_m, ++it_d) {
 //     const boost::shared_ptr<ContactItem>& m_i = it_m->second;
 //     const boost::shared_ptr<ContactDataAbstract>& d_i = it_d->second;
@@ -120,7 +121,7 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(const boost::shared_
 //         Jout.block(nc, 0, nc_i, nv) = (d_i->oRf * d_i->fJf.topRows(3)).row(cm_i->get_mask()); // d->oRf * d->fJf
 //       }
 //       nc += nc_i;
-//     } 
+//     }
 //   }
 //   return Jout
 // }

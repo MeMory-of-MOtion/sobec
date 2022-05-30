@@ -8,7 +8,6 @@
 
 #include "sobec/contact1d.hpp"
 
-
 namespace sobec {
 
 template <typename Scalar>
@@ -17,13 +16,15 @@ ContactModel1DTpl<Scalar>::ContactModel1DTpl(boost::shared_ptr<StateMultibody> s
                                              const Vector3MaskType& mask, const pinocchio::ReferenceFrame type)
     : Base(state, id, Scalar(0.), nu, Vector2s::Zero()), xref_(xref), gains_(gains), mask_(mask), type_(type) {}
 
-
 template <typename Scalar>
 ContactModel1DTpl<Scalar>::ContactModel1DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
                                              const Vector3s& xref, const Vector2s& gains,
                                              const pinocchio::ReferenceFrame type)
-    : Base(state, id, Scalar(0.), Vector2s::Zero()), xref_(xref), gains_(gains), mask_(Vector3MaskType::z), type_(type) {}
-
+    : Base(state, id, Scalar(0.), Vector2s::Zero()),
+      xref_(xref),
+      gains_(gains),
+      mask_(Vector3MaskType::z),
+      type_(type) {}
 
 template <typename Scalar>
 ContactModel1DTpl<Scalar>::~ContactModel1DTpl() {}
@@ -135,7 +136,7 @@ void ContactModel1DTpl<Scalar>::updateForce(const boost::shared_ptr<crocoddyl::C
 }
 
 template <typename Scalar>
-boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar> > ContactModel1DTpl<Scalar>::createData(
+boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> ContactModel1DTpl<Scalar>::createData(
     pinocchio::DataTpl<Scalar>* const data) {
   return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this, data);
 }

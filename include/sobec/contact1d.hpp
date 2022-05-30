@@ -80,7 +80,8 @@ class ContactModel1DTpl : public crocoddyl::ContactModel1DTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const Eigen::Ref<const VectorXs>& x);
+  virtual void calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                    const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Compute the derivatives of the 1d contact holonomic constraint
@@ -89,7 +90,8 @@ class ContactModel1DTpl : public crocoddyl::ContactModel1DTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const Eigen::Ref<const VectorXs>& x);
+  virtual void calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                        const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Convert the force into a stack of spatial forces
@@ -97,12 +99,14 @@ class ContactModel1DTpl : public crocoddyl::ContactModel1DTpl<_Scalar> {
    * @param[in] data   1d contact data
    * @param[in] force  1d force
    */
-  virtual void updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data, const VectorXs& force);
+  virtual void updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                           const VectorXs& force);
 
   /**
    * @brief Create the 1d contact data
    */
-  virtual boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> createData(pinocchio::DataTpl<Scalar>* const data);
+  virtual boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> createData(
+      pinocchio::DataTpl<Scalar>* const data);
 
   /**
    * @brief Return the reference frame translation

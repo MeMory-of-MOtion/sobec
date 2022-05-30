@@ -79,7 +79,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(const boost::shared_ptr<ActionDat
     throw_pretty("Invalid argument: "
                  << "w has wrong dimension (it should be " + std::to_string(nw) + ")");
   }
-  
+
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
 
@@ -112,7 +112,8 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(const boost::shared_ptr<ActionDat
   }
   if (static_cast<std::size_t>(d->r.size()) != differential_->get_nr() + 2 * statelpf->get_nw()) {
     throw_pretty("Invalid argument: "
-                 << "r has wrong dimension (it should be " + std::to_string(differential_->get_nr() + 2 * statelpf->get_nw()) + ")");
+                 << "r has wrong dimension (it should be " +
+                        std::to_string(differential_->get_nr() + 2 * statelpf->get_nw()) + ")");
   }
   if (static_cast<std::size_t>(d->Ly.size()) != statelpf->get_ndy()) {
     throw_pretty("Invalid argument: "
@@ -144,19 +145,19 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(const boost::shared_ptr<ActionDat
     d->dy.head(nv).noalias() = v * time_step_ + a * time_step2_;  // get     dq(a_q, dt)
     d->dy.segment(nq, nv).noalias() = a * time_step_;             // get   dv_q(a_q, dt)
     d->dy.tail(nu).noalias() = (1 - alpha_) * (w - tau);          // get dtau_q(w, tau, alpha)
-    state_->integrate(y, d->dy, d->ynext);                        // integrate using stateLPF rule : tau+ = tau + dtau(tau, w)
-    d->cost = time_step_ * d->differential->cost;                 // get cost+ from cost
+    state_->integrate(y, d->dy, d->ynext);         // integrate using stateLPF rule : tau+ = tau + dtau(tau, w)
+    d->cost = time_step_ * d->differential->cost;  // get cost+ from cost
     // Add hard-coded cost on unfiltered torque a[r(w)]
-    if(wreg_ != 0){
+    if (wreg_ != 0) {
       res_w_reg = w - wref_;
       d->cost += Scalar(0.5 * time_step_ * wreg_ * res_w_reg.transpose() * res_w_reg);  // w reg
     }
-    if(wlim_ !=0){
+    if (wlim_ != 0) {
       activation_model_w_lim_->calc(d->activation, w);  // Compute limit cost torque residual of w
       res_w_lim = w;
-      d->cost += Scalar(0.5 * time_step_ * wlim_ * d->activation->a_value);             // w lim
+      d->cost += Scalar(0.5 * time_step_ * wlim_ * d->activation->a_value);  // w lim
     }
-  } // running model
+  }  // running model
 
   // For TERMINAL node, no integration & no cost on control w
   else {
@@ -170,14 +171,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(const boost::shared_ptr<ActionDat
     d->r.head(differential_->get_nr() - 2 * nw) = d->differential->r;
     // Add unfiltered torque RESIDUAL(w) for RUNNING MODELS
     if (!is_terminal_) {
-      if(wreg_ != 0){
+      if (wreg_ != 0) {
         d->r.segment(differential_->get_nr(), nw) = res_w_reg;  // w reg
-      }// wreg_ != 0
-      if(wlim_ != 0){
-        d->r.tail(nw) = res_w_lim;                              // w lim
-      } // wlim_ != 0
-    } // running residual
-  } // update residual
+      }                                                         // wreg_ != 0
+      if (wlim_ != 0) {
+        d->r.tail(nw) = res_w_lim;  // w lim
+      }                             // wlim_ != 0
+    }                               // running residual
+  }                                 // update residual
 
 }  // calc
 
@@ -191,7 +192,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
   const std::size_t& ndx = differential_->get_state()->get_ndx();
   const std::size_t& ny = state_->get_nx();
   const std::size_t& nu = differential_->get_nu();
-  const std::size_t& ndy = ndx + nu; //state_->get_ndy();
+  const std::size_t& ndy = ndx + nu;  // state_->get_ndy();
   const std::size_t& nw = nu;
 
   // if (ndx + nu != ndy) {
@@ -220,9 +221,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
     differential_->calcDiff(d->differential, x, tau);
     // Get cost lim w derivatives
     if (!is_terminal_) {
-      if(wlim_ != 0){
+      if (wlim_ != 0) {
         activation_model_w_lim_->calcDiff(d->activation, w);
-      } // wlim_ != 0
+      }  // wlim_ != 0
     }
 
     // Fill RUNNING MODELS partials of (y+,cost+) w.r.t. (y,w)
@@ -237,8 +238,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       d->Fy.block(nv, ndx, nv, nu).noalias() = da_du * time_step_;
       d->Fy.bottomRightCorner(nu, nu).diagonal().array() = Scalar(alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);
-      state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);           // add identity to Fx = d(x+dx)/dx = d(q,v)/d(q,v)
-      d->Fy.bottomRightCorner(nu, nu).diagonal().array() -= Scalar(1.);   // remove identity from Ftau (due to stateLPF.Jintegrate)
+      state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);  // add identity to Fx = d(x+dx)/dx = d(q,v)/d(q,v)
+      d->Fy.bottomRightCorner(nu, nu).diagonal().array() -=
+          Scalar(1.);  // remove identity from Ftau (due to stateLPF.Jintegrate)
       // d(x+)/dw
       d->Fw.setZero();
       d->Fw.bottomRows(nu).diagonal().array() = Scalar(1 - alpha_);
@@ -251,15 +253,15 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       d->Lyy.block(ndx, 0, nu, ndx).noalias() = time_step_ * d->differential->Lxu.transpose();
       d->Lyy.bottomRightCorner(nu, nu).noalias() = time_step_ * d->differential->Luu;
       // Partials of hard-coded cost+(wreg) & cost+(wlim) w.r.t. (y,w)
-      if(wreg_ != 0){
+      if (wreg_ != 0) {
         d->Lw.noalias() = time_step_ * wreg_ * d->r.segment(differential_->get_nr(), nw);  // w reg
         d->Lww.diagonal().array() = Scalar(time_step_ * wreg_);                            // w reg
-      }//wreg !=0
-      if(wlim_ != 0){
-        d->Lw.noalias() += time_step_ * wlim_ * d->activation->Ar;                         // w lim
-        d->Lww.diagonal() += time_step_ * wlim_ * d->activation->Arr.diagonal();           // w lim
-      } //wlim !=0
-    } // !is_terminal                                                                                                 // running model
+      }                                                                                    // wreg !=0
+      if (wlim_ != 0) {
+        d->Lw.noalias() += time_step_ * wlim_ * d->activation->Ar;                // w lim
+        d->Lww.diagonal() += time_step_ * wlim_ * d->activation->Arr.diagonal();  // w lim
+      }                                                                           // wlim !=0
+    }                                                                             // !is_terminal // running model
 
     // Fill TERMINAL MODEL partials of ( a(yT), cost(yT) ) w.r.t. y
     else {
@@ -296,7 +298,8 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
       d->Fy.block(0, ndx, nv, nu).noalias() = alpha_ * alpha_ * da_du * time_step2_;
       d->Fy.block(nv, ndx, nv, nu).noalias() = alpha_ * da_du * time_step_;
-      d->Fy.block(0, nq, nv, nv).diagonal().array() += Scalar(time_step_);  // dt*identity top row middle col (eq. Jsecond = d(xnext)/d(dx))
+      d->Fy.block(0, nq, nv, nv).diagonal().array() +=
+          Scalar(time_step_);  // dt*identity top row middle col (eq. Jsecond = d(xnext)/d(dx))
       // d->Fy.topLeftCorner(nx, nx).diagonal().array() += Scalar(1.);     // managed by Jintegrate (eq. Jsecond =
       // d(xnext)/d(dx))
       d->Fy.bottomRightCorner(nu, nu).diagonal().array() = Scalar(alpha_);
@@ -305,8 +308,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(const boost::shared_ptr<Actio
       d->Fw.bottomRows(nv).diagonal().array() = Scalar(1 - alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);      // it this correct?
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);  // for d(x+dx)/d(x)
-      d->Fy.bottomRightCorner(nu, nu).diagonal().array() -= Scalar(1.);   // remove identity from Ftau (due to stateLPF.Jintegrate)
-      state_->JintegrateTransport(y, d->dy, d->Fw, second);      // it this correct?
+      d->Fy.bottomRightCorner(nu, nu).diagonal().array() -=
+          Scalar(1.);                                        // remove identity from Ftau (due to stateLPF.Jintegrate)
+      state_->JintegrateTransport(y, d->dy, d->Fw, second);  // it this correct?
       d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
       d->Ly.tail(nu).noalias() = alpha_ * time_step_ * d->differential->Lu;
       d->Lw.noalias() = (1 - alpha_) * time_step_ * d->differential->Lu;
@@ -433,7 +437,7 @@ void IntegratedActionModelLPFTpl<Scalar>::set_differential(boost::shared_ptr<Dif
     nu_ = nu;
     unone_ = VectorXs::Zero(nu_);
   }
-  nr_ = model->get_nr() + 2*nu;
+  nr_ = model->get_nr() + 2 * nu;
   state_ =
       boost::static_pointer_cast<StateLPF>(model->get_state());  // cast StateAbstract from DAM as StateLPF for IAM
   differential_ = model;
@@ -442,15 +446,13 @@ void IntegratedActionModelLPFTpl<Scalar>::set_differential(boost::shared_ptr<Dif
 }
 
 template <typename Scalar>
-void IntegratedActionModelLPFTpl<Scalar>::set_control_reg_cost(const Scalar& weight, 
-                                                                const VectorXs& ref) {
+void IntegratedActionModelLPFTpl<Scalar>::set_control_reg_cost(const Scalar& weight, const VectorXs& ref) {
   if (weight <= 0.) {
     throw_pretty("cost weight is positive ");
   }
   wreg_ = weight;
   wref_ = ref;
 }
-
 
 template <typename Scalar>
 void IntegratedActionModelLPFTpl<Scalar>::set_control_lim_cost(const Scalar& weight) {

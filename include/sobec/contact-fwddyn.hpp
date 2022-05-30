@@ -61,7 +61,8 @@ namespace sobec {
  * \sa `DifferentialActionModelAbstractTpl`, `calc()`, `calcDiff()`, `createData()`
  */
 template <typename _Scalar>
-class DifferentialActionModelContactFwdDynamicsTpl : public crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<_Scalar> {
+class DifferentialActionModelContactFwdDynamicsTpl
+    : public crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<_Scalar> {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -115,7 +116,7 @@ class DifferentialActionModelContactFwdDynamicsTpl : public crocoddyl::Different
   //                          const Eigen::Ref<const VectorXs>& x, const std::size_t maxiter = 100,
   //                          const Scalar tol = Scalar(1e-9));
 
-  private:
+ private:
   bool enable_force_;
   boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts_;
 };

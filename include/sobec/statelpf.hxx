@@ -256,14 +256,12 @@ void StateLPFTpl<Scalar>::JintegrateTransport(const Eigen::Ref<const VectorXs>& 
     case first:
       // pinocchio::dIntegrateTransport(*pinocchio_.get(), y.head(nq_), dy.head(nv_), Jin.topLeftCorner(nv_, nx_),
       //                                pinocchio::ARG0);
-      pinocchio::dIntegrateTransport(*pinocchio_.get(), y.head(nq_), dy.head(nv_), Jin.topRows(nv_),
-                                     pinocchio::ARG0);
+      pinocchio::dIntegrateTransport(*pinocchio_.get(), y.head(nq_), dy.head(nv_), Jin.topRows(nv_), pinocchio::ARG0);
       break;
     case second:
       // pinocchio::dIntegrateTransport(*pinocchio_.get(), y.head(nq_), dy.head(nv_), Jin.topLeftCorner(nv_, nx_),
       //                                pinocchio::ARG1);
-      pinocchio::dIntegrateTransport(*pinocchio_.get(), y.head(nq_), dy.head(nv_), Jin.topRows(nv_),
-                                     pinocchio::ARG1);
+      pinocchio::dIntegrateTransport(*pinocchio_.get(), y.head(nq_), dy.head(nv_), Jin.topRows(nv_), pinocchio::ARG1);
       break;
     default:
       throw_pretty(

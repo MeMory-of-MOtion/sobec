@@ -18,7 +18,6 @@
 #include <boost/python/enum.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-
 namespace sobec {
 namespace python {
 using namespace crocoddyl;
@@ -33,7 +32,8 @@ void exposeIntegratedActionLPF() {
       "  [q+, v+, tau+] = StateLPF.integrate([q, v], [v + a * dt, a * dt] * dt, [alpha*tau + (1-alpha)*w]).",
       bp::init<boost::shared_ptr<DifferentialActionModelAbstract>,
                bp::optional<double, bool, double, bool, int, bool> >(
-          bp::args("self", "diffModel", "stepTime", "withCostResidual", "fc", "tau_plus_integration", "filter", "is_terminal"),
+          bp::args("self", "diffModel", "stepTime", "withCostResidual", "fc", "tau_plus_integration", "filter",
+                   "is_terminal"),
           "Initialize the sympletic Euler integrator.\n\n"
           ":param diffModel: differential action model\n"
           ":param stepTime: step time\n"
@@ -80,11 +80,11 @@ void exposeIntegratedActionLPF() {
           "fc", bp::make_function(&IntegratedActionModelLPF::get_fc, bp::return_value_policy<bp::return_by_value>()),
           &IntegratedActionModelLPF::set_fc, "cut-off frequency of low-pass filter")
 
-      .def("set_control_reg_cost", &IntegratedActionModelLPF::set_control_reg_cost, bp::args("self", "weight", "ref"), 
-        "Initialize cost weight and reference for unfiltered torque regularization (2-norm residual).")
+      .def("set_control_reg_cost", &IntegratedActionModelLPF::set_control_reg_cost, bp::args("self", "weight", "ref"),
+           "Initialize cost weight and reference for unfiltered torque regularization (2-norm residual).")
 
-      .def("set_control_lim_cost", &IntegratedActionModelLPF::set_control_lim_cost, bp::args("self", "weight"), 
-        "Initialize cost weight unfiltered torque limit penalization (quadratic barrier).");
+      .def("set_control_lim_cost", &IntegratedActionModelLPF::set_control_lim_cost, bp::args("self", "weight"),
+           "Initialize cost weight unfiltered torque limit penalization (quadratic barrier).");
 
   bp::register_ptr_to_python<boost::shared_ptr<IntegratedActionDataLPF> >();
 

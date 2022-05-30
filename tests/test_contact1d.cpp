@@ -29,7 +29,8 @@ void test_construct_data(ContactModelMaskTypes::Type mask_type, PinocchioModelTy
                          PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model =
+      factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // Run the print function
   std::ostringstream tmp;
@@ -45,7 +46,8 @@ void test_calc_fetch_jacobians(ContactModelMaskTypes::Type mask_type, PinocchioM
                                PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model =
+      factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -72,7 +74,8 @@ void test_calc_diff_fetch_derivatives(ContactModelMaskTypes::Type mask_type, Pin
                                       PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model =
+      factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -100,7 +103,8 @@ void test_update_force(ContactModelMaskTypes::Type mask_type, PinocchioModelType
                        PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model =
+      factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -125,7 +129,8 @@ void test_update_force_diff(ContactModelMaskTypes::Type mask_type, PinocchioMode
                             PinocchioReferenceTypes::Type reference_type) {
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model =
+      factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   const boost::shared_ptr<pinocchio::Model>& pinocchio_model = model->get_state()->get_pinocchio();
@@ -154,7 +159,8 @@ void test_partial_derivatives_against_numdiff(ContactModelMaskTypes::Type mask_t
 #endif
   // create the model
   ContactModel1DFactory factory;
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> model = factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> model =
+      factory.create(mask_type, model_type, reference_type, Eigen::Vector2d::Random());
 
   // create the corresponding data object
   pinocchio::Model& pinocchio_model = *model->get_state()->get_pinocchio().get();

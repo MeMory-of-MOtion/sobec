@@ -6,7 +6,6 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-
 #include "sobec/contact3d.hpp"
 
 #include <boost/python.hpp>
@@ -70,15 +69,16 @@ void exposeContact3D() {
            "returns the allocated data for a predefined cost.\n"
            ":param data: Pinocchio data\n"
            ":return contact data.")
-      .add_property("reference", bp::make_function(&sobec::ContactModel3D::get_reference, bp::return_internal_reference<>()),
+      .add_property("reference",
+                    bp::make_function(&sobec::ContactModel3D::get_reference, bp::return_internal_reference<>()),
                     &sobec::ContactModel3D::set_reference, "reference contact translation")
-      .add_property("gains",
-                    bp::make_function(&sobec::ContactModel3D::get_gains, bp::return_value_policy<bp::return_by_value>()),
-                    "contact gains")
-      .add_property("type",
-                    bp::make_function(&sobec::ContactModel3D::get_type, bp::return_value_policy<bp::return_by_value>()),
-                    &sobec::ContactModel3D::set_type, "type");
-
+      .add_property(
+          "gains",
+          bp::make_function(&sobec::ContactModel3D::get_gains, bp::return_value_policy<bp::return_by_value>()),
+          "contact gains")
+      .add_property(
+          "type", bp::make_function(&sobec::ContactModel3D::get_type, bp::return_value_policy<bp::return_by_value>()),
+          &sobec::ContactModel3D::set_type, "type");
 
   bp::register_ptr_to_python<boost::shared_ptr<sobec::ContactData3D> >();
 
@@ -95,13 +95,17 @@ void exposeContact3D() {
                     "spatial acceleration of the contact body")
       .add_property("fJf", bp::make_getter(&sobec::ContactData3D::fJf, bp::return_internal_reference<>()),
                     "local Jacobian of the contact frame")
-      .add_property("v_partial_dq", bp::make_getter(&sobec::ContactData3D::v_partial_dq, bp::return_internal_reference<>()),
+      .add_property("v_partial_dq",
+                    bp::make_getter(&sobec::ContactData3D::v_partial_dq, bp::return_internal_reference<>()),
                     "Jacobian of the spatial body velocity")
-      .add_property("a_partial_dq", bp::make_getter(&sobec::ContactData3D::a_partial_dq, bp::return_internal_reference<>()),
+      .add_property("a_partial_dq",
+                    bp::make_getter(&sobec::ContactData3D::a_partial_dq, bp::return_internal_reference<>()),
                     "Jacobian of the spatial body acceleration")
-      .add_property("a_partial_dv", bp::make_getter(&sobec::ContactData3D::a_partial_dv, bp::return_internal_reference<>()),
+      .add_property("a_partial_dv",
+                    bp::make_getter(&sobec::ContactData3D::a_partial_dv, bp::return_internal_reference<>()),
                     "Jacobian of the spatial body acceleration")
-      .add_property("a_partial_da", bp::make_getter(&sobec::ContactData3D::a_partial_da, bp::return_internal_reference<>()),
+      .add_property("a_partial_da",
+                    bp::make_getter(&sobec::ContactData3D::a_partial_da, bp::return_internal_reference<>()),
                     "Jacobian of the spatial body acceleration")
       .add_property("oRf", bp::make_getter(&sobec::ContactData3D::oRf, bp::return_internal_reference<>()),
                     "Rotation matrix of the contact body expressed in the world frame");

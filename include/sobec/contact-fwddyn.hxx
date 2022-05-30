@@ -27,14 +27,11 @@ DifferentialActionModelContactFwdDynamicsTpl<Scalar>::DifferentialActionModelCon
     boost::shared_ptr<crocoContactModelMultiple> contacts, boost::shared_ptr<CostModelSum> costs,
     const Scalar JMinvJt_damping, const bool enable_force)
     : Base(state, actuation, contacts, costs, JMinvJt_damping, enable_force), enable_force_(enable_force) {
-      sobec_contacts_ = boost::static_pointer_cast<sobec::ContactModelMultipleTpl<Scalar>>(contacts);
-    }
-
+  sobec_contacts_ = boost::static_pointer_cast<sobec::ContactModelMultipleTpl<Scalar>>(contacts);
+}
 
 template <typename Scalar>
 DifferentialActionModelContactFwdDynamicsTpl<Scalar>::~DifferentialActionModelContactFwdDynamicsTpl() {}
-
-
 
 template <typename Scalar>
 void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
@@ -50,7 +47,7 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
   }
 
   const std::size_t nv = this->get_state()->get_nv();
-  const std::size_t nc = sobec_contacts_->get_nc(); //this->get_contacts()->get_nc();
+  const std::size_t nc = sobec_contacts_->get_nc();  // this->get_contacts()->get_nc();
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
 
@@ -62,11 +59,11 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
   // Therefore, it is not possible to pass d->Kinv.topLeftCorner(nv + nc, nv + nc)
   d->Kinv.resize(nv + nc, nv + nc);
   pinocchio::computeRNEADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->xout, d->multibody.contacts->fext);
-  pinocchio::getKKTContactDynamicMatrixInverse(this->get_pinocchio(), d->pinocchio, d->multibody.contacts->Jc.topRows(nc),
-                                               d->Kinv);
+  pinocchio::getKKTContactDynamicMatrixInverse(this->get_pinocchio(), d->pinocchio,
+                                               d->multibody.contacts->Jc.topRows(nc), d->Kinv);
 
   this->get_actuation()->calcDiff(d->multibody.actuation, x, u);
-  sobec_contacts_->calcDiff(d->multibody.contacts, x); 
+  sobec_contacts_->calcDiff(d->multibody.contacts, x);
 
   // Add skew term to rnea derivative for contacs expressed in LOCAL_WORLD_ALIGNED
   // see https://www.overleaf.com/read/tzvrrxxtntwk for detailed calculations
@@ -113,7 +110,8 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
 //   // Static casting the data
 //   Data* d =
 //       static_cast<Data*>(data.get());
-//   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
+//   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q =
+//   x.head(this->get_state()->get_nq());
 
 //   const std::size_t nq = this->get_state()->get_nq();
 //   const std::size_t nv = this->get_state()->get_nv();
@@ -139,6 +137,5 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
 //   u.noalias() = (pseudoInverse(d->tmp_Jstatic) * d->pinocchio.tau).head(this->get_nu());
 //   d->pinocchio.tau.setZero();
 // }
-
 
 }  // namespace sobec
