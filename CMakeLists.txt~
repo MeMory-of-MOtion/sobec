@@ -54,18 +54,10 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
-  include/${PROJECT_NAME}/designer.hpp
-  include/${PROJECT_NAME}/model_factory.hpp
-  include/${PROJECT_NAME}/horizon_manager.hpp
-  include/${PROJECT_NAME}/ocp.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/residual-com-velocity.hxx
-  src/designer.cpp
-  src/model_factory.cpp
-  src/horizon_manager.cpp
-  src/ocp.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
