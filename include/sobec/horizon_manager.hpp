@@ -24,12 +24,14 @@ namespace sobec{
             HorizonManager();
 
             HorizonManager(const HorizonManagerSettings &settings, 
-                           const std::vector<IAM> &runningModels,
+                           const Eigen::VectorXd &x0, 
+                           const std::vector<AMA> &runningModels,
                            const IAM &terminalModel);
 
             void initialize(const HorizonManagerSettings &settings, 
-                            const std::vector<IAM> &runningModels,
-                           const IAM &terminalModel);
+                            const Eigen::VectorXd &x0, 
+                            const std::vector<AMA> &runningModels,
+                            const IAM &terminalModel);
 
             AMA ama(const unsigned long &time);
             IAM iam(const unsigned long &time);
@@ -38,8 +40,9 @@ namespace sobec{
             Contact contacts(const unsigned long &time);
             IAD data(const unsigned long &time);
             
-            void setResidualReference(unsigned long time, const std::string &name,  const auto &new_value);
-            void setResidualReferences(unsigned long time, const std::string &name);
+            // void setResidualReference(unsigned long time, const std::string &name,  const auto &new_value);
+            // Try to avoid the "auto"
+            // void setResidualReferences(unsigned long time, const std::string &name);
 
             void activateContactLF(const unsigned long &time);
             void activateContactRF(const unsigned long &time);
@@ -57,6 +60,8 @@ namespace sobec{
             std::vector<Eigen::VectorXd> preview_actions();
 
             void recede(IAM new_model, IAD new_data);
+            void recede(IAM new_model);
+            void recede();
 
             unsigned long get_size();
             
