@@ -6,6 +6,7 @@
 #include <string>
 #include <pinocchio/spatial/se3.hpp>
 #include "pinocchio/multibody/model.hpp"
+#include <pinocchio/algorithm/model.hpp>
 #include "pinocchio/multibody/data.hpp"
 
 namespace sobec{
@@ -26,8 +27,8 @@ namespace sobec{
         private:
             RobotDesignerSettings settings_;
 
-            //std::vector<int> pinocchioControlledJoints_;
-            int leftFootId_, rightFootId_;
+            std::vector<unsigned long> controlled_joints_id_;
+            unsigned long leftFootId_, rightFootId_;
 
             pinocchio::Model rModelComplete_, rModel_;
             pinocchio::Data rDataComplete_, rData_;
@@ -54,7 +55,6 @@ namespace sobec{
             pinocchio::Data &get_rDataComplete(){return rDataComplete_;}
             Eigen::VectorXd &get_q0(){return q0_;}
             Eigen::VectorXd &get_q0Complete(){return q0Complete_;}
-
     };
 
 }  // namespace
