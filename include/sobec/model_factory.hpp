@@ -13,20 +13,23 @@ namespace sobec{
 
     struct ModelMakerSettings{
         public:
-
-            std::string leftFootName = "";
-            std::string rightFootName = "";
+            
+            // Timestep
+            double timeStep_ = 0.01;
 
             // physics
             eVector3 gravity = eVector3(0, 0, -9.81);
 
             double mu = 0.3;
-            eVector2 cone_box = eVector2(0.1, 0.05); // half lenght and width
+            eVector2 coneBox = eVector2(0.1, 0.05); // half lenght and width
             double minNforce = 200.0;
             double maxNforce = 1200;
             
-            double com_height = 0.87;
-            double omega = -com_height/gravity(2);
+            double fzRef1Contact = 1000.;
+            double fzRef2Contact = 500.;
+            
+            double comHeight = 0.87;
+            double omega = -comHeight/gravity(2);
 
             // Croco configuration
 
@@ -37,6 +40,7 @@ namespace sobec{
             double wVCoM = 0;//0;
             double wWrenchCone = 0;//0.05;
             double wFootTrans = 0;//100;
+            double wFootFix = 0;//100;
             double wFootXYTrans = 0;//0;
             double wFootRot = 0;// 100;
             double wGroundCol = 0;// 0.05;
@@ -54,7 +58,7 @@ namespace sobec{
             // eVector6 weightuLeg = eVector6::Zero(); // [1, 1, 1, 1, 1, 1]
             // eVector6 weightuArm = eVector6::Zero(); // [10, 10, 10, 10]
             // eVector2 weightuTorso = eVector2::Zero(); //(1, 1); // [1, 1]
-            Eigen::VectorXd controlWeight ;
+            Eigen::VectorXd controlWeights;
 
             double th_stop = 1e-6; // threshold for stopping criterion
             double th_grad = 1e-9; // threshold for zero gradient.
@@ -66,6 +70,9 @@ namespace sobec{
         private:
             ModelMakerSettings settings_;
             RobotDesigner design_;
+            pinocchio::Model rModel_;
+            pinocchio::Data rData_;
+            pinocchio::FrameIndex leftFootId_, rightFootId_;
             boost::shared_ptr<crocoddyl::StateMultibody> state_;
             boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation_;
 

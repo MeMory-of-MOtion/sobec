@@ -10,8 +10,8 @@ namespace sobec{
 
     struct HorizonManagerSettings{
         public:
-            std::string leftFootName = "";
-            std::string rightFootName = "";
+            std::string leftFootName = "leftSoleContact";
+            std::string rightFootName = "rightSoleContact";
     };
 
     class HorizonManager{
@@ -19,6 +19,13 @@ namespace sobec{
         private:
             DDP ddp_;
             HorizonManagerSettings settings_;
+            ResidualModelFramePlacementPtr goalTrackingResidual_;
+            ResidualModelContactWrenchConePtr wrenchConeResidual_;
+            crocoddyl::WrenchCone wrench_cone_;
+            ActivationModelQuadRefPtr quadRefActivationPtr_;
+            IAM IAM_;
+            IAD IAD_;
+            DAM DAM_;
 
         public:
             HorizonManager();
@@ -26,39 +33,36 @@ namespace sobec{
             HorizonManager(const HorizonManagerSettings &settings, 
                            const Eigen::VectorXd &x0, 
                            const std::vector<AMA> &runningModels,
-                           const IAM &terminalModel);
+                           const AMA &terminalModel);
 
-            void initialize(const HorizonManagerSettings &settings, 
-                            const Eigen::VectorXd &x0, 
+            void initialize(const HorizonManagerSettings &settings,
+                            const Eigen::VectorXd &x0,  
                             const std::vector<AMA> &runningModels,
-                            const IAM &terminalModel);
+                            const AMA &terminalModel);
 
-            AMA ama(const unsigned long &time);
-            IAM iam(const unsigned long &time);
-            DAM dam(const unsigned long &time);
-            Cost costs(const unsigned long &time);
-            Contact contacts(const unsigned long &time);
+            void updateIAM(const unsigned long &time);
+            void updateDAM(const unsigned long &time);
+            Cost costs();
+            Contact contacts();
             IAD data(const unsigned long &time);
             
-            // void setResidualReference(unsigned long time, const std::string &name,  const auto &new_value);
-            // Try to avoid the "auto"
-            // void setResidualReferences(unsigned long time, const std::string &name);
+            void setPlacementReferenceRF(const pinocchio::SE3 &new_ref);
+            void setPlacementReferenceLF(const pinocchio::SE3 &new_ref);
 
-            void activateContactLF(const unsigned long &time);
-            void activateContactRF(const unsigned long &time);
-            void removeContactLF(const unsigned long &time);
-            void removeContactRF(const unsigned long &time);
-            void setForceReferenceLF(const unsigned long &time, const eVector6 &reference);
-            void setForceReferenceRF(const unsigned long &time, const eVector6 &reference);
-            void setSwingingLF(const unsigned long &time);
-            void setSwingingRF(const unsigned long &time);
-            void setSupportingLF(const unsigned long &time);
-            void setSupportingRF(const unsigned long &time);
+            void activateContactLF();
+            void activateContactRF();
+            void removeContactLF();
+            void removeContactRF();
+            void setForceReferenceLF(const eVector6 &reference);
+            void setForceReferenceRF(const eVector6 &reference);
+            void setSwingingLF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
+            void setSwingingRF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
+            void setSupportingLF(const unsigned long &time, const eVector6 &ref_wrench);
+            void setSupportingRF(const unsigned long &time, const eVector6 &ref_wrench);
 
-            std::vector<std::string> active_contacts(const unsigned long &time);
-            std::vector<Eigen::VectorXd> preview_states();
-            std::vector<Eigen::VectorXd> preview_actions();
-
+            //std::vector<std::string> get_contacts(const unsigned long &time);
+            //std::vector<Eigen::VectorXd> preview_states();
+            //std::vector<Eigen::VectorXd> preview_actions();
             void recede(IAM new_model, IAD new_data);
             void recede(IAM new_model);
             void recede();
