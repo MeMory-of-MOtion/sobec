@@ -55,7 +55,7 @@ namespace sobec{
             void setSupportingLF(const unsigned long &time);
             void setSupportingRF(const unsigned long &time);
 
-            std::vector<std::string> get_contacts(const unsigned long &time);
+            std::vector<std::string> active_contacts(const unsigned long &time);
             std::vector<Eigen::VectorXd> preview_states();
             std::vector<Eigen::VectorXd> preview_actions();
 

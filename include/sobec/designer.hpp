@@ -14,7 +14,7 @@ namespace sobec{
         public:
             std::string urdf_path = "";
             std::string srdf_path = "";
-            std::vector<std::string> blocked_joints;
+            std::vector<std::string> controlled_joints_names;
 
             std::string leftFootName = "";
             std::string rightFootName = "";
@@ -26,7 +26,7 @@ namespace sobec{
         private:
             RobotDesignerSettings settings_;
 
-            std::vector<int> pinocchioControlledJoints_;
+            //std::vector<int> pinocchioControlledJoints_;
             int leftFootId_, rightFootId_;
 
             pinocchio::Model rModelComplete_, rModel_;
@@ -37,8 +37,8 @@ namespace sobec{
 
         public:
             RobotDesigner();
-            RobotDesigner(RobotDesignerSettings settings);
-            void initialize(RobotDesignerSettings settings);
+            RobotDesigner(const RobotDesignerSettings &settings);
+            void initialize(const RobotDesignerSettings &settings);
 
             void updateReducedModel(Eigen::VectorXd q);
             void updateCompleteModel(Eigen::VectorXd q);
@@ -54,7 +54,6 @@ namespace sobec{
             pinocchio::Data &get_rDataComplete(){return rDataComplete_;}
             Eigen::VectorXd &get_q0(){return q0_;}
             Eigen::VectorXd &get_q0Complete(){return q0Complete_;}
-
 
     };
 

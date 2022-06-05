@@ -94,7 +94,7 @@ namespace sobec {
         activateContactRF(time);
     }
 
-    // std::HorizonManager::vector<std::string> get_contacts(const unsigned long &time);
+    // std::HorizonManager::vector<std::string> active_contacts(const unsigned long &time);
     // std::HorizonManager::vector<Eigen::VectorXd> preview_states();
     // std::HorizonManager::vector<Eigen::VectorXd> preview_actions();
 
