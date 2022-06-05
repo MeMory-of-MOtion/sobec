@@ -5,17 +5,30 @@
 #include <vector>
 #include <string>
 #include <pinocchio/spatial/se3.hpp>
+//<<<<<<< main
+#include <pinocchio/fwd.hpp>
+#include <pinocchio/algorithm/joint-configuration.hpp>
+#include <pinocchio/algorithm/model.hpp>
+#include <pinocchio/multibody/model.hpp>
+#include <pinocchio/multibody/data.hpp>
+#include <pinocchio/algorithm/center-of-mass.hpp>
+#include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/parsers/urdf.hpp>
+#include <pinocchio/parsers/srdf.hpp>
+//=======
 #include "pinocchio/multibody/model.hpp"
 #include <pinocchio/algorithm/model.hpp>
 #include "pinocchio/multibody/data.hpp"
+//>>>>>>> main
 
 namespace sobec{
 
     struct RobotDesignerSettings{
         public:
-            std::string urdf_path = "";
-            std::string srdf_path = "";
-            std::vector<std::string> controlled_joints_names;
+            std::string urdfPath = "";
+            std::string srdfPath = "";
+            std::string robotDescription = "";
+            std::vector<std::string> controlledJointsNames;
 
             std::string leftFootName = "";
             std::string rightFootName = "";
@@ -26,20 +39,26 @@ namespace sobec{
 
         private:
             RobotDesignerSettings settings_;
+//<<<<<<< main
+            
+            pinocchio::FrameIndex leftFootId_, rightFootId_;
+//=======
 
             std::vector<unsigned long> controlled_joints_id_;
             unsigned long leftFootId_, rightFootId_;
+//>>>>>>> main
 
             pinocchio::Model rModelComplete_, rModel_;
             pinocchio::Data rDataComplete_, rData_;
+            std::vector<pinocchio::JointIndex> pinocchioControlledJoints_;
 
             Eigen::VectorXd q0Complete_, q0_;
             Eigen::VectorXd v0Complete_, v0_;
 
         public:
             RobotDesigner();
-            RobotDesigner(const RobotDesignerSettings &settings);
-            void initialize(const RobotDesignerSettings &settings);
+            RobotDesigner(RobotDesignerSettings settings);
+            void initialize(RobotDesignerSettings settings);
 
             void updateReducedModel(Eigen::VectorXd q);
             void updateCompleteModel(Eigen::VectorXd q);
@@ -55,6 +74,9 @@ namespace sobec{
             pinocchio::Data &get_rDataComplete(){return rDataComplete_;}
             Eigen::VectorXd &get_q0(){return q0_;}
             Eigen::VectorXd &get_q0Complete(){return q0Complete_;}
+
+            pinocchio::FrameIndex get_LF_id(){return leftFootId_;}
+            pinocchio::FrameIndex get_RF_id(){return rightFootId_;}
     };
 
 }  // namespace
