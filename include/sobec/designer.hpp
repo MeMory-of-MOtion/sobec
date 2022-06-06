@@ -14,10 +14,10 @@ namespace sobec{
 
     struct RobotDesignerSettings{
         public:
-            std::string urdf_path = "";
-            std::string srdf_path = "";
+            std::string urdfPath = "";
+            std::string srdfPath = "";
             std::string robotDescription = "";
-            std::vector<std::string> controlled_joints_names;
+            std::vector<std::string> controlledJointsNames;
 
             std::string leftFootName = "";
             std::string rightFootName = "";
