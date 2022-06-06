@@ -67,6 +67,9 @@ namespace sobec{
             
             pinocchio::FrameIndex get_LF_id(){return leftFootId_;}
             pinocchio::FrameIndex get_RF_id(){return rightFootId_;}
+            
+            std::string get_LF_name(){return settings_.leftFootName;}
+            std::string get_RF_name(){return settings_.rightFootName;}
     };
 
 }  // namespace

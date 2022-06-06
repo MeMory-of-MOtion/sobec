@@ -4,21 +4,24 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <string>
+#include "sobec/model_factory.hpp"
+#include "sobec/designer.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec{
-
-    struct HorizonManagerSettings{
-        public:
-            std::string leftFootName = "leftSoleContact";
-            std::string rightFootName = "rightSoleContact";
-    };
 
     class HorizonManager{
         
         private:
             DDP ddp_;
-            HorizonManagerSettings settings_;
+            std::size_t horizon_length_;
+            std::size_t ddp_iteration_;
+            std::vector<Eigen::VectorXd> xs_;
+            std::vector<Eigen::VectorXd> us_;
+            
+            sobec::RobotDesigner designer_;
+            sobec::ModelMaker modelMaker_;
+            
             ResidualModelFramePlacementPtr goalTrackingResidual_;
             ResidualModelContactWrenchConePtr wrenchConeResidual_;
             crocoddyl::WrenchCone wrench_cone_;
@@ -30,15 +33,17 @@ namespace sobec{
         public:
             HorizonManager();
 
-            HorizonManager(const HorizonManagerSettings &settings, 
-                           const Eigen::VectorXd &x0, 
-                           const std::vector<AMA> &runningModels,
-                           const AMA &terminalModel);
+            HorizonManager(const Eigen::VectorXd &x0, 
+                           const ModelMakerSettings &settings,
+                           const RobotDesigner &design,
+                           const std::size_t horizon_length,
+                           const std::size_t ddp_iteration);
 
-            void initialize(const HorizonManagerSettings &settings,
-                            const Eigen::VectorXd &x0,  
-                            const std::vector<AMA> &runningModels,
-                            const AMA &terminalModel);
+            void initialize(const Eigen::VectorXd &x0, 
+                            const ModelMakerSettings &settings,
+                            const RobotDesigner &design,
+                            const std::size_t horizon_length,
+                            const std::size_t ddp_iteration);
 
             void updateIAM(const unsigned long &time);
             void updateDAM(const unsigned long &time);
@@ -68,6 +73,8 @@ namespace sobec{
             void recede();
 
             unsigned long get_size();
+            
+            void solveControlCycle(const Eigen::VectorXd &xCurrent);
             
     };
 
