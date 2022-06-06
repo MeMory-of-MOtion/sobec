@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <pinocchio/spatial/se3.hpp>
+//<<<<<<< main
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/algorithm/model.hpp>
@@ -14,6 +15,11 @@
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/parsers/urdf.hpp>
 #include <pinocchio/parsers/srdf.hpp>
+//=======
+#include "pinocchio/multibody/model.hpp"
+#include <pinocchio/algorithm/model.hpp>
+#include "pinocchio/multibody/data.hpp"
+//>>>>>>> main
 
 namespace sobec{
 
@@ -33,8 +39,14 @@ namespace sobec{
 
         private:
             RobotDesignerSettings settings_;
+//<<<<<<< main
             
             pinocchio::FrameIndex leftFootId_, rightFootId_;
+//=======
+
+            std::vector<unsigned long> controlled_joints_id_;
+            unsigned long leftFootId_, rightFootId_;
+//>>>>>>> main
 
             pinocchio::Model rModelComplete_, rModel_;
             pinocchio::Data rDataComplete_, rData_;
@@ -42,7 +54,6 @@ namespace sobec{
 
             Eigen::VectorXd q0Complete_, q0_;
             Eigen::VectorXd v0Complete_, v0_;
-            Eigen::VectorXd x0_;
 
         public:
             RobotDesigner();
@@ -63,8 +74,7 @@ namespace sobec{
             pinocchio::Data &get_rDataComplete(){return rDataComplete_;}
             Eigen::VectorXd &get_q0(){return q0_;}
             Eigen::VectorXd &get_q0Complete(){return q0Complete_;}
-            Eigen::VectorXd &get_x0(){return x0_;}
-            
+
             pinocchio::FrameIndex get_LF_id(){return leftFootId_;}
             pinocchio::FrameIndex get_RF_id(){return rightFootId_;}
             
