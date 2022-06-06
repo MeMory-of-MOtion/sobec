@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/openrobots/include"
+                "/opt/openrobots/include",
+                "/usr/include/python3.6m"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

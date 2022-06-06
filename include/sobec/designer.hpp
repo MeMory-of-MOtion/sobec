@@ -5,19 +5,9 @@
 #include <vector>
 #include <string>
 #include <pinocchio/spatial/se3.hpp>
-//<<<<<<< main
-// #include <pinocchio/fwd.hpp>
-// #include <pinocchio/algorithm/joint-configuration.hpp>
-// #include <pinocchio/algorithm/model.hpp>
-// #include <pinocchio/multibody/model.hpp>
-// #include <pinocchio/multibody/data.hpp>
-// #include <pinocchio/algorithm/center-of-mass.hpp>
-// #include <pinocchio/algorithm/frames.hpp>
-//=======
 #include "pinocchio/multibody/model.hpp"
 #include <pinocchio/algorithm/model.hpp>
 #include "pinocchio/multibody/data.hpp"
-//>>>>>>> main
 
 namespace sobec{
 
@@ -30,7 +20,6 @@ namespace sobec{
 
             std::string leftFootName = "";
             std::string rightFootName = "";
-
     };
 
     class RobotDesigner{
@@ -71,6 +60,29 @@ namespace sobec{
 
             pinocchio::FrameIndex &get_LF_id(){return leftFootId_;}
             pinocchio::FrameIndex &get_RF_id(){return rightFootId_;}
+    };
+
+    class DesignerTest{
+        private:
+            RobotDesignerSettings settings_;
+            std::vector<unsigned long> controlled_joints_id_;
+            // unsigned long leftFootId_, rightFootId_;
+
+            pinocchio::Model rModelComplete_;
+            pinocchio::Model rModel_;
+            // pinocchio::Data rDataComplete_, rData_;
+            // // std::vector<pinocchio::JointIndex> pinocchioControlledJoints_;
+
+            // Eigen::VectorXd q0Complete_, q0_;
+            // Eigen::VectorXd v0Complete_, v0_;
+            Eigen::VectorXd x0_;
+
+        public:
+            DesignerTest();
+            DesignerTest(const int &a);
+            DesignerTest(const RobotDesignerSettings &settings);
+            void initialize(const RobotDesignerSettings &settings);
+            pinocchio::Model &get_rModel(){return rModel_;}
     };
 
 }  // namespace
