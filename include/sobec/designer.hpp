@@ -5,11 +5,10 @@
 #include <vector>
 #include <string>
 #include <pinocchio/spatial/se3.hpp>
-#include <pinocchio/multibody/model.hpp>
+
+#include "pinocchio/multibody/model.hpp"
 #include <pinocchio/algorithm/model.hpp>
-#include <pinocchio/multibody/data.hpp>
-#include <pinocchio/parsers/urdf.hpp>
-#include <pinocchio/parsers/srdf.hpp>
+#include "pinocchio/multibody/data.hpp"
 
 namespace sobec{
 
@@ -22,7 +21,6 @@ namespace sobec{
 
             std::string leftFootName = "";
             std::string rightFootName = "";
-
     };
 
     class RobotDesigner{
@@ -35,15 +33,16 @@ namespace sobec{
 
             pinocchio::Model rModelComplete_, rModel_;
             pinocchio::Data rDataComplete_, rData_;
-            std::vector<pinocchio::JointIndex> pinocchioControlledJoints_;
+            // std::vector<pinocchio::JointIndex> pinocchioControlledJoints_;
 
             Eigen::VectorXd q0Complete_, q0_;
             Eigen::VectorXd v0Complete_, v0_;
+            Eigen::VectorXd x0_;
 
         public:
             RobotDesigner();
-            RobotDesigner(RobotDesignerSettings settings);
-            void initialize(RobotDesignerSettings settings);
+            RobotDesigner(const RobotDesignerSettings &settings);
+            void initialize(const RobotDesignerSettings &settings);
 
             void updateReducedModel(Eigen::VectorXd q);
             void updateCompleteModel(Eigen::VectorXd q);
@@ -59,12 +58,35 @@ namespace sobec{
             pinocchio::Data &get_rDataComplete(){return rDataComplete_;}
             Eigen::VectorXd &get_q0(){return q0_;}
             Eigen::VectorXd &get_q0Complete(){return q0Complete_;}
+            Eigen::VectorXd &get_x0(){return x0_;}
 
-            pinocchio::FrameIndex get_LF_id(){return leftFootId_;}
-            pinocchio::FrameIndex get_RF_id(){return rightFootId_;}
-            
-            std::string get_LF_name(){return settings_.leftFootName;}
-            std::string get_RF_name(){return settings_.rightFootName;}
+            std::string &get_LF_name(){return settings_.leftFootName;}
+            std::string &get_RF_name(){return settings_.rightFootName;}
+            pinocchio::FrameIndex &get_LF_id(){return leftFootId_;}
+            pinocchio::FrameIndex &get_RF_id(){return rightFootId_;}
+    };
+
+    class DesignerTest{
+        private:
+            RobotDesignerSettings settings_;
+            std::vector<unsigned long> controlled_joints_id_;
+            // unsigned long leftFootId_, rightFootId_;
+
+            pinocchio::Model rModelComplete_;
+            pinocchio::Model rModel_;
+            // pinocchio::Data rDataComplete_, rData_;
+            // // std::vector<pinocchio::JointIndex> pinocchioControlledJoints_;
+
+            // Eigen::VectorXd q0Complete_, q0_;
+            // Eigen::VectorXd v0Complete_, v0_;
+            Eigen::VectorXd x0_;
+
+        public:
+            DesignerTest();
+            DesignerTest(const int &a);
+            DesignerTest(const RobotDesignerSettings &settings);
+            void initialize(const RobotDesignerSettings &settings);
+            pinocchio::Model &get_rModel(){return rModel_;}
     };
 
 }  // namespace

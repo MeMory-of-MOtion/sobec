@@ -1,36 +1,49 @@
 #include "sobec/designer.hpp"
 #include <pinocchio/algorithm/compute-all-terms.hpp>
 #include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/parsers/urdf.hpp>
+#include <pinocchio/parsers/srdf.hpp>
 
 namespace sobec {
 
 RobotDesigner::RobotDesigner(){}
 
-RobotDesigner::RobotDesigner(RobotDesignerSettings settings){ initialize(settings); }
+RobotDesigner::RobotDesigner(const RobotDesignerSettings &settings){ initialize(settings); }
 
-void RobotDesigner::initialize(RobotDesignerSettings settings){ 
+void RobotDesigner::initialize(const RobotDesignerSettings &settings){ 
     settings_ = settings;
-
-    // Initialization of all attributes:
-    
-    settings_ = settings;
-    //@TODO: check that the urdf file and srdf file exist, as done in aig.
 
     // COMPLETE MODEL //
-    pinocchio::urdf::buildModel(settings_.urdf_path, pinocchio::JointModelFreeFlyer(), rModelComplete_);
+	if (settings_.robotDescription.size() > 0)
+	{
+		pinocchio::urdf::buildModelFromXML(settings_.robotDescription, pinocchio::JointModelFreeFlyer(),rModelComplete_);
+		std::cout<<"### Build pinocchio model from rosparam robot_description."<<std::endl;
+	}
+	else if (settings_.urdfPath.size() > 0)
+	{
+		pinocchio::urdf::buildModel(settings_.urdfPath, pinocchio::JointModelFreeFlyer(),rModelComplete_);
+		std::cout<<"### Build pinocchio model from urdf file."<<std::endl;
+	}
+    else
+    {
+        throw std::invalid_argument("the urdf file, or robotDescription must be specified.");
+    }
     rDataComplete_ = pinocchio::Data(rModelComplete_);
 
-    pinocchio::srdf::loadReferenceConfigurations(rModelComplete_, settings_.srdf_path, false);
-    pinocchio::srdf::loadRotorParameters(rModelComplete_, settings_.srdf_path, false);
+    pinocchio::srdf::loadReferenceConfigurations(rModelComplete_, settings_.srdfPath, false);
+    pinocchio::srdf::loadRotorParameters(rModelComplete_, settings_.srdfPath, false);
     q0Complete_ = rModelComplete_.referenceConfigurations["half_sitting"];
     v0Complete_ = Eigen::VectorXd::Zero(rModelComplete_.nv);
 
     // REDUCED MODEL //
-    if (settings_.controlled_joints_names[0] != "root_joint")
+
+    if (settings_.controlledJointsNames[0] != "root_joint")
 	{
         throw std::invalid_argument("the joint at index 0 must be called 'root_joint' ");
 	}
-    for(std::vector<std::string>::const_iterator it = settings_.controlled_joints_names.begin(); it != settings_.controlled_joints_names.end(); ++it)
+
+    // Check if listed joints belong to model
+    for(std::vector<std::string>::const_iterator it = settings_.controlledJointsNames.begin(); it != settings_.controlledJointsNames.end(); ++it)
 	{
 		const std::string &joint_name = *it;
 		std::cout << joint_name << std::endl;
@@ -40,25 +53,32 @@ void RobotDesigner::initialize(RobotDesignerSettings settings){
 			std::cout << "joint: " << joint_name << " does not belong to the model" << std::endl;
 		}
 	}
+
+    // making list of blocked joints
     std::vector<unsigned long> locked_joints_id;
 	for(std::vector<std::string>::const_iterator it = rModelComplete_.names.begin() + 1;it != rModelComplete_.names.end(); ++it)
 	{
 		const std::string &joint_name = *it;
-		if(std::find(settings_.controlled_joints_names.begin(), settings_.controlled_joints_names.end(), joint_name) == settings_.controlled_joints_names.end())
+		if(std::find(settings_.controlledJointsNames.begin(), settings_.controlledJointsNames.end(), joint_name) == settings_.controlledJointsNames.end())
 		{
 			locked_joints_id.push_back(rModelComplete_.getJointId(joint_name));
 		}
 	}
+
 	rModel_ = pinocchio::buildReducedModel(rModelComplete_, locked_joints_id, q0Complete_);
     rData_ = pinocchio::Data(rModel_);
-    q0_ = rModelComplete_.referenceConfigurations["half_sitting"];
-    v0_ = Eigen::VectorXd::Zero(rModel_.nv);
 
+    pinocchio::srdf::loadReferenceConfigurations(rModel_,settings_.srdfPath, false);
+	pinocchio::srdf::loadRotorParameters(rModel_, settings_.srdfPath, false);
+    q0_ = rModel_.referenceConfigurations["half_sitting"];
+    v0_ = Eigen::VectorXd::Zero(rModel_.nv);
+    x0_ << q0_, v0_;
+    
     // Generating list of indices for controlled joints //
     for(std::vector<std::string>::const_iterator it = rModel_.names.begin()+1;it != rModel_.names.end(); ++it)
 	{
 		const std::string & joint_name = *it;
-		if(std::find(settings_.controlled_joints_names.begin(), settings_.controlled_joints_names.end(), joint_name) != settings_.controlled_joints_names.end())
+		if(std::find(settings_.controlledJointsNames.begin(), settings_.controlledJointsNames.end(), joint_name) != settings_.controlledJointsNames.end())
 		{
 			controlled_joints_id_.push_back((long)rModel_.getJointId(joint_name) - 2);
 		}
