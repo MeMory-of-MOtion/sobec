@@ -9,18 +9,18 @@ namespace sobec {
 
     HorizonManager::HorizonManager(){}
 
-    HorizonManager::HorizonManager(const HorizonManagerSettings &settings, 
+    HorizonManager::HorizonManager(const HorizonManagerSettings &horizonSettings, 
                                    const Eigen::VectorXd &x0, 
                                    const std::vector<AMA> &runningModels,
                                    const AMA &terminalModel){
-        initialize(settings, x0, runningModels, terminalModel);
+        initialize(horizonSettings, x0, runningModels, terminalModel);
     }
 
-    void HorizonManager::initialize(const HorizonManagerSettings &settings, 
+    void HorizonManager::initialize(const HorizonManagerSettings &horizonSettings, 
                                     const Eigen::VectorXd &x0, 
                                     const std::vector<AMA> &runningModels,
                                     const AMA &terminalModel){ 
-        settings_ = settings;
+        horizonSettings_ = horizonSettings;
         boost::shared_ptr<crocoddyl::ShootingProblem> shooting_problem =
                 boost::make_shared<crocoddyl::ShootingProblem>(x0, runningModels, terminalModel);
         ddp_ = boost::make_shared<crocoddyl::SolverFDDP>(shooting_problem);
@@ -61,23 +61,19 @@ namespace sobec {
     // void HorizonManager::setResidualReferences(unsigned long time, const std::string &name);
 
     void HorizonManager::activateContactLF(){
-        contacts()->changeContactStatus(settings_.leftFootName, true);
-        costs()->changeCostStatus("placementFootLeft", false);
+        contacts()->changeContactStatus(designer_.get_LF_name(), true);
     }
 
     void HorizonManager::activateContactRF(){
-        contacts()->changeContactStatus(settings_.rightFootName, true);
-        costs()->changeCostStatus("placementFootRight", false);
+        contacts()->changeContactStatus(designer_.get_RF_name(), true);
     }
 
     void HorizonManager::removeContactLF(){
-        contacts()->changeContactStatus(settings_.leftFootName, false);
-        costs()->changeCostStatus("placementFootLeft", true);
+        contacts()->changeContactStatus(designer_.get_LF_name(), false);
     }
 
     void HorizonManager::removeContactRF(){
-        contacts()->changeContactStatus(settings_.rightFootName, false);
-        costs()->changeCostStatus("placementFootRight", true);
+        contacts()->changeContactStatus(designer_.get_RF_name(), false);
     }
 
     void HorizonManager::setForceReferenceLF(const eVector6 &reference){
@@ -114,14 +110,9 @@ namespace sobec {
         setForceReferenceLF(ref_wrench);
         setPlacementReferenceRF(ref_placement);
     }
-    void HorizonManager::setSupportingLF(const unsigned long &time, const eVector6 &ref_wrench){
+    void HorizonManager::setSupportingFeet(const unsigned long &time, const eVector6 &ref_wrench){
 		updateDAM(time);
         activateContactLF();
-        setForceReferenceRF(ref_wrench);
-        setForceReferenceLF(ref_wrench);
-    }
-    void HorizonManager::setSupportingRF(const unsigned long &time, const eVector6 &ref_wrench){
-		updateDAM(time);
         activateContactRF();
         setForceReferenceRF(ref_wrench);
         setForceReferenceLF(ref_wrench);
@@ -148,4 +139,28 @@ namespace sobec {
     unsigned long HorizonManager::get_size(){
         return ddp_->get_problem()->get_T();
     }
+    
+    void HorizonManager::solve_ddp(const std::vector<Eigen::VectorXd> xs, const std::vector<Eigen::VectorXd> us, const std::size_t &ddpIteration){
+        ddp_->solve(xs,us,ddpIteration,false);
+        us_ = ddp_->get_us();
+        xs_ = ddp_->get_xs();
+    }
+    
+    void HorizonManager::solveControlCycle(const Eigen::VectorXd &measured_x, const std::size_t &ddpIteration){
+		xs_.erase(xs_.begin());
+		xs_[0] = measured_x;
+		xs_.push_back(xs_[xs_.size()-1]);
+
+		us_.erase(us_.begin());
+		us_.push_back(us_[us_.size()-1]);
+
+		// Update initial state
+		ddp_->get_problem()->set_x0(measured_x);
+		ddp_->allocateData();
+		
+		ddp_->solve(xs_,us_,ddpIteration,false);
+		us_ = ddp_->get_us();
+		xs_ = ddp_->get_xs();
+	}
+		
 }

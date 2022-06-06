@@ -6,22 +6,19 @@ namespace sobec {
 
 ModelMaker::ModelMaker(){}
 
-ModelMaker::ModelMaker(const ModelMakerSettings &settings, const RobotDesigner &design){ 
-    initialize(settings, design); 
+ModelMaker::ModelMaker(const ModelMakerSettings &settings, const RobotDesigner &designer){ 
+    initialize(settings, designer); 
     }
 
-void ModelMaker::initialize(const ModelMakerSettings &settings, const RobotDesigner &design){ 
+void ModelMaker::initialize(const ModelMakerSettings &settings, const RobotDesigner &designer){ 
     settings_ = settings;
-    design_ = design;
-    
-    rModel_ = design_.get_rModel();
-    rData_ = design_.get_rData();
-    leftFootId_ = design_.get_LF_id();
-    rightFootId_ = design_.get_RF_id();
+    designer_ = designer;
 
-    state_ = boost::make_shared<crocoddyl::StateMultibody>(boost::make_shared<pinocchio::Model>(rModel_));
+    state_ = boost::make_shared<crocoddyl::StateMultibody>(boost::make_shared<pinocchio::Model>(designer_.get_rModel()));
     actuation_ = boost::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
-
+    
+    x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
+    x0_ << designer_.get_q0(), Eigen::VectorXd::Zero(designer_.get_rModel().nv);
 }
 
 AMA ModelMaker::formulate_flat_walker(const Support &support){
@@ -33,13 +30,13 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 	boost::shared_ptr<crocoddyl::ContactModelMultiple> contactModel =
 		  boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
 	
-	const pinocchio::SE3& contactFramePosLeft = rData_.oMf[leftFootId_];
-	crocoddyl::FramePlacement xrefLeft(leftFootId_, contactFramePosLeft);
+	const pinocchio::SE3& contactFramePosLeft = designer_.get_rData().oMf[designer_.get_LF_id()];
+	crocoddyl::FramePlacement xrefLeft(designer_.get_LF_id(), contactFramePosLeft);
 	boost::shared_ptr<crocoddyl::ContactModelAbstract> singleContactModelLeft =
 		boost::make_shared<crocoddyl::ContactModel6D>(state_, xrefLeft, actuation_->get_nu(), Eigen::Vector2d(0., 50.));
 	
-	const pinocchio::SE3& contactFramePosRight = rData_.oMf[rightFootId_];
-	crocoddyl::FramePlacement xrefRight(rightFootId_, contactFramePosRight);
+	const pinocchio::SE3& contactFramePosRight = designer_.get_rData().oMf[designer_.get_RF_id()];
+	crocoddyl::FramePlacement xrefRight(designer_.get_RF_id(), contactFramePosRight);
 	boost::shared_ptr<crocoddyl::ContactModelAbstract> singleContactModelRight =
 		boost::make_shared<crocoddyl::ContactModel6D>(state_, xrefRight, actuation_->get_nu(), Eigen::Vector2d(0., 50.));
 	
@@ -61,8 +58,8 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 		boost::make_shared<crocoddyl::CostModelSum>(state_,actuation_->get_nu());
 
 	// Wrench cone Cost  
-	Eigen::Matrix3d coneRotationLeft = rData_.oMf[leftFootId_].rotation().transpose();
-	Eigen::Matrix3d coneRotationRight = rData_.oMf[rightFootId_].rotation().transpose();
+	Eigen::Matrix3d coneRotationLeft = designer_.get_rData().oMf[designer_.get_LF_id()].rotation().transpose();
+	Eigen::Matrix3d coneRotationRight = designer_.get_rData().oMf[designer_.get_RF_id()].rotation().transpose();
 	crocoddyl::WrenchCone wrenchConeLeft = crocoddyl::WrenchCone(coneRotationLeft, settings_.mu, 
 	    settings_.coneBox,4,true,settings_.minNforce,settings_.maxNforce); 
 	crocoddyl::WrenchCone wrenchConeRight = crocoddyl::WrenchCone(coneRotationRight, settings_.mu, 
@@ -89,22 +86,22 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 		boost::make_shared<ActivationModelQuadRef>(AwrenchRefRight1Contact);
 	
 	boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> wrenchResidualLeft2Contact = 
-		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,leftFootId_,wrenchConeLeft,actuation_->get_nu());
+		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,designer_.get_LF_id(),wrenchConeLeft,actuation_->get_nu());
 	boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchConeCostLeft2Contact = 
 		boost::make_shared<crocoddyl::CostModelResidual>(state_,activationWrenchLeft2Contact,wrenchResidualLeft2Contact);
 	
 	boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> wrenchResidualRight2Contact = 
-		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,rightFootId_,wrenchConeRight,actuation_->get_nu());
+		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,designer_.get_RF_id(),wrenchConeRight,actuation_->get_nu());
 	boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchConeCostRight2Contact = 
 		boost::make_shared<crocoddyl::CostModelResidual>(state_,activationWrenchRight2Contact,wrenchResidualRight2Contact);
 		
 	boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> wrenchResidualLeft1Contact = 
-		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,leftFootId_,wrenchConeLeft,actuation_->get_nu());
+		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,designer_.get_LF_id(),wrenchConeLeft,actuation_->get_nu());
 	boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchConeCostLeft1Contact = 
 		boost::make_shared<crocoddyl::CostModelResidual>(state_,activationWrenchLeft1Contact,wrenchResidualLeft1Contact);
 	
 	boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> wrenchResidualRight1Contact = 
-		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,rightFootId_,wrenchConeRight,actuation_->get_nu());
+		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_,designer_.get_RF_id(),wrenchConeRight,actuation_->get_nu());
 	boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchConeCostRight1Contact = 
 		boost::make_shared<crocoddyl::CostModelResidual>(state_,activationWrenchRight1Contact,wrenchResidualRight1Contact);
 	
@@ -126,30 +123,20 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 		   boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(6,0.01);
 	
 	boost::shared_ptr<crocoddyl::ResidualModelFramePlacement> goalTrackingResidualRight = 
-		boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state_, rightFootId_, 
-		rData_.oMf[rightFootId_],actuation_->get_nu());
+		boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state_, designer_.get_RF_id(), 
+		designer_.get_rData().oMf[designer_.get_RF_id()],actuation_->get_nu());
 	
 	boost::shared_ptr<crocoddyl::ResidualModelFramePlacement> goalTrackingResidualLeft = 
-		boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state_, leftFootId_, 
-		rData_.oMf[leftFootId_],actuation_->get_nu());
+		boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state_, designer_.get_LF_id(), 
+		designer_.get_rData().oMf[designer_.get_LF_id()],actuation_->get_nu());
 	
 	boost::shared_ptr<crocoddyl::CostModelAbstract> goalTrackingCostLeft = 
 		boost::make_shared<crocoddyl::CostModelResidual>(state_, actGoalWeights,goalTrackingResidualLeft);
 	boost::shared_ptr<crocoddyl::CostModelAbstract> goalTrackingCostRight = 
 		boost::make_shared<crocoddyl::CostModelResidual>(state_, actGoalWeights,goalTrackingResidualRight);
 	
-	switch(support)
-	{
-		case LEFT  : runningCostModel.get()->addCost("placementFootRight", goalTrackingCostRight,settings_.wFootTrans,true);
-	                 runningCostModel.get()->addCost("placementFootLeft", goalTrackingCostLeft,settings_.wFootTrans,false);
-		             break;
-		case RIGHT: runningCostModel.get()->addCost("placementFootRight", goalTrackingCostRight,settings_.wFootTrans,false);
-	                runningCostModel.get()->addCost("placementFootLeft", goalTrackingCostLeft,settings_.wFootTrans,true);
-		            break;
-		case DOUBLE : runningCostModel.get()->addCost("placementFootRight", goalTrackingCostRight,settings_.wFootTrans,false);
-	                  runningCostModel.get()->addCost("placementFootLeft", goalTrackingCostLeft,settings_.wFootTrans,false);
-		              break;
-    }
+	runningCostModel.get()->addCost("placementFootRight", goalTrackingCostRight,settings_.wFootTrans,true);
+	runningCostModel.get()->addCost("placementFootLeft", goalTrackingCostLeft,settings_.wFootTrans,true);
 	
 	// State cost
 	boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> actxWeights = 
@@ -157,7 +144,7 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 
 	boost::shared_ptr<crocoddyl::CostModelAbstract> xRegCost =
 		boost::make_shared<crocoddyl::CostModelResidual>(state_,actxWeights,
-		boost::make_shared<crocoddyl::ResidualModelState>(state_, design_.get_x0(),actuation_->get_nu())); 
+		boost::make_shared<crocoddyl::ResidualModelState>(state_, x0_,actuation_->get_nu())); 
 		
 	runningCostModel.get()->addCost("stateReg", xRegCost, settings_.wStateReg,true);
 	// Control cost
@@ -172,8 +159,8 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 	runningCostModel.get()->addCost("ctrlReg", uRegCost, settings_.wControlReg,true);
 	
 	// Kinematic limits cost
-	crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(rModel_.lowerPositionLimit.tail(rModel_.nq - 7), 
-																	 rModel_.upperPositionLimit.tail(rModel_.nq - 7));
+	crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(designer_.get_rModel().lowerPositionLimit.tail(designer_.get_rModel().nq - 7), 
+																	 designer_.get_rModel().upperPositionLimit.tail(designer_.get_rModel().nq - 7));
 
 	boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationBounded = 
 		 boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
@@ -199,7 +186,7 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 
 	const boost::shared_ptr<crocoddyl::ActionDataAbstract> temp_data = runningModel->createData();
 	Eigen::VectorXd uref = Eigen::VectorXd::Zero(Eigen::Index(actuation_->get_nu()));
-	runningModel->quasiStatic(temp_data,uref,design_.get_x0());
+	runningModel->quasiStatic(temp_data,uref,x0_);
 	
 	uResidualControl->set_reference(uref);
 	
@@ -214,11 +201,11 @@ AMA ModelMaker::formulate_stair_climber(const Support &support){
     return AMA();
 }
 
-std::vector<AMA> ModelMaker::formulateHorizon(const std::vector<Support> &supports, const double &T){
+std::vector<AMA> ModelMaker::formulateHorizon(const std::vector<Support> &supports){
 
     // for loop to generate a vector of IAMs
     std::vector<AMA> models;
-    for(std::size_t i = 0; i < T ;i++)
+    for(std::size_t i = 0; i < supports.size() ;i++)
     {
 		models.push_back(formulate_flat_walker(supports[i]));
 	}

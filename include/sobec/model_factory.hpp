@@ -69,12 +69,11 @@ namespace sobec{
 
         private:
             ModelMakerSettings settings_;
-            RobotDesigner design_;
-            pinocchio::Model rModel_;
-            pinocchio::Data rData_;
-            pinocchio::FrameIndex leftFootId_, rightFootId_;
+            RobotDesigner designer_;
+
             boost::shared_ptr<crocoddyl::StateMultibody> state_;
             boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation_;
+            Eigen::VectorXd x0_;
 
         public:
             ModelMaker();
@@ -84,7 +83,7 @@ namespace sobec{
             AMA formulate_flat_walker(const Support &support);
             AMA formulate_stair_climber(const Support &support);
 
-            std::vector<AMA> formulateHorizon(const std::vector<Support> &suports, const double &T);
+            std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
 
     };
 

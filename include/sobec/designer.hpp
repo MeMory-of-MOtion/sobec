@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <pinocchio/spatial/se3.hpp>
+
 #include "pinocchio/multibody/model.hpp"
 #include <pinocchio/algorithm/model.hpp>
 #include "pinocchio/multibody/data.hpp"
@@ -13,10 +14,10 @@ namespace sobec{
 
     struct RobotDesignerSettings{
         public:
-            std::string urdfPath = "";
-            std::string srdfPath = "";
+            std::string urdf_path = "";
+            std::string srdf_path = "";
             std::string robotDescription = "";
-            std::vector<std::string> controlledJointsNames;
+            std::vector<std::string> controlled_joints_names;
 
             std::string leftFootName = "";
             std::string rightFootName = "";
@@ -26,6 +27,7 @@ namespace sobec{
 
         private:
             RobotDesignerSettings settings_;
+
             std::vector<unsigned long> controlled_joints_id_;
             unsigned long leftFootId_, rightFootId_;
 
@@ -58,6 +60,8 @@ namespace sobec{
             Eigen::VectorXd &get_q0Complete(){return q0Complete_;}
             Eigen::VectorXd &get_x0(){return x0_;}
 
+            std::string &get_LF_name(){return settings_.leftFootName;}
+            std::string &get_RF_name(){return settings_.rightFootName;}
             pinocchio::FrameIndex &get_LF_id(){return leftFootId_;}
             pinocchio::FrameIndex &get_RF_id(){return rightFootId_;}
     };

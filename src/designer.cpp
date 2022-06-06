@@ -14,7 +14,6 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
     settings_ = settings;
 
     // COMPLETE MODEL //
-
 	if (settings_.robotDescription.size() > 0)
 	{
 		pinocchio::urdf::buildModelFromXML(settings_.robotDescription, pinocchio::JointModelFreeFlyer(),rModelComplete_);
@@ -87,7 +86,6 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
 
     leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
     rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
-
 }
 
 void RobotDesigner::updateReducedModel(Eigen::VectorXd x){

@@ -4,21 +4,29 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <string>
+#include "sobec/model_factory.hpp"
+#include "sobec/designer.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec{
-
-    struct HorizonManagerSettings{
+	struct HorizonManagerSettings{
         public:
             std::string leftFootName = "leftSoleContact";
             std::string rightFootName = "rightSoleContact";
     };
-
+			
     class HorizonManager{
         
         private:
+            HorizonManagerSettings horizonSettings_;
             DDP ddp_;
-            HorizonManagerSettings settings_;
+            
+            std::vector<Eigen::VectorXd> xs_;
+            std::vector<Eigen::VectorXd> us_;
+            
+            sobec::RobotDesigner designer_;
+            sobec::ModelMaker modelMaker_;
+            
             ResidualModelFramePlacementPtr goalTrackingResidual_;
             ResidualModelContactWrenchConePtr wrenchConeResidual_;
             crocoddyl::WrenchCone wrench_cone_;
@@ -30,15 +38,15 @@ namespace sobec{
         public:
             HorizonManager();
 
-            HorizonManager(const HorizonManagerSettings &settings, 
-                           const Eigen::VectorXd &x0, 
-                           const std::vector<AMA> &runningModels,
-                           const AMA &terminalModel);
+            HorizonManager(const HorizonManagerSettings &horizonSettings, 
+						   const Eigen::VectorXd &x0, 
+						   const std::vector<AMA> &runningModels,
+						   const AMA &terminalModel);
 
-            void initialize(const HorizonManagerSettings &settings,
-                            const Eigen::VectorXd &x0,  
-                            const std::vector<AMA> &runningModels,
-                            const AMA &terminalModel);
+            void initialize(const HorizonManagerSettings &horizonSettings, 
+						    const Eigen::VectorXd &x0, 
+						    const std::vector<AMA> &runningModels,
+						    const AMA &terminalModel);
 
             void updateIAM(const unsigned long &time);
             void updateDAM(const unsigned long &time);
@@ -57,8 +65,7 @@ namespace sobec{
             void setForceReferenceRF(const eVector6 &reference);
             void setSwingingLF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
             void setSwingingRF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
-            void setSupportingLF(const unsigned long &time, const eVector6 &ref_wrench);
-            void setSupportingRF(const unsigned long &time, const eVector6 &ref_wrench);
+            void setSupportingFeet(const unsigned long &time, const eVector6 &ref_wrench);
 
             //std::vector<std::string> get_contacts(const unsigned long &time);
             //std::vector<Eigen::VectorXd> preview_states();
@@ -68,6 +75,17 @@ namespace sobec{
             void recede();
 
             unsigned long get_size();
+            
+            void solve_ddp(const std::vector<Eigen::VectorXd> xs, 
+                           const std::vector<Eigen::VectorXd> us, 
+                           const std::size_t &ddpIteration);
+            void solveControlCycle(const Eigen::VectorXd &measured_x,
+                                   const std::size_t &ddpIteration);
+            
+            Eigen::VectorXd get_xs0(){return xs_[0];}
+            Eigen::VectorXd get_us0(){return us_[0];}
+            Eigen::VectorXd get_K0(){return ddp_->get_K()[0];}
+            
             
     };
 
