@@ -5,50 +5,88 @@
 #include "sobec/model_factory.hpp"
 #include "sobec/horizon_manager.hpp"
 
+#include <ndcurves/fwd.h>
+#include <ndcurves/se3_curve.h>
+#include <ndcurves/polynomial.h>
+#include <ndcurves/bezier_curve.h>
+#include <ndcurves/piecewise_curve.h>
+
 namespace sobec{
 
     struct OCPSettings {
         public:
             
             // timing
-            unsigned long T_total = 2000;
+            std::size_t totalSteps = 4;
             unsigned long T = 100;
-            unsigned long T2contact = 50;
-            unsigned long T1contact = 100;
-            unsigned long Tstep = T1contact + T2contact;
+            unsigned long TdoubleSupport = 50;
+            unsigned long TsimpleSupport = 100;
+            unsigned long Tstep = TdoubleSupport + TsimpleSupport;
             unsigned long ddpIteration = 1;
             
             double Dt = 1e-2;
             double simu_step = 1e-3;
 
             unsigned long Nc = round(Dt / simu_step);
+            double stepSize = 0.1;
+			double stepHeight = 0.03;
+			double stepDepth = 0.0;
+			double stepYCorrection = 0.005;
     };
 
     class OCP{
 
         private:
 
-            OCPSettings settings_;
-            RobotDesigner design_;
-            ModelMaker model_settings_; 
+            OCPSettings OCP_settings_;
+            RobotDesigner designer_;
+            ModelMaker modelMaker_; 
             HorizonManager horizon_;
             
             Eigen::VectorXd x0_;
-
-            Eigen::VectorXd shapeState(Eigen::VectorXd q, Eigen::VectorXd v);
-
-            void update(unsigned long time);
-            void solve(unsigned long time);
+            eVector6 wrench_reference_double_;
+            eVector6 wrench_reference_simple_;
+            ndcurves::piecewise_SE3_t transBezierRight_;
+            ndcurves::piecewise_SE3_t transBezierLeft_;
+            std::vector<unsigned long> contacts_sequence_;
+            
+            unsigned long TswitchPhase_;
+			unsigned long TswitchTraj_;
+			bool swingRightPhase_;
+			bool swingRightTraj_;
+			std::size_t steps_;
+            
+            pinocchio::SE3 starting_position_left_;
+            pinocchio::SE3 starting_position_right_;
+            pinocchio::SE3 final_position_left_;
+            pinocchio::SE3 final_position_right_;
+            pinocchio::SE3 frame_placement_next_;
+            ndcurves::point3_t point_now_;
 
         public:
             OCP();
-            OCP(OCPSettings settings);
-            void initialize(OCPSettings settings);
-
-            Eigen::VectorXd iterate(unsigned long time,
-                                    Eigen::VectorXd meassured_q,
-                                    Eigen::VectorXd meassured_v);
-
+            OCP(const OCPSettings &settings,
+                const ModelMakerSettings &model_settings,
+                const RobotDesignerSettings &design,
+                const Eigen::VectorXd &q0,
+                const Eigen::VectorXd &v0);
+            
+            void initialize(const OCPSettings &settings,
+					        const ModelMakerSettings &model_settings,
+					        const RobotDesigner &design,
+					        const Eigen::VectorXd &q0,
+					        const Eigen::VectorXd &v0);
+                            
+            void solveControlCycle(const Eigen::VectorXd &measured_x);
+            
+            ndcurves::piecewise_SE3_t defineBezier(const double &height, 
+                                                        const double &time_init,
+                                                        const double &time_final, 
+                                                        const pinocchio::SE3 &placement_init,
+                                                        const pinocchio::SE3 &placement_final);
+            void updateEndPhase();
+            void updateOCP(const Eigen::VectorXd &measured_x);
+            
     };
 }
 

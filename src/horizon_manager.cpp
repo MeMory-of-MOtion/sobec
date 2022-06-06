@@ -9,47 +9,21 @@ namespace sobec {
 
     HorizonManager::HorizonManager(){}
 
-    HorizonManager::HorizonManager(const Eigen::VectorXd &x0, 
-                                   const ModelMakerSettings &settings,
-                                   const RobotDesigner &design,
-                                   const std::size_t horizon_length,
-                                   const std::size_t ddp_iteration){
-        initialize(x0, settings, design,horizon_length,ddp_iteration);
+    HorizonManager::HorizonManager(const HorizonManagerSettings &horizonSettings, 
+                                   const Eigen::VectorXd &x0, 
+                                   const std::vector<AMA> &runningModels,
+                                   const AMA &terminalModel){
+        initialize(horizonSettings, x0, runningModels, terminalModel);
     }
 
-    void HorizonManager::initialize(const Eigen::VectorXd &x0, 
-                                    const ModelMakerSettings &settings,
-                                    const RobotDesigner &design,
-                                    const std::size_t horizon_length,
-                                    const std::size_t ddp_iteration){ 
-        
-        designer_ = sobec::RobotDesigner(design);
-        modelMaker_ = sobec::ModelMaker(settings, design);
-        horizon_length_ = horizon_length;
-        ddp_iteration_ = ddp_iteration;
-        
-        std::vector<Support> supports(horizon_length_, Support::DOUBLE);
-        
-        std::vector<AMA> runningModels = modelMaker_.formulateHorizon(supports, horizon_length);
-        AMA terminalModel = modelMaker_.formulate_flat_walker(Support::DOUBLE);
+    void HorizonManager::initialize(const HorizonManagerSettings &horizonSettings, 
+                                    const Eigen::VectorXd &x0, 
+                                    const std::vector<AMA> &runningModels,
+                                    const AMA &terminalModel){ 
+        horizonSettings_ = horizonSettings;
         boost::shared_ptr<crocoddyl::ShootingProblem> shooting_problem =
                 boost::make_shared<crocoddyl::ShootingProblem>(x0, runningModels, terminalModel);
         ddp_ = boost::make_shared<crocoddyl::SolverFDDP>(shooting_problem);
-        
-        std::vector<Eigen::VectorXd> x_init;
-        std::vector<Eigen::VectorXd> u_init;
-        Eigen::VectorXd zero_u = Eigen::VectorXd::Zero(designer_.get_rModel().nv - 6);
-        
-        for(std::size_t i = 0; i < horizon_length_ ;i++)
-        {
-			x_init.push_back(x0);
-			u_init.push_back(zero_u);
-		}
-		x_init.push_back(x0);
-		ddp_->solve(x_init,u_init,500,false);
-		
-		us_ = ddp_->get_us();
-        xs_ = ddp_->get_xs();
     }
 
     void HorizonManager::updateIAM(const unsigned long &time){
@@ -88,22 +62,18 @@ namespace sobec {
 
     void HorizonManager::activateContactLF(){
         contacts()->changeContactStatus(designer_.get_LF_name(), true);
-        costs()->changeCostStatus("placementFootLeft", false);
     }
 
     void HorizonManager::activateContactRF(){
         contacts()->changeContactStatus(designer_.get_RF_name(), true);
-        costs()->changeCostStatus("placementFootRight", false);
     }
 
     void HorizonManager::removeContactLF(){
         contacts()->changeContactStatus(designer_.get_LF_name(), false);
-        costs()->changeCostStatus("placementFootLeft", true);
     }
 
     void HorizonManager::removeContactRF(){
         contacts()->changeContactStatus(designer_.get_RF_name(), false);
-        costs()->changeCostStatus("placementFootRight", true);
     }
 
     void HorizonManager::setForceReferenceLF(const eVector6 &reference){
@@ -140,14 +110,9 @@ namespace sobec {
         setForceReferenceLF(ref_wrench);
         setPlacementReferenceRF(ref_placement);
     }
-    void HorizonManager::setSupportingLF(const unsigned long &time, const eVector6 &ref_wrench){
+    void HorizonManager::setSupportingFeet(const unsigned long &time, const eVector6 &ref_wrench){
 		updateDAM(time);
         activateContactLF();
-        setForceReferenceRF(ref_wrench);
-        setForceReferenceLF(ref_wrench);
-    }
-    void HorizonManager::setSupportingRF(const unsigned long &time, const eVector6 &ref_wrench){
-		updateDAM(time);
         activateContactRF();
         setForceReferenceRF(ref_wrench);
         setForceReferenceLF(ref_wrench);
@@ -175,20 +140,27 @@ namespace sobec {
         return ddp_->get_problem()->get_T();
     }
     
-    void HorizonManager::solveControlCycle(const Eigen::VectorXd &xCurrent){
+    void HorizonManager::solve_ddp(const std::vector<Eigen::VectorXd> xs, const std::vector<Eigen::VectorXd> us, const std::size_t &ddpIteration){
+        ddp_->solve(xs,us,ddpIteration,false);
+        us_ = ddp_->get_us();
+        xs_ = ddp_->get_xs();
+    }
+    
+    void HorizonManager::solveControlCycle(const Eigen::VectorXd &measured_x, const std::size_t &ddpIteration){
 		xs_.erase(xs_.begin());
-		xs_[0] = xCurrent;
+		xs_[0] = measured_x;
 		xs_.push_back(xs_[xs_.size()-1]);
 
 		us_.erase(us_.begin());
 		us_.push_back(us_[us_.size()-1]);
 
 		// Update initial state
-		ddp_->get_problem()->set_x0(xCurrent);
+		ddp_->get_problem()->set_x0(measured_x);
 		ddp_->allocateData();
 		
-		ddp_->solve(xs_,us_,ddp_iteration_,false);
+		ddp_->solve(xs_,us_,ddpIteration,false);
 		us_ = ddp_->get_us();
 		xs_ = ddp_->get_xs();
 	}
+		
 }

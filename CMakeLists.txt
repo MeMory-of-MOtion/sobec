@@ -39,6 +39,7 @@ project(${PROJECT_NAME} ${PROJECT_ARGS})
 ADD_COMPILE_OPTIONS(-Wno-error)
 
 # Project dependencies
+ADD_PROJECT_DEPENDENCY(ndcurves REQUIRED)
 ADD_PROJECT_DEPENDENCY(crocoddyl REQUIRED)
 
 if(BUILD_PYTHON_INTERFACE)
@@ -70,7 +71,7 @@ set(${PROJECT_NAME}_SOURCES
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
+target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl ndcurves::ndcurves)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 if(SUFFIX_SO_VERSION)
