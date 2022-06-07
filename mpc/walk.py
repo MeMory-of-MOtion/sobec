@@ -150,12 +150,11 @@ for t,pattern in enumerate(contactPattern[:-1]):
     comVelCost = croc.CostModelResidual( state,comVelResidual )
     costs.addCost("comVelCost", comVelCost, vcomWeight)
 
-    
     for cid in patternToId(pattern):
         copResidual = sobec.ResidualModelCenterOfPressure(state,cid,actuation.nu)
-        copCost = croc.CostModelResidual( state,copResidual)
+        copAct = croc.ActivationModelWeightedQuad(np.array([ 1/FOOT_SIZE**2 ]*2))
+        copCost = croc.CostModelResidual( state,copAct,copResidual)
         costs.addCost(f'{model.frames[cid].name}_cop',copCost,copWeight)
-
 
     #for k,cid in enumerate(contactIds):
     #    if t>0 and not pattern[k] and contactPattern[t-1][k]:
@@ -218,7 +217,8 @@ u0s = [u for u in guess['us']]
 # l.append(2)
 # ddp.alphas = l
 
-ddp.solve(x0s,u0s)
+ddp.th_acceptStep = 0.0000001
+ddp.solve(x0s,u0s,20000)
 
 dmodel = problem.runningModels[0].differential
 ddata = problem.runningDatas[0].differential
@@ -390,7 +390,7 @@ def save():
                      
 
 ### DEBUG
-t = 80
+t = 0
 xs=guess['xs']
 us=guess['us']
 fs0=guess['fs']
@@ -398,6 +398,6 @@ acs=guess['acs']
 ddata=problem.runningDatas[t].differential
 dmodel=problem.runningModels[t].differential
 dmodel.calc(ddata,xs[t],us[t])
+cname='left_sole_link_cop'
 
-    
 np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)
