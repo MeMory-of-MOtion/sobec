@@ -5,5 +5,6 @@
 BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeResidualVelCollision();
   sobec::python::exposeResidualCoMVelocity();
+  sobec::python::exposeResidualCenterOfPressure();
   sobec::python::exposeActivationQuadRef();
 }

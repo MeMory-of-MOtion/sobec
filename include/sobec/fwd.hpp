@@ -19,7 +19,15 @@ struct ResidualDataCoMVelocityTpl;
 typedef ResidualModelCoMVelocityTpl<double> ResidualModelCoMVelocity;
 typedef ResidualDataCoMVelocityTpl<double> ResidualDataCoMVelocity;
 
-// Cost COM-vel
+// Cost COP
+template <typename Scalar>
+class ResidualModelCenterOfPressureTpl;
+template <typename Scalar>
+struct ResidualDataCenterOfPressureTpl;
+typedef ResidualModelCenterOfPressureTpl<double> ResidualModelCenterOfPressure;
+typedef ResidualDataCenterOfPressureTpl<double> ResidualDataCenterOfPressure;
+
+// Cost velocity collisio
 template <typename Scalar>
 class ResidualModelVelCollisionTpl;
 template <typename Scalar>
