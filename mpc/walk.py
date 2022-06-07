@@ -156,6 +156,19 @@ for t,pattern in enumerate(contactPattern[:-1]):
         copCost = croc.CostModelResidual( state,copAct,copResidual)
         costs.addCost(f'{model.frames[cid].name}_cop',copCost,copWeight)
 
+        # For later
+        cone = croc.WrenchCone(np.eye(3), 1000, np.array([ FOOT_SIZE ]*2),4, True,1,1000)
+
+        # Penalize the distance to the central axis of the cone ...
+        #  ... using normalization weights depending on the axis.
+        # The weights are squared to match the tuning of the CASADI formulation.
+        coneAxisResidual = croc.ResidualModelContactForce(state,cid,pin.Force.Zero(),6,actuation.nu);
+        w = np.array(forceImportance**2); w[2] = 0
+        coneAxisAct = croc.ActivationModelWeightedQuad(w)
+        coneAxisCost = croc.CostModelResidual(state,coneAxisAct,coneAxisResidual);
+        costs.addCost(f'{model.frames[cid].name}_coneaxis',coneAxisCost,coneAxisWeight)
+
+        
     #for k,cid in enumerate(contactIds):
     #    if t>0 and not pattern[k] and contactPattern[t-1][k]:
     for k,cid in enumerate(contactIds):
@@ -217,8 +230,9 @@ u0s = [u for u in guess['us']]
 # l.append(2)
 # ddp.alphas = l
 
-ddp.th_acceptStep = 0.0000001
-ddp.solve(x0s,u0s,20000)
+#ddp.th_acceptStep = 0.1
+ddp.th_stop = 1e-3
+ddp.solve(x0s,u0s,200)
 
 dmodel = problem.runningModels[0].differential
 ddata = problem.runningDatas[0].differential
