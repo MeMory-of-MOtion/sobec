@@ -33,7 +33,7 @@ footVelWeight = 0 # 20
 footAccWeight = 0 # 2
 flyWeight = 0 ##DDP## 20
 groundColWeight = 0 ##DDP## 20
-conePenaltyWeight = 0 ##DDP## 20
+conePenaltyWeight = 20
 
 lowbandwidthweight = 0 # 2e-1
 minTorqueDiffWeight = 0 # 2e-2

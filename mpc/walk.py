@@ -156,9 +156,18 @@ for t,pattern in enumerate(contactPattern[:-1]):
         copCost = croc.CostModelResidual( state,copAct,copResidual)
         costs.addCost(f'{model.frames[cid].name}_cop',copCost,copWeight)
 
-        # For later
-        cone = croc.WrenchCone(np.eye(3), 1000, np.array([ FOOT_SIZE ]*2),4, True,1,1000)
-
+        # Cone with enormous friction (Assuming the robot will barely ever slide).
+        # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates => x2
+        cone = croc.WrenchCone(np.eye(3), 1000, np.array([ FOOT_SIZE*2 ]*2),4, True,1,10000)
+        coneCost = croc.ResidualModelContactWrenchCone(state,cid,cone,actuation.nu)
+        ub = cone.ub.copy()
+        ub[:4] = np.inf
+        #ub[5:] = np.inf  ### DEBUG
+        ub[-8:] = np.inf
+        coneAct = croc.ActivationModelQuadraticBarrier(croc.ActivationBounds(cone.lb,ub))
+        coneCost = croc.CostModelResidual(state,coneAct,coneCost)
+        costs.addCost(f'{model.frames[cid].name}_cone',coneCost,conePenaltyWeight)
+        
         # Penalize the distance to the central axis of the cone ...
         #  ... using normalization weights depending on the axis.
         # The weights are squared to match the tuning of the CASADI formulation.
@@ -234,18 +243,6 @@ u0s = [u for u in guess['us']]
 ddp.th_stop = 1e-3
 ddp.solve(x0s,u0s,200)
 
-dmodel = problem.runningModels[0].differential
-ddata = problem.runningDatas[0].differential
-
-contactmodell = dmodel.contacts.contacts['left_sole_link_contact'].contact
-contactmodelr = dmodel.contacts.contacts['right_sole_link_contact'].contact
-contactdatal = ddata.multibody.contacts.contacts['left_sole_link_contact']
-contactdatar = ddata.multibody.contacts.contacts['right_sole_link_contact']
-
-copcostmodell = dmodel.costs.costs['left_sole_link_cop'].cost
-copcostmodelr = dmodel.costs.costs['right_sole_link_cop'].cost
-copcostdatal = ddata.costs.costs['left_sole_link_cop']
-copcostdatar = ddata.costs.costs['right_sole_link_cop']
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
@@ -400,18 +397,41 @@ def save():
             })
     print(f'Save "{SOLU_FILE}"!')
 
-    
-                     
+'''    
+-B < tau/f < B                     
+tau < Bf
+Bf - tau >=0
+tau >= -Bf
+Bf + tau >= 0
+'''
 
 ### DEBUG
-t = 0
+
+# dmodel = problem.runningModels[0].differential
+# ddata = problem.runningDatas[0].differential
+
+# contactmodell = dmodel.contacts.contacts['left_sole_link_contact'].contact
+# contactmodelr = dmodel.contacts.contacts['right_sole_link_contact'].contact
+# contactdatal = ddata.multibody.contacts.contacts['left_sole_link_contact']
+# contactdatar = ddata.multibody.contacts.contacts['right_sole_link_contact']
+
+# copcostmodell = dmodel.costs.costs['left_sole_link_cop'].cost
+# copcostmodelr = dmodel.costs.costs['right_sole_link_cop'].cost
+# copcostdatal = ddata.costs.costs['left_sole_link_cop']
+# copcostdatar = ddata.costs.costs['right_sole_link_cop']
+
+t = 29
 xs=guess['xs']
 us=guess['us']
 fs0=guess['fs']
 acs=guess['acs']
-ddata=problem.runningDatas[t].differential
-dmodel=problem.runningModels[t].differential
-dmodel.calc(ddata,xs[t],us[t])
-cname='left_sole_link_cop'
-
+dadata=problem.runningDatas[t].differential
+damodel=problem.runningModels[t].differential
+damodel.calc(dadata,xs[t],us[t])
+damodel.calcDiff(dadata,xs[t],us[t])
+cosname='left_sole_link_cone'
+cosname='right_sole_link_cone'
+#cosname='altitudeImpact'
+cosdata = dadata.costs.costs[cosname]
+cosmodel = damodel.costs.costs[cosname].cost
 np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)
