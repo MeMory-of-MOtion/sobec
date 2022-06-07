@@ -56,37 +56,14 @@ namespace sobec{
             pinocchio::Model &get_rModelComplete(){return rModelComplete_;}
             pinocchio::Data &get_rData(){return rData_;}
             pinocchio::Data &get_rDataComplete(){return rDataComplete_;}
-            Eigen::VectorXd &get_q0(){return q0_;}
-            Eigen::VectorXd &get_q0Complete(){return q0Complete_;}
-            Eigen::VectorXd &get_x0(){return x0_;}
+            Eigen::VectorXd get_q0(){return q0_;}
+            Eigen::VectorXd get_q0Complete(){return q0Complete_;}
+            Eigen::VectorXd get_x0(){return x0_;}
 
-            std::string &get_LF_name(){return settings_.leftFootName;}
-            std::string &get_RF_name(){return settings_.rightFootName;}
-            pinocchio::FrameIndex &get_LF_id(){return leftFootId_;}
-            pinocchio::FrameIndex &get_RF_id(){return rightFootId_;}
-    };
-
-    class DesignerTest{
-        private:
-            RobotDesignerSettings settings_;
-            std::vector<unsigned long> controlled_joints_id_;
-            // unsigned long leftFootId_, rightFootId_;
-
-            pinocchio::Model rModelComplete_;
-            pinocchio::Model rModel_;
-            // pinocchio::Data rDataComplete_, rData_;
-            // // std::vector<pinocchio::JointIndex> pinocchioControlledJoints_;
-
-            // Eigen::VectorXd q0Complete_, q0_;
-            // Eigen::VectorXd v0Complete_, v0_;
-            Eigen::VectorXd x0_;
-
-        public:
-            DesignerTest();
-            DesignerTest(const int &a);
-            DesignerTest(const RobotDesignerSettings &settings);
-            void initialize(const RobotDesignerSettings &settings);
-            pinocchio::Model &get_rModel(){return rModel_;}
+            std::string get_LF_name(){return settings_.leftFootName;}
+            std::string get_RF_name(){return settings_.rightFootName;}
+            pinocchio::FrameIndex get_LF_id(){return leftFootId_;}
+            pinocchio::FrameIndex get_RF_id(){return rightFootId_;}
     };
 
 }  // namespace

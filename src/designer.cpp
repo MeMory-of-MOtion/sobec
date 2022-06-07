@@ -12,7 +12,7 @@ RobotDesigner::RobotDesigner(const RobotDesignerSettings &settings){ initialize(
 
 void RobotDesigner::initialize(const RobotDesignerSettings &settings){ 
     settings_ = settings;
-
+    
     // COMPLETE MODEL //
 	if (settings_.robotDescription.size() > 0)
 	{
@@ -34,7 +34,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
     pinocchio::srdf::loadRotorParameters(rModelComplete_, settings_.srdfPath, false);
     q0Complete_ = rModelComplete_.referenceConfigurations["half_sitting"];
     v0Complete_ = Eigen::VectorXd::Zero(rModelComplete_.nv);
-
+    
     // REDUCED MODEL //
 
     if (settings_.controlledJointsNames[0] != "root_joint")
@@ -64,16 +64,16 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
 			locked_joints_id.push_back(rModelComplete_.getJointId(joint_name));
 		}
 	}
-
+    
 	rModel_ = pinocchio::buildReducedModel(rModelComplete_, locked_joints_id, q0Complete_);
     rData_ = pinocchio::Data(rModel_);
-
+    
     pinocchio::srdf::loadReferenceConfigurations(rModel_,settings_.srdfPath, false);
 	pinocchio::srdf::loadRotorParameters(rModel_, settings_.srdfPath, false);
     q0_ = rModel_.referenceConfigurations["half_sitting"];
     v0_ = Eigen::VectorXd::Zero(rModel_.nv);
+    x0_.resize(rModel_.nq + rModel_.nv);
     x0_ << q0_, v0_;
-    
     // Generating list of indices for controlled joints //
     for(std::vector<std::string>::const_iterator it = rModel_.names.begin()+1;it != rModel_.names.end(); ++it)
 	{
