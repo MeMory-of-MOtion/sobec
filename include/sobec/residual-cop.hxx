@@ -22,7 +22,7 @@ ResidualModelCenterOfPressureTpl<Scalar>::ResidualModelCenterOfPressureTpl(
     boost::shared_ptr<StateMultibody> state,
     const pinocchio::FrameIndex contact_id,
     const std::size_t nu)
-    : Base(state, 2, nu, true, false, false),
+  : Base(state, 2, nu, true, true,true),
       contact_id_(contact_id)
 {}
 
@@ -32,7 +32,7 @@ ResidualModelCenterOfPressureTpl<Scalar>::~ResidualModelCenterOfPressureTpl() {}
 template <typename Scalar>
 void ResidualModelCenterOfPressureTpl<Scalar>::calc(
     const boost::shared_ptr<ResidualDataAbstract> &data,
-    const Eigen::Ref<const VectorXs> &x, const Eigen::Ref<const VectorXs> &) {
+    const Eigen::Ref<const VectorXs> &/*x*/, const Eigen::Ref<const VectorXs> &) {
   Data *d = static_cast<Data *>(data.get());
   Force f = d->contact->jMf.actInv(d->contact->f);
   
