@@ -22,16 +22,17 @@ using namespace crocoddyl;
 namespace bp = boost::python;
 
 void exposeResidualCenterOfPressure() {
-  bp::register_ptr_to_python<boost::shared_ptr<ResidualModelCenterOfPressure> >();
+  bp::register_ptr_to_python<
+      boost::shared_ptr<ResidualModelCenterOfPressure> >();
 
   bp::class_<ResidualModelCenterOfPressure, bp::bases<ResidualModelAbstract> >(
       "ResidualModelCenterOfPressure",
-      bp::init<boost::shared_ptr<StateMultibody>,pinocchio::FrameIndex,std::size_t>(
-          bp::args("self", "state", "contact_id", "nu"),
-          "Initialize the residual model r(x,u)=cop.\n\n"
-          ":param state: state of the multibody system\n"
-          ":param contact_id: reference contact frame\n"
-          ":param nu: dimension of control vector"))
+      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex,
+               std::size_t>(bp::args("self", "state", "contact_id", "nu"),
+                            "Initialize the residual model r(x,u)=cop.\n\n"
+                            ":param state: state of the multibody system\n"
+                            ":param contact_id: reference contact frame\n"
+                            ":param nu: dimension of control vector"))
       .def<void (ResidualModelCenterOfPressure::*)(
           const boost::shared_ptr<ResidualDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&,
@@ -68,13 +69,12 @@ void exposeResidualCenterOfPressure() {
            "Create the residual data.\n\n"
            ":param data: shared data\n"
            ":return residual data.")
-    .add_property("contact_id",
-                  &ResidualModelCenterOfPressure::get_contact_id,
-                  &ResidualModelCenterOfPressure::set_contact_id,
-                  "Contact frame ID");
+      .add_property(
+          "contact_id", &ResidualModelCenterOfPressure::get_contact_id,
+          &ResidualModelCenterOfPressure::set_contact_id, "Contact frame ID");
 
-
-  bp::register_ptr_to_python<boost::shared_ptr<ResidualDataCenterOfPressure> >();
+  bp::register_ptr_to_python<
+      boost::shared_ptr<ResidualDataCenterOfPressure> >();
 
   bp::class_<ResidualDataCenterOfPressure, bp::bases<ResidualDataAbstract> >(
       "ResidualDataCenterOfPressure", "Data for vel collision residual.\n\n",
