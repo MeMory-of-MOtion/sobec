@@ -4,6 +4,7 @@ set(${PY_NAME}_SOURCES
   residual-vel-collision.cpp
   activation-quad-ref.cpp
   designer.cpp
+  horizon_manager.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})

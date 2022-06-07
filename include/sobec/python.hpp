@@ -11,6 +11,7 @@ void exposeResidualCoMVelocity();
 void exposeResidualVelCollision();
 void exposeActivationQuadRef();
 void exposeDesigner();
+void exposeHorizonManager();
 
 }  // namespace python
 }  // namespace sobec

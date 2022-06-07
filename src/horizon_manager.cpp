@@ -9,22 +9,107 @@ namespace sobec {
 
     HorizonManager::HorizonManager(){}
 
-    HorizonManager::HorizonManager(const HorizonManagerSettings &horizonSettings, 
+    HorizonManager::HorizonManager(const HorizonManagerSettings &settings, 
                                    const Eigen::VectorXd &x0, 
                                    const std::vector<AMA> &runningModels,
                                    const AMA &terminalModel){
-        initialize(horizonSettings, x0, runningModels, terminalModel);
+        initialize(settings, x0, runningModels, terminalModel);
     }
 
-    void HorizonManager::initialize(const HorizonManagerSettings &horizonSettings, 
+    void HorizonManager::initialize(const HorizonManagerSettings &settings, 
                                     const Eigen::VectorXd &x0, 
                                     const std::vector<AMA> &runningModels,
                                     const AMA &terminalModel){ 
-        horizonSettings_ = horizonSettings;
+        settings_ = settings;
         boost::shared_ptr<crocoddyl::ShootingProblem> shooting_problem =
                 boost::make_shared<crocoddyl::ShootingProblem>(x0, runningModels, terminalModel);
         ddp_ = boost::make_shared<crocoddyl::SolverFDDP>(shooting_problem);
     }
+
+    //OLD 
+    AMA HorizonManager::ama(const unsigned long &time){
+        return ddp_->get_problem()->get_runningModels()[time];
+    }
+
+    IAM HorizonManager::iam(const unsigned long &time){
+        return boost::static_pointer_cast< crocoddyl::IntegratedActionModelEuler >(ama(time));
+    }
+
+    DAM HorizonManager::dam(const unsigned long &time){
+        return boost::static_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics >(iam(time)->get_differential());
+    }
+
+    Cost HorizonManager::costs(const unsigned long &time){
+        return dam(time)->get_costs();
+    }
+
+    Contact HorizonManager::contacts(const unsigned long &time){
+        return dam(time)->get_contacts();
+    }
+
+    IAD HorizonManager::data(const unsigned long &time){
+        return boost::static_pointer_cast< crocoddyl::IntegratedActionDataEuler >(ddp_->get_problem()->get_runningDatas()[time]);
+    }
+
+    void HorizonManager::activateContactLF(const unsigned long &time){
+        contacts(time)->changeContactStatus(settings_.leftFootName, true);
+    }
+
+    void HorizonManager::activateContactRF(const unsigned long &time){
+        contacts(time)->changeContactStatus(settings_.rightFootName, true);
+    }
+
+    void HorizonManager::removeContactLF(const unsigned long &time){
+        contacts(time)->changeContactStatus(settings_.leftFootName, false);
+    }
+
+    void HorizonManager::removeContactRF(const unsigned long &time){
+        contacts(time)->changeContactStatus(settings_.rightFootName, false);
+    }
+
+    // void HorizonManager::setForceReferenceLF(const unsigned long &time, const eVector6 &reference){
+    //     /** Important, set the foot name on the wrench cone cost.*/
+    //     // boost::shared_ptr<crocoddyl::CostItem> cone = costs(time)->get_costs()[settings_.leftFootName];
+    // }
+    // void HorizonManager::setForceReferenceRF(const unsigned long &time, const eVector6 &reference){
+    //     // TODO: Implement
+    // }
+
+    void HorizonManager::setForceReferenceLF(const unsigned long &time, const eVector6 &reference){
+        cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at("wrenchLeftContact")->cost);
+        Eigen::VectorXd new_ref = boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(cone_->get_residual())->get_reference().get_A() * reference;
+        boost::static_pointer_cast<ActivationModelQuadRef>(cone_->get_activation())->set_reference(new_ref);
+    }
+    
+    void HorizonManager::setForceReferenceRF(const unsigned long &time, const eVector6 &reference){
+        cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at("wrenchRightContact")->cost);
+        Eigen::VectorXd new_ref = boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(cone_->get_residual())->get_reference().get_A() * reference;
+        boost::static_pointer_cast<ActivationModelQuadRef>(cone_->get_activation())->set_reference(new_ref);
+    }
+
+    void HorizonManager::setSwingingLF(const unsigned long &time){
+        removeContactLF(time);
+        setForceReferenceLF(time, eVector6::Zero());
+    }
+    void HorizonManager::setSwingingRF(const unsigned long &time){
+        removeContactRF(time);
+        setForceReferenceRF(time, eVector6::Zero());
+    }
+    
+    void HorizonManager::setSupportingLF(const unsigned long &time){
+        activateContactLF(time);
+    }
+    void HorizonManager::setSupportingRF(const unsigned long &time){
+        activateContactRF(time);
+    }
+
+
+
+    // end OLD
+
+
+
+    // NEW
 
     void HorizonManager::updateIAM(const unsigned long &time){
 		IAM_ = boost::static_pointer_cast< crocoddyl::IntegratedActionModelEuler >(ddp_->get_problem()->get_runningModels()[time]);
@@ -43,9 +128,9 @@ namespace sobec {
         return DAM_->get_contacts();
     }
 
-    IAD HorizonManager::data(const unsigned long &time){
-        return boost::static_pointer_cast< crocoddyl::IntegratedActionDataEuler >(ddp_->get_problem()->get_runningDatas()[time]);
-    }
+    // IAD HorizonManager::data(const unsigned long &time){
+    //     return boost::static_pointer_cast< crocoddyl::IntegratedActionDataEuler >(ddp_->get_problem()->get_runningDatas()[time]);
+    // }
 
     void HorizonManager::setPlacementReferenceRF(const pinocchio::SE3 &ref_placement){
 		goalTrackingResidual_ = 
