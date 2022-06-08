@@ -81,20 +81,22 @@ ez=np.exp(-data.oMf[cid].translation[2]/2)
 r = v.linear[:2]*ez
 assert(norm(cosdata.residual.r-r)<1e-6)
 
-o_dq,o_dv=pin.getFrameVelocityDerivatives(model,data,cid,pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
+# Compute LWA velocity derivatives
 dq,dv=pin.getFrameVelocityDerivatives(model,data,cid,pin.ReferenceFrame.LOCAL)
 J=pin.getFrameJacobian(model,data,cid,pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
 R = data.oMf[cid].rotation
 o_dv = R@dv[:3]
 o_dq = R@dq[:3] - pin.skew(v.linear)@R@dv[3:]
 assert(norm(J[3:]-R@dv[3:])<1e-6)
+
+# Compute residual derivatives, first due to the velocity ...
 Rv = o_dv[:2]*ez
-Rq = o_dq[:2]*ez #- np.array([r/2]).T * J[2]
+Rq = o_dq[:2]*ez
+# ... second due to the altitude
 Rq[0] -= r[0]/2 * J[2]
 Rq[1] -= r[1]/2 * J[2]
 assert(norm(Rv-cosdata.residual.Rx[:,model.nv:])<1e-6)
 assert(norm(Rq-cosdata.residual.Rx[:,:model.nv])<1e-6)
-
 
 # ### NUMDIFF TEST
 damnd=croc.DifferentialActionModelNumDiff(damodel,gaussApprox=True)
