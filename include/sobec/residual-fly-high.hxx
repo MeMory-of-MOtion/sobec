@@ -18,17 +18,21 @@ template <typename Scalar>
 ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
     boost::shared_ptr<StateMultibody> state,
     const pinocchio::FrameIndex frame_id,
+    const Scalar slope,
     const std::size_t nu)
     : Base(state, 2, nu, true, true, false),
       frame_id(frame_id),
+      slope(slope),
       pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
     boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id)
+    const pinocchio::FrameIndex frame_id,
+    const Scalar slope)
     : Base(state, 2, true, true, false),
       frame_id(frame_id),
+      slope(slope),
       pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
@@ -45,7 +49,7 @@ void ResidualModelFlyHighTpl<Scalar>::calc(
   pinocchio::updateFramePlacement(pin_model_,*d->pinocchio,frame_id);
   data->r = pinocchio::getFrameVelocity(pin_model_,*d->pinocchio,
                                 frame_id,pinocchio::LOCAL_WORLD_ALIGNED).linear().head(2);
-  d->ez = exp(-d->pinocchio->oMf[frame_id].translation()[2]/2);
+  d->ez = exp(-d->pinocchio->oMf[frame_id].translation()[2]*slope);
   data->r *= d->ez;
 
 }
@@ -95,8 +99,8 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
   data->Rx *= d->ez;
 
   // Second term with derivative of z
-  data->Rx.leftCols(nv).row(0) -= data->r[0]/2 * d->o_dv_dv.row(2); //d->d_dq.row(2);
-  data->Rx.leftCols(nv).row(1) -= data->r[1]/2 * d->o_dv_dv.row(2); // d->d_dq.row(2);
+  data->Rx.leftCols(nv).row(0) -= data->r[0]*slope * d->o_dv_dv.row(2); //d->d_dq.row(2);
+  data->Rx.leftCols(nv).row(1) -= data->r[1]*slope * d->o_dv_dv.row(2); // d->d_dq.row(2);
 }
 
 template <typename Scalar>

@@ -38,7 +38,7 @@ actuation = croc.ActuationModelFull(state)
 costs = croc.CostModelSum(state, actuation.nu)
    
 for cid in contactIds:
-    flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,actuation.nu)
+    flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,1/2,actuation.nu)
     flyHighCost = croc.CostModelResidual(state,flyHighResidual)
     costs.addCost('fly',flyHighCost,1)
 
