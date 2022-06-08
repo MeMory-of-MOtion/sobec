@@ -66,14 +66,14 @@ namespace sobec {
     void HorizonManager::removeContactRF(const unsigned long &time){
         contacts(time)->changeContactStatus(settings_.rightFootName, false);
     }
+    
+    void HorizonManager::setPoseReferenceLF(const unsigned long &time, const pinocchio::SE3 &ref_placement){
+		boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs(time)->get_costs().at("placementFootLeft")->cost->get_residual())->set_reference(ref_placement);
+    }
 
-    // void HorizonManager::setForceReferenceLF(const unsigned long &time, const eVector6 &reference){
-    //     /** Important, set the foot name on the wrench cone cost.*/
-    //     // boost::shared_ptr<crocoddyl::CostItem> cone = costs(time)->get_costs()[settings_.leftFootName];
-    // }
-    // void HorizonManager::setForceReferenceRF(const unsigned long &time, const eVector6 &reference){
-    //     // TODO: Implement
-    // }
+    void HorizonManager::setPoseReferenceRF(const unsigned long &time, const pinocchio::SE3 &ref_placement){
+		boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs(time)->get_costs().at("placementFootRight")->cost->get_residual())->set_reference(ref_placement);
+    }
 
     void HorizonManager::setForceReferenceLF(const unsigned long &time, const eVector6 &reference){
         cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at("wrenchLeftContact")->cost);
@@ -103,8 +103,6 @@ namespace sobec {
         activateContactRF(time);
     }
 
-
-
     // end OLD
 
 
@@ -128,10 +126,6 @@ namespace sobec {
         return DAM_->get_contacts();
     }
 
-    // IAD HorizonManager::data(const unsigned long &time){
-    //     return boost::static_pointer_cast< crocoddyl::IntegratedActionDataEuler >(ddp_->get_problem()->get_runningDatas()[time]);
-    // }
-
     void HorizonManager::setPlacementReferenceRF(const pinocchio::SE3 &ref_placement){
 		goalTrackingResidual_ = 
 		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placementFootRight")->cost->get_residual());
@@ -140,7 +134,7 @@ namespace sobec {
     
     void HorizonManager::setPlacementReferenceLF(const pinocchio::SE3 &ref_placement){
 		goalTrackingResidual_ = 
-		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placementFootRight")->cost->get_residual());
+		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placementFootLeft")->cost->get_residual());
 		goalTrackingResidual_->set_reference(ref_placement);
     }
     // void HorizonManager::setResidualReferences(unsigned long time, const std::string &name);
@@ -203,15 +197,11 @@ namespace sobec {
         setForceReferenceLF(ref_wrench);
     }
 
-    // std::HorizonManager::vector<std::string> active_contacts(const unsigned long &time);
-    // std::HorizonManager::vector<Eigen::VectorXd> preview_states();
-    // std::HorizonManager::vector<Eigen::VectorXd> preview_actions();
-
-    void HorizonManager::recede(IAM new_model, IAD new_data){
+    void HorizonManager::recede(const IAM &new_model, const IAD &new_data){
         ddp_->get_problem()->circularAppend(new_model, new_data);
     }
     
-    void HorizonManager::recede(IAM new_model){
+    void HorizonManager::recede(const IAM &new_model){
         IAD_ = boost::static_pointer_cast<crocoddyl::IntegratedActionDataEuler>(new_model->createData());
         ddp_->get_problem()->circularAppend(IAM_, IAD_);
     }

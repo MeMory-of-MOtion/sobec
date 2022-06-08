@@ -45,14 +45,30 @@ namespace sobec {
 }
 
     void exposeHorizonManager() {
-
         bp::class_<HorizonManager>("HorizonManager", bp::init<>())
             .def("initialize", &initialize, bp::args("self", "settings", "x0", "runningModels", "terminalModel"))
+            .def("iam", &HorizonManager::iam, bp::args("self", "time"))
+            .def("dam", &HorizonManager::dam, bp::args("self", "time"))
+            .def<Cost (HorizonManager::*)(const unsigned long&)>("costs", &HorizonManager::costs, bp::args("self", "time"))
+            .def<Contact (HorizonManager::*)(const unsigned long &)>("contacts", &HorizonManager::contacts, bp::args("self", "time"))
+            .def("data", &HorizonManager::data, bp::args("self", "time"))
+            .def("setPoseReferenceLF", &HorizonManager::setPoseReferenceLF, bp::args("self", "time", "pose"))
+            .def("setPoseReferenceRF", &HorizonManager::setPoseReferenceRF, bp::args("self", "time", "pose"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("activateContactLF", &HorizonManager::activateContactLF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("activateContactRF", &HorizonManager::activateContactRF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("removeContactLF", &HorizonManager::removeContactLF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("removeContactRF", &HorizonManager::removeContactRF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const unsigned long &, const eVector6 &)>("setForceReferenceLF", &HorizonManager::setForceReferenceLF, bp::args("self", "time", "ref_wrench"))
+            .def<void (HorizonManager::*)(const unsigned long &, const eVector6 &)>("setForceReferenceRF", &HorizonManager::setForceReferenceRF, bp::args("self", "time", "ref_wrench"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("setSwingingLF", &HorizonManager::setSwingingLF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("setSwingingRF", &HorizonManager::setSwingingRF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("setSupportingLF", &HorizonManager::setSupportingLF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const unsigned long &)>("setSupportingRF", &HorizonManager::setSupportingRF, bp::args("self", "time"))
+            .def<void (HorizonManager::*)(const IAM &, const IAD &)>("recede", &HorizonManager::recede, bp::args("self", "IAM", "IAD"))
+            .def<void (HorizonManager::*)(const IAM &)>("recede", &HorizonManager::recede, bp::args("self", "IAM"))
+            .def<void (HorizonManager::*)()>("recede", &HorizonManager::recede, bp::args("self"))
         ;
-
         return;
-}
-
-
+        }
     }   
 }

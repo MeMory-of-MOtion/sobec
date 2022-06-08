@@ -27,7 +27,7 @@ namespace sobec{
             double Dt = 1e-2;
             double simu_step = 1e-3;
 
-            unsigned long Nc = round(Dt / simu_step);
+            unsigned long Nc = (unsigned long)round(Dt / simu_step);
             double stepSize = 0.1;
 			double stepHeight = 0.03;
 			double stepDepth = 0.0;

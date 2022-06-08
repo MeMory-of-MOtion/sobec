@@ -11,8 +11,8 @@
 namespace sobec{
 	struct HorizonManagerSettings{
         public:
-            std::string leftFootName = "leftSoleContact";
-            std::string rightFootName = "rightSoleContact";
+            std::string leftFootName = "";
+            std::string rightFootName = "";
     };
 			
     class HorizonManager{
@@ -23,10 +23,8 @@ namespace sobec{
 
             //prealocated memory:
             boost::shared_ptr<crocoddyl::CostModelResidual> cone_;
-            ActivationModelQuadRefPtr activationQ_;
-            // ResidualModelContactWrenchConePtr wrenchConeResidual_;
             
-            //NEW
+            //NEW ~ ocp related ~
             std::vector<Eigen::VectorXd> xs_;
             std::vector<Eigen::VectorXd> us_;
             
@@ -40,7 +38,7 @@ namespace sobec{
             IAM IAM_;
             IAD IAD_;
             DAM DAM_;
-            //end NEW
+            //end NEW ~ ocp related ~
 
         public:
             HorizonManager();
@@ -67,6 +65,8 @@ namespace sobec{
             // // Try to avoid the "auto"
             // // void setResidualReferences(unsigned long time, const std::string &name);
 
+            void setPoseReferenceLF(const unsigned long &time, const pinocchio::SE3 &ref_placement);
+            void setPoseReferenceRF(const unsigned long &time, const pinocchio::SE3 &ref_placement);
             void activateContactLF(const unsigned long &time);
             void activateContactRF(const unsigned long &time);
             void removeContactLF(const unsigned long &time);
@@ -80,7 +80,7 @@ namespace sobec{
             //end OLD
 
             
-            // NEW
+            // NEW ~ ocp related ~
             void updateIAM(const unsigned long &time);
             void updateDAM(const unsigned long &time);
             Cost costs();
@@ -99,18 +99,18 @@ namespace sobec{
             void setSwingingLF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
             void setSwingingRF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
             void setSupportingFeet(const unsigned long &time, const eVector6 &ref_wrench);
-            //end NEW
+            //end NEW ~ ocp related ~
 
             //std::vector<std::string> get_contacts(const unsigned long &time);
             //std::vector<Eigen::VectorXd> preview_states();
             //std::vector<Eigen::VectorXd> preview_actions();
-            void recede(IAM new_model, IAD new_data);
-            void recede(IAM new_model);
+            void recede(const IAM &new_model, const IAD &new_data);
+            void recede(const IAM &new_model);
             void recede();
 
             unsigned long get_size();
 
-            //NEW
+            //NEW ~ ocp related ~
             void solve_ddp(const std::vector<Eigen::VectorXd> xs, 
                            const std::vector<Eigen::VectorXd> us, 
                            const std::size_t &ddpIteration);
@@ -120,7 +120,7 @@ namespace sobec{
             Eigen::VectorXd get_xs0(){return xs_[0];}
             Eigen::VectorXd get_us0(){return us_[0];}
             Eigen::VectorXd get_K0(){return ddp_->get_K()[0];}
-            //end NEW
+            //end NEW ~ ocp related ~
     };
 
 }  // namespace
