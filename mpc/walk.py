@@ -181,6 +181,7 @@ for t,pattern in enumerate(contactPattern[:-1]):
     #for k,cid in enumerate(contactIds):
     #    if t>0 and not pattern[k] and contactPattern[t-1][k]:
     for k,cid in enumerate(contactIds):
+        
         if t>0 and not contactPattern[t-1][k] and pattern[k]:
             print(f'Impact {cid} at time {t}')
             impactResidual = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
@@ -188,7 +189,17 @@ for t,pattern in enumerate(contactPattern[:-1]):
             impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
             costs.addCost('altitudeImpact',impactCost,impactAltitudeWeight/DT)
             
-   
+    for k,cid in enumerate(contactIds):
+        if pattern[k]: continue
+        verticalFootVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),
+                                                                  pin.ReferenceFrame.LOCAL_WORLD_ALIGNED,actuation.nu)
+        verticalFootVelAct = croc.ActivationModelWeightedQuad(np.array([0,0,1,0,0,0]))
+        verticalFootVelCost = croc.CostModelResidual(state,verticalFootVelAct,verticalFootVelResidual)
+        costs.addCost(f'{model.frames[cid].name}_vfoot_vel',verticalFootVelCost,verticalFootVelWeight)
+
+
+
+            
     # Action
     damodel = croc.DifferentialActionModelContactFwdDynamics(
         state, actuation, contacts, costs, kktDamping, True)
@@ -420,7 +431,7 @@ Bf + tau >= 0
 # copcostdatal = ddata.costs.costs['left_sole_link_cop']
 # copcostdatar = ddata.costs.costs['right_sole_link_cop']
 
-t = 29
+t = 60
 xs=guess['xs']
 us=guess['us']
 fs0=guess['fs']
@@ -432,6 +443,7 @@ damodel.calcDiff(dadata,xs[t],us[t])
 cosname='left_sole_link_cone'
 cosname='right_sole_link_cone'
 #cosname='altitudeImpact'
+cosname='right_sole_link_vfoot_vel' # t = 60
 cosdata = dadata.costs.costs[cosname]
 cosmodel = damodel.costs.costs[cosname].cost
 np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)
