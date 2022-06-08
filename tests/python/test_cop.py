@@ -8,15 +8,16 @@ import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 import example_robot_data as robex
-from numpy.linalg import norm, inv, pinv, svd, eig
+from numpy.linalg import norm
 
 # Local imports
 import sobec
 
 np.random.seed(0)
 
-### LOAD AND DISPLAY SOLO
-# Load the robot model from example robot data and display it if possible in Gepetto-viewer
+# ## LOAD AND DISPLAY SOLO
+# Load the robot model from example robot data and display it if possible in
+# Gepetto-viewer.
 # robot = talos_low.load()
 # contactIds = [ i for i,f in enumerate(robot.model.frames) if "sole_link" in f.name ]
 # contactIds = [ contactIds[0] ]
@@ -33,7 +34,7 @@ data = model.createData()
 x0 = np.concatenate([model.q0, np.zeros(model.nv)])
 
 
-# #################################################################################################
+# #####################################################################################
 
 state = croc.StateMultibody(model)
 actuation = croc.ActuationModelFloatingBase(state)
@@ -76,15 +77,15 @@ u0 = np.random.rand(actuation.nu) * 20 - 10
 damodel.calc(dadata, x0, u0)
 damodel.calcDiff(dadata, x0, u0)
 
-try:
-    fname = "left_sole_link"
-    conname = f"{fname}_contact"
-    condata = dadata.multibody.contacts.contacts[conname]
-    cosname = f"{fname}_cop"
-    cosdata = dadata.costs.costs[cosname]
-    cosmodel = damodel.costs.costs[cosname].cost
-except:
-    pass
+# try:
+fname = "left_sole_link"
+conname = f"{fname}_contact"
+condata = dadata.multibody.contacts.contacts[conname]
+cosname = f"{fname}_cop"
+cosdata = dadata.costs.costs[cosname]
+cosmodel = damodel.costs.costs[cosname].cost
+# except: TODO: which exception(s) ?
+# pass
 
 # ### NUMDIFF TEST
 damnd = croc.DifferentialActionModelNumDiff(damodel, gaussApprox=True)
