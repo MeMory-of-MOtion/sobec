@@ -129,6 +129,8 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
   ResidualDataFlyHighTpl(Model<Scalar>* const model,
                              DataCollectorAbstract* const data)
       : Base(model, data)
+      ,d_dq(6,model->get_state()->get_nv())
+      ,d_dv(6,model->get_state()->get_nv())
       ,l_dnu_dq(6,model->get_state()->get_nv())
       ,l_dnu_dv(6,model->get_state()->get_nv())
       ,o_dv_dq(3,model->get_state()->get_nv())
@@ -151,6 +153,7 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
   }
 
   pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
+  Matrix6xs d_dq,d_dv;
   Matrix6xs l_dnu_dq,l_dnu_dv;
   Matrix3xs o_dv_dq,o_dv_dv,o_Jw, vxJ;
   

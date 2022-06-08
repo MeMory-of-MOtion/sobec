@@ -69,34 +69,29 @@ try:
 except:
     pass
 
-#pin.forwardKinematics(model,data,x0[:model.nq],x0[model.nq:])
-#pin.updateFramePlacements(model,data)
 damodel.calc(dadata,x0,u0)
 damodel.calcDiff(dadata,x0,u0)
 
+### MANUAL CHECK
 np.set_printoptions(precision=3, linewidth=300, suppress=True,threshold=10000)
 assert(norm(cosdata.residual.r)>0)
 v=pin.getFrameVelocity(model,data,cid,pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
-#v=pin.getFrameVelocity(model,data,cid,pin.ReferenceFrame.LOCAL)
 ez=np.exp(-data.oMf[cid].translation[2]/2)
-#ez=data.oMf[cid].translation[2]
 #ez=1
-#pin.computeForwardKinematicsDerivatives(model,data,x0[:model.nq],x0[model.nq:],np.zeros(model.nv))
-o_dq,o_dv=pin.getFrameVelocityDerivatives(model,data,cid,pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
-dq,dv=pin.getFrameVelocityDerivatives(model,data,cid,pin.ReferenceFrame.LOCAL)
 r = v.linear[:2]*ez
-#r.fill(ez)
 assert(norm(cosdata.residual.r-r)<1e-6)
 
-#assert(norm(dv-pin.getFrameJacobian(model,data,cid,pin.ReferenceFrame.LOCAL_WORLD_ALIGNED))<1e-9)
+o_dq,o_dv=pin.getFrameVelocityDerivatives(model,data,cid,pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
+dq,dv=pin.getFrameVelocityDerivatives(model,data,cid,pin.ReferenceFrame.LOCAL)
 J=pin.getFrameJacobian(model,data,cid,pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
 R = data.oMf[cid].rotation
 o_dv = R@dv[:3]
 o_dq = R@dq[:3] - pin.skew(v.linear)@R@dv[3:]
+assert(norm(J[3:]-R@dv[3:])<1e-6)
 Rv = o_dv[:2]*ez
-Rq = o_dq[:2]*ez - np.array([r/2]).T * J[2]
-#Rq[0] = (data.oMf[cid].rotation@dv[:3])[2]
-#Rq[1] = (data.oMf[cid].rotation@dv[:3])[2]
+Rq = o_dq[:2]*ez #- np.array([r/2]).T * J[2]
+Rq[0] -= r[0]/2 * J[2]
+Rq[1] -= r[1]/2 * J[2]
 assert(norm(Rv-cosdata.residual.Rx[:,model.nv:])<1e-6)
 assert(norm(Rq-cosdata.residual.Rx[:,:model.nv])<1e-6)
 
