@@ -31,7 +31,7 @@ copWeight = 2
 verticalFootVelWeight = 20
 footVelWeight = 0 # 20
 footAccWeight = 0 # 2
-flyWeight = 0 ##DDP## 20
+flyWeight = 20
 groundColWeight = 0 ##DDP## 20
 conePenaltyWeight = 20
 
@@ -50,6 +50,7 @@ terminalNoVelocityWeight = 2000
 terminalXTargetWeight = 0 ##DDP## 2000
 
 refFootFlyingAltitude = 3e-2
+flyHighSlope = 5/refFootFlyingAltitude
 footMinimalDistance = .1 # 0.1  (.17 is the max value wrt initial config)
 MAIN_JOINTS = [ 0,1,3 ]
 MAIN_JOINTS = [ i+7 for i in MAIN_JOINTS ] + [ i+13 for i in MAIN_JOINTS ]

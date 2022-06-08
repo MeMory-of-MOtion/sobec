@@ -198,8 +198,12 @@ for t,pattern in enumerate(contactPattern[:-1]):
         verticalFootVelCost = croc.CostModelResidual(state,verticalFootVelAct,verticalFootVelResidual)
         costs.addCost(f'{model.frames[cid].name}_vfoot_vel',verticalFootVelCost,verticalFootVelWeight)
 
-        flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,actuation.nu)
+        # Slope is /2 since it is squared in casadi (je me comprends)
+        flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,flyHighSlope/2,actuation.nu)
+        flyHighCost = croc.CostModelResidual(state,flyHighResidual)
+        costs.addCost(f'{model.frames[cid].name}_flyhigh',flyHighCost,flyWeight)
 
+        
 
             
     # Action
@@ -446,6 +450,7 @@ cosname='left_sole_link_cone'
 cosname='right_sole_link_cone'
 #cosname='altitudeImpact'
 cosname='right_sole_link_vfoot_vel' # t = 60
+cosname='right_sole_link_flyhigh'
 cosdata = dadata.costs.costs[cosname]
 cosmodel = damodel.costs.costs[cosname].cost
 np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)
