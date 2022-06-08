@@ -132,11 +132,11 @@ DifferentialActionModelFactory::create_freeFwdDynamics(
   actuation = ActuationModelFactory().create(actuation_type, state_type);
   cost =
       boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
-  cost->addCost("state",
-                CostModelFactory().create(
-                    CostModelTypes::CostModelResidualState, state_type,
-                    ActivationModelTypes::ActivationModelQuad),
-                1.);
+//   cost->addCost("state",
+//                 CostModelFactory().create(
+//                     CostModelTypes::CostModelResidualState, state_type,
+//                     ActivationModelTypes::ActivationModelQuad),
+//                 1.);
   cost->addCost("control",
                 CostModelFactory().create(
                     CostModelTypes::CostModelResidualControl, state_type,
@@ -221,12 +221,12 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(
       throw_pretty(__FILE__ ": Wrong StateModelTypes::Type given");
       break;
   }
-  cost->addCost(
-      "state",
-      CostModelFactory().create(
-          CostModelTypes::CostModelResidualState, state_type,
-          ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
-      0.1);
+//   cost->addCost(
+//       "state",
+//       CostModelFactory().create(
+//           CostModelTypes::CostModelResidualState, state_type,
+//           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
+//       0.1);
   cost->addCost(
       "control",
       CostModelFactory().create(
@@ -308,12 +308,12 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(
       throw_pretty(__FILE__ ": Wrong StateModelTypes::Type given");
       break;
   }
-  cost->addCost(
-      "state",
-      CostModelFactory().create(
-          CostModelTypes::CostModelResidualState, state_type,
-          ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
-      0.1);
+//   cost->addCost(
+//       "state",
+//       CostModelFactory().create(
+//           CostModelTypes::CostModelResidualState, state_type,
+//           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
+//       0.1);
   cost->addCost(
       "control",
       CostModelFactory().create(

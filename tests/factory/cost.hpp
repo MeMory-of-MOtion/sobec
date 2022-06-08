@@ -24,7 +24,7 @@ using namespace crocoddyl;
 
 struct CostModelTypes {
   enum Type {
-    CostModelResidualState,
+    // CostModelResidualState,
     CostModelResidualControl,
     CostModelResidualCoMPosition,
     CostModelResidualCoMVelocity,

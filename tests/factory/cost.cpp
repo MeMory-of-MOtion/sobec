@@ -36,9 +36,9 @@ const std::vector<CostModelNoFFTypes::Type> CostModelNoFFTypes::all(
 
 std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
   switch (type) {
-    case CostModelTypes::CostModelResidualState:
-      os << "CostModelResidualState";
-      break;
+    // case CostModelTypes::CostModelResidualState:
+    //   os << "CostModelResidualState";
+    //   break;
     case CostModelTypes::CostModelResidualControl:
       os << "CostModelResidualControl";
       break;
@@ -102,12 +102,12 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
     nu = state->get_nv();
   }
   switch (cost_type) {
-    case CostModelTypes::CostModelResidualState:
-      cost = boost::make_shared<crocoddyl::CostModelResidual>(
-          state, activation_factory.create(activation_type, state->get_ndx()),
-          boost::make_shared<crocoddyl::ResidualModelState>(state,
-                                                            state->rand(), nu));
-      break;
+    // case CostModelTypes::CostModelResidualState:
+    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
+    //       state, activation_factory.create(activation_type, state->get_ndx()),
+    //       boost::make_shared<crocoddyl::ResidualModelState>(state,
+    //                                                         state->rand(), nu));
+    //   break;
     case CostModelTypes::CostModelResidualControl:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, nu),
