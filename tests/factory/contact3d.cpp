@@ -8,8 +8,8 @@
 
 #include "contact3d.hpp"
 
-#include "sobec/contact3d.hpp"
 #include "crocoddyl/core/utils/exception.hpp"
+#include "sobec/contact3d.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -18,9 +18,12 @@ namespace unittest {
 ContactModel3DFactory::ContactModel3DFactory() {}
 ContactModel3DFactory::~ContactModel3DFactory() {}
 
-boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModel3DFactory::create(
-    PinocchioModelTypes::Type model_type, PinocchioReferenceTypes::Type reference_type, Eigen::Vector2d gains,
-    const std::string frame_name, std::size_t nu) const {
+boost::shared_ptr<crocoddyl::ContactModelAbstract>
+ContactModel3DFactory::create(PinocchioModelTypes::Type model_type,
+                              PinocchioReferenceTypes::Type reference_type,
+                              Eigen::Vector2d gains,
+                              const std::string frame_name,
+                              std::size_t nu) const {
   PinocchioModelFactory model_factory(model_type);
   boost::shared_ptr<crocoddyl::StateMultibody> state =
       boost::make_shared<crocoddyl::StateMultibody>(model_factory.create());
@@ -34,17 +37,20 @@ boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModel3DFactory::create
   if (nu == std::numeric_limits<std::size_t>::max()) {
     nu = state->get_nv();
   }
-  // std::cout << "created contact3D for frame id = " << frame_name << std::endl;
+  // std::cout << "created contact3D for frame id = " << frame_name <<
+  // std::endl;
 
   // Eigen::Vector2d gains = Eigen::Vector2d::Random();
   Eigen::Vector3d xref = Eigen::Vector3d::Zero();
   if (reference_type == PinocchioReferenceTypes::LOCAL) {
-    contact = boost::make_shared<sobec::ContactModel3D>(state, frame_id, xref, nu, gains, pinocchio::LOCAL);
+    contact = boost::make_shared<sobec::ContactModel3D>(
+        state, frame_id, xref, nu, gains, pinocchio::LOCAL);
   } else if (reference_type == PinocchioReferenceTypes::WORLD) {
-    contact = boost::make_shared<sobec::ContactModel3D>(state, frame_id, xref, nu, gains, pinocchio::WORLD);
+    contact = boost::make_shared<sobec::ContactModel3D>(
+        state, frame_id, xref, nu, gains, pinocchio::WORLD);
   } else if (reference_type == PinocchioReferenceTypes::LOCAL_WORLD_ALIGNED) {
-    contact =
-        boost::make_shared<sobec::ContactModel3D>(state, frame_id, xref, nu, gains, pinocchio::LOCAL_WORLD_ALIGNED);
+    contact = boost::make_shared<sobec::ContactModel3D>(
+        state, frame_id, xref, nu, gains, pinocchio::LOCAL_WORLD_ALIGNED);
   }
   return contact;
 }
@@ -58,11 +64,14 @@ boost::shared_ptr<crocoddyl::ContactModelAbstract> create_random_contact3d() {
   boost::shared_ptr<crocoddyl::ContactModelAbstract> contact;
   ContactModel3DFactory factory;
   if (rand() % 3 == 0) {
-    contact = factory.create(PinocchioModelTypes::RandomHumanoid, PinocchioReferenceTypes::LOCAL);
+    contact = factory.create(PinocchioModelTypes::RandomHumanoid,
+                             PinocchioReferenceTypes::LOCAL);
   } else if (rand() % 3 == 1) {
-    contact = factory.create(PinocchioModelTypes::RandomHumanoid, PinocchioReferenceTypes::LOCAL);
+    contact = factory.create(PinocchioModelTypes::RandomHumanoid,
+                             PinocchioReferenceTypes::LOCAL);
   } else {
-    contact = factory.create(PinocchioModelTypes::RandomHumanoid, PinocchioReferenceTypes::LOCAL);
+    contact = factory.create(PinocchioModelTypes::RandomHumanoid,
+                             PinocchioReferenceTypes::LOCAL);
   }
   return contact;
 }

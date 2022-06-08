@@ -11,12 +11,10 @@
 
 #include <iterator>
 
-#include "sobec/lpf.hpp"
-
-#include "diff-action.hpp"
-
 #include "crocoddyl/core/action-base.hpp"
 #include "crocoddyl/core/numdiff/action.hpp"
+#include "diff-action.hpp"
+#include "sobec/lpf.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -49,7 +47,8 @@ class ActionModelLPFFactory {
   ~ActionModelLPFFactory();
 
   boost::shared_ptr<sobec::IntegratedActionModelLPF> create(
-      ActionModelLPFTypes::Type iam_type, DifferentialActionModelTypes::Type dam_type,
+      ActionModelLPFTypes::Type iam_type,
+      DifferentialActionModelTypes::Type dam_type,
       PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) const;
 };

@@ -9,19 +9,17 @@
 #ifndef SOBEC_MULTIPLE_CONTACTS_HPP_
 #define SOBEC_MULTIPLE_CONTACTS_HPP_
 
-#include <string>
-#include <map>
-#include <set>
-#include <utility>
-
-#include <crocoddyl/multibody/fwd.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
 #include <crocoddyl/multibody/contact-base.hpp>
 #include <crocoddyl/multibody/contacts/multiple-contacts.hpp>
+#include <crocoddyl/multibody/fwd.hpp>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>
 
-#include "contact3d.hpp"
 #include "contact1d.hpp"
-
+#include "contact3d.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -29,12 +27,14 @@ namespace sobec {
 /**
  * @brief Define a stack of contact models
  *
- * The contact models can be defined with active and inactive status. The idea behind this design choice is to be able
- * to create a mechanism that allocates the entire data needed for the computations. Then, there are designed routines
- * that update the only active contacts.
+ * The contact models can be defined with active and inactive status. The idea
+ * behind this design choice is to be able to create a mechanism that allocates
+ * the entire data needed for the computations. Then, there are designed
+ * routines that update the only active contacts.
  */
 template <typename _Scalar>
-class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scalar> {
+class ContactModelMultipleTpl
+    : public crocoddyl::ContactModelMultipleTpl<_Scalar> {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -54,9 +54,12 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
   typedef typename MathBase::MatrixXs MatrixXs;
   typedef typename MathBase::Matrix3s Matrix3s;
 
-  typedef std::map<std::string, boost::shared_ptr<ContactItem> > ContactModelContainer;
-  typedef std::map<std::string, boost::shared_ptr<ContactDataAbstract> > ContactDataContainer;
-  typedef typename pinocchio::container::aligned_vector<pinocchio::ForceTpl<Scalar> >::iterator ForceIterator;
+  typedef std::map<std::string, boost::shared_ptr<ContactItem> >
+      ContactModelContainer;
+  typedef std::map<std::string, boost::shared_ptr<ContactDataAbstract> >
+      ContactDataContainer;
+  typedef typename pinocchio::container::aligned_vector<
+      pinocchio::ForceTpl<Scalar> >::iterator ForceIterator;
 
   /**
    * @brief Initialize the multi-contact model
@@ -64,7 +67,8 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
    * @param[in] state  Multibody state
    * @param[in] nu     Dimension of control vector
    */
-  ContactModelMultipleTpl(boost::shared_ptr<StateMultibody> state, const std::size_t nu);
+  ContactModelMultipleTpl(boost::shared_ptr<StateMultibody> state,
+                          const std::size_t nu);
 
   /**
    * @brief Initialize the multi-contact model
@@ -78,18 +82,22 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
    * @brief Update the Jacobian of the spatial force defined in frame coordinate
    *
    * @param[in] data   Multi-contact data
-   * @param[in] df_dx  Jacobian of the spatial impulse defined in frame coordinate
+   * @param[in] df_dx  Jacobian of the spatial impulse defined in frame
+   * coordinate
    * \f$\frac{\partial{}^o\underline{\boldsymbol{\lambda}}_c}{\partial\mathbf{x}}\in\mathbb{R}^{nc\times{ndx}}\f$
-   * @param[in] df_du  Jacobian of the spatial impulse defined in frame coordinate
+   * @param[in] df_du  Jacobian of the spatial impulse defined in frame
+   * coordinate
    * \f$\frac{\partial{}^o\underline{\boldsymbol{\lambda}}_c}{\partial\mathbf{u}}\in\mathbb{R}^{nc\times{nu}}\f$
    */
-  void updateForceDiff(const boost::shared_ptr<ContactDataMultiple>& data, const boost::shared_ptr<MatrixXs> df_dx,
+  void updateForceDiff(const boost::shared_ptr<ContactDataMultiple>& data,
+                       const boost::shared_ptr<MatrixXs> df_dx,
                        const boost::shared_ptr<MatrixXs> df_du) const;
 
   /**
-   * @brief Update the RNEA derivatives dtau_dq by adding the skew term (necessary for contacts expressed in
-   * LOCAL_WORLD_ALIGNED)
-   * @brief as explained in this document : https://www.overleaf.com/read/tzvrrxxtntwk
+   * @brief Update the RNEA derivatives dtau_dq by adding the skew term
+   * (necessary for contacts expressed in LOCAL_WORLD_ALIGNED)
+   * @brief as explained in this document :
+   * https://www.overleaf.com/read/tzvrrxxtntwk
    *
    * @param[in] data   Multi-contact data
    * @param[in] pinocchio   Pinocchio data

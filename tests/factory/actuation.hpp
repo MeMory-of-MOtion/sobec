@@ -9,10 +9,9 @@
 #ifndef SOBEC_ACTUATION_FACTORY_HPP_
 #define SOBEC_ACTUATION_FACTORY_HPP_
 
-#include "state.hpp"
-
 #include "crocoddyl/core/actuation-base.hpp"
 #include "crocoddyl/core/numdiff/actuation.hpp"
+#include "state.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -45,8 +44,9 @@ class ActuationModelFactory {
   explicit ActuationModelFactory();
   ~ActuationModelFactory();
 
-  boost::shared_ptr<crocoddyl::ActuationModelAbstract> create(ActuationModelTypes::Type actuation_type,
-                                                              StateModelTypes::Type statelpf_type) const;
+  boost::shared_ptr<crocoddyl::ActuationModelAbstract> create(
+      ActuationModelTypes::Type actuation_type,
+      StateModelTypes::Type statelpf_type) const;
 };
 
 /**
@@ -59,9 +59,10 @@ class ActuationModelFactory {
  * @param x[in]      State vector
  * @param u[in]      Control vector
  */
-void updateActuation(const boost::shared_ptr<crocoddyl::ActuationModelAbstract>& model,
-                     const boost::shared_ptr<crocoddyl::ActuationDataAbstract>& data, const Eigen::VectorXd& x,
-                     const Eigen::VectorXd& u);
+void updateActuation(
+    const boost::shared_ptr<crocoddyl::ActuationModelAbstract>& model,
+    const boost::shared_ptr<crocoddyl::ActuationDataAbstract>& data,
+    const Eigen::VectorXd& x, const Eigen::VectorXd& u);
 
 }  // namespace unittest
 }  // namespace sobec

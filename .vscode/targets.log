@@ -13,7 +13,7 @@ make: *** No rule to make target 'all'.  Stop.
 # Variables
 
 # 'override' directive
-GNUMAKEFLAGS := 
+GNUMAKEFLAGS :=
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
@@ -63,7 +63,7 @@ SNAP_INSTANCE_NAME = code
 # environment
 SNAP_ARCH = amd64
 # makefile
-MAKEFILE_LIST := 
+MAKEFILE_LIST :=
 # automatic
 @F = $(notdir $@)
 # environment
@@ -147,11 +147,11 @@ DISPLAY = :1
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-SNAP_INSTANCE_KEY = 
+SNAP_INSTANCE_KEY =
 # environment
 PWD = /home/skleff/misc_repos/sobec
 # default
-.LOADED := 
+.LOADED :=
 # environment
 SSH_AGENT_PID = 3099
 # environment
@@ -221,7 +221,7 @@ SNAP_REVISION = 97
 # environment
 LC_MONETARY = fr_FR.UTF-8
 # makefile
-.DEFAULT_GOAL := 
+.DEFAULT_GOAL :=
 # environment
 XDG_CURRENT_DESKTOP = Unity
 # automatic
@@ -233,7 +233,7 @@ MAKE_COMMAND := make
 # environment
 OLDPWD = /home/skleff/misc_repos
 # default
-.VARIABLES := 
+.VARIABLES :=
 # automatic
 *F = $(notdir $*)
 # environment
@@ -261,7 +261,7 @@ QT_ACCESSIBILITY = 1
 # environment
 DEFAULTS_PATH = /usr/share/gconf/ubuntu.default.path
 # default
-MAKEFILES := 
+MAKEFILES :=
 # environment
 SNAP_COOKIE = dw00cAIv_j5xDasQlZ6ZcLbKNw5h-pNeQPxfu3Zp3SNdaP8nnOaP
 # environment
@@ -277,14 +277,14 @@ LC_MEASUREMENT = fr_FR.UTF-8
 # environment
 SNAP_NAME = code
 # environment
- 
+
 LC_ALL = C
 # automatic
 ^F = $(notdir $^)
 # default
-SUFFIXES := 
+SUFFIXES :=
 # environment
-SNAP_REEXEC = 
+SNAP_REEXEC =
 # environment
 CHROME_DESKTOP = code-url-handler.desktop
 # environment
@@ -294,7 +294,7 @@ WINDOWPATH = 2
 # environment
 LC_IDENTIFICATION = fr_FR.UTF-8
 # default
-.RECIPEPREFIX := 
+.RECIPEPREFIX :=
 # environment
 LC_ADDRESS = fr_FR.UTF-8
 # environment
@@ -372,4 +372,4 @@ GNUmakefile:
 # Load=28/8192=0%, Rehash=0, Collisions=1/31=3%
 # Finished Make data base on Mon May 30 12:18:12 2022
 
- 
+

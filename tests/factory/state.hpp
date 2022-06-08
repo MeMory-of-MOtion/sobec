@@ -9,8 +9,8 @@
 #ifndef SOBEC_STATE_FACTORY_HPP_
 #define SOBEC_STATE_FACTORY_HPP_
 
-#include <crocoddyl/core/state-base.hpp>
 #include <crocoddyl/core/numdiff/state.hpp>
+#include <crocoddyl/core/state-base.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
 
 #include "pinocchio_model.hpp"
@@ -47,7 +47,8 @@ class StateModelFactory {
   explicit StateModelFactory();
   ~StateModelFactory();
 
-  boost::shared_ptr<crocoddyl::StateAbstract> create(StateModelTypes::Type state_type) const;
+  boost::shared_ptr<crocoddyl::StateAbstract> create(
+      StateModelTypes::Type state_type) const;
 };
 
 }  // namespace unittest

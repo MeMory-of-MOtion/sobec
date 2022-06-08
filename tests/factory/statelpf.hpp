@@ -9,19 +9,24 @@
 #ifndef SOBEC_STATELPF_FACTORY_HPP_
 #define SOBEC_STATELPF_FACTORY_HPP_
 
-#include <crocoddyl/core/state-base.hpp>
 #include <crocoddyl/core/numdiff/state.hpp>
+#include <crocoddyl/core/state-base.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
 
 #include "pinocchio_model.hpp"
-
 #include "sobec/statelpf.hpp"
 
 namespace sobec {
 namespace unittest {
 
 struct StateLPFModelTypes {
-  enum Type { StateLPF_TalosArm, StateLPF_HyQ, StateLPF_Talos, StateLPF_RandomHumanoid, NbStateLPFModelTypes };
+  enum Type {
+    StateLPF_TalosArm,
+    StateLPF_HyQ,
+    StateLPF_Talos,
+    StateLPF_RandomHumanoid,
+    NbStateLPFModelTypes
+  };
   static std::vector<Type> init_all() {
     std::vector<Type> v;
     v.clear();
@@ -42,7 +47,8 @@ class StateLPFModelFactory {
   explicit StateLPFModelFactory();
   ~StateLPFModelFactory();
 
-  boost::shared_ptr<sobec::StateLPF> create(StateLPFModelTypes::Type state_type) const;
+  boost::shared_ptr<sobec::StateLPF> create(
+      StateLPFModelTypes::Type state_type) const;
 };
 
 }  // namespace unittest
