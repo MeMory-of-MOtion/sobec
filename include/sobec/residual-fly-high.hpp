@@ -42,6 +42,7 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
   typedef typename MathBase::Vector3s Vector3s;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::MatrixXs MatrixXs;
+  typedef typename MathBase::Matrix3s Matrix3s;
 
   /**
    * @brief Initialize the residual model
@@ -121,15 +122,19 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
   typedef ResidualDataAbstractTpl<Scalar> Base;
   typedef DataCollectorAbstractTpl<Scalar> DataCollectorAbstract;
   typedef typename MathBase::Matrix6xs Matrix6xs;
+  typedef typename MathBase::Matrix3xs Matrix3xs;
   typedef typename MathBase::VectorXs VectorXs;
 
   template <template <typename Scalar> class Model>
   ResidualDataFlyHighTpl(Model<Scalar>* const model,
                              DataCollectorAbstract* const data)
       : Base(model, data)
-      ,d_dq(6,model->get_state()->get_nv())
-      ,d_dv(6,model->get_state()->get_nv())
-        //, dvcom_dq(3, model->get_state()->get_nv())
+      ,l_dnu_dq(6,model->get_state()->get_nv())
+      ,l_dnu_dv(6,model->get_state()->get_nv())
+      ,o_dv_dq(3,model->get_state()->get_nv())
+      ,o_dv_dv(3,model->get_state()->get_nv())
+      ,o_Jw(3,model->get_state()->get_nv())
+      ,vxJ(3,model->get_state()->get_nv())
   {
     //dvcom_dq.setZero();
     // Check that proper shared data has been passed
@@ -146,7 +151,9 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
   }
 
   pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
-  Matrix6xs d_dq,d_dv;
+  Matrix6xs l_dnu_dq,l_dnu_dv;
+  Matrix3xs o_dv_dq,o_dv_dv,o_Jw, vxJ;
+  
   Scalar ez;
   using Base::r;
   using Base::Ru;

@@ -188,7 +188,8 @@ for t,pattern in enumerate(contactPattern[:-1]):
             impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
             impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
             costs.addCost('altitudeImpact',impactCost,impactAltitudeWeight/DT)
-            
+
+    # Flying foot
     for k,cid in enumerate(contactIds):
         if pattern[k]: continue
         verticalFootVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),
@@ -197,6 +198,7 @@ for t,pattern in enumerate(contactPattern[:-1]):
         verticalFootVelCost = croc.CostModelResidual(state,verticalFootVelAct,verticalFootVelResidual)
         costs.addCost(f'{model.frames[cid].name}_vfoot_vel',verticalFootVelCost,verticalFootVelWeight)
 
+        flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,actuation.nu)
 
 
             
