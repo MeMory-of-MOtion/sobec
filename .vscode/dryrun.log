@@ -1,5 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/skleff/misc_repos/sobec'
-make: Leaving directory '/home/skleff/misc_repos/sobec'
-
-make: *** No targets specified and no makefile found.  Stop.
