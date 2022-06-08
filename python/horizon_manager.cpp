@@ -6,14 +6,11 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 #include "sobec/fwd.hpp"
-#include <pinocchio/fwd.hpp>  // This line must be the first include
 #include <boost/python.hpp>
 #include <boost/python/return_internal_reference.hpp>
 #include <boost/python/enum.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 
-#include "pinocchio/multibody/model.hpp"
-#include <pinocchio/algorithm/model.hpp>
 #include <eigenpy/eigenpy.hpp>
 
 #include <sobec/horizon_manager.hpp>

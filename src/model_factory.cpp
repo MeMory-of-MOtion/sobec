@@ -21,10 +21,78 @@ void ModelMaker::initialize(const ModelMakerSettings &settings, const RobotDesig
     x0_ << designer_.get_q0(), Eigen::VectorXd::Zero(designer_.get_rModel().nv);
 }
 
-AMA ModelMaker::formulate_flat_walker(const Support &support){
+void ModelMaker::defineFeetContact(Contact &contactCollector, const Support &support){
+	
+	crocoddyl::FramePlacement xrefLeft(designer_.get_LF_id(), designer_.get_LF_frame());
+	boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelLeft = 
+		boost::make_shared<crocoddyl::ContactModel6D>(state_, xrefLeft, actuation_->get_nu(), eVector2(0., 50.));
 
-    // Here goes the full definition of contacts and costs to get the IAM
-    // Use the support enumeration to set the appropriate contact and wrench cone.
+	crocoddyl::FramePlacement xrefRight(designer_.get_RF_id(), designer_.get_RF_frame());
+	boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelRight =
+		boost::make_shared<crocoddyl::ContactModel6D>(state_, xrefRight, actuation_->get_nu(), eVector2(0., 50.));
+	
+	contactCollector->addContact("contact_LF", ContactModelLeft, false);
+	contactCollector->addContact("contact_RF", ContactModelRight, false); 
+
+	if(support == Support::LEFT || support == Support::DOUBLE)
+		contactCollector->changeContactStatus("contact_LF", true);
+	
+	if(support == Support::RIGHT || support == Support::DOUBLE)
+		contactCollector->changeContactStatus("contact_RF", true);
+}
+
+void ModelMaker::defineFeetWrenchCost(Cost &costCollector, const Support &support){
+
+	double Mg = -designer_.getRobotMass() * settings_.gravity(2);
+	double Fz_ref;
+	support == Support::DOUBLE? Fz_ref = Mg/2 : Fz_ref = Mg;
+
+	Eigen::Matrix3d coneRotationLeft = designer_.get_LF_frame().rotation().transpose();
+	Eigen::Matrix3d coneRotationRight = designer_.get_RF_frame().rotation().transpose();
+
+	crocoddyl::WrenchCone wrenchCone_LF = crocoddyl::WrenchCone(coneRotationLeft, settings_.mu, 
+	    settings_.coneBox, 4, true, settings_.minNforce, settings_.maxNforce); 
+	crocoddyl::WrenchCone wrenchCone_RF = crocoddyl::WrenchCone(coneRotationRight, settings_.mu, 
+	    settings_.coneBox, 4, true, settings_.minNforce, settings_.maxNforce);
+	
+	eVector6 refWrench_LF = eVector6::Zero();
+	eVector6 refWrench_RF = eVector6::Zero();
+	if(support == Support::LEFT || support == Support::DOUBLE) 
+		refWrench_LF(2) = Fz_ref;
+	if(support == Support::RIGHT || support == Support::DOUBLE) 
+		refWrench_RF(2) = Fz_ref;
+
+	Eigen::VectorXd refCost_LF = wrenchCone_LF.get_A() * refWrench_LF;
+	Eigen::VectorXd refCost_RF = wrenchCone_LF.get_A() * refWrench_RF;
+
+	boost::shared_ptr<ActivationModelQuadRef> activation_LF_Wrench = boost::make_shared<ActivationModelQuadRef>(refCost_LF);
+	boost::shared_ptr<ActivationModelQuadRef> activation_RF_Wrench = boost::make_shared<ActivationModelQuadRef>(refCost_RF);
+
+	boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> residual_LF_Wrench = 
+		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_, designer_.get_LF_id(), wrenchCone_LF, actuation_->get_nu());
+	boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchModel_LF = 
+		boost::make_shared<crocoddyl::CostModelResidual>(state_, activation_LF_Wrench, residual_LF_Wrench);
+
+	boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> residual_RF_Wrench = 
+		boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_, designer_.get_RF_id(), wrenchCone_RF, actuation_->get_nu());
+	boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchModel_RF = 
+		boost::make_shared<crocoddyl::CostModelResidual>(state_, activation_RF_Wrench, residual_RF_Wrench);
+	
+	costCollector.get()->addCost("wrench_LF", wrenchModel_LF, settings_.wWrenchCone, true);
+	costCollector.get()->addCost("wrench_RF", wrenchModel_RF, settings_.wWrenchCone, true);
+}
+
+AMA ModelMaker::formulateStepTracker(const Support &support){
+	Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+	Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_,actuation_->get_nu());
+
+	defineFeetContact(contacts, support);
+	defineFeetWrenchCost(costs, support);
+	
+	return AMA();
+}
+
+AMA ModelMaker::formulate_flat_walker(const Support &support){
     
     // Create contact model
 	boost::shared_ptr<crocoddyl::ContactModelMultiple> contactModel =
@@ -65,10 +133,13 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 	crocoddyl::WrenchCone wrenchConeRight = crocoddyl::WrenchCone(coneRotationRight, settings_.mu, 
 	    settings_.coneBox,4,true,settings_.minNforce,settings_.maxNforce);
 	
+	double fzRef1Contact = -designer_.getRobotMass() * settings_.gravity(2);
+	double fzRef2Contact = fzRef1Contact/2;
+
 	Eigen::VectorXd wrenchReference2Contact(6);
-	wrenchReference2Contact << 0,0,settings_.fzRef2Contact,0,0,0;
+	wrenchReference2Contact << 0,0, fzRef2Contact,0,0,0;
 	Eigen::VectorXd wrenchReference1Contact(6);
-	wrenchReference1Contact << 0,0,settings_.fzRef1Contact,0,0,0;
+	wrenchReference1Contact << 0,0, fzRef1Contact,0,0,0;
 	
 	Eigen::VectorXd AwrenchRefRight2Contact = wrenchConeRight.get_A() * wrenchReference2Contact;
 	Eigen::VectorXd AwrenchRefLeft2Contact = wrenchConeLeft.get_A() * wrenchReference2Contact;
@@ -182,7 +253,7 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 	boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> runningDAM =
 	   boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_, contactModel,runningCostModel,0.,true);
 	boost::shared_ptr<crocoddyl::ActionModelAbstract>  runningModel =
-	   boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep_);  
+	   boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep);  
 
 	const boost::shared_ptr<crocoddyl::ActionDataAbstract> temp_data = runningModel->createData();
 	Eigen::VectorXd uref = Eigen::VectorXd::Zero(Eigen::Index(actuation_->get_nu()));
@@ -193,13 +264,13 @@ AMA ModelMaker::formulate_flat_walker(const Support &support){
 	return runningModel;
 }
 
-AMA ModelMaker::formulate_stair_climber(const Support &support){
+// AMA ModelMaker::formulate_stair_climber(const Support &support){
 
-    // Here goes the full definition of contacts and costs to get the IAM
-    // Use the support enumeration to set the appropriate contact and wrench cone.
+//     // Here goes the full definition of contacts and costs to get the IAM
+//     // Use the support enumeration to set the appropriate contact and wrench cone.
 
-    return AMA();
-}
+//     return AMA();
+// }
 
 std::vector<AMA> ModelMaker::formulateHorizon(const std::vector<Support> &supports){
 

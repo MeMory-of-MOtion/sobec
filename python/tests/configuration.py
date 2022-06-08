@@ -106,7 +106,7 @@ TFootDepth = 220 # Foot depth in ground (#TODO: what is this?)
 yCorrection = 0.#0.005 # Correction in y to push the feet away from each other
 
 normal_height = 0.87
-omega = -normal_height/gravity[2]
+omega = -np.sqrt(gravity[2]/normal_height)
 
 
                     ##### CROCO - CONFIGURATION ########

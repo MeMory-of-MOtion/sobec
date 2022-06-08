@@ -8,4 +8,5 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeActivationQuadRef();
   sobec::python::exposeDesigner();
   sobec::python::exposeHorizonManager();
+  sobec::python::exposeModelFactory();
 }

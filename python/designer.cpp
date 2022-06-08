@@ -42,6 +42,18 @@ void initialize(RobotDesigner& self, bp::dict settings){
     self.initialize(conf);
 }
 
+bp::dict get_settings(RobotDesigner &self){
+    RobotDesignerSettings conf = self.get_settings();
+    bp::dict settings;
+    settings["urdfPath"] = conf.urdfPath;
+    settings["srdfPath"] = conf.srdfPath;
+    settings["leftFootName"] = conf.leftFootName;
+    settings["rightFootName"] = conf.rightFootName; 
+    settings["robotDescription"] = conf.robotDescription; 
+
+    return settings;
+}
+
 pinocchio::Model get_rModelComplete(RobotDesigner &self){
     return self.get_rModelComplete();
 }
@@ -79,6 +91,7 @@ void exposeDesigner() {
       .def("get_RF_name", &RobotDesigner::get_RF_name)
       .def("get_LF_id", &RobotDesigner::get_LF_id)
       .def("get_RF_id", &RobotDesigner::get_RF_id)
+      .def("get_settings", &get_settings)
       ;
 
     return;

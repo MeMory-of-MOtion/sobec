@@ -12,5 +12,6 @@ from .sobec_pywrap import (
     ResidualModelVelCollision,
     ActivationModelQuadRef, 
     RobotDesigner,
-    HorizonManager
+    HorizonManager,
+    ModelMaker, Support
 )

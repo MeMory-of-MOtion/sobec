@@ -14,8 +14,8 @@ namespace sobec{
     struct ModelMakerSettings{
         public:
             
-            // Timestep
-            double timeStep_ = 0.01;
+            // Timing
+            double timeStep = 0.01;
 
             // physics
             eVector3 gravity = eVector3(0, 0, -9.81);
@@ -24,9 +24,6 @@ namespace sobec{
             eVector2 coneBox = eVector2(0.1, 0.05); // half lenght and width
             double minNforce = 200.0;
             double maxNforce = 1200;
-            
-            double fzRef1Contact = 1000.;
-            double fzRef2Contact = 500.;
             
             double comHeight = 0.87;
             double omega = -comHeight/gravity(2);
@@ -40,7 +37,6 @@ namespace sobec{
             double wVCoM = 0;//0;
             double wWrenchCone = 0;//0.05;
             double wFootTrans = 0;//100;
-            double wFootFix = 0;//100;
             double wFootXYTrans = 0;//0;
             double wFootRot = 0;// 100;
             double wGroundCol = 0;// 0.05;
@@ -80,11 +76,16 @@ namespace sobec{
             ModelMaker(const ModelMakerSettings &settings, const RobotDesigner &design);
             void initialize(const ModelMakerSettings &settings, const RobotDesigner &design);
 
-            AMA formulate_flat_walker(const Support &support);
-            AMA formulate_stair_climber(const Support &support);
+            AMA formulateStepTracker(const Support &support = Support::DOUBLE);
+            AMA formulate_flat_walker(const Support &support = Support::DOUBLE);
+            AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
 
             std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
+            ModelMakerSettings &get_settings(){return settings_;}
 
+            // formulation parts: 
+            void defineFeetContact(Contact &contactCollector, const Support &support = Support::DOUBLE);
+            void defineFeetWrenchCost(Cost &costCollector, const Support &support = Support::DOUBLE);
     };
 
 }  // namespace

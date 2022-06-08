@@ -12,6 +12,7 @@ void exposeResidualVelCollision();
 void exposeActivationQuadRef();
 void exposeDesigner();
 void exposeHorizonManager();
+void exposeModelFactory();
 
 }  // namespace python
 }  // namespace sobec

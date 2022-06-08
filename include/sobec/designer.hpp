@@ -64,6 +64,7 @@ namespace sobec{
             std::string get_RF_name(){return settings_.rightFootName;}
             pinocchio::FrameIndex get_LF_id(){return leftFootId_;}
             pinocchio::FrameIndex get_RF_id(){return rightFootId_;}
+            RobotDesignerSettings &get_settings(){return settings_;}
     };
 
 }  // namespace

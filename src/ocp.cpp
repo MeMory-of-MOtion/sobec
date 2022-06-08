@@ -69,8 +69,9 @@ namespace sobec {
 		swingRightPhase_ = true;
 		swingRightTraj_ = false;
 		steps_ = 0;
-		wrench_reference_double_ << 0,0,model_settings.fzRef2Contact,0,0,0;
-		wrench_reference_simple_ << 0,0,model_settings.fzRef1Contact,0,0,0;
+
+		wrench_reference_double_ << 0,0,500,0,0,0;
+		wrench_reference_simple_ << 0,0,1000,0,0,0;
 		
 		// Initialize the whole sequence of contacts
 		std::vector<unsigned long> simple_contacts;
