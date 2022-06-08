@@ -77,15 +77,15 @@ u0 = np.random.rand(actuation.nu) * 20 - 10
 damodel.calc(dadata, x0, u0)
 damodel.calcDiff(dadata, x0, u0)
 
-# try:
-fname = "left_sole_link"
-conname = f"{fname}_contact"
-condata = dadata.multibody.contacts.contacts[conname]
-cosname = f"{fname}_cop"
-cosdata = dadata.costs.costs[cosname]
-cosmodel = damodel.costs.costs[cosname].cost
-# except: TODO: which exception(s) ?
-# pass
+try:
+    fname = "left_sole_link"
+    conname = f"{fname}_contact"
+    condata = dadata.multibody.contacts.contacts[conname]
+    cosname = f"{fname}_cop"
+    cosdata = dadata.costs.costs[cosname]
+    cosmodel = damodel.costs.costs[cosname].cost
+except KeyError:
+    pass
 
 # ### NUMDIFF TEST
 damnd = croc.DifferentialActionModelNumDiff(damodel, gaussApprox=True)
