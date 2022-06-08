@@ -2,7 +2,6 @@ import pinocchio as pin
 from pinbullet import SimuProxy
 from ocp_walk_feet_traj import OCP
 
-
 # ###############################################################################
 # ## HYPER PARAMS
 # ###############################################################################
@@ -40,7 +39,6 @@ models.freeze(
 )
 models.setTorqueControlMode()
 models.setTalosDefaultFriction()
-
 
 # ## OCP ########################################################################
 # ## OCP ########################################################################

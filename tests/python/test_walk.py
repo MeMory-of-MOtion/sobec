@@ -62,7 +62,7 @@ SRDF_SUBPATH = "/talos_data/srdf/" + SRDF_FILENAME
 URDF_SUBPATH = "/talos_data/robots/" + URDF_FILENAME
 modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
-robotWrapper = example_robot_data.load('talos')
+robotWrapper = example_robot_data.load("talos")
 rmodelComplete = robotWrapper.model
 
 # Take rotor inertia and gear ratio into account
@@ -240,7 +240,6 @@ limitCost = crocoddyl.CostModelResidual(
     crocoddyl.ResidualModelState(state, zero(state.nx), actuation.nu),
 )
 
-
 # Wrench cone cost
 coneRotationLeft = rdata.oMf[leftFootId].copy().rotation.T
 coneRotationRight = rdata.oMf[rightFootId].copy().rotation.T
@@ -260,7 +259,6 @@ boundsFrictionLeft = crocoddyl.ActivationBounds(
 boundsFrictionRight = crocoddyl.ActivationBounds(
     wrenchConeFrameRight.lb, wrenchConeFrameRight.ub, 1.0
 )
-
 
 wrenchRefTwoSupports = zero(len(wrenchConeFrameLeft.ub))
 fz_ref2 = 400
@@ -349,7 +347,6 @@ weightuLeg = [1, 1, 1, 1, 10, 10]
 weightuArm = [10, 10, 10, 10]
 weightuTorso = [1, 1]
 controlWeight = np.array(weightuLeg * 2 + weightuTorso + weightuArm * 2)
-
 
 xRegResidual = crocoddyl.ResidualModelState(state, rmodel.defaultState, actuation.nu)
 xRegCost = crocoddyl.CostModelResidual(
@@ -474,7 +471,6 @@ ddp.solve(xs0, us0, 500, False)
 xs = ddp.xs
 us = ddp.us
 
-
 ##################################################################################
 #
 # Initialize pybullet
@@ -487,7 +483,6 @@ physicsClient = p.connect(p.DIRECT)
 p.setTimeStep(1e-3)
 # Set gravity (disabled by default)
 p.setGravity(0, 0, -8.91)
-
 
 # Load horizontal plane
 robotStartPosition = [0.0, 0.0, 1.01927]
@@ -540,7 +535,6 @@ initial_joint_positions = m2a(q0CompleteStart[7:]).tolist()
 for i in range(len(initial_joint_positions)):
     p.enableJointForceTorqueSensor(1, i, True)
     p.resetJointState(robotId, JointIndicesComplete[i], initial_joint_positions[i])
-
 
 # Visual representation of the target to track
 # The visual will not appear unless the physics client is set to SHARED_MEMMORY
