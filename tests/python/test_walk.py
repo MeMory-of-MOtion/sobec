@@ -62,9 +62,8 @@ SRDF_SUBPATH = "/talos_data/srdf/" + SRDF_FILENAME
 URDF_SUBPATH = "/talos_data/robots/" + URDF_FILENAME
 modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
-rmodelComplete, geomModelComplete, visualModelComplete = pin.buildModelsFromUrdf(
-    modelPath + URDF_SUBPATH, modelPath, pin.JointModelFreeFlyer()
-)
+robotWrapper = example_robot_data.load('talos')
+rmodelComplete = robotWrapper.model
 
 # Take rotor inertia and gear ratio into account
 pin.loadRotorParameters(rmodelComplete, modelPath + SRDF_SUBPATH, False)
