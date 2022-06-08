@@ -256,9 +256,9 @@ bool init_function() {
   // 1D contact
   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
     if (DifferentialActionModelTypes::all[i] ==
-            DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
-        DifferentialActionModelTypes::all[i] ==
-            DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ) {
+            DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm){ // ||
+        // DifferentialActionModelTypes::all[i] ==
+            // DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ) {
       for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j) {
         for (size_t k = 0; k < ContactModelMaskTypes::all.size(); ++k) {
           register_action_model_unit_tests(DifferentialActionModelTypes::all[i], PinocchioReferenceTypes::all[j],
