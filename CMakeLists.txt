@@ -63,7 +63,7 @@ set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/residual-cop.hxx
   include/${PROJECT_NAME}/residual-vel-collision.hxx
-  include/${PROJECT_NAME}/residual-fly-high.hxx 
+  include/${PROJECT_NAME}/residual-fly-high.hxx
  )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

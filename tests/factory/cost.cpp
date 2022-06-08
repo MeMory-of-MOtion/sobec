@@ -52,18 +52,18 @@ std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
     case CostModelTypes::CostModelResidualFlyHigh:
       os << "CostModelResidualFlyHigh";
       break;
-    // case CostModelTypes::CostModelResidualFramePlacement:
-    //   os << "CostModelResidualFramePlacement";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameRotation:
-    //   os << "CostModelResidualFrameRotation";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameTranslation:
-    //   os << "CostModelResidualFrameTranslation";
-    //   break;
-  case CostModelTypes::CostModelResidualFrameVelocity:
-    os << "CostModelResidualFrameVelocity";
-    break;
+      // case CostModelTypes::CostModelResidualFramePlacement:
+      //   os << "CostModelResidualFramePlacement";
+      //   break;
+      // case CostModelTypes::CostModelResidualFrameRotation:
+      //   os << "CostModelResidualFrameRotation";
+      //   break;
+      // case CostModelTypes::CostModelResidualFrameTranslation:
+      //   os << "CostModelResidualFrameTranslation";
+      //   break;
+    case CostModelTypes::CostModelResidualFrameVelocity:
+      os << "CostModelResidualFrameVelocity";
+      break;
     // case CostModelTypes::NbCostModelTypes:
     //   os << "NbCostModelTypes";
     //   break;
@@ -101,7 +101,7 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
           state_factory.create(state_type));
 
   crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() - 1;
-  //pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
+  // pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
   if (nu == std::numeric_limits<std::size_t>::max()) {
     nu = state->get_nv();
   }
@@ -131,15 +131,15 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
           boost::make_shared<sobec::ResidualModelCoMVelocity>(
               state, Eigen::Vector3d::Random(), nu));
       break;
-    case CostModelTypes::CostModelResidualFlyHigh:
-      {
-        cost = boost::make_shared<crocoddyl::CostModelResidual>(
-            state, activation_factory.create(activation_type, 2),
-            boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index, 1,nu));
-        sobec::ResidualModelFlyHigh res(state, frame_index, 1, nu);
-        res.get_frame_id();
-        break;
-      }
+    case CostModelTypes::CostModelResidualFlyHigh: {
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 2),
+          boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index, 1,
+                                                          nu));
+      sobec::ResidualModelFlyHigh res(state, frame_index, 1, nu);
+      res.get_frame_id();
+      break;
+    }
     // case CostModelTypes::CostModelResidualFramePlacement:
     //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
     //       state, activation_factory.create(activation_type, 6),
@@ -162,10 +162,9 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
     case CostModelTypes::CostModelResidualFrameVelocity:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 6),
-          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(state,
-          frame_index, pinocchio::Motion::Random(),
-                                                                    pinocchio::ReferenceFrame::LOCAL,
-                                                                    nu));
+          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
+              state, frame_index, pinocchio::Motion::Random(),
+              pinocchio::ReferenceFrame::LOCAL, nu));
       break;
     default:
       throw_pretty(__FILE__ ": Wrong CostModelTypes::Type given");

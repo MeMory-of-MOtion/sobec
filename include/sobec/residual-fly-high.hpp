@@ -22,8 +22,9 @@ using namespace crocoddyl;
  * @brief Cost penalizing high horizontal velocity near zero altitude.
  *
  * The cost is r(q,v) = v_foot[:2] / exp(slope*z_foot)
- * with v_foot = J_foot(q) vq the local-world-aligned linear velocity of the considered frame velocity
- * and z_foot(q) the altitude oMfoot[frameId].translation[2] of the considered frame wrt world.
+ * with v_foot = J_foot(q) vq the local-world-aligned linear velocity of the
+ * considered frame velocity and z_foot(q) the altitude
+ * oMfoot[frameId].translation[2] of the considered frame wrt world.
  *
  * \sa `ResidualModelAbstractTpl`, `calc()`, `calcDiff()`, `createData()`
  */
@@ -48,7 +49,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @brief Initialize the residual model
    *
    * @param[in] state  State of the multibody system
-   * @param[in] frame_id ID of the frame that should be considered for altitude and velocity
+   * @param[in] frame_id ID of the frame that should be considered for altitude
+   * and velocity
    * @param[in] slope  Slope value, ie altitude multiplier.
    * @param[in] nu     Dimension of the control vector
    */
@@ -62,7 +64,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * The default `nu` value is obtained from `StateAbstractTpl::get_nv()`.
    *
    * @param[in] state  State of the multibody system
-   * @param[in] frame_id ID of the frame that should be considered for altitude and velocity
+   * @param[in] frame_id ID of the frame that should be considered for altitude
+   * and velocity
    * @param[in] slope  Slope value, ie altitude multiplier.
    */
   ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
@@ -102,11 +105,11 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
   /**
    * @brief Modify the frame index.
    */
-  void set_frame_id(const pinocchio::FrameIndex &fid);
+  void set_frame_id(const pinocchio::FrameIndex& fid);
 
-  const Scalar getSlope() const { return slope;}
-  void setSlope(const Scalar s) { slope=s; }
-  
+  const Scalar getSlope() const { return slope; }
+  void setSlope(const Scalar s) { slope = s; }
+
  protected:
   using Base::nu_;
   using Base::state_;
@@ -116,9 +119,9 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
 
  private:
   pinocchio::FrameIndex frame_id;
-  Scalar slope; // multiplication in front of the altitude in the cost
+  Scalar slope;  // multiplication in front of the altitude in the cost
   typename StateMultibody::PinocchioModel
-  pin_model_;  //!< Pinocchio model used for internal computations
+      pin_model_;  //!< Pinocchio model used for internal computations
 };
 
 template <typename _Scalar>
@@ -135,19 +138,18 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
 
   template <template <typename Scalar> class Model>
   ResidualDataFlyHighTpl(Model<Scalar>* const model,
-                             DataCollectorAbstract* const data)
-      : Base(model, data)
-      ,d_dq(6,model->get_state()->get_nv())
-      ,d_dv(6,model->get_state()->get_nv())
-      ,l_dnu_dq(6,model->get_state()->get_nv())
-      ,l_dnu_dv(6,model->get_state()->get_nv())
-      ,o_dv_dq(3,model->get_state()->get_nv())
-      ,o_dv_dv(3,model->get_state()->get_nv())
-      ,o_Jw(3,model->get_state()->get_nv())
-      ,vxJ(3,model->get_state()->get_nv())
-  {
-    //dvcom_dq.setZero();
-    // Check that proper shared data has been passed
+                         DataCollectorAbstract* const data)
+      : Base(model, data),
+        d_dq(6, model->get_state()->get_nv()),
+        d_dv(6, model->get_state()->get_nv()),
+        l_dnu_dq(6, model->get_state()->get_nv()),
+        l_dnu_dv(6, model->get_state()->get_nv()),
+        o_dv_dq(3, model->get_state()->get_nv()),
+        o_dv_dv(3, model->get_state()->get_nv()),
+        o_Jw(3, model->get_state()->get_nv()),
+        vxJ(3, model->get_state()->get_nv()) {
+    // dvcom_dq.setZero();
+    //  Check that proper shared data has been passed
     DataCollectorMultibodyTpl<Scalar>* d =
         dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
     if (d == NULL) {
@@ -161,10 +163,10 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
   }
 
   pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
-  Matrix6xs d_dq,d_dv;
-  Matrix6xs l_dnu_dq,l_dnu_dv;
-  Matrix3xs o_dv_dq,o_dv_dv,o_Jw, vxJ;
-  
+  Matrix6xs d_dq, d_dv;
+  Matrix6xs l_dnu_dq, l_dnu_dv;
+  Matrix3xs o_dv_dq, o_dv_dv, o_Jw, vxJ;
+
   Scalar ez;
   using Base::r;
   using Base::Ru;

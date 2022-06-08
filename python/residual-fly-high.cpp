@@ -27,8 +27,9 @@ void exposeResidualFlyHigh() {
 
   bp::class_<ResidualModelFlyHigh, bp::bases<ResidualModelAbstract> >(
       "ResidualModelFlyHigh",
-      bp::init<boost::shared_ptr<StateMultibody>,  pinocchio::FrameIndex,
-      double, std::size_t>(bp::args("self", "state", "frame_id","slope","nu"),
+      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double,
+               std::size_t>(
+          bp::args("self", "state", "frame_id", "slope", "nu"),
           "Initialize the residual model.\n\n"
           ":param state: state of the multibody system\n"
           ":param frame_id: reference colliding frame\n"
@@ -73,14 +74,14 @@ void exposeResidualFlyHigh() {
            "returns the allocated data for a predefined residual.\n"
            ":param data: shared data\n"
            ":return residual data.")
-    //    .def("get_frame_id",&ResidualModelFlyHigh::get_frame_id)
+      //    .def("get_frame_id",&ResidualModelFlyHigh::get_frame_id)
       // .add_property("frame_id",
       //               &ResidualModelFlyHigh::get_frame_id,
       //               &ResidualModelFlyHigh::set_frame_id,
       //               "Frame ID")
-    .add_property("slope",&ResidualModelFlyHigh::getSlope,&ResidualModelFlyHigh::setSlope,
-                  "Set slope (ie altitude multiplicator)")
-    ;
+      .add_property("slope", &ResidualModelFlyHigh::getSlope,
+                    &ResidualModelFlyHigh::setSlope,
+                    "Set slope (ie altitude multiplicator)");
 
   bp::register_ptr_to_python<boost::shared_ptr<ResidualDataFlyHigh> >();
 
@@ -97,7 +98,6 @@ void exposeResidualFlyHigh() {
                                     bp::return_internal_reference<>()),
                     "pinocchio data");
 }
-  
+
 }  // namespace python
 }  // namespace sobec
-
