@@ -19,6 +19,14 @@ struct ResidualDataCoMVelocityTpl;
 typedef ResidualModelCoMVelocityTpl<double> ResidualModelCoMVelocity;
 typedef ResidualDataCoMVelocityTpl<double> ResidualDataCoMVelocity;
 
+// Cost COM-vel
+template <typename Scalar>
+class ResidualModelVelCollisionTpl;
+template <typename Scalar>
+struct ResidualDataVelCollisionTpl;
+typedef ResidualModelVelCollisionTpl<double> ResidualModelVelCollision;
+typedef ResidualDataVelCollisionTpl<double> ResidualDataVelCollision;
+
 // Activation quad-ref
 template <typename Scalar>
 class ActivationModelQuadRefTpl;

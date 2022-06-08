@@ -53,6 +53,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/python.hpp
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
+  include/${PROJECT_NAME}/residual-vel-collision.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
   include/${PROJECT_NAME}/statelpf.hpp
   include/${PROJECT_NAME}/lpf.hpp
@@ -65,6 +66,7 @@ set(${PROJECT_NAME}_HEADERS
 
 set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/residual-com-velocity.hxx
+  include/${PROJECT_NAME}/residual-vel-collision.hxx
   include/${PROJECT_NAME}/statelpf.hxx
   include/${PROJECT_NAME}/lpf.hxx
   include/${PROJECT_NAME}/contact3d.hxx

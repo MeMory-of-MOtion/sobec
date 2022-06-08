@@ -1,5 +1,15 @@
-import crocoddyl  # noqa: F401
+# flake8: noqa
 
-from .sobec_pywrap import ResidualModelCoMVelocity, ActivationModelQuadRef, IntegratedActionModelLPF, \
-                         ContactModel3D , ContactModel1D , ContactModelMultiple, \
-                             DifferentialActionModelContactFwdDynamics, ResidualModelContactForce # noqa: F401
+import crocoddyl
+
+from .sobec_pywrap import (
+    ResidualModelCoMVelocity,
+    ResidualModelVelCollision,
+    ActivationModelQuadRef,
+    IntegratedActionModelLPF,
+    ContactModel3D,
+    ContactModel1D,
+    ContactModelMultiple,
+    DifferentialActionModelContactFwdDynamics,
+    ResidualModelContactForce
+)
