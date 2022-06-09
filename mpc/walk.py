@@ -282,6 +282,14 @@ for t, pattern in enumerate(contactPattern[:-1]):
         flyHighCost = croc.CostModelResidual(state, flyHighResidual)
         costs.addCost(f"{model.frames[cid].name}_flyhigh", flyHighCost, flyWeight)
 
+        groundColRes = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
+        #groundColBounds = croc.ActivationBounds(np.array([-np.inf,-np.inf,0.01]),np.array([np.inf,np.inf,np.inf]))
+        # np.inf introduces an error on lb[2] ... why? TODO ... patch by replacing np.inf with 1000
+        groundColBounds = croc.ActivationBounds(np.array([-1000,-1000,0.0]),np.array([1000,1000,1000]))
+        groundColAct = croc.ActivationModelQuadraticBarrier(groundColBounds)
+        groundColCost = croc.CostModelResidual(state,groundColAct,groundColRes)
+        costs.addCost(f'{model.frames[cid].name}_groundcol',groundColCost,groundColWeight)
+            
     # Action
     damodel = croc.DifferentialActionModelContactFwdDynamics(
         state, actuation, contacts, costs, kktDamping, True
@@ -574,14 +582,23 @@ Bf + tau >= 0
 # copcostdatal = ddata.costs.costs['left_sole_link_cop']
 # copcostdatar = ddata.costs.costs['right_sole_link_cop']
 
-t = 60
-xs = guess["xs"]
-us = guess["us"]
-fs0 = guess["fs"]
-acs = guess["acs"]
-ddata = problem.runningDatas[t].differential
-dmodel = problem.runningModels[t].differential
-dmodel.calc(ddata, xs[t], us[t])
-cname = "left_sole_link_cop"
-
-np.set_printoptions(precision=6, linewidth=300, suppress=True, threshold=10000)
+t = 60; fid=48
+t=119; fid=34
+xs=guess['xs']
+us=guess['us']
+fs0=guess['fs']
+acs=guess['acs']
+dadata=problem.runningDatas[t].differential
+damodel=problem.runningModels[t].differential
+damodel.calc(dadata,xs[t],us[t])
+damodel.calcDiff(dadata,xs[t],us[t])
+cosname='left_sole_link_cone'
+cosname='right_sole_link_cone'
+#cosname='altitudeImpact'
+cosname='right_sole_link_vfoot_vel' # t = 60
+cosname='right_sole_link_flyhigh'
+cosname=f'{model.frames[fid].name}_flyhigh'
+cosname=f'{model.frames[fid].name}_groundcol'
+cosdata = dadata.costs.costs[cosname]
+cosmodel = damodel.costs.costs[cosname].cost
+np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)
