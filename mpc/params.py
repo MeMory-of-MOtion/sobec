@@ -46,17 +46,13 @@ conePenaltyWeight = 20
 lowbandwidthweight = 0  # 2e-1
 minTorqueDiffWeight = 0  # 2e-2
 
-<<<<<<< HEAD
-refForceWeight = 0  # #DDP## 10
-=======
 refForceWeight = 10
->>>>>>> Walk with reference forces, checked with casadi.
 contiForceWeight = 0
 
 impactAltitudeWeight = 20000
-impactVelocityWeight = 0  # #DDP## 200
-impactRotationWeight = 0  # #DDP## 200
-refMainJointsAtImpactWeight = 0  # #DDP## 2e2
+impactVelocityWeight = 200
+impactRotationWeight = 0 ##DDP## 200
+refMainJointsAtImpactWeight = 0 ##DDP## 2e2
 
 terminalNoVelocityWeight = 2000
 terminalXTargetWeight = 0  # #DDP## 2000

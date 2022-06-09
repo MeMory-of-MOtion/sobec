@@ -8,11 +8,7 @@ from numpy.linalg import norm
 
 # Local imports
 import talos_low
-<<<<<<< HEAD
-from weight_share import weightShareSmoothProfile, switch_linear
-=======
 from weight_share import computeReferenceForces
->>>>>>> Walk with reference forces, checked with casadi.
 import sobec
 
 from params import (
@@ -138,31 +134,6 @@ def patternToId(pattern):
 # ### REF FORCES ######################################################################
 # The force costs are defined using a reference (smooth) force.
 
-<<<<<<< HEAD
-# Search the contact phase of minimal duration (typically double support)
-contactState = []
-dur = mindur = len(contactPattern)
-for t, s in enumerate(contactPattern):
-    dur += 1
-    if s != contactState:
-        contactState = s
-        mindur = min(mindur, dur)
-        dur = 0
-# Select the smoothing transition to be smaller than half of the minimal duration.
-transDuration = (mindur - 1) // 2
-# Compute contact importance, ie how much of the weight should be supported by each
-# foot at each time.
-contactImportance = weightShareSmoothProfile(
-    contactPattern, transDuration, switch=switch_linear
-)
-# Contact reference forces are set to contactimportance*weight
-weightReaction = np.array([0, 0, robotweight, 0, 0, 0])
-referenceForces = [
-    [weightReaction * contactImportance[t, cid] for cid, __c in enumerate(pattern)]
-    for t, pattern in enumerate(contactPattern)
-]
-# Take care, we suppose here that foot normal is vertical.
-=======
 # # Search the contact phase of minimal duration (typically double support)
 # contactState=[]
 # dur=mindur=len(contactPattern)
@@ -185,7 +156,6 @@ referenceForces = [
 # # Take care, we suppose here that foot normal is vertical.
 
 referenceForces = computeReferenceForces(contactPattern,robotweight)
->>>>>>> Walk with reference forces, checked with casadi.
 
 # #####################################################################################
 # #####################################################################################
@@ -231,13 +201,6 @@ for t, pattern in enumerate(contactPattern[:-1]):
     comVelCost = croc.CostModelResidual(state, comVelResidual)
     costs.addCost("comVelCost", comVelCost, vcomWeight)
 
-<<<<<<< HEAD
-    for cid in patternToId(pattern):
-        copResidual = sobec.ResidualModelCenterOfPressure(state, cid, actuation.nu)
-        copAct = croc.ActivationModelWeightedQuad(np.array([1 / FOOT_SIZE**2] * 2))
-        copCost = croc.CostModelResidual(state, copAct, copResidual)
-        costs.addCost(f"{model.frames[cid].name}_cop", copCost, copWeight)
-=======
     # Contact costs
     #for cid in patternToId(pattern):
     for forceIndex,activation in enumerate(contactPattern[t]):
@@ -248,7 +211,6 @@ for t, pattern in enumerate(contactPattern[:-1]):
         copAct = croc.ActivationModelWeightedQuad(np.array([ 1/FOOT_SIZE**2 ]*2))
         copCost = croc.CostModelResidual( state,copAct,copResidual)
         costs.addCost(f'{model.frames[cid].name}_cop',copCost,copWeight)
->>>>>>> Walk with reference forces, checked with casadi.
 
         # Cone with enormous friction (Assuming the robot will barely ever slide).
         # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates
@@ -281,28 +243,27 @@ for t, pattern in enumerate(contactPattern[:-1]):
             f"{model.frames[cid].name}_coneaxis", coneAxisCost, coneAxisWeight
         )
 
-<<<<<<< HEAD
-    # for k,cid in enumerate(contactIds):
-=======
         # Follow reference (smooth) contact forces
         forceRefResidual = croc.ResidualModelContactForce(state,cid,pin.Force(referenceForces[t][forceIndex]),6,actuation.nu)
         forceRefCost = croc.CostModelResidual(state,forceRefResidual)
         costs.addCost(f'{model.frames[cid].name}_forceref',forceRefCost,refForceWeight/robotweight**2)
         
-    #for k,cid in enumerate(contactIds):
->>>>>>> Walk with reference forces, checked with casadi.
-    #    if t>0 and not pattern[k] and contactPattern[t-1][k]:
-    for k, cid in enumerate(contactIds):
+    # IMPACT
+    for k,cid in enumerate(contactIds):
+        if t>0 and not contactPattern[t-1][k] and pattern[k]:
+            # REMEMBER TO divide the weight by DT, as impact should be independant of the node duration
+            # (at least, that s how weights are tuned in casadi).
+            
+            print(f'Impact {cid} at time {t}')
+            impactResidual = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
+            impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
+            impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
+            costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,impactAltitudeWeight/DT)
 
-        if t > 0 and not contactPattern[t - 1][k] and pattern[k]:
-            print(f"Impact {cid} at time {t}")
-            impactResidual = croc.ResidualModelFrameTranslation(
-                state, cid, np.zeros(3), actuation.nu
-            )
-            impactAct = croc.ActivationModelWeightedQuad(np.array([0, 0, 1]))
-            impactCost = croc.CostModelResidual(state, impactAct, impactResidual)
-            costs.addCost("altitudeImpact", impactCost, impactAltitudeWeight / DT)
-
+            impactVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),pin.ReferenceFrame.LOCAL,actuation.nu)
+            impactVelCost = croc.CostModelResidual(state,impactVelResidual)
+            costs.addCost(f'{model.frames[cid].name}_velimpact',impactVelCost,impactVelocityWeight/DT)
+            
     # Flying foot
     for k, cid in enumerate(contactIds):
         if pattern[k]:
@@ -635,6 +596,7 @@ Bf + tau >= 0
 
 t = 60; fid=48
 t=119; fid=34
+t=80; cid=48 # impact
 xs=guess['xs']
 us=guess['us']
 fs0=guess['fs']
@@ -650,6 +612,7 @@ cosname='right_sole_link_vfoot_vel' # t = 60
 cosname='right_sole_link_flyhigh'
 cosname=f'{model.frames[fid].name}_flyhigh'
 cosname=f'{model.frames[fid].name}_groundcol'
+cosname=f'{model.frames[cid].name}_velimpact'
 cosdata = dadata.costs.costs[cosname]
 cosmodel = damodel.costs.costs[cosname].cost
 np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)
