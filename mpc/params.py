@@ -1,5 +1,6 @@
 import numpy as np
 
+<<<<<<< HEAD
 basisQWeight = [0, 0, 0, 50, 50, 0]
 legQWeight = [3, 3, 1, 2, 1, 1]
 torsoQWeight = [10, 10]
@@ -19,6 +20,22 @@ STATE_WEIGHT = np.array(
     + legVWeight
     + armVWeight
 )
+=======
+DT = 0.010
+
+basisQWeight = [0,0,0,50,50,0]
+legQWeight =  [3,3,1,2,1,1]
+torsoQWeight = [10,10]
+armQWeight = [3,3]
+basisVWeight = [0,0,0,3,3,1] ### was 003331
+legVWeight =  [1]*6
+torsoVWeight = [20]*2
+armVWeight = [2]*2
+
+STATE_WEIGHT = np.array(  \
+    basisQWeight+legQWeight+legQWeight+armQWeight \
+    +basisVWeight+legVWeight+legVWeight+armVWeight)
+>>>>>>> Minor reformulation.
 
 legUWeight = [1, 1, 1, 1, 10, 10]
 torsoUWeight = [1, 1]
@@ -52,15 +69,22 @@ contiForceWeight = 0
 impactAltitudeWeight = 20000
 impactVelocityWeight = 200
 impactRotationWeight = 200
-refMainJointsAtImpactWeight = 2e2
+refMainJointsAtImpactWeight = 2e2 # For avoinding crossing legs
 
 terminalNoVelocityWeight = 2000
 terminalXTargetWeight = 0  # #DDP## 2000
 
+enforceMinimalFootDistance = False
+
 refFootFlyingAltitude = 3e-2
 flyHighSlope = 5/refFootFlyingAltitude
 footMinimalDistance = .1 # 0.1  (.17 is the max value wrt initial config)
+soleCollision = True
+towCollision = False
+heelCollision = False
 MAIN_JOINTS = [ f'leg_{side}_{idx}_joint' for side in ['left','right'] for idx in [1,2,4] ]
 
-X_TARGET = 0.35
-VCOM_TARGET = np.array([0.1, 0, 0])
+X_TARGET = .35
+VCOM_TARGET = np.array([.1,0,0])
+vcomSelection = [0,1,2]
+FOOT_SIZE = .05

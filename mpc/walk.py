@@ -170,10 +170,9 @@ for t, pattern in enumerate(contactPattern[:-1]):
 
     # Contacts
     contacts = croc.ContactModelMultiple(state, actuation.nu)
-    for cid in patternToId(pattern):
-        contact = croc.ContactModel6D(
-            state, cid, pin.SE3.Identity(), actuation.nu, baumgartGains
-        )
+    for k,cid in enumerate(contactIds):
+        if not pattern[k]: continue
+        contact = croc.ContactModel6D(state, cid, pin.SE3.Identity(), actuation.nu, baumgartGains)
         contacts.addContact(model.frames[cid].name + "_contact", contact)
 
     # Costs
@@ -198,10 +197,8 @@ for t, pattern in enumerate(contactPattern[:-1]):
     costs.addCost("comVelCost", comVelCost, vcomWeight)
 
     # Contact costs
-    #for cid in patternToId(pattern):
-    for forceIndex,activation in enumerate(contactPattern[t]):
-        if not activation: continue
-        cid = contactIds[forceIndex]
+    for k,cid in enumerate(contactIds):
+        if not pattern[k]: continue
         
         copResidual = sobec.ResidualModelCenterOfPressure(state,cid,actuation.nu)
         copAct = croc.ActivationModelWeightedQuad(np.array([ 1/FOOT_SIZE**2 ]*2))
@@ -240,7 +237,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
         )
 
         # Follow reference (smooth) contact forces
-        forceRefResidual = croc.ResidualModelContactForce(state,cid,pin.Force(referenceForces[t][forceIndex]),6,actuation.nu)
+        forceRefResidual = croc.ResidualModelContactForce(state,cid,pin.Force(referenceForces[t][k]),6,actuation.nu)
         forceRefCost = croc.CostModelResidual(state,forceRefResidual)
         costs.addCost(f'{model.frames[cid].name}_forceref',forceRefCost,refForceWeight/robotweight**2)
         
@@ -328,10 +325,9 @@ actuation = croc.ActuationModelFloatingBase(state)
 
 # Contacts
 contacts = croc.ContactModelMultiple(state, actuation.nu)
-for cid in patternToId(pattern):
-    contact = croc.ContactModel6D(
-        state, cid, pin.SE3.Identity(), actuation.nu, baumgartGains
-    )
+for k,cid in enumerate(contactIds):
+    if not pattern[k]: continue
+    contact = croc.ContactModel6D(state, cid, pin.SE3.Identity(), actuation.nu, baumgartGains)
     contacts.addContact(model.frames[cid].name + "_contact", contact)
 
 # Costs
@@ -475,7 +471,7 @@ Bf + tau >= 0
 
 t = 60; fid=48
 t=119; fid=34
-t=80; cid=48 # impact
+t=90; cid=48 # impact
 xs=guess['xs']
 us=guess['us']
 fs0=guess['fs']
