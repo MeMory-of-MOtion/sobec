@@ -263,6 +263,11 @@ for t, pattern in enumerate(contactPattern[:-1]):
             impactVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),pin.ReferenceFrame.LOCAL,actuation.nu)
             impactVelCost = croc.CostModelResidual(state,impactVelResidual)
             costs.addCost(f'{model.frames[cid].name}_velimpact',impactVelCost,impactVelocityWeight/DT)
+
+            impactRotResidual = croc.ResidualModelFrameRotation(state,cid,np.eye(3),actuation.nu)
+            impactRotAct = croc.ActivationModelWeightedQuad(np.array([1,1,0]))
+            impactRotCost = croc.CostModelResidual(state,impactRotAct,impactRotResidual)
+            costs.addCost(f'{model.frames[cid].name}_rotimpact',impactRotCost,impactRotationWeight/DT)
             
     # Flying foot
     for k, cid in enumerate(contactIds):

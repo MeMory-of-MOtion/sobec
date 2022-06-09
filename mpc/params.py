@@ -51,7 +51,7 @@ contiForceWeight = 0
 
 impactAltitudeWeight = 20000
 impactVelocityWeight = 200
-impactRotationWeight = 0 ##DDP## 200
+impactRotationWeight = 200
 refMainJointsAtImpactWeight = 0 ##DDP## 2e2
 
 terminalNoVelocityWeight = 2000
