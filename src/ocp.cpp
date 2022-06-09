@@ -9,7 +9,7 @@ namespace sobec {
              const RobotDesignerSettings &design,
              const Eigen::VectorXd &q0,
              const Eigen::VectorXd &v0){ 
-		initialize(settings,model_settings,design,q0,v0);
+		initialize(settings,model_settings, design, q0, v0);
 	}
 
 	void OCP::initialize(const OCPSettings &settings,
@@ -24,7 +24,7 @@ namespace sobec {
 		
 		std::vector<Support> supports(OCP_settings_.T, Support::DOUBLE);
         std::vector<AMA> runningModels = modelMaker_.formulateHorizon(supports);
-        AMA terminalModel = modelMaker_.formulate_flat_walker(Support::DOUBLE);
+        AMA terminalModel = modelMaker_.formulateStepTracker(Support::DOUBLE);
 		
 		x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
 		x0_ << q0, v0;

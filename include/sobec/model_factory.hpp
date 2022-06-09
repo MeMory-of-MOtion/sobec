@@ -29,7 +29,6 @@ namespace sobec{
             double omega = -comHeight/gravity(2);
 
             // Croco configuration
-
             double wFootPlacement = 0;//1000;
             double wStateReg = 0;//100;
             double wControlReg = 0;//0.001;
@@ -41,25 +40,11 @@ namespace sobec{
             double wFootRot = 0;// 100;
             double wGroundCol = 0;// 0.05;
 
-            // eVector6 weightBasePos = eVector6::Zero(); //by default it should be (0, 0, 1000, 1000, 1000, 10);    // [x, y, z| x, y, z]
-            // eVector6 weightBaseVel = eVector6::Zero(); //by default it should be (0, 0, 10, 1000, 1000, 10);      // [x, y, z| x, y, z]
-            // eVector6 weightLegPos = eVector6::Zero(); //by default it should be (1, 0.1, 0.01, 0.01, 0.1, 1);    // [z, x, y, y, y, x]
-            // eVector6 weightLegVel = eVector6::Zero(); //by default it should be (10, 10, 1, 0.1, 1, 10);               //[z, x, y, y, y, x]
-            // eVector4 weightArmPos = eVector4::Zero();//(10, 10, 10, 10);      // [z, x, z, y, z, x, y]
-            // eVector4 weightArmVel = eVector4::Zero();//(100, 100, 100, 100);  // [z, x, z, y, z, x, y]
-            // eVector2 weightTorsoPos = eVector2::Zero(); //(5, 5);       //[z, y]
-            // eVector2 weightTorsoVel = eVector2::Zero(); //(5, 5);       //[z, y]
             Eigen::VectorXd stateWeights;
-            
-            // eVector6 weightuLeg = eVector6::Zero(); // [1, 1, 1, 1, 1, 1]
-            // eVector6 weightuArm = eVector6::Zero(); // [10, 10, 10, 10]
-            // eVector2 weightuTorso = eVector2::Zero(); //(1, 1); // [1, 1]
             Eigen::VectorXd controlWeights;
 
             double th_stop = 1e-6; // threshold for stopping criterion
             double th_grad = 1e-9; // threshold for zero gradient.
-
-
     };
     class ModelMaker{
 
@@ -77,7 +62,7 @@ namespace sobec{
             void initialize(const ModelMakerSettings &settings, const RobotDesigner &design);
 
             AMA formulateStepTracker(const Support &support = Support::DOUBLE);
-            AMA formulate_flat_walker(const Support &support = Support::DOUBLE);
+            // AMA formulate_flat_walker(const Support &support = Support::DOUBLE);
             AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
 
             std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
@@ -86,6 +71,16 @@ namespace sobec{
             // formulation parts: 
             void defineFeetContact(Contact &contactCollector, const Support &support = Support::DOUBLE);
             void defineFeetWrenchCost(Cost &costCollector, const Support &support = Support::DOUBLE);
+            void defineFeetTracking(Cost &costCollector);
+            void definePostureTask(Cost &costCollector);
+            void defineActuationTask(Cost &costCollector);
+            void defineJointLimits(Cost &costCollector);
+            void defineCoMVelocity(Cost &costCollector);
+
+            boost::shared_ptr<crocoddyl::StateMultibody> getState(){return state_;}
+            void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state){state_ = new_state;} 
+            boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> getActuation(){return actuation_;}
+            void setActuation(const boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> &new_actuation){actuation_ = new_actuation;}
     };
 
 }  // namespace

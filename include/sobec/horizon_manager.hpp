@@ -65,6 +65,9 @@ namespace sobec{
             // // Try to avoid the "auto"
             // // void setResidualReferences(unsigned long time, const std::string &name);
 
+            void setActuationReference(const unsigned long &time, const Eigen::VectorXd &reference);
+            void setBalancingTorque(const unsigned long &time, const Eigen::VectorXd x);
+            void setBalancingTorque(const unsigned long &time);
             void setPoseReferenceLF(const unsigned long &time, const pinocchio::SE3 &ref_placement);
             void setPoseReferenceRF(const unsigned long &time, const pinocchio::SE3 &ref_placement);
             void activateContactLF(const unsigned long &time);

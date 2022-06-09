@@ -102,6 +102,41 @@ namespace sobec {
         return std_vector_to_py_list(models);
     }
 
+    void defineFeetContact(ModelMaker &self, crocoddyl::ContactModelMultiple &contactCollector, const Support &supports=Support::DOUBLE){
+        Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(contactCollector);
+        self.defineFeetContact(contacts, supports);
+        contactCollector = *contacts;}
+
+    void defineFeetWrenchCost(ModelMaker &self, crocoddyl::CostModelSum &costCollector, const Support &supports=Support::DOUBLE){
+        Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+        self.defineFeetWrenchCost(costs, supports);
+        costCollector = *costs;}
+
+    void defineFeetTracking(ModelMaker &self, crocoddyl::CostModelSum &costCollector){
+        Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+        self.defineFeetTracking(costs);
+        costCollector = *costs;}
+        
+    void definePostureTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector){
+        Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+        self.definePostureTask(costs);
+        costCollector = *costs;}
+
+    void defineActuationTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector){
+        Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+        self.defineActuationTask(costs);
+        costCollector = *costs;}
+
+    void defineJointLimits(ModelMaker &self, crocoddyl::CostModelSum &costCollector){
+        Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+        self.defineJointLimits(costs);
+        costCollector = *costs;}
+
+    void defineCoMVelocity(ModelMaker &self, crocoddyl::CostModelSum &costCollector){
+        Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+        self.defineCoMVelocity(costs);
+        costCollector = *costs;}
+
     void exposeModelFactory() {
         bp::enum_<Support>("Support")
             .value("LEFT", Support::LEFT)
@@ -111,12 +146,21 @@ namespace sobec {
         bp::class_<ModelMaker>("ModelMaker", bp::init<>())
             .def("initialize", &initialize, bp::args("self", "settings", "design"))
             .def("formulateHorizon", &formulateHorizon, bp::args("self", "supports"))
-            .def("formulate_flat_walker", &ModelMaker::formulate_flat_walker, (bp::arg("self"), bp::arg("supports")=Support::DOUBLE))
+            // .def("formulate_flat_walker", &ModelMaker::formulate_flat_walker, (bp::arg("self"), bp::arg("supports")=Support::DOUBLE))
             .def("get_settings", &get_settings, bp::args("self"))
-        ;
+            .def("defineFeetContact", &defineFeetContact, (bp::arg("self"), bp::arg("contactCollector"), bp::arg("supports")=Support::DOUBLE))
+            .def("defineFeetWrenchCost", &defineFeetWrenchCost, (bp::arg("self"), bp::arg("costCollector"), bp::arg("supports")=Support::DOUBLE))
+            .def("defineFeetTracking", &defineFeetTracking, bp::args("self", "costCollector"))
+            .def("definePostureTask", &definePostureTask, bp::args("self", "costCollector"))
+            .def("defineActuationTask", &defineActuationTask, bp::args("self", "costCollector"))
+            .def("defineJointLimits", &defineJointLimits, bp::args("self", "costCollector"))
+            .def("defineCoMVelocity", &defineCoMVelocity, bp::args("self", "costCollector"))
+            .def("formulateStepTracker", &ModelMaker::formulateStepTracker, (bp::arg("self"), bp::arg("supports")=Support::DOUBLE))
+            .def("getState", &ModelMaker::getState, bp::args("self"))
+            .def("setState", &ModelMaker::setState, bp::args("self"))
+            .def("getActuation", &ModelMaker::getActuation, bp::args("self"))
+            .def("setActuation", &ModelMaker::setActuation, bp::args("self"))
+            ;
     }
-
-
-
     }  // namespace
 }

@@ -66,6 +66,21 @@ namespace sobec {
     void HorizonManager::removeContactRF(const unsigned long &time){
         contacts(time)->changeContactStatus(settings_.rightFootName, false);
     }
+
+    void HorizonManager::setBalancingTorque(const unsigned long &time, const Eigen::VectorXd x){
+        Eigen::VectorXd balancingTorque;
+        iam(time)->quasiStatic(data(time), balancingTorque, x);
+        setActuationReference(time, balancingTorque);
+    }
+
+    void HorizonManager::setBalancingTorque(const unsigned long &time){
+        Eigen::VectorXd x = boost::static_pointer_cast<crocoddyl::ResidualModelState>(costs(time)->get_costs().at("postureTask")->cost->get_residual())->get_reference();
+        setBalancingTorque(time, x);
+    }
+
+    void HorizonManager::setActuationReference(const unsigned long &time, const Eigen::VectorXd &reference){
+        boost::static_pointer_cast<crocoddyl::ResidualModelControl>(costs(time)->get_costs().at("actuationTask")->cost->get_residual())->set_reference(reference);
+    }
     
     void HorizonManager::setPoseReferenceLF(const unsigned long &time, const pinocchio::SE3 &ref_placement){
 		boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs(time)->get_costs().at("placementFootLeft")->cost->get_residual())->set_reference(ref_placement);
