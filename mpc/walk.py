@@ -268,6 +268,14 @@ for t, pattern in enumerate(contactPattern[:-1]):
             impactRotAct = croc.ActivationModelWeightedQuad(np.array([1,1,0]))
             impactRotCost = croc.CostModelResidual(state,impactRotAct,impactRotResidual)
             costs.addCost(f'{model.frames[cid].name}_rotimpact',impactRotCost,impactRotationWeight/DT)
+
+            impactRefJointsResidual = croc.ResidualModelState(state,x0,actuation.nu)
+            jselec = np.zeros(model.nv*2)
+            jselec[[ model.joints[model.getJointId(name)].idx_v for name in MAIN_JOINTS ]]=1
+            impactRefJointsAct = croc.ActivationModelWeightedQuad(jselec)
+            impactRefJointCost = croc.CostModelResidual(state,impactRefJointsAct,impactRefJointsResidual)
+            costs.addCost('impactRefJoint',impactRefJointCost,refMainJointsAtImpactWeight/DT)
+            
             
     # Flying foot
     for k, cid in enumerate(contactIds):
@@ -618,6 +626,7 @@ cosname='right_sole_link_flyhigh'
 cosname=f'{model.frames[fid].name}_flyhigh'
 cosname=f'{model.frames[fid].name}_groundcol'
 cosname=f'{model.frames[cid].name}_velimpact'
+cosname='impactRefJoint'
 cosdata = dadata.costs.costs[cosname]
 cosmodel = damodel.costs.costs[cosname].cost
 np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)

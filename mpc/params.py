@@ -52,16 +52,15 @@ contiForceWeight = 0
 impactAltitudeWeight = 20000
 impactVelocityWeight = 200
 impactRotationWeight = 200
-refMainJointsAtImpactWeight = 0 ##DDP## 2e2
+refMainJointsAtImpactWeight = 2e2
 
 terminalNoVelocityWeight = 2000
 terminalXTargetWeight = 0  # #DDP## 2000
 
 refFootFlyingAltitude = 3e-2
-flyHighSlope = 5 / refFootFlyingAltitude
-footMinimalDistance = 0.1  # 0.1  (.17 is the max value wrt initial config)
-MAIN_JOINTS = [0, 1, 3]
-MAIN_JOINTS = [i + 7 for i in MAIN_JOINTS] + [i + 13 for i in MAIN_JOINTS]
+flyHighSlope = 5/refFootFlyingAltitude
+footMinimalDistance = .1 # 0.1  (.17 is the max value wrt initial config)
+MAIN_JOINTS = [ f'leg_{side}_{idx}_joint' for side in ['left','right'] for idx in [1,2,4] ]
 
 X_TARGET = 0.35
 VCOM_TARGET = np.array([0.1, 0, 0])
