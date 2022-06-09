@@ -13,8 +13,7 @@
 namespace sobec {
 namespace unittest {
 
-const std::vector<ActionModelLPFTypes::Type> ActionModelLPFTypes::all(
-    ActionModelLPFTypes::init_all());
+const std::vector<ActionModelLPFTypes::Type> ActionModelLPFTypes::all(ActionModelLPFTypes::init_all());
 
 std::ostream& operator<<(std::ostream& os, ActionModelLPFTypes::Type type) {
   switch (type) {
@@ -33,11 +32,9 @@ std::ostream& operator<<(std::ostream& os, ActionModelLPFTypes::Type type) {
 ActionModelLPFFactory::ActionModelLPFFactory() {}
 ActionModelLPFFactory::~ActionModelLPFFactory() {}
 
-boost::shared_ptr<sobec::IntegratedActionModelLPF>
-ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
-                              DifferentialActionModelTypes::Type dam_type,
-                              PinocchioReferenceTypes::Type ref_type,
-                              ContactModelMaskTypes::Type mask_type) const {
+boost::shared_ptr<sobec::IntegratedActionModelLPF> ActionModelLPFFactory::create(
+    ActionModelLPFTypes::Type iam_type, DifferentialActionModelTypes::Type dam_type,
+    PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type) const {
   boost::shared_ptr<sobec::IntegratedActionModelLPF> iam;
   boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam =
       DifferentialActionModelFactory().create(dam_type, ref_type, mask_type);
@@ -49,9 +46,8 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       bool tau_plus_integration = false;
       int filter = 1;
       bool is_terminal = false;
-      iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, time_step, with_cost_residual, fc, tau_plus_integration, filter,
-          is_terminal);
+      iam = boost::make_shared<sobec::IntegratedActionModelLPF>(dam, time_step, with_cost_residual, fc,
+                                                                tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
       double cost_weight_w_reg = 0.02;
       Eigen::VectorXd cost_ref_w_reg = Eigen::VectorXd::Zero(dam->get_nu());

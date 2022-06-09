@@ -28,33 +28,23 @@ class StateLPFTpl : public StateAbstractTpl<_Scalar> {
 
   enum JointType { FreeFlyer = 0, Spherical, Simple };
 
-  explicit StateLPFTpl(boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model,
-                       std::size_t nu = 0);
+  explicit StateLPFTpl(boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model, std::size_t nu = 0);
   virtual ~StateLPFTpl();
 
   virtual VectorXs zero() const;
   virtual VectorXs rand() const;
-  virtual void diff(const Eigen::Ref<const VectorXs>& y0,
-                    const Eigen::Ref<const VectorXs>& y1,
+  virtual void diff(const Eigen::Ref<const VectorXs>& y0, const Eigen::Ref<const VectorXs>& y1,
                     Eigen::Ref<VectorXs> dyout) const;
-  virtual void integrate(const Eigen::Ref<const VectorXs>& y,
-                         const Eigen::Ref<const VectorXs>& dy,
+  virtual void integrate(const Eigen::Ref<const VectorXs>& y, const Eigen::Ref<const VectorXs>& dy,
                          Eigen::Ref<VectorXs> yout) const;
-  virtual void Jdiff(const Eigen::Ref<const VectorXs>&,
-                     const Eigen::Ref<const VectorXs>&,
-                     Eigen::Ref<MatrixXs> Jfirst, Eigen::Ref<MatrixXs> Jsecond,
-                     const Jcomponent firstsecond = both) const;
+  virtual void Jdiff(const Eigen::Ref<const VectorXs>&, const Eigen::Ref<const VectorXs>&, Eigen::Ref<MatrixXs> Jfirst,
+                     Eigen::Ref<MatrixXs> Jsecond, const Jcomponent firstsecond = both) const;
 
-  virtual void Jintegrate(const Eigen::Ref<const VectorXs>& y,
-                          const Eigen::Ref<const VectorXs>& dy,
-                          Eigen::Ref<MatrixXs> Jfirst,
-                          Eigen::Ref<MatrixXs> Jsecond,
-                          const Jcomponent firstsecond = both,
-                          const AssignmentOp = setto) const;
-  virtual void JintegrateTransport(const Eigen::Ref<const VectorXs>& y,
-                                   const Eigen::Ref<const VectorXs>& dy,
-                                   Eigen::Ref<MatrixXs> Jin,
-                                   const Jcomponent firstsecond) const;
+  virtual void Jintegrate(const Eigen::Ref<const VectorXs>& y, const Eigen::Ref<const VectorXs>& dy,
+                          Eigen::Ref<MatrixXs> Jfirst, Eigen::Ref<MatrixXs> Jsecond,
+                          const Jcomponent firstsecond = both, const AssignmentOp = setto) const;
+  virtual void JintegrateTransport(const Eigen::Ref<const VectorXs>& y, const Eigen::Ref<const VectorXs>& dy,
+                                   Eigen::Ref<MatrixXs> Jin, const Jcomponent firstsecond) const;
 
   const boost::shared_ptr<pinocchio::ModelTpl<Scalar> >& get_pinocchio() const;
   const std::size_t& get_nw() const;

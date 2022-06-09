@@ -47,10 +47,8 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] nu     Dimension of the control vector
    * @param[in] gains  Baumgarte stabilization gains
    */
-  ContactModel3DTpl(boost::shared_ptr<StateMultibody> state,
-                    const pinocchio::FrameIndex id, const Vector3s& xref,
-                    const std::size_t nu,
-                    const Vector2s& gains = Vector2s::Zero(),
+  ContactModel3DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id, const Vector3s& xref,
+                    const std::size_t nu, const Vector2s& gains = Vector2s::Zero(),
                     const pinocchio::ReferenceFrame type = pinocchio::LOCAL);
 
   /**
@@ -63,10 +61,8 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] xref   Contact position used for the Baumgarte stabilization
    * @param[in] gains  Baumgarte stabilization gains
    */
-  ContactModel3DTpl(boost::shared_ptr<StateMultibody> state,
-                    const pinocchio::FrameIndex id, const Vector3s& xref,
-                    const Vector2s& gains = Vector2s::Zero(),
-                    const pinocchio::ReferenceFrame type = pinocchio::LOCAL);
+  ContactModel3DTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id, const Vector3s& xref,
+                    const Vector2s& gains = Vector2s::Zero(), const pinocchio::ReferenceFrame type = pinocchio::LOCAL);
   virtual ~ContactModel3DTpl();
 
   /**
@@ -76,9 +72,8 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(
-      const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
-      const Eigen::Ref<const VectorXs>& x);
+  virtual void calc(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                    const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Compute the derivatives of the 3d contact holonomic constraint
@@ -87,9 +82,8 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(
-      const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
-      const Eigen::Ref<const VectorXs>& x);
+  virtual void calcDiff(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                        const Eigen::Ref<const VectorXs>& x);
 
   /**
    * @brief Convert the force into a stack of spatial forces
@@ -97,15 +91,14 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
    * @param[in] data   3d contact data
    * @param[in] force  3d force
    */
-  virtual void updateForce(
-      const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
-      const VectorXs& force);
+  virtual void updateForce(const boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>& data,
+                           const VectorXs& force);
 
   /**
    * @brief Create the 3d contact data
    */
-  virtual boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>>
-  createData(pinocchio::DataTpl<Scalar>* const data);
+  virtual boost::shared_ptr<crocoddyl::ContactDataAbstractTpl<Scalar>> createData(
+      pinocchio::DataTpl<Scalar>* const data);
 
   /**
    * @brief Return the reference frame translation
@@ -146,8 +139,8 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
   using Base::state_;
 
  private:
-  Vector3s xref_;   //!< Contact position used for the Baumgarte stabilization
-  Vector2s gains_;  //!< Baumgarte stabilization gains
+  Vector3s xref_;                   //!< Contact position used for the Baumgarte stabilization
+  Vector2s gains_;                  //!< Baumgarte stabilization gains
   pinocchio::ReferenceFrame type_;  //!< Reference type of contact
 };
 
@@ -164,8 +157,7 @@ struct ContactData3DTpl : public crocoddyl::ContactData3DTpl<_Scalar> {
   typedef typename MathBase::MatrixXs MatrixXs;
 
   template <template <typename Scalar> class Model>
-  ContactData3DTpl(Model<Scalar>* const model,
-                   pinocchio::DataTpl<Scalar>* const data)
+  ContactData3DTpl(Model<Scalar>* const model, pinocchio::DataTpl<Scalar>* const data)
       : Base(model, data),
         fJf(6, model->get_state()->get_nv()),
         v_partial_dq(6, model->get_state()->get_nv()),
@@ -176,8 +168,7 @@ struct ContactData3DTpl : public crocoddyl::ContactData3DTpl<_Scalar> {
         fXjda_dq(6, model->get_state()->get_nv()),
         fXjda_dv(6, model->get_state()->get_nv()),
         da0_dx_temp_(3, model->get_state()->get_ndx()),
-        drnea_skew_term_(model->get_state()->get_nv(),
-                         model->get_state()->get_nv()) {
+        drnea_skew_term_(model->get_state()->get_nv(), model->get_state()->get_nv()) {
     frame = model->get_id();
     jMf = model->get_state()->get_pinocchio()->frames[frame].placement;
     fXj = jMf.inverse().toActionMatrix();

@@ -84,8 +84,7 @@ class DifferentialActionModelContactFwdDynamicsTpl
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
   typedef crocoddyl::ContactModelMultipleTpl<Scalar> crocoContactModelMultiple;
   typedef crocoddyl::ActuationModelAbstractTpl<Scalar> ActuationModelAbstract;
-  typedef crocoddyl::DifferentialActionDataAbstractTpl<Scalar>
-      DifferentialActionDataAbstract;
+  typedef crocoddyl::DifferentialActionDataAbstractTpl<Scalar> DifferentialActionDataAbstract;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::MatrixXs MatrixXs;
 
@@ -105,13 +104,12 @@ class DifferentialActionModelContactFwdDynamicsTpl
    * @param[in] enable_force     Enable the computation of the contact force
    * derivatives (default false)
    */
-  DifferentialActionModelContactFwdDynamicsTpl(
-      boost::shared_ptr<StateMultibody> state,
-      boost::shared_ptr<ActuationModelAbstract> actuation,
-      boost::shared_ptr<crocoContactModelMultiple> contacts,
-      boost::shared_ptr<CostModelSum> costs,
-      const Scalar JMinvJt_damping = Scalar(0.),
-      const bool enable_force = false);
+  DifferentialActionModelContactFwdDynamicsTpl(boost::shared_ptr<StateMultibody> state,
+                                               boost::shared_ptr<ActuationModelAbstract> actuation,
+                                               boost::shared_ptr<crocoContactModelMultiple> contacts,
+                                               boost::shared_ptr<CostModelSum> costs,
+                                               const Scalar JMinvJt_damping = Scalar(0.),
+                                               const bool enable_force = false);
   virtual ~DifferentialActionModelContactFwdDynamicsTpl();
 
   /**
@@ -121,9 +119,8 @@ class DifferentialActionModelContactFwdDynamicsTpl
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(
-      const boost::shared_ptr<DifferentialActionDataAbstract>& data,
-      const Eigen::Ref<const VectorXs>& x, const Eigen::Ref<const VectorXs>& u);
+  virtual void calcDiff(const boost::shared_ptr<DifferentialActionDataAbstract>& data,
+                        const Eigen::Ref<const VectorXs>& x, const Eigen::Ref<const VectorXs>& u);
 
   // /**
   //  * @brief @copydoc Base::quasiStatic()

@@ -69,21 +69,14 @@ typedef ContactModelMultipleTpl<double> ContactModelMultiple;
 // DAM contact fwd dynamics
 template <typename Scalar>
 class DifferentialActionModelContactFwdDynamicsTpl;
-typedef DifferentialActionModelContactFwdDynamicsTpl<double>
-    DifferentialActionModelContactFwdDynamics;
+typedef DifferentialActionModelContactFwdDynamicsTpl<double> DifferentialActionModelContactFwdDynamics;
 
 // Residual contact force
 template <typename Scalar>
 class ResidualModelContactForceTpl;
 typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
 
-enum ContactType {
-  ContactUndefined,
-  Contact1D,
-  Contact2D,
-  Contact3D,
-  Contact6D
-};
+enum ContactType { ContactUndefined, Contact1D, Contact2D, Contact3D, Contact6D };
 
 }  // namespace sobec
 
