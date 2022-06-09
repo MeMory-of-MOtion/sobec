@@ -36,10 +36,6 @@ np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 # ## HYPER PARAMETERS
 # Hyperparameters defining the optimal control problem.
 
-DT = 0.010
-X_TARGET = 0.35
-FOOT_SIZE = 0.05
-
 # ## LOAD AND DISPLAY SOLO
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
@@ -426,148 +422,18 @@ fs_sol0 = [
     for m, d in zip(problem.runningModels, problem.runningDatas)
 ]
 
-# Robot basis movement
-legend = ["x", "y", "z"]
-plt.figure("Basis move")
-for i in range(3):
-    plt.subplot(3, 1, i + 1)
-    plt.title("Base link position_" + legend[i])
-    plt.plot(xs_sol[:, i])
-    if i == 0:
-        plt.axhline(y=X_TARGET, color="black", linestyle="--")
+from walk_plotter import WalkPlotter
 
-# Cop of each foot vs time
-plt.figure("cop time local")
-for ifig, cid in enumerate(contactIds):
-    plt.subplot(len(contactIds), 1, ifig + 1)
-    ftraj = [
-        [t, f[6 * ifig : 6 * ifig + 6]]
-        for t, (f, p) in enumerate(zip(fs_sol0, contactPattern))
-        if cid in patternToId(p)
-    ]
-    cop = [[t, [f[4] / f[2], -f[3] / f[2]]] for (t, f) in ftraj]
-    plt.plot([t for t, p in cop], [p for t, p in cop], ".")
+plotter = WalkPlotter(model,contactIds)
+plotter.setData(contactPattern,xs_sol,us_sol,fs_sol0)
 
-# Cop of each foot in x-vs-y (with limits)
-plt.figure(figsize=(12, 6))
-plt.title("cop local")
-l_foot = np.array(
-    [
-        [-FOOT_SIZE, -FOOT_SIZE, 0, 1],
-        [-FOOT_SIZE, FOOT_SIZE, 0, 1],
-        [FOOT_SIZE, FOOT_SIZE, 0, 1],
-        [FOOT_SIZE, -FOOT_SIZE, 0, 1],
-        [-FOOT_SIZE, -FOOT_SIZE, 0, 1],
-    ]
-).T
-for ifig, cid in enumerate(contactIds):
-    plt.subplot(1, len(contactIds), ifig + 1)
-    ARENA_SIZE = 0.6
-    plt.axis([-ARENA_SIZE / 4, ARENA_SIZE * 3 / 4, -ARENA_SIZE / 2, ARENA_SIZE / 2])
-    plt.xlabel(model.frames[cid].name)
-    for t, pattern in enumerate(contactPattern[:-1]):
-        if cid not in patternToId(pattern):
-            continue
-        f = fs_sol0[t][6 * ifig : 6 * ifig + 6]
-        l_cop = np.array([f[4] / f[2], -f[3] / f[2], 0])
-        pin.framesForwardKinematics(model, data, xs_sol[t][: model.nq])
-        w_cop = data.oMf[cid] * l_cop
-        plt.plot(w_cop[0], w_cop[1], "r.")
-        w_foot = data.oMf[cid].homogeneous @ l_foot
-        plt.plot(w_foot[0, :], w_foot[1, :], "grey")
-
-# Forces and reference forces wrt time
-plt.figure("forces")
-frefplot = np.array([np.concatenate(fs) for fs in referenceForces])
-fs0plot = np.array(fs_sol0)
-plt.subplot(211)
-plt.plot(fs0plot[:, 2])
-plt.plot(frefplot[:, 2])
-plt.xlabel(model.frames[contactIds[0]].name)
-plt.subplot(212)
-plt.plot(fs0plot[:, 8])
-plt.plot(frefplot[:, 8])
-plt.xlabel(model.frames[contactIds[1]].name)
-
-# COM position and velocity (x+y separated from z)
-plt.figure("com", figsize=(6, 8))
-complot = []
-vcomplot = []
-for x in xs_sol:
-    pin.centerOfMass(model, data, x[: model.nq], x[model.nq :])
-    complot.append(data.com[0].copy())
-    vcomplot.append(data.vcom[0].copy())
-complot = np.array(complot)
-vcomplot = np.array(vcomplot)
-plt.subplot(411)
-plt.plot(complot[:, :2])
-plt.ylabel("pos x-y")
-plt.subplot(412)
-plt.plot(complot[:, 2])
-plt.ylabel("pos z")
-ax = plt.axis()
-plt.axis(
-    (ax[0], ax[1], com0[2] - 2.5e-2, com0[2] + 2.5e-2)
-)  # yaxis is 5cm around 0 position
-plt.subplot(413)
-plt.plot(vcomplot[:, :2])
-plt.ylabel("vel x-y")
-plt.legend(["x", "y"])
-plt.subplot(414)
-plt.plot(vcomplot[:, 2])
-plt.ylabel("vel z")
-
-# Foot position and velocity
-plt.figure("foot")
-foottraj = []
-footvtraj = []
-for x in xs_sol:
-    pin.forwardKinematics(model, data, x[: model.nq], x[model.nq :])
-    pin.updateFramePlacements(model, data)
-    foottraj.append(np.concatenate([data.oMf[cid].translation for cid in contactIds]))
-    footvtraj.append(
-        np.concatenate(
-            [pin.getFrameVelocity(model, data, cid).vector for cid in contactIds]
-        )
-    )
-foottraj = np.array(foottraj)
-footvtraj = np.array(footvtraj)
-plt.subplot(311)
-hplot = []
-names = []
-for i, cid in enumerate(contactIds):
-    hplot.extend(plt.plot(foottraj[:, 3 * i + 2]))
-    names.append(model.frames[cid].name)
-plt.legend(hplot, names)
-plt.ylabel("altitude")
-plt.subplot(313)
-hplot = []
-for i, cid in enumerate(contactIds):
-    hplot.extend(plt.plot(foottraj[:, 3 * i], foottraj[:, 3 * i + 2]))
-plt.legend(hplot, names)
-plt.ylabel("x-z traj")
-plt.subplot(312)
-hplot = []
-for i, cid in enumerate(contactIds):
-    hplot.extend(plt.plot(np.sqrt(np.sum(footvtraj[:, 6 * i : 6 * i + 2] ** 2, 1))))
-plt.legend(hplot, names)
-plt.ylabel("horz vel")
-
-plt.figure("foot collision")
-h1 = plt.plot([f[0] for f in foottraj], [f[1] for f in foottraj])
-h2 = plt.plot([f[3] for f in foottraj], [f[4] for f in foottraj])
-plt.legend(h1 + h2, ["left", "right"])
-for t in range(T):
-    a = foottraj[t][:2]
-    b = foottraj[t][3:5]
-    m = (a + b) / 2
-    d = b - a
-    d /= norm(d)
-    aa = m + d * footMinimalDistance / 2
-    bb = m - d * footMinimalDistance / 2
-    plt.plot([aa[0], bb[0]], [aa[1], bb[1]], "grey")
-plt.axis([-0.1, 0.4, -0.25, 0.25])
-
+plotter.plotBasis(X_TARGET)
+plotter.plotTimeCop()
+plotter.plotCopAndFeet(FOOT_SIZE,.6)
+plotter.plotForces(referenceForces)
+plotter.plotCom(com0)
+plotter.plotFeet()
+plotter.plotFootCollision(footMinimalDistance)
 
 # ### SAVE #####################################################################
 def save():
