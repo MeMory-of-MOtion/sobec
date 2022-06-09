@@ -46,7 +46,7 @@ class ActuationModelFactory {
 
   boost::shared_ptr<crocoddyl::ActuationModelAbstract> create(
       ActuationModelTypes::Type actuation_type,
-      StateModelTypes::Type statelpf_type) const;
+      StateModelTypes::Type state_type) const;
 };
 
 /**

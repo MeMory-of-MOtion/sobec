@@ -71,9 +71,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nq = differential_->get_state()->get_nq();
   const std::size_t& nx = differential_->get_state()->get_nx();
-  const std::size_t& ny = state_->get_nx();
+  const std::size_t& ny = boost::static_pointer_cast<StateLPF>(state_)->get_ny();
   const std::size_t& nu = differential_->get_nu();
-  const std::size_t& nw = nu;
+  const std::size_t& nw = boost::static_pointer_cast<StateLPF>(state_)->get_nw();
 
   if (static_cast<std::size_t>(y.size()) != ny) {
     throw_pretty("Invalid argument: "
@@ -88,13 +88,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
 
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
-
   // Extract x=(q,v) and tau from augmented state y
   const Eigen::Ref<const VectorXs>& x = y.head(nx);    // get q,v_q
   const Eigen::Ref<const VectorXs>& tau = y.tail(nu);  // get tau_q
-
-  boost::shared_ptr<StateLPF> statelpf =
-      boost::static_pointer_cast<StateLPF>(state_);
 
   if (static_cast<std::size_t>(x.size()) != nx) {
     throw_pretty("Invalid argument: "
@@ -107,38 +103,38 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
                         std::to_string(nu) + ")");
   }
 
-  if (static_cast<std::size_t>(d->Fy.rows()) != statelpf->get_ndy()) {
+  if (static_cast<std::size_t>(d->Fy.rows()) != boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) {
     throw_pretty("Invalid argument: "
                  << "Fy.rows() has wrong dimension (it should be " +
-                        std::to_string(statelpf->get_ndy()) + ")");
+                        std::to_string(boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) + ")");
   }
-  if (static_cast<std::size_t>(d->Fy.cols()) != statelpf->get_ndy()) {
+  if (static_cast<std::size_t>(d->Fy.cols()) != boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) {
     throw_pretty("Invalid argument: "
                  << "Fy.cols() has wrong dimension (it should be " +
-                        std::to_string(statelpf->get_ndy()) + ")");
+                        std::to_string(boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) + ")");
   }
-  if (static_cast<std::size_t>(d->Fw.cols()) != statelpf->get_nw()) {
+  if (static_cast<std::size_t>(d->Fw.cols()) != boost::static_pointer_cast<StateLPF>(state_)->get_nw()) {
     throw_pretty("Invalid argument: "
                  << "Fw.cols() has wrong dimension (it should be " +
-                        std::to_string(statelpf->get_nw()) + ")");
+                        std::to_string(boost::static_pointer_cast<StateLPF>(state_)->get_nw()) + ")");
   }
   if (static_cast<std::size_t>(d->r.size()) !=
-      differential_->get_nr() + 2 * statelpf->get_nw()) {
+      differential_->get_nr() + 2 * boost::static_pointer_cast<StateLPF>(state_)->get_nw()) {
     throw_pretty("Invalid argument: "
                  << "r has wrong dimension (it should be " +
                         std::to_string(differential_->get_nr() +
-                                       2 * statelpf->get_nw()) +
+                                       2 * boost::static_pointer_cast<StateLPF>(state_)->get_nw()) +
                         ")");
   }
-  if (static_cast<std::size_t>(d->Ly.size()) != statelpf->get_ndy()) {
+  if (static_cast<std::size_t>(d->Ly.size()) != boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) {
     throw_pretty("Invalid argument: "
                  << "Ly has wrong dimension (it should be " +
-                        std::to_string(statelpf->get_ndy()) + ")");
+                        std::to_string(boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) + ")");
   }
-  if (static_cast<std::size_t>(d->Lw.size()) != statelpf->get_nw()) {
+  if (static_cast<std::size_t>(d->Lw.size()) != boost::static_pointer_cast<StateLPF>(state_)->get_nw()) {
     throw_pretty("Invalid argument: "
                  << "Lw has wrong dimension (it should be " +
-                        std::to_string(statelpf->get_nw()) + ")");
+                        std::to_string(boost::static_pointer_cast<StateLPF>(state_)->get_nw()) + ")");
   }
 
   // Compute acceleration and cost (DAM, i.e. CT model)
@@ -196,7 +192,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
 
   // Update RESIDUAL
   if (with_cost_residual_) {
-    d->r.head(differential_->get_nr() - 2 * nw) = d->differential->r;
+    d->r.head(differential_->get_nr()) = d->differential->r;
     // Add unfiltered torque RESIDUAL(w) for RUNNING MODELS
     if (!is_terminal_) {
       if (wreg_ != 0) {
@@ -207,7 +203,6 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
       }                             // wlim_ != 0
     }                               // running residual
   }                                 // update residual
-
 }  // calc
 
 template <typename Scalar>
@@ -218,16 +213,10 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
   const std::size_t& nq = differential_->get_state()->get_nq();
   const std::size_t& nx = differential_->get_state()->get_nx();
   const std::size_t& ndx = differential_->get_state()->get_ndx();
-  const std::size_t& ny = state_->get_nx();
+  const std::size_t& ny = boost::static_pointer_cast<StateLPF>(state_)->get_ny();
   const std::size_t& nu = differential_->get_nu();
-  const std::size_t& ndy = ndx + nu;  // state_->get_ndy();
-  const std::size_t& nw = nu;
+  const std::size_t& nw = boost::static_pointer_cast<StateLPF>(state_)->get_nw();
 
-  // if (ndx + nu != ndy) {
-  //   throw_pretty("Invalid state size: "
-  //                << "ndy is wrong (it should be " + std::to_string(ndx + nu)
-  //                + ")");
-  // }
   if (static_cast<std::size_t>(y.size()) != ny) {
     throw_pretty("Invalid argument: "
                  << "y has wrong dimension (it should be " +

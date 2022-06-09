@@ -20,40 +20,38 @@ StateLPFTpl<Scalar>::StateLPFTpl(
     : Base(model->nq + model->nv + nu, 2 * model->nv + nu),
       pinocchio_(model),
       y0_(VectorXs::Zero(model->nq + model->nv + nu)) {
-  y0_.head(nq_) = pinocchio::neutral(*pinocchio_.get());
-  // y0_.tail(nv_ + nu) = VectorXs::Zero(nv_ + nu);
+  
   // In a multibody system, we could define the first joint using Lie groups.
   // The current cases are free-flyer (SE3) and spherical (S03).
   // Instead simple represents any joint that can model within the Euclidean
   // manifold. The rest of joints use Euclidean algebra. We use this fact for
   // computing Jdiff.
 
-  nq_ = model->nq;  // joint pos
-  nv_ = model->nv;  // joint vel
-  ny_ = nx_;        // full state: joint pos, vel, torques
-  ndy_ = ndx_;      //+ nu;
-  nw_ = nu;         // unfiltered torque (control input)
+  nv_ = model->nv;      // tangent configuration dimension
+  nq_ = model->nq;      // configuration dimension
+  ny_ = nq_ + nv_ + nu; // augmented state dimension
+  ndy_ = 2*nv_ + nu;    // augmented state tangent space dimension
+  nw_ = nu;             // unfiltered input dimension (nb of actuated joints)
 
   // Define internally the limits of the first joint
   const std::size_t nq0 = model->joints[1].nq();
-
-  lb_.head(nq0) =
-      -std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nq0);
+  lb_.head(nq0) = -std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nq0);
   ub_.head(nq0) = std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nq0);
   lb_.segment(nq0, nq_ - nq0) = pinocchio_->lowerPositionLimit.tail(nq_ - nq0);
   ub_.segment(nq0, nq_ - nq0) = pinocchio_->upperPositionLimit.tail(nq_ - nq0);
   lb_.segment(nq_, nv_) = -pinocchio_->velocityLimit;
   ub_.segment(nq_, nv_) = pinocchio_->velocityLimit;
-  lb_.tail(nw_) = -pinocchio_->effortLimit;
-  ub_.tail(nw_) = pinocchio_->effortLimit;
+  lb_.tail(nw_) = -pinocchio_->effortLimit.tail(nw_);
+  ub_.tail(nw_) = pinocchio_->effortLimit.tail(nw_);
   Base::update_has_limits();
 
-  // y0_.tail(nv_ + nu) = VectorXs::Zero(nv_ + nu);  // BUG of else some values
-  // were uninitialized y0_.head(nq_) = pinocchio::neutral(*pinocchio_.get());
+  y0_.head(nq_) = pinocchio::neutral(*pinocchio_.get());
+  y0_.tail(nv_ + nu) = VectorXs::Zero(nv_ + nu);  
 }
 
 template <typename Scalar>
 StateLPFTpl<Scalar>::~StateLPFTpl() {}
+
 
 template <typename Scalar>
 const std::size_t& StateLPFTpl<Scalar>::get_nw() const {
