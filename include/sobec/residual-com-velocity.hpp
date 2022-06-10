@@ -18,6 +18,42 @@
 
 namespace sobec {
 using namespace crocoddyl;
+
+template <typename _Scalar>
+struct ResidualDataCoMVelocityTpl : public ResidualDataAbstractTpl<_Scalar> {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  typedef _Scalar Scalar;
+  typedef MathBaseTpl<Scalar> MathBase;
+  typedef ResidualDataAbstractTpl<Scalar> Base;
+  typedef DataCollectorAbstractTpl<Scalar> DataCollectorAbstract;
+  typedef typename MathBase::Matrix3xs Matrix3xs;
+
+  template <template <typename Scalar> class Model>
+  ResidualDataCoMVelocityTpl(Model<Scalar>* const model,
+                             DataCollectorAbstract* const data)
+      : Base(model, data), dvcom_dq(3, model->get_state()->get_nv()) {
+    dvcom_dq.setZero();
+    // Check that proper shared data has been passed
+    DataCollectorMultibodyTpl<Scalar>* d =
+        dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
+    if (d == NULL) {
+      throw_pretty(
+          "Invalid argument: the shared data should be derived from "
+          "DataCollectorMultibody");
+    }
+
+    // Avoids data casting at runtime
+    pinocchio = d->pinocchio;
+  }
+  Matrix3xs dvcom_dq;
+  pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
+  using Base::r;
+  using Base::Ru;
+  using Base::Rx;
+  using Base::shared;
+};
+
 /**
  * @brief CoM velocity residual
  *
@@ -116,41 +152,6 @@ class ResidualModelCoMVelocityTpl : public ResidualModelAbstractTpl<_Scalar> {
   Vector3s vref_;  //!< Reference CoM velocity
   typename StateMultibody::PinocchioModel
       pin_model_;  //!< Pinocchio model used for internal computations
-};
-
-template <typename _Scalar>
-struct ResidualDataCoMVelocityTpl : public ResidualDataAbstractTpl<_Scalar> {
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-  typedef _Scalar Scalar;
-  typedef MathBaseTpl<Scalar> MathBase;
-  typedef ResidualDataAbstractTpl<Scalar> Base;
-  typedef DataCollectorAbstractTpl<Scalar> DataCollectorAbstract;
-  typedef typename MathBase::Matrix3xs Matrix3xs;
-
-  template <template <typename Scalar> class Model>
-  ResidualDataCoMVelocityTpl(Model<Scalar>* const model,
-                             DataCollectorAbstract* const data)
-      : Base(model, data), dvcom_dq(3, model->get_state()->get_nv()) {
-    dvcom_dq.setZero();
-    // Check that proper shared data has been passed
-    DataCollectorMultibodyTpl<Scalar>* d =
-        dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
-    if (d == NULL) {
-      throw_pretty(
-          "Invalid argument: the shared data should be derived from "
-          "DataCollectorMultibody");
-    }
-
-    // Avoids data casting at runtime
-    pinocchio = d->pinocchio;
-  }
-  Matrix3xs dvcom_dq;
-  pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
-  using Base::r;
-  using Base::Ru;
-  using Base::Rx;
-  using Base::shared;
 };
 
 }  // namespace sobec
