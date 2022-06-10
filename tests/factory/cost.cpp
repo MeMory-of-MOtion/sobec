@@ -15,6 +15,7 @@
 #include <crocoddyl/multibody/residuals/state.hpp>
 
 #include "sobec/residual-com-velocity.hpp"
+#include "sobec/residual-fly-high.hpp"
 // #include "crocoddyl/multibody/residuals/centroidal-momentum.hpp"
 #include <crocoddyl/core/costs/cost-sum.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
@@ -48,18 +49,21 @@ std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
     case CostModelTypes::CostModelResidualCoMVelocity:
       os << "CostModelResidualCoMVelocity";
       break;
-    // case CostModelTypes::CostModelResidualFramePlacement:
-    //   os << "CostModelResidualFramePlacement";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameRotation:
-    //   os << "CostModelResidualFrameRotation";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameTranslation:
-    //   os << "CostModelResidualFrameTranslation";
-    //   break;
-    // case CostModelTypes::CostModelResidualFrameVelocity:
-    //   os << "CostModelResidualFrameVelocity";
-    //   break;
+    case CostModelTypes::CostModelResidualFlyHigh:
+      os << "CostModelResidualFlyHigh";
+      break;
+      // case CostModelTypes::CostModelResidualFramePlacement:
+      //   os << "CostModelResidualFramePlacement";
+      //   break;
+      // case CostModelTypes::CostModelResidualFrameRotation:
+      //   os << "CostModelResidualFrameRotation";
+      //   break;
+      // case CostModelTypes::CostModelResidualFrameTranslation:
+      //   os << "CostModelResidualFrameTranslation";
+      //   break;
+    case CostModelTypes::CostModelResidualFrameVelocity:
+      os << "CostModelResidualFrameVelocity";
+      break;
     // case CostModelTypes::NbCostModelTypes:
     //   os << "NbCostModelTypes";
     //   break;
@@ -96,8 +100,8 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
       boost::static_pointer_cast<crocoddyl::StateMultibody>(
           state_factory.create(state_type));
 
-  // crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() -
-  // 1; pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
+  crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() - 1;
+  // pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
   if (nu == std::numeric_limits<std::size_t>::max()) {
     nu = state->get_nv();
   }
@@ -127,6 +131,15 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
           boost::make_shared<sobec::ResidualModelCoMVelocity>(
               state, Eigen::Vector3d::Random(), nu));
       break;
+    case CostModelTypes::CostModelResidualFlyHigh: {
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 2),
+          boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index, 1,
+                                                          nu));
+      sobec::ResidualModelFlyHigh res(state, frame_index, 1, nu);
+      res.get_frame_id();
+      break;
+    }
     // case CostModelTypes::CostModelResidualFramePlacement:
     //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
     //       state, activation_factory.create(activation_type, 6),
@@ -146,14 +159,13 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
     //       frame_index, frame_SE3.translation(),
     //                                                                    nu));
     //   break;
-    // case CostModelTypes::CostModelResidualFrameVelocity:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, 6),
-    //       boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(state,
-    //       frame_index, pinocchio::Motion::Random(),
-    //                                                                 pinocchio::ReferenceFrame::LOCAL,
-    //                                                                 nu));
-    //   break;
+    case CostModelTypes::CostModelResidualFrameVelocity:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 6),
+          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
+              state, frame_index, pinocchio::Motion::Random(),
+              pinocchio::ReferenceFrame::LOCAL, nu));
+      break;
     default:
       throw_pretty(__FILE__ ": Wrong CostModelTypes::Type given");
       break;

@@ -68,7 +68,7 @@ damodel = croc.DifferentialActionModelContactFwdDynamics(
     state, actuation, contacts, costs, 0, True
 )
 
-# #################################################################################################
+# #####################################################################################
 
 # ### For easier manipulation at debug time
 dadata = damodel.createData()

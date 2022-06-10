@@ -27,13 +27,21 @@ struct ResidualDataCenterOfPressureTpl;
 typedef ResidualModelCenterOfPressureTpl<double> ResidualModelCenterOfPressure;
 typedef ResidualDataCenterOfPressureTpl<double> ResidualDataCenterOfPressure;
 
-// Cost velocity collisio
+// Cost velocity collision
 template <typename Scalar>
 class ResidualModelVelCollisionTpl;
 template <typename Scalar>
 struct ResidualDataVelCollisionTpl;
 typedef ResidualModelVelCollisionTpl<double> ResidualModelVelCollision;
 typedef ResidualDataVelCollisionTpl<double> ResidualDataVelCollision;
+
+// Cost fly high
+template <typename Scalar>
+class ResidualModelFlyHighTpl;
+template <typename Scalar>
+struct ResidualDataFlyHighTpl;
+typedef ResidualModelFlyHighTpl<double> ResidualModelFlyHigh;
+typedef ResidualDataFlyHighTpl<double> ResidualDataFlyHigh;
 
 // Activation quad-ref
 template <typename Scalar>

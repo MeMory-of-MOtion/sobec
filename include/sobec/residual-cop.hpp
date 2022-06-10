@@ -101,9 +101,9 @@ class ResidualModelCenterOfPressureTpl
   /**
    * @brief Return the reference contact id
    */
-  pinocchio::PairIndex get_contact_id() const { return contact_id_; }
+  pinocchio::FrameIndex get_contact_id() const { return contact_id_; }
   /** @brief Set the reference contact id. */
-  void set_contact_id(const pinocchio::PairIndex id) { contact_id_ = id; }
+  void set_contact_id(const pinocchio::FrameIndex id) { contact_id_ = id; }
 
  protected:
   using Base::nu_;

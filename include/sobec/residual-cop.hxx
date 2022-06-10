@@ -43,7 +43,6 @@ void ResidualModelCenterOfPressureTpl<Scalar>::calcDiff(
     const boost::shared_ptr<ResidualDataAbstract> &data,
     const Eigen::Ref<const VectorXs> &, const Eigen::Ref<const VectorXs> &) {
   Data *d = static_cast<Data *>(data.get());
-  const std::size_t nv = state_->get_nv();
   Force f = d->contact->jMf.actInv(d->contact->f);
   const MatrixXs &df_dx = d->contact->df_dx;
   const MatrixXs &df_du = d->contact->df_du;

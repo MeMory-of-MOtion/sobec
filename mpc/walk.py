@@ -12,6 +12,13 @@ from weight_share import weightShareSmoothProfile, switch_linear
 import sobec
 
 from params import (
+    flyWeight,
+    forceImportance,
+    coneAxisWeight,
+    impactAltitudeWeight,
+    verticalFootVelWeight,
+    flyHighSlope,
+    footMinimalDistance,
     STATE_WEIGHT,
     refStateWeight,
     CONTROL_WEIGHT,
@@ -19,9 +26,8 @@ from params import (
     VCOM_TARGET,
     vcomWeight,
     copWeight,
-    impactAltitudeWeight,
+    conePenaltyWeight,
     terminalNoVelocityWeight,
-    footMinimalDistance,
 )
 
 pin.SE3.__repr__ = pin.SE3.__str__
@@ -94,7 +100,7 @@ pin.framesForwardKinematics(model, data, x0[: model.nq])
 
 # #####################################################################################
 # ## TUNING ###########################################################################
-#######################################################################################
+# #####################################################################################
 
 # In the code, cost terms with 0 weight are commented for reducing execution cost
 # An example of working weight value is then given as comment at the end of the line.
@@ -105,7 +111,7 @@ pin.framesForwardKinematics(model, data, x0[: model.nq])
 assert len(STATE_WEIGHT) == model.nv * 2
 
 kktDamping = 0  # 1e-6
-baumgartGains = np.array([0, 0])  # #X## 50
+baumgartGains = np.array([0, 0])  # ##X## 50
 
 # Contact are specified with the order chosen in <contactIds>
 contactPattern = (
@@ -152,14 +158,14 @@ referenceForces = [
 ]
 # Take care, we suppose here that foot normal is vertical.
 
-# #################################################################################################
-# #################################################################################################
-# #################################################################################################
+# #####################################################################################
+# #####################################################################################
+# #####################################################################################
 
 
 models = []
 
-# #################################################################################################
+# #####################################################################################
 for t, pattern in enumerate(contactPattern[:-1]):
     # print(f'time t={t}')
 
@@ -202,9 +208,41 @@ for t, pattern in enumerate(contactPattern[:-1]):
         copCost = croc.CostModelResidual(state, copAct, copResidual)
         costs.addCost(f"{model.frames[cid].name}_cop", copCost, copWeight)
 
+        # Cone with enormous friction (Assuming the robot will barely ever slide).
+        # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates
+        # => x2
+        cone = croc.WrenchCone(
+            np.eye(3), 1000, np.array([FOOT_SIZE * 2] * 2), 4, True, 1, 10000
+        )
+        coneCost = croc.ResidualModelContactWrenchCone(state, cid, cone, actuation.nu)
+        ub = cone.ub.copy()
+        ub[:4] = np.inf
+        # ub[5:] = np.inf  ### DEBUG
+        ub[-8:] = np.inf
+        coneAct = croc.ActivationModelQuadraticBarrier(
+            croc.ActivationBounds(cone.lb, ub)
+        )
+        coneCost = croc.CostModelResidual(state, coneAct, coneCost)
+        costs.addCost(f"{model.frames[cid].name}_cone", coneCost, conePenaltyWeight)
+
+        # Penalize the distance to the central axis of the cone ...
+        #  ... using normalization weights depending on the axis.
+        # The weights are squared to match the tuning of the CASADI formulation.
+        coneAxisResidual = croc.ResidualModelContactForce(
+            state, cid, pin.Force.Zero(), 6, actuation.nu
+        )
+        w = np.array(forceImportance**2)
+        w[2] = 0
+        coneAxisAct = croc.ActivationModelWeightedQuad(w)
+        coneAxisCost = croc.CostModelResidual(state, coneAxisAct, coneAxisResidual)
+        costs.addCost(
+            f"{model.frames[cid].name}_coneaxis", coneAxisCost, coneAxisWeight
+        )
+
     # for k,cid in enumerate(contactIds):
     #    if t>0 and not pattern[k] and contactPattern[t-1][k]:
     for k, cid in enumerate(contactIds):
+
         if t > 0 and not contactPattern[t - 1][k] and pattern[k]:
             print(f"Impact {cid} at time {t}")
             impactResidual = croc.ResidualModelFrameTranslation(
@@ -213,6 +251,36 @@ for t, pattern in enumerate(contactPattern[:-1]):
             impactAct = croc.ActivationModelWeightedQuad(np.array([0, 0, 1]))
             impactCost = croc.CostModelResidual(state, impactAct, impactResidual)
             costs.addCost("altitudeImpact", impactCost, impactAltitudeWeight / DT)
+
+    # Flying foot
+    for k, cid in enumerate(contactIds):
+        if pattern[k]:
+            continue
+        verticalFootVelResidual = croc.ResidualModelFrameVelocity(
+            state,
+            cid,
+            pin.Motion.Zero(),
+            pin.ReferenceFrame.LOCAL_WORLD_ALIGNED,
+            actuation.nu,
+        )
+        verticalFootVelAct = croc.ActivationModelWeightedQuad(
+            np.array([0, 0, 1, 0, 0, 0])
+        )
+        verticalFootVelCost = croc.CostModelResidual(
+            state, verticalFootVelAct, verticalFootVelResidual
+        )
+        costs.addCost(
+            f"{model.frames[cid].name}_vfoot_vel",
+            verticalFootVelCost,
+            verticalFootVelWeight,
+        )
+
+        # Slope is /2 since it is squared in casadi (je me comprends)
+        flyHighResidual = sobec.ResidualModelFlyHigh(
+            state, cid, flyHighSlope / 2, actuation.nu
+        )
+        flyHighCost = croc.CostModelResidual(state, flyHighResidual)
+        costs.addCost(f"{model.frames[cid].name}_flyhigh", flyHighCost, flyWeight)
 
     # Action
     damodel = croc.DifferentialActionModelContactFwdDynamics(
@@ -223,7 +291,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
     models.append(amodel)
     # stophere
 
-# #################################################################################################
+# #####################################################################################
 pattern = contactPattern[-1]
 
 state = croc.StateMultibody(model)
@@ -253,11 +321,11 @@ damodel = croc.DifferentialActionModelContactFwdDynamics(
 )
 termmodel = croc.IntegratedActionModelEuler(damodel, DT)
 
-# #################################################################################################
+# #####################################################################################
 GUESS_FILE = "/tmp/sol.npy"
 guess = np.load(GUESS_FILE, allow_pickle=True)[()]
 print(f'Load "{GUESS_FILE}"!')
-# #################################################################################################
+# #####################################################################################
 
 problem = croc.ShootingProblem(x0, models, termmodel)
 ddp = croc.SolverFDDP(problem)
@@ -483,8 +551,30 @@ def save():
     print(f'Save "{SOLU_FILE}"!')
 
 
+"""
+-B < tau/f < B
+tau < Bf
+Bf - tau >=0
+tau >= -Bf
+Bf + tau >= 0
+"""
+
 # ## DEBUG
-t = 0
+
+# dmodel = problem.runningModels[0].differential
+# ddata = problem.runningDatas[0].differential
+
+# contactmodell = dmodel.contacts.contacts['left_sole_link_contact'].contact
+# contactmodelr = dmodel.contacts.contacts['right_sole_link_contact'].contact
+# contactdatal = ddata.multibody.contacts.contacts['left_sole_link_contact']
+# contactdatar = ddata.multibody.contacts.contacts['right_sole_link_contact']
+
+# copcostmodell = dmodel.costs.costs['left_sole_link_cop'].cost
+# copcostmodelr = dmodel.costs.costs['right_sole_link_cop'].cost
+# copcostdatal = ddata.costs.costs['left_sole_link_cop']
+# copcostdatar = ddata.costs.costs['right_sole_link_cop']
+
+t = 60
 xs = guess["xs"]
 us = guess["us"]
 fs0 = guess["fs"]

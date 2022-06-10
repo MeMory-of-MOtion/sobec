@@ -26,7 +26,7 @@ armUWeight = [10, 10]
 CONTROL_WEIGHT = np.array(legUWeight * 2 + armUWeight)
 
 # ## Gains for force continuity: wfref for tracking the reference, wfcont for time
-# difference.
+# difference
 refTorqueWeight = 0
 refStateWeight = 1e-1
 flatBaseWeight = 0  # 20
@@ -58,6 +58,7 @@ terminalNoVelocityWeight = 2000
 terminalXTargetWeight = 0  # #DDP## 2000
 
 refFootFlyingAltitude = 3e-2
+flyHighSlope = 5 / refFootFlyingAltitude
 footMinimalDistance = 0.1  # 0.1  (.17 is the max value wrt initial config)
 MAIN_JOINTS = [0, 1, 3]
 MAIN_JOINTS = [i + 7 for i in MAIN_JOINTS] + [i + 13 for i in MAIN_JOINTS]

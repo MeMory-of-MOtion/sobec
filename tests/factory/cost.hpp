@@ -28,10 +28,11 @@ struct CostModelTypes {
     // CostModelResidualControl,
     // CostModelResidualCoMPosition,
     CostModelResidualCoMVelocity,
+    CostModelResidualFlyHigh,
     // CostModelResidualFramePlacement,
     // CostModelResidualFrameRotation,
     // CostModelResidualFrameTranslation,
-    // CostModelResidualFrameVelocity,
+    CostModelResidualFrameVelocity,
     NbCostModelTypes
   };
   static std::vector<Type> init_all() {

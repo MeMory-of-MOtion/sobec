@@ -9,6 +9,7 @@ namespace python {
 void exposeResidualCoMVelocity();
 void exposeResidualVelCollision();
 void exposeResidualCenterOfPressure();
+void exposeResidualFlyHigh();
 void exposeActivationQuadRef();
 }  // namespace python
 }  // namespace sobec
