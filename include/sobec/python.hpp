@@ -17,7 +17,7 @@ void exposeContact1D();
 void exposeMultipleContacts();
 void exposeDAMContactFwdDyn();
 void exposeResidualContactForce();
-  
+
 }  // namespace python
 }  // namespace sobec
 
