@@ -2,6 +2,7 @@ set(${PY_NAME}_SOURCES
   main.cpp
   residual-com-velocity.cpp
   residual-vel-collision.cpp
+  residual-cop.cpp
   activation-quad-ref.cpp
   )
 
