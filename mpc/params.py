@@ -31,31 +31,31 @@ refTorqueWeight = 0
 refStateWeight = 1e-1
 flatBaseWeight = 0  # 20
 forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
-coneAxisWeight = 2e-4
+coneAxisWeight = 0  # #DDP## 2e-4
 comWeight = 0  # 20
 vcomWeight = 160
 acomWeight = 0  # 16*DT
 copWeight = 2
-verticalFootVelWeight = 20
+verticalFootVelWeight = 0  # #DDP## 20
 footVelWeight = 0  # 20
 footAccWeight = 0  # 2
-flyWeight = 20
-groundColWeight = 0  # ##DDP## 20
-conePenaltyWeight = 20
+flyWeight = 0  # #DDP## 20
+groundColWeight = 0  # #DDP## 20
+conePenaltyWeight = 0  # #DDP## 20
 
 lowbandwidthweight = 0  # 2e-1
 minTorqueDiffWeight = 0  # 2e-2
 
-refForceWeight = 0  # ##DDP## 10
+refForceWeight = 0  # #DDP## 10
 contiForceWeight = 0
 
 impactAltitudeWeight = 20000
-impactVelocityWeight = 0  # ##DDP## 200
-impactRotationWeight = 0  # ##DDP## 200
-refMainJointsAtImpactWeight = 0  # ##DDP## 2e2
+impactVelocityWeight = 0  # #DDP## 200
+impactRotationWeight = 0  # #DDP## 200
+refMainJointsAtImpactWeight = 0  # #DDP## 2e2
 
 terminalNoVelocityWeight = 2000
-terminalXTargetWeight = 0  # ##DDP## 2000
+terminalXTargetWeight = 0  # #DDP## 2000
 
 refFootFlyingAltitude = 3e-2
 flyHighSlope = 5 / refFootFlyingAltitude

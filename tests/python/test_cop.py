@@ -17,7 +17,7 @@ np.random.seed(0)
 
 # ## LOAD AND DISPLAY SOLO
 # Load the robot model from example robot data and display it if possible in
-# Gepetto-viewe.
+# Gepetto-viewer.
 # robot = talos_low.load()
 # contactIds = [ i for i,f in enumerate(robot.model.frames) if "sole_link" in f.name ]
 # contactIds = [ contactIds[0] ]

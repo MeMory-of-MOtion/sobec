@@ -18,7 +18,6 @@ from params import (
     impactAltitudeWeight,
     verticalFootVelWeight,
     flyHighSlope,
-    terminalNoVelocityWeight,
     footMinimalDistance,
     STATE_WEIGHT,
     refStateWeight,
@@ -28,6 +27,7 @@ from params import (
     vcomWeight,
     copWeight,
     conePenaltyWeight,
+    terminalNoVelocityWeight,
 )
 
 pin.SE3.__repr__ = pin.SE3.__str__
@@ -343,10 +343,21 @@ u0s = [u for u in guess["us"]]
 # l.append(2)
 # ddp.alphas = l
 
-# ddp.th_acceptStep = 0.1
-ddp.th_stop = 1e-3
-ddp.solve(x0s, u0s, 200)
+ddp.th_acceptStep = 0.0000001
+ddp.solve(x0s, u0s, 20000)
 
+dmodel = problem.runningModels[0].differential
+ddata = problem.runningDatas[0].differential
+
+contactmodell = dmodel.contacts.contacts["left_sole_link_contact"].contact
+contactmodelr = dmodel.contacts.contacts["right_sole_link_contact"].contact
+contactdatal = ddata.multibody.contacts.contacts["left_sole_link_contact"]
+contactdatar = ddata.multibody.contacts.contacts["right_sole_link_contact"]
+
+copcostmodell = dmodel.costs.costs["left_sole_link_cop"].cost
+copcostmodelr = dmodel.costs.costs["right_sole_link_cop"].cost
+copcostdatal = ddata.costs.costs["left_sole_link_cop"]
+copcostdatar = ddata.costs.costs["right_sole_link_cop"]
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
@@ -568,15 +579,9 @@ xs = guess["xs"]
 us = guess["us"]
 fs0 = guess["fs"]
 acs = guess["acs"]
-dadata = problem.runningDatas[t].differential
-damodel = problem.runningModels[t].differential
-damodel.calc(dadata, xs[t], us[t])
-damodel.calcDiff(dadata, xs[t], us[t])
-cosname = "left_sole_link_cone"
-cosname = "right_sole_link_cone"
-# cosname='altitudeImpact'
-cosname = "right_sole_link_vfoot_vel"  # t = 60
-cosname = "right_sole_link_flyhigh"
-cosdata = dadata.costs.costs[cosname]
-cosmodel = damodel.costs.costs[cosname].cost
+ddata = problem.runningDatas[t].differential
+dmodel = problem.runningModels[t].differential
+dmodel.calc(ddata, xs[t], us[t])
+cname = "left_sole_link_cop"
+
 np.set_printoptions(precision=6, linewidth=300, suppress=True, threshold=10000)
