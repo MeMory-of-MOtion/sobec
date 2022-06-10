@@ -13,14 +13,14 @@ from .sobec_pywrap import (
     ActivationModelQuadRef, 
     RobotDesigner,
     HorizonManager,
-    ModelMaker, Support
+    ModelMaker,
+    Support,
     ResidualModelCenterOfPressure,
     ResidualModelFlyHigh,
-    ActivationModelQuadRef,
     IntegratedActionModelLPF,
     ContactModel3D,
     ContactModel1D,
     ContactModelMultiple,
     DifferentialActionModelContactFwdDynamics,
-    ResidualModelContactForce,
+    ResidualModelContactForce
 )

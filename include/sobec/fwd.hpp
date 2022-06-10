@@ -38,7 +38,6 @@
 #include <crocoddyl/multibody/residuals/contact-control-gravity.hpp>
 #include <crocoddyl/multibody/contacts/multiple-contacts.hpp>
 #include <crocoddyl/multibody/residuals/com-position.hpp>
-#include <crocoddyl/multibody/residuals/com-velocity.hpp>
 #include <crocoddyl/multibody/residuals/frame-velocity.hpp>
 #include <crocoddyl/multibody/residuals/contact-wrench-cone.hpp>
 #include <crocoddyl/multibody/contacts/contact-6d.hpp>

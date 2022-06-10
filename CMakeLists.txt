@@ -58,21 +58,6 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/residual-vel-collision.hpp
   include/${PROJECT_NAME}/residual-fly-high.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
-  include/${PROJECT_NAME}/designer.hpp
-  include/${PROJECT_NAME}/model_factory.hpp
-  include/${PROJECT_NAME}/horizon_manager.hpp
-  include/${PROJECT_NAME}/ocp.hpp
-)
-
-set(${PROJECT_NAME}_SOURCES
-  include/${PROJECT_NAME}/residual-com-velocity.hxx
-  src/designer.cpp
-  src/model_factory.cpp
-  src/horizon_manager.cpp
-  src/ocp.cpp
-  )
-
-add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
   include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
   include/${PROJECT_NAME}/contact/contact3d.hpp
@@ -91,9 +76,20 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
   include/${PROJECT_NAME}/residual-fly-high.hxx
- )
+  include/${PROJECT_NAME}/designer.hpp
+  include/${PROJECT_NAME}/model_factory.hpp
+  include/${PROJECT_NAME}/horizon_manager.hpp
+  include/${PROJECT_NAME}/ocp.hpp
+)
 
-add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_HEADERS})
+set(${PROJECT_NAME}_SOURCES
+  src/designer.cpp
+  src/model_factory.cpp
+  src/horizon_manager.cpp
+  src/ocp.cpp
+)
+
+add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
 target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl ndcurves::ndcurves)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
