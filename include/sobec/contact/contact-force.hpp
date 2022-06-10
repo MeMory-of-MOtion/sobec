@@ -9,8 +9,6 @@
 #ifndef SOBEC_CONTACT_FORCE_HPP_
 #define SOBEC_CONTACT_FORCE_HPP_
 
-#include "sobec/contact/contact1d.hpp"
-#include "sobec/contact/contact3d.hpp"
 #include "crocoddyl/core/residual-base.hpp"
 #include "crocoddyl/core/utils/exception.hpp"
 #include "crocoddyl/multibody/contact-base.hpp"
@@ -19,6 +17,8 @@
 #include "crocoddyl/multibody/fwd.hpp"
 #include "crocoddyl/multibody/residuals/contact-force.hpp"
 #include "crocoddyl/multibody/states/multibody.hpp"
+#include "sobec/contact/contact1d.hpp"
+#include "sobec/contact/contact3d.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -49,7 +49,8 @@ namespace sobec {
  * `DataCollectorImpulseTpl`
  */
 template <typename _Scalar>
-class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForceTpl<_Scalar> {
+class ResidualModelContactForceTpl
+    : public crocoddyl::ResidualModelContactForceTpl<_Scalar> {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -73,8 +74,10 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
    * @param[in] nc     Dimension of the contact force (nc <= 6)
    * @param[in] nu     Dimension of control vector
    */
-  ResidualModelContactForceTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
-                               const Force& fref, const std::size_t nc, const std::size_t nu);
+  ResidualModelContactForceTpl(boost::shared_ptr<StateMultibody> state,
+                               const pinocchio::FrameIndex id,
+                               const Force& fref, const std::size_t nc,
+                               const std::size_t nu);
   //    const std::size_t type = 2);
 
   /**
@@ -88,7 +91,8 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
    * coordinates
    * @param[in] nc     Dimension of the contact force (nc <= 6)
    */
-  ResidualModelContactForceTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex id,
+  ResidualModelContactForceTpl(boost::shared_ptr<StateMultibody> state,
+                               const pinocchio::FrameIndex id,
                                const Force& fref, const std::size_t nc);
   virtual ~ResidualModelContactForceTpl();
 
@@ -104,7 +108,8 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
+  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data,
+                    const Eigen::Ref<const VectorXs>& x,
                     const Eigen::Ref<const VectorXs>& u);
 
   /**
@@ -119,7 +124,8 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
+  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
+                        const Eigen::Ref<const VectorXs>& x,
                         const Eigen::Ref<const VectorXs>& u);
 };
 

@@ -19,24 +19,25 @@
 #include "crocoddyl/multibody/states/multibody.hpp"
 // #include "crocoddyl/multibody/data/contacts.hpp"
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
-#include "sobec/fwd.hpp"
 #include "sobec/contact/multiple-contacts.hpp"
+#include "sobec/fwd.hpp"
 
 namespace sobec {
 
 /**
  * @brief Differential action model for contact forward dynamics in multibody
- * systems. 
- * 
- * This class is derived from `crocoddyl::DifferentialActionModelContactFwdDynamicsTpl`
- * with the additional feature that it allows to compute the contact forward dynamics 
- * under sobec contact models (1D & 3D), which can be expressed in the LOCAL or 
- * LOCAL_WORLD_ALIGNED / WORLD reference frame. It amounts to add in `calcDiff` some
- * terms to the RNEA derivatives (and to the contact force derivatives if a contact 
- * force cost is defined). The maths of these modifications are detailed here :
- * https://www.overleaf.com/read/tzvrrxxtntwk  
- *  
- * 
+ * systems.
+ *
+ * This class is derived from
+ * `crocoddyl::DifferentialActionModelContactFwdDynamicsTpl` with the additional
+ * feature that it allows to compute the contact forward dynamics under sobec
+ * contact models (1D & 3D), which can be expressed in the LOCAL or
+ * LOCAL_WORLD_ALIGNED / WORLD reference frame. It amounts to add in `calcDiff`
+ * some terms to the RNEA derivatives (and to the contact force derivatives if a
+ * contact force cost is defined). The maths of these modifications are detailed
+ * here : https://www.overleaf.com/read/tzvrrxxtntwk
+ *
+ *
  * This class implements contact forward dynamics given a stack of
  * rigid-contacts described in `ContactModelMultipleTpl`, i.e., \f[
  * \left[\begin{matrix}\dot{\mathbf{v}}
@@ -93,7 +94,8 @@ class DifferentialActionModelContactFwdDynamicsTpl
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
   typedef crocoddyl::ContactModelMultipleTpl<Scalar> crocoContactModelMultiple;
   typedef crocoddyl::ActuationModelAbstractTpl<Scalar> ActuationModelAbstract;
-  typedef crocoddyl::DifferentialActionDataAbstractTpl<Scalar> DifferentialActionDataAbstract;
+  typedef crocoddyl::DifferentialActionDataAbstractTpl<Scalar>
+      DifferentialActionDataAbstract;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::MatrixXs MatrixXs;
 
@@ -113,12 +115,13 @@ class DifferentialActionModelContactFwdDynamicsTpl
    * @param[in] enable_force     Enable the computation of the contact force
    * derivatives (default false)
    */
-  DifferentialActionModelContactFwdDynamicsTpl(boost::shared_ptr<StateMultibody> state,
-                                               boost::shared_ptr<ActuationModelAbstract> actuation,
-                                               boost::shared_ptr<crocoContactModelMultiple> contacts,
-                                               boost::shared_ptr<CostModelSum> costs,
-                                               const Scalar JMinvJt_damping = Scalar(0.),
-                                               const bool enable_force = false);
+  DifferentialActionModelContactFwdDynamicsTpl(
+      boost::shared_ptr<StateMultibody> state,
+      boost::shared_ptr<ActuationModelAbstract> actuation,
+      boost::shared_ptr<crocoContactModelMultiple> contacts,
+      boost::shared_ptr<CostModelSum> costs,
+      const Scalar JMinvJt_damping = Scalar(0.),
+      const bool enable_force = false);
   virtual ~DifferentialActionModelContactFwdDynamicsTpl();
 
   /**
@@ -128,8 +131,9 @@ class DifferentialActionModelContactFwdDynamicsTpl
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<DifferentialActionDataAbstract>& data,
-                        const Eigen::Ref<const VectorXs>& x, const Eigen::Ref<const VectorXs>& u);
+  virtual void calcDiff(
+      const boost::shared_ptr<DifferentialActionDataAbstract>& data,
+      const Eigen::Ref<const VectorXs>& x, const Eigen::Ref<const VectorXs>& u);
 
   // /**
   //  * @brief @copydoc Base::quasiStatic()

@@ -44,8 +44,9 @@ class ActuationModelFactory {
   explicit ActuationModelFactory();
   ~ActuationModelFactory();
 
-  boost::shared_ptr<crocoddyl::ActuationModelAbstract> create(ActuationModelTypes::Type actuation_type,
-                                                              StateModelTypes::Type state_type) const;
+  boost::shared_ptr<crocoddyl::ActuationModelAbstract> create(
+      ActuationModelTypes::Type actuation_type,
+      StateModelTypes::Type state_type) const;
 };
 
 /**
@@ -58,9 +59,10 @@ class ActuationModelFactory {
  * @param x[in]      State vector
  * @param u[in]      Control vector
  */
-void updateActuation(const boost::shared_ptr<crocoddyl::ActuationModelAbstract>& model,
-                     const boost::shared_ptr<crocoddyl::ActuationDataAbstract>& data, const Eigen::VectorXd& x,
-                     const Eigen::VectorXd& u);
+void updateActuation(
+    const boost::shared_ptr<crocoddyl::ActuationModelAbstract>& model,
+    const boost::shared_ptr<crocoddyl::ActuationDataAbstract>& data,
+    const Eigen::VectorXd& x, const Eigen::VectorXd& u);
 
 }  // namespace unittest
 }  // namespace sobec
