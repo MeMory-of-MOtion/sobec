@@ -54,7 +54,9 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/python.hpp
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
+  include/${PROJECT_NAME}/residual-cop.hpp
   include/${PROJECT_NAME}/residual-vel-collision.hpp
+  include/${PROJECT_NAME}/residual-fly-high.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
   include/${PROJECT_NAME}/designer.hpp
   include/${PROJECT_NAME}/model_factory.hpp
@@ -71,6 +73,27 @@ set(${PROJECT_NAME}_SOURCES
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
+  include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
+  include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
+  include/${PROJECT_NAME}/contact/contact3d.hpp
+  include/${PROJECT_NAME}/contact/contact1d.hpp
+  include/${PROJECT_NAME}/contact/multiple-contacts.hpp
+  include/${PROJECT_NAME}/contact/contact-fwddyn.hpp
+  include/${PROJECT_NAME}/contact/contact-force.hpp
+  include/${PROJECT_NAME}/residual-com-velocity.hxx
+  include/${PROJECT_NAME}/residual-cop.hxx
+  include/${PROJECT_NAME}/residual-vel-collision.hxx
+  include/${PROJECT_NAME}/lowpassfilter/statelpf.hxx
+  include/${PROJECT_NAME}/lowpassfilter/lpf.hxx
+  include/${PROJECT_NAME}/contact/contact3d.hxx
+  include/${PROJECT_NAME}/contact/contact1d.hxx
+  include/${PROJECT_NAME}/contact/multiple-contacts.hxx
+  include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
+  include/${PROJECT_NAME}/contact/contact-force.hxx
+  include/${PROJECT_NAME}/residual-fly-high.hxx
+ )
+
+add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
 target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl ndcurves::ndcurves)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)

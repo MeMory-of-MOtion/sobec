@@ -23,7 +23,6 @@ for i in range(100):
   models.step(tau)
 """
 
-
 import pinocchio as pin
 import pybullet as pyb
 import pybullet_data

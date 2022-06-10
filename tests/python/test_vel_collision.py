@@ -47,7 +47,6 @@ rmodel, [gmodel_vis, gmodel_col] = pin.buildReducedModel(
 )
 rmodel.q0 = rmodel.referenceConfigurations["half_sitting"]
 
-
 # ## Open display
 viz = pin.visualize.GepettoVisualizer(rmodel, gmodel_col, gmodel_vis)
 viz.initViewer(loadModel=True)
@@ -97,7 +96,6 @@ rightFoot = "right_sole_link"
 rightFootId = rmodel.getFrameId(rightFoot)
 leftFoot = "left_sole_link"
 leftFootId = rmodel.getFrameId(leftFoot)
-
 
 ##################################################################################
 #
@@ -156,7 +154,6 @@ limitCost = crocoddyl.CostModelResidual(
     crocoddyl.ResidualModelState(state, zero(state.nx), actuation.nu),
 )
 
-
 # Wrench cone cost
 coneRotationLeft = rdata.oMf[leftFootId].copy().rotation.T
 coneRotationRight = rdata.oMf[rightFootId].copy().rotation.T
@@ -176,7 +173,6 @@ boundsFrictionLeft = crocoddyl.ActivationBounds(
 boundsFrictionRight = crocoddyl.ActivationBounds(
     wrenchConeFrameRight.lb, wrenchConeFrameRight.ub, 1.0
 )
-
 
 wrenchRefTwoSupports = zero(len(wrenchConeFrameLeft.ub))
 fz_ref2 = 400
@@ -265,7 +261,6 @@ weightuLeg = [1, 1, 1, 1, 10, 10]
 weightuArm = [10, 10, 10, 10]
 weightuTorso = [1, 1]
 controlWeight = np.array(weightuLeg * 2 + weightuTorso + weightuArm * 2)
-
 
 xRegResidual = crocoddyl.ResidualModelState(state, rmodel.defaultState, actuation.nu)
 xRegCost = crocoddyl.CostModelResidual(
@@ -375,7 +370,6 @@ gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_right, ig_obs_ground))
 gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_left, ig_obs_ground))
 gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_left, ig_obs_right))
 gmodel_col.addCollisionPair(pin.CollisionPair(ig_foot_right, ig_obs_left))
-
 
 residualPairCollisionRight = sobec.ResidualModelVelCollision(
     state, actuation.nu, gmodel_col, 0, rightFootId, pin.WORLD, 0.01

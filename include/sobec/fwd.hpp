@@ -59,13 +59,29 @@ struct ResidualDataCoMVelocityTpl;
 typedef ResidualModelCoMVelocityTpl<double> ResidualModelCoMVelocity;
 typedef ResidualDataCoMVelocityTpl<double> ResidualDataCoMVelocity;
 
-// Cost COM-vel
+// Cost COP
+template <typename Scalar>
+class ResidualModelCenterOfPressureTpl;
+template <typename Scalar>
+struct ResidualDataCenterOfPressureTpl;
+typedef ResidualModelCenterOfPressureTpl<double> ResidualModelCenterOfPressure;
+typedef ResidualDataCenterOfPressureTpl<double> ResidualDataCenterOfPressure;
+
+// Cost velocity collision
 template <typename Scalar>
 class ResidualModelVelCollisionTpl;
 template <typename Scalar>
 struct ResidualDataVelCollisionTpl;
 typedef ResidualModelVelCollisionTpl<double> ResidualModelVelCollision;
 typedef ResidualDataVelCollisionTpl<double> ResidualDataVelCollision;
+
+// Cost fly high
+template <typename Scalar>
+class ResidualModelFlyHighTpl;
+template <typename Scalar>
+struct ResidualDataFlyHighTpl;
+typedef ResidualModelFlyHighTpl<double> ResidualModelFlyHigh;
+typedef ResidualDataFlyHighTpl<double> ResidualDataFlyHigh;
 
 // Activation quad-ref
 template <typename Scalar>
@@ -88,6 +104,59 @@ typedef boost::shared_ptr<crocoddyl::SolverFDDP> DDP;
 
 typedef boost::shared_ptr<crocoddyl::ResidualModelFramePlacement> ResidualModelFramePlacementPtr;
 typedef boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> ResidualModelContactWrenchConePtr;
+
+// State LPF
+template <typename Scalar>
+class StateLPFTpl;
+typedef StateLPFTpl<double> StateLPF;
+
+// IAM LPF
+template <typename Scalar>
+class IntegratedActionModelLPFTpl;
+typedef IntegratedActionModelLPFTpl<double> IntegratedActionModelLPF;
+template <typename Scalar>
+class IntegratedActionDataLPFTpl;
+typedef IntegratedActionDataLPFTpl<double> IntegratedActionDataLPF;
+
+// contact 3D
+template <typename Scalar>
+class ContactModel3DTpl;
+typedef ContactModel3DTpl<double> ContactModel3D;
+template <typename Scalar>
+class ContactData3DTpl;
+typedef ContactData3DTpl<double> ContactData3D;
+
+// contact 1D
+template <typename Scalar>
+class ContactModel1DTpl;
+typedef ContactModel1DTpl<double> ContactModel1D;
+template <typename Scalar>
+class ContactData1DTpl;
+typedef ContactData1DTpl<double> ContactData1D;
+
+// multiple contacts
+template <typename Scalar>
+class ContactModelMultipleTpl;
+typedef ContactModelMultipleTpl<double> ContactModelMultiple;
+
+// DAM contact fwd dynamics
+template <typename Scalar>
+class DifferentialActionModelContactFwdDynamicsTpl;
+typedef DifferentialActionModelContactFwdDynamicsTpl<double>
+    DifferentialActionModelContactFwdDynamics;
+
+// Residual contact force
+template <typename Scalar>
+class ResidualModelContactForceTpl;
+typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
+
+enum ContactType {
+  ContactUndefined,
+  Contact1D,
+  Contact2D,
+  Contact3D,
+  Contact6D
+};
 
 }  // namespace sobec
 

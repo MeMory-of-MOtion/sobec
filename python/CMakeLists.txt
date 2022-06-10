@@ -2,10 +2,18 @@ set(${PY_NAME}_SOURCES
   main.cpp
   residual-com-velocity.cpp
   residual-vel-collision.cpp
+  residual-cop.cpp
+  residual-fly-high.cpp
   activation-quad-ref.cpp
   designer.cpp
   horizon_manager.cpp
   model_factory.cpp
+  lpf.cpp
+  contact3d.cpp
+  contact1d.cpp
+  multiple-contacts.cpp
+  contact-fwddyn.cpp
+  contact-force.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
