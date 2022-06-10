@@ -611,8 +611,8 @@ for s in range(T_total):
         q_current, v_current = getCurrentState()
 
         # Compute current position and velocity of all crocoddyl joints
-        qc = np.vstack((q_current[[i + 5 for i in pinocchioControlledJoints[1:]]]))
-        vc = np.vstack((v_current[[i + 4 for i in pinocchioControlledJoints[1:]]]))
+        qc = np.vstack(q_current[[i + 5 for i in pinocchioControlledJoints[1:]]])
+        vc = np.vstack(v_current[[i + 4 for i in pinocchioControlledJoints[1:]]])
         xinit0 = np.vstack((q_current[:7], qc, v_current[:6], vc))
         xinit0[:3] -= localInertiaPos
         # Compute torque to be applied by adding Riccati term

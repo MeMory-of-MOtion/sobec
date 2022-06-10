@@ -5,3 +5,5 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Sandbox for optimal control explicitely for bipeds
+
+Minimal python version: 3.6
