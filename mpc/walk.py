@@ -1,29 +1,48 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-import example_robot_data as robex
 import matplotlib.pyplot as plt
 
 # plt.ion()
-from numpy.linalg import norm, inv, pinv, svd, eig
+from numpy.linalg import norm
 
 # Local imports
 import talos_low
-from weight_share import weightShareSmoothProfile, switch_tanh, switch_linear
+from weight_share import weightShareSmoothProfile, switch_linear
 import sobec
+
+from params import (
+    flyWeight,
+    forceImportance,
+    coneAxisWeight,
+    impactAltitudeWeight,
+    verticalFootVelWeight,
+    flyHighSlope,
+    terminalNoVelocityWeight,
+    footMinimalDistance,
+    STATE_WEIGHT,
+    refStateWeight,
+    CONTROL_WEIGHT,
+    refTorqueWeight,
+    VCOM_TARGET,
+    vcomWeight,
+    copWeight,
+    conePenaltyWeight,
+)
 
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 
-### HYPER PARAMETERS
+# ## HYPER PARAMETERS
 # Hyperparameters defining the optimal control problem.
 
 DT = 0.010
 X_TARGET = 0.35
 FOOT_SIZE = 0.05
 
-### LOAD AND DISPLAY SOLO
-# Load the robot model from example robot data and display it if possible in Gepetto-viewer
+# ## LOAD AND DISPLAY SOLO
+# Load the robot model from example robot data and display it if possible in
+# Gepetto-viewer
 robot = talos_low.load()
 
 contactIds = [i for i, f in enumerate(robot.model.frames) if "sole_link" in f.name]
@@ -57,7 +76,7 @@ try:
     viz.initViewer()
     viz.loadViewerModel()
     gv = viz.viewer.gui
-except:
+except ImportError:
     print("No viewer")
 
 # The pinocchio model is what we are really interested by.
@@ -79,21 +98,20 @@ com0 = pin.centerOfMass(model, data, model.q0)
 
 pin.framesForwardKinematics(model, data, x0[: model.nq])
 
-###################################################################################################
-### TUNING ########################################################################################
-###################################################################################################
+# #####################################################################################
+# ## TUNING ###########################################################################
+# #####################################################################################
 
 # In the code, cost terms with 0 weight are commented for reducing execution cost
 # An example of working weight value is then given as comment at the end of the line.
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-from params import *
 
 assert len(STATE_WEIGHT) == model.nv * 2
 
 kktDamping = 0  # 1e-6
-baumgartGains = np.array([0, 0])  ##X## 50
+baumgartGains = np.array([0, 0])  # ##X## 50
 
 # Contact are specified with the order chosen in <contactIds>
 contactPattern = (
@@ -140,14 +158,14 @@ referenceForces = [
 ]
 # Take care, we suppose here that foot normal is vertical.
 
-# #################################################################################################
-# #################################################################################################
-# #################################################################################################
+# #####################################################################################
+# #####################################################################################
+# #####################################################################################
 
 
 models = []
 
-# #################################################################################################
+# #####################################################################################
 for t, pattern in enumerate(contactPattern[:-1]):
     # print(f'time t={t}')
 
@@ -191,7 +209,8 @@ for t, pattern in enumerate(contactPattern[:-1]):
         costs.addCost(f"{model.frames[cid].name}_cop", copCost, copWeight)
 
         # Cone with enormous friction (Assuming the robot will barely ever slide).
-        # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates => x2
+        # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates
+        # => x2
         cone = croc.WrenchCone(
             np.eye(3), 1000, np.array([FOOT_SIZE * 2] * 2), 4, True, 1, 10000
         )
@@ -272,7 +291,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
     models.append(amodel)
     # stophere
 
-# #################################################################################################
+# #####################################################################################
 pattern = contactPattern[-1]
 
 state = croc.StateMultibody(model)
@@ -302,11 +321,11 @@ damodel = croc.DifferentialActionModelContactFwdDynamics(
 )
 termmodel = croc.IntegratedActionModelEuler(damodel, DT)
 
-# #################################################################################################
+# #####################################################################################
 GUESS_FILE = "/tmp/sol.npy"
 guess = np.load(GUESS_FILE, allow_pickle=True)[()]
 print(f'Load "{GUESS_FILE}"!')
-# #################################################################################################
+# #####################################################################################
 
 problem = croc.ShootingProblem(x0, models, termmodel)
 ddp = croc.SolverFDDP(problem)
@@ -529,7 +548,7 @@ tau >= -Bf
 Bf + tau >= 0
 """
 
-### DEBUG
+# ## DEBUG
 
 # dmodel = problem.runningModels[0].differential
 # ddata = problem.runningDatas[0].differential
