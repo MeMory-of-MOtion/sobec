@@ -9,8 +9,8 @@
 #ifndef SOBEC_CONTACT_FORCE_HPP_
 #define SOBEC_CONTACT_FORCE_HPP_
 
-#include "contact1d.hpp"
-#include "contact3d.hpp"
+#include "sobec/contact/contact1d.hpp"
+#include "sobec/contact/contact3d.hpp"
 #include "crocoddyl/core/residual-base.hpp"
 #include "crocoddyl/core/utils/exception.hpp"
 #include "crocoddyl/multibody/contact-base.hpp"
@@ -128,6 +128,6 @@ class ResidualModelContactForceTpl : public crocoddyl::ResidualModelContactForce
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/contact-force.hxx"
+#include "sobec/contact/contact-force.hxx"
 
 #endif  // SOBEC_CONTACT_FORCE_HPP_

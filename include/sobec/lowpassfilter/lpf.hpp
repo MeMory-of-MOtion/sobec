@@ -16,7 +16,7 @@
 #include <crocoddyl/multibody/states/multibody.hpp>
 #include <pinocchio/multibody/model.hpp>
 
-#include "sobec/statelpf.hpp"
+#include "statelpf.hpp"
 
 namespace sobec {
 using namespace crocoddyl;
@@ -157,6 +157,6 @@ struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/lpf.hxx"
+#include "sobec/lowpassfilter/lpf.hxx"
 
 #endif  // SOBEC_LPF_HPP_

@@ -16,7 +16,7 @@
 #include "actuation.hpp"
 #include "contact1d.hpp"
 #include "contact3d.hpp"
-#include "sobec/contact-fwddyn.hpp"
+#include "sobec/contact/contact-fwddyn.hpp"
 #include "state.hpp"
 
 namespace sobec {

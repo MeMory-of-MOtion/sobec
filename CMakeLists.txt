@@ -55,25 +55,25 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/residual-com-velocity.hpp
   include/${PROJECT_NAME}/residual-vel-collision.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
-  include/${PROJECT_NAME}/statelpf.hpp
-  include/${PROJECT_NAME}/lpf.hpp
-  include/${PROJECT_NAME}/contact3d.hpp
-  include/${PROJECT_NAME}/contact1d.hpp
-  include/${PROJECT_NAME}/multiple-contacts.hpp
-  include/${PROJECT_NAME}/contact-fwddyn.hpp
-  include/${PROJECT_NAME}/contact-force.hpp
+  include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
+  include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
+  include/${PROJECT_NAME}/contact/contact3d.hpp
+  include/${PROJECT_NAME}/contact/contact1d.hpp
+  include/${PROJECT_NAME}/contact/multiple-contacts.hpp
+  include/${PROJECT_NAME}/contact/contact-fwddyn.hpp
+  include/${PROJECT_NAME}/contact/contact-force.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/residual-vel-collision.hxx
-  include/${PROJECT_NAME}/statelpf.hxx
-  include/${PROJECT_NAME}/lpf.hxx
-  include/${PROJECT_NAME}/contact3d.hxx
-  include/${PROJECT_NAME}/contact1d.hxx
-  include/${PROJECT_NAME}/multiple-contacts.hxx
-  include/${PROJECT_NAME}/contact-fwddyn.hxx
-  include/${PROJECT_NAME}/contact-force.hxx
+  include/${PROJECT_NAME}/lowpassfilter/statelpf.hxx
+  include/${PROJECT_NAME}/lowpassfilter/lpf.hxx
+  include/${PROJECT_NAME}/contact/contact3d.hxx
+  include/${PROJECT_NAME}/contact/contact1d.hxx
+  include/${PROJECT_NAME}/contact/multiple-contacts.hxx
+  include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
+  include/${PROJECT_NAME}/contact/contact-force.hxx
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/contact1d.hpp"
+#include "contact1d.hpp"
 
 namespace sobec {
 

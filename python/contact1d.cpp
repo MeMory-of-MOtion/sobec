@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/contact1d.hpp"
+#include "sobec/contact/contact1d.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

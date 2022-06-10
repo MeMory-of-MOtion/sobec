@@ -20,14 +20,23 @@
 // #include "crocoddyl/multibody/data/contacts.hpp"
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
 #include "sobec/fwd.hpp"
-#include "sobec/multiple-contacts.hpp"
+#include "sobec/contact/multiple-contacts.hpp"
 
 namespace sobec {
 
 /**
  * @brief Differential action model for contact forward dynamics in multibody
- * systems.
- *
+ * systems. 
+ * 
+ * This class is derived from `crocoddyl::DifferentialActionModelContactFwdDynamicsTpl`
+ * with the additional feature that it allows to compute the contact forward dynamics 
+ * under sobec contact models (1D & 3D), which can be expressed in the LOCAL or 
+ * LOCAL_WORLD_ALIGNED / WORLD reference frame. It amounts to add in `calcDiff` some
+ * terms to the RNEA derivatives (and to the contact force derivatives if a contact 
+ * force cost is defined). The maths of these modifications are detailed here :
+ * https://www.overleaf.com/read/tzvrrxxtntwk  
+ *  
+ * 
  * This class implements contact forward dynamics given a stack of
  * rigid-contacts described in `ContactModelMultipleTpl`, i.e., \f[
  * \left[\begin{matrix}\dot{\mathbf{v}}
@@ -142,6 +151,6 @@ class DifferentialActionModelContactFwdDynamicsTpl
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include <sobec/contact-fwddyn.hxx>
+#include <sobec/contact/contact-fwddyn.hxx>
 
 #endif  // SOBEC_CONTACT_FWDDYN_HPP_

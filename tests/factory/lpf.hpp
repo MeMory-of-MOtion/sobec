@@ -14,7 +14,7 @@
 #include "crocoddyl/core/action-base.hpp"
 #include "crocoddyl/core/numdiff/action.hpp"
 #include "diff-action.hpp"
-#include "sobec/lpf.hpp"
+#include "sobec/lowpassfilter/lpf.hpp"
 
 namespace sobec {
 namespace unittest {

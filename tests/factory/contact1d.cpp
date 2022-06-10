@@ -9,7 +9,7 @@
 #include "contact1d.hpp"
 
 #include "crocoddyl/core/utils/exception.hpp"
-#include "sobec/contact1d.hpp"
+#include "sobec/contact/contact1d.hpp"
 
 namespace sobec {
 namespace unittest {

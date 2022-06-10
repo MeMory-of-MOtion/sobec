@@ -14,7 +14,7 @@
 #include <crocoddyl/core/utils/exception.hpp>
 
 #include "pinocchio_model.hpp"
-#include "sobec/statelpf.hpp"
+#include "sobec/lowpassfilter/statelpf.hpp"
 
 namespace sobec {
 namespace unittest {

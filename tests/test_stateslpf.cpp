@@ -16,14 +16,6 @@
 #include "factory/state.hpp"
 #include "factory/actuation.hpp"
 
-#include <crocoddyl/core/actuation/actuation-squashing.hpp>
-#include <crocoddyl/core/actuation/squashing-base.hpp>
-#include <crocoddyl/core/actuation/squashing/smooth-sat.hpp>
-#include <crocoddyl/core/utils/exception.hpp>
-#include <crocoddyl/multibody/actuations/floating-base.hpp>
-#include <crocoddyl/multibody/actuations/full.hpp>
-#include <crocoddyl/multibody/actuations/multicopter-base.hpp>
-
 using namespace boost::unit_test;
 using namespace sobec::unittest;
 

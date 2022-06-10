@@ -18,8 +18,8 @@
 #include <string>
 #include <utility>
 
-#include "contact1d.hpp"
-#include "contact3d.hpp"
+#include "sobec/contact/contact1d.hpp"
+#include "sobec/contact/contact3d.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -107,6 +107,6 @@ class ContactModelMultipleTpl : public crocoddyl::ContactModelMultipleTpl<_Scala
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/multiple-contacts.hxx"
+#include "sobec/contact/multiple-contacts.hxx"
 
 #endif  // SOBEC_MULTIPLE_CONTACTS_HPP_

@@ -16,7 +16,6 @@
 
 #include "common.hpp"
 #include "factory/contact3d.hpp"
-#include "sobec/contact3d.hpp"
 
 using namespace sobec::unittest;
 using namespace boost::unit_test;

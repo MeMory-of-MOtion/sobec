@@ -16,7 +16,7 @@
 
 #include "crocoddyl/core/utils/exception.hpp"
 #include "crocoddyl/core/utils/math.hpp"
-#include "sobec/contact-fwddyn.hpp"
+#include "contact-fwddyn.hpp"
 
 namespace sobec {
 

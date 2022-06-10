@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/contact-force.hpp"
+#include "contact-force.hpp"
 
 namespace sobec {
 
