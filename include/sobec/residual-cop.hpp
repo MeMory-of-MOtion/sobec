@@ -21,6 +21,7 @@
 #include "crocoddyl/multibody/contacts/contact-6d.hpp"
 #include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
 #include "crocoddyl/multibody/data/contacts.hpp"
+#include "sobec/contact/multiple-contacts.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {

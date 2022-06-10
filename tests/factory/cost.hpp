@@ -28,6 +28,7 @@ struct CostModelTypes {
     CostModelResidualControl,
     CostModelResidualCoMPosition,
     CostModelResidualCoMVelocity,
+    CostModelResidualFlyHigh,
     CostModelResidualFramePlacement,
     CostModelResidualFrameRotation,
     CostModelResidualFrameTranslation,

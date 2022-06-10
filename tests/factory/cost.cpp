@@ -49,6 +49,9 @@ std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
     case CostModelTypes::CostModelResidualCoMVelocity:
       os << "CostModelResidualCoMVelocity";
       break;
+    case CostModelTypes::CostModelResidualFlyHigh:
+      os << "CostModelResidualFlyHigh";
+      break;
     case CostModelTypes::CostModelResidualFramePlacement:
       os << "CostModelResidualFramePlacement";
       break;
@@ -129,6 +132,15 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
           boost::make_shared<sobec::ResidualModelCoMVelocity>(
               state, Eigen::Vector3d::Random(), nu));
       break;
+    case CostModelTypes::CostModelResidualFlyHigh: {
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 2),
+          boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index, 1,
+                                                          nu));
+      sobec::ResidualModelFlyHigh res(state, frame_index, 1, nu);
+      res.get_frame_id();
+      break;
+    }
     case CostModelTypes::CostModelResidualFramePlacement:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 6),
