@@ -57,7 +57,9 @@ namespace sobec{
             pinocchio::Data &get_rData(){return rData_;}
             pinocchio::Data &get_rDataComplete(){return rDataComplete_;}
             Eigen::VectorXd get_q0(){return q0_;}
+            Eigen::VectorXd get_v0(){return v0_;}
             Eigen::VectorXd get_q0Complete(){return q0Complete_;}
+            Eigen::VectorXd get_v0Complete(){return v0Complete_;}
             Eigen::VectorXd get_x0(){return x0_;}
 
             std::string get_LF_name(){return settings_.leftFootName;}

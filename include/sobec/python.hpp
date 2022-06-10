@@ -13,6 +13,7 @@ void exposeActivationQuadRef();
 void exposeDesigner();
 void exposeHorizonManager();
 void exposeModelFactory();
+void exposeWBC();
 
 }  // namespace python
 }  // namespace sobec

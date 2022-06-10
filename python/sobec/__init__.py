@@ -13,5 +13,6 @@ from .sobec_pywrap import (
     ActivationModelQuadRef, 
     RobotDesigner,
     HorizonManager,
-    ModelMaker, Support
+    ModelMaker, Support,
+    WBC
 )

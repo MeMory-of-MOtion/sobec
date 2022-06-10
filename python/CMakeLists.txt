@@ -6,6 +6,7 @@ set(${PY_NAME}_SOURCES
   designer.cpp
   horizon_manager.cpp
   model_factory.cpp
+  wbc.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})

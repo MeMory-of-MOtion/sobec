@@ -86,6 +86,8 @@ void exposeDesigner() {
       .def("get_rDataComplete", &get_rDataComplete)
       .def("get_q0", &RobotDesigner::get_q0)
       .def("get_q0Complete", &RobotDesigner::get_q0Complete)
+      .def("get_v0", &RobotDesigner::get_v0)
+      .def("get_v0Complete", &RobotDesigner::get_v0Complete)
       .def("get_x0", &RobotDesigner::get_x0)
       .def("get_LF_name", &RobotDesigner::get_LF_name)
       .def("get_RF_name", &RobotDesigner::get_RF_name)

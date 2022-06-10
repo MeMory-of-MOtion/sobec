@@ -1,7 +1,6 @@
 #include "sobec/wbc.hpp"
 
 namespace sobec {
-
 	
 	WBC::WBC(){}
 
@@ -18,10 +17,15 @@ namespace sobec {
                          const HorizonManager &horizon,
 					     const Eigen::VectorXd &q0,
 						 const Eigen::VectorXd &v0){
+		/** The posture required here is the full robot posture in the order of pinicchio*/
 							 
 		settings_ = settings;
 		designer_ = design;
         horizon_ = horizon;
+
+		controlled_joints_id_ = designer_.get_controlledJointsIDs();
+		x_internal_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
+
 		x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
         x0_ << shapeState(q0, v0);
 
@@ -29,20 +33,20 @@ namespace sobec {
 												   2*settings_.horizonSteps*settings_.Tstep);
 		t_takeoff_RF_ += (int)settings_.T;
         t_takeoff_LF_ = t_takeoff_RF_ + settings_.Tstep;
-        t_land_RF_ = t_takeoff_RF_ + settings_.TsimpleSupport;
-        t_land_LF_ = t_takeoff_LF_ + settings_.TsimpleSupport;
+        t_land_RF_ = t_takeoff_RF_ + settings_.TsingleSupport;
+        t_land_LF_ = t_takeoff_LF_ + settings_.TsingleSupport;
 	}
 
 	void WBC::generateFullCycle(ModelMaker &mm){
 		
 		std::vector<Support> cycle;
-		unsigned long takeoff_RF, land_RF, takeoff_LF, land_LF;
+		int takeoff_RF, land_RF, takeoff_LF, land_LF;
 		takeoff_RF = 0;
-		land_RF = takeoff_RF + settings_.TsimpleSupport;
+		land_RF = takeoff_RF + settings_.TsingleSupport;
 		takeoff_LF = takeoff_RF + settings_.Tstep;
-		land_LF = takeoff_LF + settings_.TsimpleSupport;
+		land_LF = takeoff_LF + settings_.TsingleSupport;
 
-		for (int i; i<2*settings_.Tstep; i++){
+		for (int i=0; i<2*settings_.Tstep; i++){
 
 			if (i < land_RF) 			cycle.push_back(LEFT);
 			else if (i < takeoff_LF) 	cycle.push_back(DOUBLE);
@@ -66,30 +70,32 @@ namespace sobec {
 		if(t_takeoff_LF_(0) < 0) t_takeoff_LF_ += 2*settings_.Tstep;
 	}
 
-	bool WBC::timeToSolveDDP(const unsigned long &iteration){
+	bool WBC::timeToSolveDDP(const int &iteration){
 		return !(iteration % settings_.Nc);
 	}
 
-	Eigen::VectorXd WBC::iterate(const unsigned long &iteration, 
+	Eigen::VectorXd WBC::iterate(const int &iteration, 
 								 const Eigen::VectorXd &q_current,
 								 const Eigen::VectorXd &v_current,
 								 const bool &is_feasible){
 
-		x_current_ = shapeState(q_current, v_current);
+		x0_ = shapeState(q_current, v_current);
 		if (timeToSolveDDP(iteration)){
 			// ~~TIMING~~ //
 			updateStepCycleTiming();
 			recedeWithFullCycle();
 
 			// ~~REFERENCES~~ //
-			designer_.updateReducedModel(x_current_);
+			designer_.updateReducedModel(x0_);
 			//setDesiredFeetPose(iteration, settings_.T - 1);
+
+			// ~~SOLVER~~ //
+			horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 		}
-		return horizon_.currentTorques(x_current_);
+		return horizon_.currentTorques(x0_);
 	}
 
 	// void WBC::setDesiredFeetPoses(unsigned long iteration, unsigned long time){
-
 
 	// }
 
@@ -98,22 +104,17 @@ namespace sobec {
 		fullCycle_.recede();
 	}
 
-    Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v){ // TEST IT
-        x_current_.head<7>() = q.head<7>();
-        x_current_.segment<6>(designer_.get_rModel().nq);
+    Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v){ 
+        x_internal_.head<7>() = q.head<7>();
+        x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
 		
-        for(unsigned long joint_id : designer_.get_controlledJointsIDs()){
-			if(joint_id > 1){
-				x_current_(joint_id + 7) = q(joint_id + 5);
-				x_current_(designer_.get_rModel().nq + joint_id + 6) = v(joint_id + 4);
-			}
-        }
-
-        // qc = q[[i + 5 for i in self.design.pinocchioControlledJoints[1:]]]
-        // vc = v[[i + 4 for i in self.design.pinocchioControlledJoints[1:]]]
-    
-        return x_current_;
+		int i = 0;
+		for (unsigned long jointID : controlled_joints_id_)
+			if(jointID > 1){
+				x_internal_(i + 7) = q(jointID + 5);
+				x_internal_(designer_.get_rModel().nq + i + 6) = v(jointID + 4);
+				i++;}
+		
+        return x_internal_;
     }
-
-	
 }
