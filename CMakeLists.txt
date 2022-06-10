@@ -58,6 +58,10 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/residual-vel-collision.hpp
   include/${PROJECT_NAME}/residual-fly-high.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
+  include/${PROJECT_NAME}/designer.hpp
+  include/${PROJECT_NAME}/model_factory.hpp
+  include/${PROJECT_NAME}/horizon_manager.hpp
+  include/${PROJECT_NAME}/ocp.hpp
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
   include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
   include/${PROJECT_NAME}/contact/contact3d.hpp
