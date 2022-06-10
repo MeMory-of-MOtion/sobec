@@ -1,2 +1,9 @@
 **.pyc
 .vscode
+**~
+dg*
+*anticipated-state*
+bak
+build
+.old
+mpc/nahuel

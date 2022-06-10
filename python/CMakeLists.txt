@@ -2,6 +2,8 @@ set(${PY_NAME}_SOURCES
   main.cpp
   residual-com-velocity.cpp
   residual-vel-collision.cpp
+  residual-cop.cpp
+  residual-fly-high.cpp
   activation-quad-ref.cpp
   lpf.cpp
   contact3d.cpp

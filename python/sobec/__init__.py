@@ -5,6 +5,8 @@ import crocoddyl
 from .sobec_pywrap import (
     ResidualModelCoMVelocity,
     ResidualModelVelCollision,
+    ResidualModelCenterOfPressure,
+    ResidualModelFlyHigh,
     ActivationModelQuadRef,
     IntegratedActionModelLPF,
     ContactModel3D,

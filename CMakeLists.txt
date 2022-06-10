@@ -53,7 +53,9 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/python.hpp
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
+  include/${PROJECT_NAME}/residual-cop.hpp
   include/${PROJECT_NAME}/residual-vel-collision.hpp
+  include/${PROJECT_NAME}/residual-fly-high.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
   include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
@@ -66,6 +68,7 @@ set(${PROJECT_NAME}_HEADERS
 
 set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/residual-com-velocity.hxx
+  include/${PROJECT_NAME}/residual-cop.hxx
   include/${PROJECT_NAME}/residual-vel-collision.hxx
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hxx
   include/${PROJECT_NAME}/lowpassfilter/lpf.hxx
@@ -74,7 +77,8 @@ set(${PROJECT_NAME}_SOURCES
   include/${PROJECT_NAME}/contact/multiple-contacts.hxx
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
-  )
+  include/${PROJECT_NAME}/residual-fly-high.hxx
+ )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
