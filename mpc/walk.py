@@ -87,7 +87,7 @@ heelIds = {
     idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds
 }
 baseId = model.getFrameId("root_joint")
-robotweight = -sum([Y.mass for Y in model.inertias]) * model.gravity.linear[2]
+robotweight = -sum(Y.mass for Y in model.inertias) * model.gravity.linear[2]
 com0 = pin.centerOfMass(model, data, model.q0)
 
 pin.framesForwardKinematics(model, data, x0[: model.nq])
