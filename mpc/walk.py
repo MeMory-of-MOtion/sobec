@@ -110,18 +110,16 @@ kktDamping = 0  # 1e-6
 baumgartGains = np.array([0, 0])  # ##X## 50
 
 # Contact are specified with the order chosen in <contactIds>
-contactPattern = (
-    []
-    + [[1, 1]] * 30
-    + [[1, 0]] * 50
-    + [[1, 1]] * 11
-    + [[0, 1]] * 50
-    + [[1, 1]] * 50
-    + [[1, 1]]
-)
-T = len(contactPattern) - 1
-
-
+contactPattern = [] \
+    + [ [ 1,1 ] ] * 40 \
+    + [ [ 1,0 ] ] * 50  \
+    + [ [ 1,1 ] ] * 11  \
+    + [ [ 0,1 ] ] * 50  \
+    + [ [ 1,1 ] ] * 11 \
+    + [ [ 1,1 ] ] * 40 \
+    + [ [ 1,1 ] ]
+T = len(contactPattern)-1
+    
 def patternToId(pattern):
     """Return the tuple of active contact from a pattern like [0,1], [1,0] or [1,1]."""
     return tuple(contactIds[i] for i, c in enumerate(pattern) if c == 1)

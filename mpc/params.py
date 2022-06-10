@@ -1,6 +1,5 @@
 import numpy as np
 
-<<<<<<< HEAD
 basisQWeight = [0, 0, 0, 50, 50, 0]
 legQWeight = [3, 3, 1, 2, 1, 1]
 torsoQWeight = [10, 10]
@@ -20,22 +19,6 @@ STATE_WEIGHT = np.array(
     + legVWeight
     + armVWeight
 )
-=======
-DT = 0.010
-
-basisQWeight = [0,0,0,50,50,0]
-legQWeight =  [3,3,1,2,1,1]
-torsoQWeight = [10,10]
-armQWeight = [3,3]
-basisVWeight = [0,0,0,3,3,1] ### was 003331
-legVWeight =  [1]*6
-torsoVWeight = [20]*2
-armVWeight = [2]*2
-
-STATE_WEIGHT = np.array(  \
-    basisQWeight+legQWeight+legQWeight+armQWeight \
-    +basisVWeight+legVWeight+legVWeight+armVWeight)
->>>>>>> Minor reformulation.
 
 legUWeight = [1, 1, 1, 1, 10, 10]
 torsoUWeight = [1, 1]
@@ -88,3 +71,6 @@ X_TARGET = .35
 VCOM_TARGET = np.array([.1,0,0])
 vcomSelection = [0,1,2]
 FOOT_SIZE = .05
+
+kktDamping = 0# 1e-6
+baumgartGains = np.array([0,50])
