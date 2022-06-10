@@ -11,6 +11,13 @@ void exposeResidualVelCollision();
 void exposeResidualCenterOfPressure();
 void exposeResidualFlyHigh();
 void exposeActivationQuadRef();
+void exposeIntegratedActionLPF();
+void exposeContact3D();
+void exposeContact1D();
+void exposeMultipleContacts();
+void exposeDAMContactFwdDyn();
+void exposeResidualContactForce();
+
 }  // namespace python
 }  // namespace sobec
 

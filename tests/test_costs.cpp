@@ -28,8 +28,9 @@ using namespace sobec::unittest;
 void test_calc_returns_a_cost(CostModelTypes::Type cost_type,
                               StateModelTypes::Type state_type,
                               ActivationModelTypes::Type activation_type) {
-  std::cout << "IN " << __func__ << " with " << cost_type
-            << " :: " << state_type << " :: " << activation_type << std::endl;
+  //   std::cout << "IN " << __func__ << " with " << cost_type
+  //             << " :: " << state_type << " :: " << activation_type <<
+  //             std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -67,8 +68,9 @@ void test_calc_returns_a_cost(CostModelTypes::Type cost_type,
 void test_calc_against_numdiff(CostModelTypes::Type cost_type,
                                StateModelTypes::Type state_type,
                                ActivationModelTypes::Type activation_type) {
-  std::cout << "IN " << __func__ << " with " << cost_type
-            << " :: " << state_type << " :: " << activation_type << std::endl;
+  //   std::cout << "IN " << __func__ << " with " << cost_type
+  //             << " :: " << state_type << " :: " << activation_type <<
+  //             std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -108,8 +110,9 @@ void test_calc_against_numdiff(CostModelTypes::Type cost_type,
 void test_partial_derivatives_against_numdiff(
     CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
     ActivationModelTypes::Type activation_type) {
-  std::cout << "IN " << __func__ << " with " << cost_type
-            << " :: " << state_type << " :: " << activation_type << std::endl;
+  //   std::cout << "IN " << __func__ << " with " << cost_type
+  //             << " :: " << state_type << " :: " << activation_type <<
+  //             std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -180,8 +183,9 @@ void test_partial_derivatives_against_numdiff(
 void test_dimensions_in_cost_sum(CostModelTypes::Type cost_type,
                                  StateModelTypes::Type state_type,
                                  ActivationModelTypes::Type activation_type) {
-  std::cout << "IN " << __func__ << " with " << cost_type
-            << " :: " << state_type << " :: " << activation_type << std::endl;
+  //   std::cout << "IN " << __func__ << " with " << cost_type
+  //             << " :: " << state_type << " :: " << activation_type <<
+  //             std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =
@@ -215,8 +219,9 @@ void test_dimensions_in_cost_sum(CostModelTypes::Type cost_type,
 void test_partial_derivatives_in_cost_sum(
     CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
     ActivationModelTypes::Type activation_type) {
-  std::cout << "IN " << __func__ << " with " << cost_type
-            << " :: " << state_type << " :: " << activation_type << std::endl;
+  //   std::cout << "IN " << __func__ << " with " << cost_type
+  //             << " :: " << state_type << " :: " << activation_type <<
+  //             std::endl;
   // create the model
   CostModelFactory factory;
   const boost::shared_ptr<crocoddyl::CostModelAbstract>& model =

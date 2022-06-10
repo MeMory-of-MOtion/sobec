@@ -8,4 +8,10 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeResidualCenterOfPressure();
   sobec::python::exposeResidualFlyHigh();
   sobec::python::exposeActivationQuadRef();
+  sobec::python::exposeIntegratedActionLPF();
+  sobec::python::exposeContact3D();
+  sobec::python::exposeContact1D();
+  sobec::python::exposeMultipleContacts();
+  sobec::python::exposeDAMContactFwdDyn();
+  sobec::python::exposeResidualContactForce();
 }

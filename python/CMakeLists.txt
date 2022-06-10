@@ -5,6 +5,12 @@ set(${PY_NAME}_SOURCES
   residual-cop.cpp
   residual-fly-high.cpp
   activation-quad-ref.cpp
+  lpf.cpp
+  contact3d.cpp
+  contact1d.cpp
+  multiple-contacts.cpp
+  contact-fwddyn.cpp
+  contact-force.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})

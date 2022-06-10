@@ -8,4 +8,10 @@ from .sobec_pywrap import (
     ResidualModelCenterOfPressure,
     ResidualModelFlyHigh,
     ActivationModelQuadRef,
+    IntegratedActionModelLPF,
+    ContactModel3D,
+    ContactModel1D,
+    ContactModelMultiple,
+    DifferentialActionModelContactFwdDynamics,
+    ResidualModelContactForce,
 )
