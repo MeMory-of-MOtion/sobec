@@ -17,7 +17,7 @@ namespace sobec{
         public:
             
             // timing
-            std::size_t totalSteps = 4;
+            unsigned long totalSteps = 4;
             unsigned long T = 100;
             unsigned long TdoubleSupport = 50;
             unsigned long TsimpleSupport = 100;

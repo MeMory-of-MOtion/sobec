@@ -80,7 +80,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
 		const std::string & joint_name = *it;
 		if(std::find(settings_.controlledJointsNames.begin(), settings_.controlledJointsNames.end(), joint_name) != settings_.controlledJointsNames.end())
 		{
-			controlled_joints_id_.push_back((long)rModel_.getJointId(joint_name) - 2);
+			controlled_joints_id_.push_back(rModelComplete_.getJointId(joint_name));
 		}
 	}
 

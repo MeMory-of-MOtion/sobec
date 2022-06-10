@@ -25,8 +25,8 @@ namespace sobec{
             boost::shared_ptr<crocoddyl::CostModelResidual> cone_;
             
             //NEW ~ ocp related ~
-            std::vector<Eigen::VectorXd> xs_;
-            std::vector<Eigen::VectorXd> us_;
+            std::vector<Eigen::VectorXd> xs_; //using it
+            std::vector<Eigen::VectorXd> us_; //using it
             
             sobec::RobotDesigner designer_;
             sobec::ModelMaker modelMaker_;
@@ -61,6 +61,7 @@ namespace sobec{
             Contact contacts(const unsigned long &time);
             IAD data(const unsigned long &time);
             
+            boost::shared_ptr<crocoddyl::StateMultibody> state(const unsigned long &time);
             // // void setResidualReference(unsigned long time, const std::string &name,  const auto &new_value);
             // // Try to avoid the "auto"
             // // void setResidualReferences(unsigned long time, const std::string &name);
@@ -82,7 +83,6 @@ namespace sobec{
             void setSupportingRF(const unsigned long &time);
             //end OLD
 
-            
             // NEW ~ ocp related ~
             void updateIAM(const unsigned long &time);
             void updateDAM(const unsigned long &time);
@@ -114,17 +114,22 @@ namespace sobec{
             unsigned long get_size();
 
             //NEW ~ ocp related ~
-            void solve_ddp(const std::vector<Eigen::VectorXd> xs, 
-                           const std::vector<Eigen::VectorXd> us, 
-                           const std::size_t &ddpIteration);
-            void solveControlCycle(const Eigen::VectorXd &measured_x,
-                                   const std::size_t &ddpIteration);
+            void solve(const std::vector<Eigen::VectorXd> xs, 
+                       const std::vector<Eigen::VectorXd> us, 
+                       const std::size_t &ddpIteration,
+                       const bool &is_feasible=false);
+            void solve(const Eigen::VectorXd &measured_x,           //Using it
+                       const std::size_t &ddpIteration,
+                       const bool &is_feasible=false);
+            Eigen::VectorXd currentTorques(const Eigen::VectorXd &measured_x);
             
             Eigen::VectorXd get_xs0(){return xs_[0];}
             Eigen::VectorXd get_us0(){return us_[0];}
-            Eigen::VectorXd get_K0(){return ddp_->get_K()[0];}
+            // Eigen::VectorXd get_K0(){return ddp_->get_K()[0];}   // This is not a vector...
+            DDP get_ddp(){return ddp_;}
+            void set_ddp(const DDP &ddp){ddp_ = ddp;}
+            
             //end NEW ~ ocp related ~
     };
-
 }  // namespace
 #endif // SOBEC_HORIZON_MANAGER

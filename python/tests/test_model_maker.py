@@ -9,8 +9,9 @@ Created on Wed Jun  8 15:14:55 2022
 
 import sobec as so
 import configuration as conf
+import crocoddyl 
 
-
+## Checking robot Wrapper.
 design_conf = dict(urdfPath= conf.modelPath + conf.URDF_SUBPATH,
                 srdfPath= conf.modelPath + conf.SRDF_SUBPATH,
                 leftFootName = conf.lf_frame_name,
@@ -43,6 +44,7 @@ design_conf = dict(urdfPath= conf.modelPath + conf.URDF_SUBPATH,
 design = so.RobotDesigner()
 design.initialize(design_conf)
 
+## Checking model formulation
 MM_conf = dict(timeStep = conf.DT,
                gravity = conf.gravity,
                mu = conf.mu,
@@ -74,6 +76,22 @@ ds_iam = modeller.formulateStepTracker()
 supports = [so.Support.DOUBLE]*100
 all_models = modeller.formulateHorizon(supports)
 
+# Checking individual costs and contacts:
+state = crocoddyl.StateMultibody(design.get_rModel())
+actuation = crocoddyl.ActuationModelFloatingBase(state)
+
+contacts = crocoddyl.ContactModelMultiple(state, actuation.nu)
+costs = crocoddyl.CostModelSum(state, actuation.nu)
+
+modeller.defineActuationTask(costs)
+modeller.defineFeetTracking(costs)
+
+modeller.defineFeetContact(contacts)
 
 
+# Checking horizon_manager
+H_conf = dict(leftFootName = conf.lf_frame_name, 
+              rightFootName = conf.rf_frame_name)
+horizon = so.HorizonManager()
+horizon.initialize(H_conf, design.get_x0(), all_models, all_models[-1])
 

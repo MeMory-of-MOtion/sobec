@@ -42,7 +42,7 @@ namespace sobec {
 		}
 		x_init.push_back(x0_);
 		
-		horizon_.solve_ddp(x_init,u_init,500);
+		horizon_.solve(x_init,u_init,500);
 		
 		designer_.updateReducedModel(q0);
 		
@@ -196,7 +196,7 @@ namespace sobec {
 			// Update contact sequence
 			contacts_sequence_.erase(contacts_sequence_.begin());
 			// Solve ddp
-			horizon_.solveControlCycle(measured_x, OCP_settings_.ddpIteration);
+			horizon_.solve(measured_x, OCP_settings_.ddpIteration);
 			
 		}
 		

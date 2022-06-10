@@ -51,6 +51,10 @@ namespace sobec {
         return boost::static_pointer_cast< crocoddyl::IntegratedActionDataEuler >(ddp_->get_problem()->get_runningDatas()[time]);
     }
 
+    boost::shared_ptr<crocoddyl::StateMultibody> HorizonManager::state(const unsigned long &time){
+        return boost::static_pointer_cast<crocoddyl::StateMultibody>(dam(time)->get_state());
+    }
+
     void HorizonManager::activateContactLF(const unsigned long &time){
         contacts(time)->changeContactStatus(settings_.leftFootName, true);
     }
@@ -230,13 +234,13 @@ namespace sobec {
         return ddp_->get_problem()->get_T();
     }
     
-    void HorizonManager::solve_ddp(const std::vector<Eigen::VectorXd> xs, const std::vector<Eigen::VectorXd> us, const std::size_t &ddpIteration){
-        ddp_->solve(xs,us,ddpIteration,false);
+    void HorizonManager::solve(const std::vector<Eigen::VectorXd> xs, const std::vector<Eigen::VectorXd> us, const std::size_t &ddpIteration, const bool &is_feasible){
+        ddp_->solve(xs, us, ddpIteration, is_feasible);
         us_ = ddp_->get_us();
         xs_ = ddp_->get_xs();
     }
     
-    void HorizonManager::solveControlCycle(const Eigen::VectorXd &measured_x, const std::size_t &ddpIteration){
+    void HorizonManager::solve(const Eigen::VectorXd &measured_x, const std::size_t &ddpIteration, const bool &is_feasible){
 		xs_.erase(xs_.begin());
 		xs_[0] = measured_x;
 		xs_.push_back(xs_[xs_.size()-1]);
@@ -248,9 +252,13 @@ namespace sobec {
 		ddp_->get_problem()->set_x0(measured_x);
 		ddp_->allocateData();
 		
-		ddp_->solve(xs_,us_,ddpIteration,false);
+		solve(xs_, us_, ddpIteration, is_feasible);
 		us_ = ddp_->get_us();
 		xs_ = ddp_->get_xs();
 	}
+    Eigen::VectorXd HorizonManager::currentTorques(const Eigen::VectorXd &measured_x){ 
+        /// @todo: make a boolean -> IT is necessary to have solved at least one time to use this method.
+        return us_[0] + ddp_->get_K()[0] * state(0)->diff_dx(measured_x, xs_[0]);
+    }
 		
 }

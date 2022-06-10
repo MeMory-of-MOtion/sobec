@@ -48,6 +48,7 @@ namespace sobec {
             .def("dam", &HorizonManager::dam, bp::args("self", "time"))
             .def<Cost (HorizonManager::*)(const unsigned long&)>("costs", &HorizonManager::costs, bp::args("self", "time"))
             .def<Contact (HorizonManager::*)(const unsigned long &)>("contacts", &HorizonManager::contacts, bp::args("self", "time"))
+            .def("state", &HorizonManager::state, bp::args("self", "time"))
             .def("data", &HorizonManager::data, bp::args("self", "time"))
             .def("setPoseReferenceLF", &HorizonManager::setPoseReferenceLF, bp::args("self", "time", "pose"))
             .def("setPoseReferenceRF", &HorizonManager::setPoseReferenceRF, bp::args("self", "time", "pose"))
@@ -64,6 +65,8 @@ namespace sobec {
             .def<void (HorizonManager::*)(const IAM &, const IAD &)>("recede", &HorizonManager::recede, bp::args("self", "IAM", "IAD"))
             .def<void (HorizonManager::*)(const IAM &)>("recede", &HorizonManager::recede, bp::args("self", "IAM"))
             .def<void (HorizonManager::*)()>("recede", &HorizonManager::recede, bp::args("self"))
+            .add_property("ddp", &HorizonManager::get_ddp, &HorizonManager::set_ddp)
+            .def("currentTorques", &HorizonManager::currentTorques, bp::args("x0"))
         ;
         return;
         }

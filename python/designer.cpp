@@ -92,6 +92,7 @@ void exposeDesigner() {
       .def("get_LF_id", &RobotDesigner::get_LF_id)
       .def("get_RF_id", &RobotDesigner::get_RF_id)
       .def("get_settings", &get_settings)
+      .def("get_controlledJointsIDs", &RobotDesigner::get_controlledJointsIDs)
       ;
 
     return;
