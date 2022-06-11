@@ -1,3 +1,4 @@
-from params import *
-terminalNoVelocityWeight = 20
+from params import WalkParams
+
+WalkParams.terminalNoVelocityWeight = 20
 

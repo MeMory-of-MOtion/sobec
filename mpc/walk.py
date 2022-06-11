@@ -8,7 +8,8 @@ from numpy.linalg import norm,inv,pinv,svd,eig
 import sobec
 import talos_low
 from weight_share import computeReferenceForces
-from params import *
+from save_traj import save_traj
+from params import WalkParams
 
 pin.SE3.__repr__=pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True,threshold=10000)
@@ -19,9 +20,9 @@ np.set_printoptions(precision=2, linewidth=300, suppress=True,threshold=10000)
 # Gepetto-viewer
 robot = talos_low.load()
 
-contactIds = [i for i, f in enumerate(robot.model.frames) if "sole_link" in f.name]
-ankleToTow = 0.1
-ankleToHeel = -0.1
+contactIds = [ i for i,f in enumerate(robot.model.frames) if "sole_link" in f.name ]
+ankleToTow=0.1
+ankleToHeel=-0.1
 for cid in contactIds:
     f = robot.model.frames[cid]
     robot.model.addFrame(
@@ -65,9 +66,7 @@ x0 = np.concatenate([model.q0, np.zeros(model.nv)])
 
 # Some key elements of the model
 towIds = {idf: model.getFrameId(f"{model.frames[idf].name}_tow") for idf in contactIds}
-heelIds = {
-    idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds
-}
+heelIds = {idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds}
 baseId = model.getFrameId("root_joint")
 robotweight = -sum(Y.mass for Y in model.inertias) * model.gravity.linear[2]
 com0 = pin.centerOfMass(model, data, model.q0)
@@ -83,7 +82,8 @@ pin.framesForwardKinematics(model, data, x0[: model.nq])
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-assert(len(STATE_WEIGHT)==model.nv*2)
+p = WalkParams()
+assert(len(p.STATE_WEIGHT)==model.nv*2)
 
 # Contact are specified with the order chosen in <contactIds>
 contactPattern = [] \
@@ -117,7 +117,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
     contacts = croc.ContactModelMultiple(state, actuation.nu)
     for k,cid in enumerate(contactIds):
         if not pattern[k]: continue
-        contact = croc.ContactModel6D(state, cid, pin.SE3.Identity(), actuation.nu, baumgartGains)
+        contact = croc.ContactModel6D(state, cid, pin.SE3.Identity(), actuation.nu, p.baumgartGains)
         contacts.addContact(model.frames[cid].name + "_contact", contact)
 
     # Costs
@@ -125,34 +125,35 @@ for t, pattern in enumerate(contactPattern[:-1]):
 
     xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
     xRegCost = croc.CostModelResidual(
-        state, croc.ActivationModelWeightedQuad(STATE_WEIGHT**2), xRegResidual
+        state, croc.ActivationModelWeightedQuad(p.STATE_WEIGHT**2), xRegResidual
     )
-    costs.addCost("stateReg", xRegCost, refStateWeight)
+    costs.addCost("stateReg", xRegCost, p.refStateWeight)
 
     uResidual = croc.ResidualModelControl(state, actuation.nu)
     uRegCost = croc.CostModelResidual(
         state,
-        croc.ActivationModelWeightedQuad(np.array(CONTROL_WEIGHT**2)),
+        croc.ActivationModelWeightedQuad(np.array(p.CONTROL_WEIGHT**2)),
         uResidual,
     )
-    costs.addCost("ctrlReg", uRegCost, refTorqueWeight)
+    costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
 
-    comVelResidual = sobec.ResidualModelCoMVelocity(state, VCOM_TARGET, actuation.nu)
-    comVelCost = croc.CostModelResidual(state, comVelResidual)
-    costs.addCost("comVelCost", comVelCost, vcomWeight)
+    comVelResidual = sobec.ResidualModelCoMVelocity(state, p.VCOM_TARGET, actuation.nu)
+    comVelAct = croc.ActivationModelWeightedQuad(np.array([1,1,1]))
+    comVelCost = croc.CostModelResidual( state,comVelAct,comVelResidual )
+    costs.addCost("comVelCost", comVelCost, p.vcomWeight)
 
     # Contact costs
     for k,cid in enumerate(contactIds):
         if not pattern[k]: continue
         
         copResidual = sobec.ResidualModelCenterOfPressure(state,cid,actuation.nu)
-        copAct = croc.ActivationModelWeightedQuad(np.array([ 1/FOOT_SIZE**2 ]*2))
+        copAct = croc.ActivationModelWeightedQuad(np.array([ 1/p.FOOT_SIZE**2 ]*2))
         copCost = croc.CostModelResidual( state,copAct,copResidual)
-        costs.addCost(f'{model.frames[cid].name}_cop',copCost,copWeight)
+        costs.addCost(f'{model.frames[cid].name}_cop',copCost,p.copWeight)
 
         # Cone with enormous friction (Assuming the robot will barely ever slide).
-        # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates => x2
-        cone = croc.WrenchCone(np.eye(3), 1000, np.array([ FOOT_SIZE*2 ]*2),4, True,1,10000)
+        # p.FOOT_SIZE is the allowed area size, while cone expects the corner coordinates => x2
+        cone = croc.WrenchCone(np.eye(3), 1000, np.array([ p.FOOT_SIZE*2 ]*2),4, True,1,10000)
         coneCost = croc.ResidualModelContactWrenchCone(state,cid,cone,actuation.nu)
         ub = cone.ub.copy()
         ub[:4] = np.inf
@@ -160,7 +161,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
         ub[-8:] = np.inf
         coneAct = croc.ActivationModelQuadraticBarrier(croc.ActivationBounds(cone.lb,ub))
         coneCost = croc.CostModelResidual(state,coneAct,coneCost)
-        costs.addCost(f'{model.frames[cid].name}_cone',coneCost,conePenaltyWeight)
+        costs.addCost(f'{model.frames[cid].name}_cone',coneCost,p.conePenaltyWeight)
         
         # Penalize the distance to the central axis of the cone ...
         #  ... using normalization weights depending on the axis.
@@ -168,44 +169,44 @@ for t, pattern in enumerate(contactPattern[:-1]):
         coneAxisResidual = croc.ResidualModelContactForce(
             state, cid, pin.Force.Zero(), 6, actuation.nu
         )
-        w = np.array(forceImportance**2)
+        w = np.array(p.forceImportance**2)
         w[2] = 0
         coneAxisAct = croc.ActivationModelWeightedQuad(w)
         coneAxisCost = croc.CostModelResidual(state, coneAxisAct, coneAxisResidual)
-        costs.addCost(f"{model.frames[cid].name}_coneaxis", coneAxisCost, coneAxisWeight)
+        costs.addCost(f"{model.frames[cid].name}_coneaxis", coneAxisCost, p.coneAxisWeight)
 
         # Follow reference (smooth) contact forces
         forceRefResidual = croc.ResidualModelContactForce(state,cid,pin.Force(referenceForces[t][k]),6,actuation.nu)
         forceRefCost = croc.CostModelResidual(state,forceRefResidual)
-        costs.addCost(f'{model.frames[cid].name}_forceref',forceRefCost,refForceWeight/robotweight**2)
+        costs.addCost(f'{model.frames[cid].name}_forceref',forceRefCost,p.refForceWeight/robotweight**2)
         
     # IMPACT
     for k,cid in enumerate(contactIds):
         if t>0 and not contactPattern[t-1][k] and pattern[k]:
-            # REMEMBER TO divide the weight by DT, as impact should be independant of the node duration
+            # REMEMBER TO divide the weight by p.DT, as impact should be independant of the node duration
             # (at least, that s how weights are tuned in casadi).
             
             print(f'Impact {cid} at time {t}')
             impactResidual = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
             impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
             impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
-            costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,impactAltitudeWeight/DT)
+            costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
 
             impactVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),pin.ReferenceFrame.LOCAL,actuation.nu)
             impactVelCost = croc.CostModelResidual(state,impactVelResidual)
-            costs.addCost(f'{model.frames[cid].name}_velimpact',impactVelCost,impactVelocityWeight/DT)
+            costs.addCost(f'{model.frames[cid].name}_velimpact',impactVelCost,p.impactVelocityWeight/p.DT)
 
             impactRotResidual = croc.ResidualModelFrameRotation(state,cid,np.eye(3),actuation.nu)
             impactRotAct = croc.ActivationModelWeightedQuad(np.array([1,1,0]))
             impactRotCost = croc.CostModelResidual(state,impactRotAct,impactRotResidual)
-            costs.addCost(f'{model.frames[cid].name}_rotimpact',impactRotCost,impactRotationWeight/DT)
+            costs.addCost(f'{model.frames[cid].name}_rotimpact',impactRotCost,p.impactRotationWeight/p.DT)
 
             impactRefJointsResidual = croc.ResidualModelState(state,x0,actuation.nu)
             jselec = np.zeros(model.nv*2)
-            jselec[[ model.joints[model.getJointId(name)].idx_v for name in MAIN_JOINTS ]]=1
+            jselec[[ model.joints[model.getJointId(name)].idx_v for name in p.MAIN_JOINTS ]]=1
             impactRefJointsAct = croc.ActivationModelWeightedQuad(jselec)
             impactRefJointCost = croc.CostModelResidual(state,impactRefJointsAct,impactRefJointsResidual)
-            costs.addCost('impactRefJoint',impactRefJointCost,refMainJointsAtImpactWeight/DT)
+            costs.addCost('impactRefJoint',impactRefJointCost,p.refMainJointsAtImpactWeight/p.DT)
             
             
     # Flying foot
@@ -215,12 +216,12 @@ for t, pattern in enumerate(contactPattern[:-1]):
                                                                   pin.ReferenceFrame.LOCAL_WORLD_ALIGNED,actuation.nu)
         verticalFootVelAct = croc.ActivationModelWeightedQuad(np.array([0,0,1,0,0,0]))
         verticalFootVelCost = croc.CostModelResidual(state,verticalFootVelAct,verticalFootVelResidual)
-        costs.addCost(f'{model.frames[cid].name}_vfoot_vel',verticalFootVelCost,verticalFootVelWeight)
+        costs.addCost(f'{model.frames[cid].name}_vfoot_vel',verticalFootVelCost,p.verticalFootVelWeight)
 
         # Slope is /2 since it is squared in casadi (je me comprends)
-        flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,flyHighSlope/2,actuation.nu)
+        flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,p.flyHighSlope/2,actuation.nu)
         flyHighCost = croc.CostModelResidual(state,flyHighResidual)
-        costs.addCost(f'{model.frames[cid].name}_flyhigh',flyHighCost,flyWeight)
+        costs.addCost(f'{model.frames[cid].name}_flyhigh',flyHighCost,p.flyWeight)
 
         groundColRes = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
         #groundColBounds = croc.ActivationBounds(np.array([-np.inf,-np.inf,0.01]),np.array([np.inf,np.inf,np.inf]))
@@ -228,17 +229,17 @@ for t, pattern in enumerate(contactPattern[:-1]):
         groundColBounds = croc.ActivationBounds(np.array([-1000,-1000,0.0]),np.array([1000,1000,1000]))
         groundColAct = croc.ActivationModelQuadraticBarrier(groundColBounds)
         groundColCost = croc.CostModelResidual(state,groundColAct,groundColRes)
-        costs.addCost(f'{model.frames[cid].name}_groundcol',groundColCost,groundColWeight)
+        costs.addCost(f'{model.frames[cid].name}_groundcol',groundColCost,p.groundColWeight)
             
     # Action
     damodel = croc.DifferentialActionModelContactFwdDynamics(
-        state, actuation, contacts, costs, kktDamping, True
+        state, actuation, contacts, costs, p.kktDamping, True
     )
-    amodel = croc.IntegratedActionModelEuler(damodel, DT)
+    amodel = croc.IntegratedActionModelEuler(damodel, p.DT)
 
     models.append(amodel)
 
-# #####################################################################################
+# ### TERMINAL MODEL ##################################################################
 pattern = contactPattern[-1]
 
 state = croc.StateMultibody(model)
@@ -248,24 +249,21 @@ actuation = croc.ActuationModelFloatingBase(state)
 contacts = croc.ContactModelMultiple(state, actuation.nu)
 for k,cid in enumerate(contactIds):
     if not pattern[k]: continue
-    contact = croc.ContactModel6D(state, cid, pin.SE3.Identity(), actuation.nu, baumgartGains)
+    contact = croc.ContactModel6D(state, cid, pin.SE3.Identity(), actuation.nu, p.baumgartGains)
     contacts.addContact(model.frames[cid].name + "_contact", contact)
 
 # Costs
 costs = croc.CostModelSum(state, actuation.nu)
 
 xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
-xRegCost = croc.CostModelResidual(
-    state,
-    croc.ActivationModelWeightedQuad(np.array([0] * model.nv + [1] * model.nv)),
-    xRegResidual,
-)
-costs.addCost("stateReg", xRegCost, terminalNoVelocityWeight)
+xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([0]*model.nv+[1]*model.nv)),xRegResidual)
+#xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([10,10,0,0,0,1000]+[0]*(model.nv-6)+[1]*model.nv)),xRegResidual)
+costs.addCost("stateReg", xRegCost, p.terminalNoVelocityWeight)
 
 damodel = croc.DifferentialActionModelContactFwdDynamics(
-    state, actuation, contacts, costs, kktDamping, True
+    state, actuation, contacts, costs, p.kktDamping, True
 )
-termmodel = croc.IntegratedActionModelEuler(damodel, DT)
+termmodel = croc.IntegratedActionModelEuler(damodel, p.DT)
 
 # ##############################################################################
 problem = croc.ShootingProblem(x0,models,termmodel)
@@ -315,27 +313,15 @@ from walk_plotter import WalkPlotter
 plotter = WalkPlotter(model,contactIds)
 plotter.setData(contactPattern,xs_sol,us_sol,fs_sol0)
 
-plotter.plotBasis(X_TARGET)
+plotter.plotBasis(p.X_TARGET)
 plotter.plotTimeCop()
-plotter.plotCopAndFeet(FOOT_SIZE,.6)
+plotter.plotCopAndFeet(p.FOOT_SIZE,.6)
 plotter.plotForces(referenceForces)
 plotter.plotCom(com0)
 plotter.plotFeet()
-plotter.plotFootCollision(footMinimalDistance)
+plotter.plotFootCollision(p.footMinimalDistance)
 print('Run ```plt.ion(); plt.show()``` to display the plots.')
 # ### SAVE #####################################################################
-def save():
-    SOLU_FILE = "/tmp/ddp.npy"
-    np.save(
-        open(SOLU_FILE, "wb"),
-        {
-            "xs": xs_sol,
-            "us": us_sol,
-            "acs": acs_sol,
-            "fs": np.array(fs_sol0),
-        },
-    )
-    print(f'Save "{SOLU_FILE}"!')
 
 # ## DEBUG
 
