@@ -9,5 +9,6 @@ def save_traj(xs, us=None, fs=None, acs=None, filename="/tmp/ddp.npy"):
         data["acs"] = acs
     if fs is not None:
         data["fs"] = fs
-    np.save(open(filename, "wb"), data)
     print(f'Save "{filename}"!')
+    with open(filename, "wb") as f:
+        np.save(f, data)
