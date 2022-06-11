@@ -40,6 +40,8 @@ blocked_joints = [
     ]
 
                             #### TIMING #####
+preview_steps = 2;
+total_steps = 8;
 T_total = 2000    # Total number of nodes of the simulation 
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)

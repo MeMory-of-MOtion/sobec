@@ -69,6 +69,8 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/multiple-contacts.hpp
   include/${PROJECT_NAME}/contact/contact-fwddyn.hpp
   include/${PROJECT_NAME}/contact/contact-force.hpp
+  include/${PROJECT_NAME}/wbc.hpp
+  include/${PROJECT_NAME}/foot_trajectory.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/residual-cop.hxx
   include/${PROJECT_NAME}/residual-vel-collision.hxx
@@ -80,10 +82,6 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
   include/${PROJECT_NAME}/residual-fly-high.hxx
-  include/${PROJECT_NAME}/designer.hpp
-  include/${PROJECT_NAME}/model_factory.hpp
-  include/${PROJECT_NAME}/horizon_manager.hpp
-  include/${PROJECT_NAME}/ocp.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
@@ -91,7 +89,9 @@ set(${PROJECT_NAME}_SOURCES
   src/model_factory.cpp
   src/horizon_manager.cpp
   src/ocp.cpp
-)
+  src/wbc.cpp
+  src/foot_trajectory.cpp
+  )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)

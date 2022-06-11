@@ -95,3 +95,22 @@ H_conf = dict(leftFootName = conf.lf_frame_name,
 horizon = so.HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), all_models, all_models[-1])
 
+# Checking the WBC
+import numpy as np
+wbc_conf = dict(horizonSteps = conf.preview_steps,
+                totalSteps = conf.total_steps,
+                T = conf.T,
+                TdoubleSupport = conf.T2contact,
+                TsingleSupport = conf.T1contact,
+                Tstep = conf.Tstep,
+                ddpIteration = conf.ddpIteration,
+                Dt = conf.DT,
+                simu_step = conf.simu_period,
+                Nc = conf.Nc)
+
+wbc = so.WBC()
+wbc.initialize(wbc_conf, 
+               design, 
+               horizon, 
+               design.get_q0Complete(), 
+               design.get_v0Complete())

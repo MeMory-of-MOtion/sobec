@@ -17,21 +17,21 @@ namespace sobec{
         public:
             
             // timing
-            unsigned long horizonSteps = 2;
-            unsigned long totalSteps = 4;
-            unsigned long T = 100;
-            unsigned long TdoubleSupport = 50;
-            unsigned long TsimpleSupport = 100;
-            unsigned long Tstep = TdoubleSupport + TsimpleSupport;
-            unsigned long ddpIteration = 1;
+            int horizonSteps = 2;
+            int totalSteps = 4;
+            int T = 100;
+            int TdoubleSupport = 50;
+            int TsingleSupport = 100;
+            int Tstep = TdoubleSupport + TsingleSupport;
+            int ddpIteration = 1;
             
             double Dt = 1e-2;
             double simu_step = 1e-3;
 
-            unsigned long Nc = (unsigned long)round(Dt / simu_step);
-            double stepSize = 0.1;
-			double stepHeight = 0.03;
-			double stepDepth = 0.0;
+            int Nc = (int)round(Dt / simu_step);
+            // double stepSize = 0.1;
+			// double stepHeight = 0.03;
+			// double stepDepth = 0.0;
     };
 
     class WBC{
@@ -43,13 +43,14 @@ namespace sobec{
             HorizonManager fullCycle_;
             
             Eigen::VectorXd x0_;
-            Eigen::VectorXd x_current_;
+            
 
             // timings
             Eigen::ArrayXi t_takeoff_RF_, t_takeoff_LF_, t_land_RF_, t_land_LF_;
 
-
-
+            //Memory preallocations:
+            std::vector<unsigned long> controlled_joints_id_;
+            Eigen::VectorXd x_internal_;
 
             // eVector6 wrench_reference_double_;
             // eVector6 wrench_reference_simple_;
@@ -90,16 +91,20 @@ namespace sobec{
             
             void updateStepCycleTiming();
             
-            bool timeToSolveDDP(const unsigned long &iteration);
+            bool timeToSolveDDP(const int &iteration);
 
-            void setDesiredFeetPoses(unsigned long iteration, unsigned long time);
+            void setDesiredFeetPoses(const int &iteration, const int &time);
 
-            Eigen::VectorXd iterate(const unsigned long &iteration, 
+            Eigen::VectorXd iterate(const int &iteration, 
 								 const Eigen::VectorXd &q_current,
 								 const Eigen::VectorXd &v_current,
 								 const bool &is_feasible);
                             
-            void WBC::recedeWithFullCycle();
+            void recedeWithFullCycle();
+
+            // getters and setters
+            Eigen::VectorXd get_x0(){return x0_;}
+            void set_x0(Eigen::VectorXd x0){x0_=x0;}
 
             // void solveControlCycle(const Eigen::VectorXd &measured_x);
             

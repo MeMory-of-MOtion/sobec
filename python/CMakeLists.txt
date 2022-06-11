@@ -14,6 +14,7 @@ set(${PY_NAME}_SOURCES
   multiple-contacts.cpp
   contact-fwddyn.cpp
   contact-force.cpp
+  wbc.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
