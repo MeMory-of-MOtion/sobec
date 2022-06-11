@@ -11,7 +11,7 @@ import talos_low
 from weight_share import computeReferenceForces
 from save_traj import save_traj,saveProblemConfig
 from mpcparams import WalkParams
-
+import miscdisp
 pin.SE3.__repr__=pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True,threshold=10000)
 # plt.ion()
@@ -103,14 +103,6 @@ assert(len(p.stateImportance)==model.nv*2)
 #     + [ [ 1,1 ] ]
 contactPattern = [] \
     + [ [ 1,1 ] ] * T_START \
-    + [ [ 1,1 ] ] * T_DOUBLE \
-    + [ [ 0,1 ] ] * T_SINGLE \
-    + [ [ 1,1 ] ] * T_DOUBLE \
-    + [ [ 1,0 ] ] * T_SINGLE \
-    + [ [ 1,1 ] ] * T_DOUBLE \
-    + [ [ 0,1 ] ] * T_SINGLE \
-    + [ [ 1,1 ] ] * T_DOUBLE \
-    + [ [ 1,0 ] ] * T_SINGLE \
     + [ [ 1,1 ] ] * T_DOUBLE \
     + [ [ 0,1 ] ] * T_SINGLE \
     + [ [ 1,1 ] ] * T_DOUBLE \
@@ -214,7 +206,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
             impactResidual = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
             impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
             impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
-            costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
+            costs.addCost(f'{model.frames[cid].name}_altitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
             # if 'left' in model.frames[cid].name:
             #     itarget = np.array([0,.1,0])
             # else:
@@ -222,7 +214,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
             # impactResidual = croc.ResidualModelFrameTranslation(state,cid,itarget,actuation.nu)
             # impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
             # impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
-            # costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
+            # costs.addCost(f'{model.frames[cid].name}_altitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
 
             impactVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),pin.ReferenceFrame.LOCAL,actuation.nu)
             impactVelCost = croc.CostModelResidual(state,impactVelResidual)
@@ -325,10 +317,6 @@ except:
 ddp.th_stop = 1e-3
 ddp.solve(x0s,u0s,200)
 
-
-    
-
-
 # ### MPC #########################################################################################
 
 Tmpc = 100
@@ -344,16 +332,6 @@ mpcProblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.refe
 mpcSolver.solve(ddp.xs[:Tmpc+1],ddp.us[:Tmpc],10,isFeasible=True)
 x = mpcSolver.xs[1].copy()
 
-def contact2car(contacts):
-    if len(contacts)==2: return '='
-    if len(contacts)==0: return ' '
-    if 'right' in next(iter(contacts)).key(): return '_'
-    if 'left' in next(iter(contacts)).key(): return '⎻'
-    error
-    
-def dispocp(pb):
-    return ''.join([contact2car(r.differential.contacts.contacts) for r in pb.runningModels ])
-
 hxs = [ np.array(ddp.xs) ]
 hx = [ x ]
 hiter = [ mpcSolver.iter ]
@@ -362,17 +340,16 @@ for t in range(1,500):
     stateTarget[:3] = x0[:3] + p.VCOM_TARGET*(t+Tmpc)*p.DT
     mpcProblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference = stateTarget
     #tlast = t+Tmpc
-    tlast = T_START+((t+Tmpc-T_START)%(2*T_SINGLE+2*T_DOUBLE))
+    tlast = T_START+1+((t+Tmpc-T_START-1)%(2*T_SINGLE+2*T_DOUBLE))
     #print(f't={t} ... last is {tlast}')
     mpcProblem.circularAppend(problem.runningModels[tlast],problem.runningDatas[tlast])
     mpcProblem.x0 = x.copy()
     #assert(mpcProblem.runningModels[0] == problem.runningModels[t])
     xg = list(mpcSolver.xs)[1:]+[mpcSolver.xs[-1]]
     ug = list(mpcSolver.us)[1:]+[mpcSolver.us[-1]]
-
-    if t==100: stophere
-    mpcSolver.solve(xg,ug)
-    print(f'{t:4d} {dispocp(mpcProblem)} {stateTarget[0]:.03} {mpcSolver.iter:4d}')
+    #if t==100: stophere
+    mpcSolver.solve(xg,ug,maxiter=1)
+    print(f'{t:4d} {miscdisp.dispocp(mpcProblem,contactIds)} {stateTarget[0]:.03} {mpcSolver.iter:4d}')
     x = mpcSolver.xs[1].copy()
     hx.append(x)
     hxs.append(np.array(mpcSolver.xs))

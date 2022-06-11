@@ -196,7 +196,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
             impactResidual = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
             impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
             impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
-            costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
+            costs.addCost(f'{model.frames[cid].name}_altitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
 
             impactVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),pin.ReferenceFrame.LOCAL,actuation.nu)
             impactVelCost = croc.CostModelResidual(state,impactVelResidual)

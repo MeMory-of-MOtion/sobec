@@ -172,3 +172,36 @@ def vanishingPlot(xs,color=None):
         axs[ix].set_xlim(0,len(x))
         axs[ix].set_ylim(x.min(),x.max())
 
+
+def getForcesFromProblemDatas(problem,cid):
+    fs = []
+    for t,(m,d) in enumerate(zip(problem.runningModels,problem.runningDatas)):
+        dm=m.differential
+        model = dm.pinocchio
+        cname = f'{model.frames[cid].name}_contact'
+        if cname not in dm.contacts.contacts: fs.append(np.zeros(6))
+        else:
+            dd = d.differential.multibody.contacts.contacts[cname]
+            fs.append( (dd.jMf.inverse()*dd.f).vector)
+    fs = np.array(fs)
+    return fs
+        
+def getReferenceForcesFromProblemModels(problem,cid):
+    fs = []
+    for t,(m,d) in enumerate(zip(problem.runningModels,problem.runningDatas)):
+        dm=m.differential
+        model = dm.pinocchio
+        cname = f'{model.frames[cid].name}_forceref'
+        if cname not in dm.costs.costs: fs.append(np.zeros(6))
+        else:
+            cm = dm.costs.costs[cname].cost
+            fs.append( cm.residual.reference.vector)
+    fs = np.array(fs)
+    return fs
+        
+def plotProblemForces(problem,contactIds):
+    fig,axs = plt.subplots(len(contactIds),1,sharex=True)
+    for ax,cid in zip(axs,contactIds):
+        fs = getForcesFromProblemDatas(problem,cid)
+        ax.plot(fs[:,2])
+

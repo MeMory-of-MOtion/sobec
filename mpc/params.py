@@ -51,7 +51,7 @@ class WalkParams:
     impactRotationWeight = 200
     refMainJointsAtImpactWeight = 0# 2e2 # For avoinding crossing legs
 
-    stateTerminalWeight = 2000
+    stateTerminalWeight = 20 #2000
     terminalNoVelocityWeight = 2000
     terminalXTargetWeight = 0 ##DDP## 2000
 

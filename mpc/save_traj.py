@@ -9,14 +9,15 @@ def save_traj(xs,us=None,fs=None,acs=None,filename="/tmp/ddp.npy"):
     np.save(open(filename, "wb"),data)
     print(f'Save "{filename}"!')
 
-def getContactActivationFromAModel(action):
+def getContactActivationFromAModel(contactIds,action):
     '''Return a list of binary values representing the contact activation of an action movel'''
+    model = action.differential.pinocchio
     return [ int(f'{model.frames[cid].name}_contact' in action.differential.contacts.contacts) for cid in contactIds ]
 
 def saveProblemConfig(contactIds,problem,filename='/tmp/ddp.config'):
     data = {
-        'contactPattern': [ getContactActivationFromAModel(r) for r in problem.runningModels ] \
-        + [ getContactActivationFromAModel(problem.terminalModel) ],
+        'contactPattern': [ getContactActivationFromAModel(contactIds,r) for r in problem.runningModels ] \
+        + [ getContactActivationFromAModel(contactIds,problem.terminalModel) ],
         'x0': problem.x0,
         'stateTerminalTarget': problem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference,
     }
