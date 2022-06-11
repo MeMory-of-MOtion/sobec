@@ -138,7 +138,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
     costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
 
     comVelResidual = sobec.ResidualModelCoMVelocity(state, p.VCOM_TARGET, actuation.nu)
-    comVelAct = croc.ActivationModelWeightedQuad(np.array([1,1,1]))
+    comVelAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
     comVelCost = croc.CostModelResidual( state,comVelAct,comVelResidual )
     costs.addCost("comVelCost", comVelCost, p.vcomWeight)
 
@@ -255,10 +255,12 @@ for k,cid in enumerate(contactIds):
 # Costs
 costs = croc.CostModelSum(state, actuation.nu)
 
-xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
-xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([0]*model.nv+[1]*model.nv)),xRegResidual)
-#xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([10,10,0,0,0,1000]+[0]*(model.nv-6)+[1]*model.nv)),xRegResidual)
-costs.addCost("stateReg", xRegCost, p.terminalNoVelocityWeight)
+stateTermTarget = x0.copy()
+stateTermTarget[:3] += p.VCOM_TARGET*T*p.DT
+stateTermResidual = croc.ResidualModelState(state, stateTermTarget, actuation.nu)
+stateTermAct = croc.ActivationModelWeightedQuad(p.stateTermWeights)
+stateTermCost = croc.CostModelResidual(state, stateTermAct,stateTermResidual)
+costs.addCost("stateReg", stateTermCost, p.stateTerminalWeight)
 
 damodel = croc.DifferentialActionModelContactFwdDynamics(
     state, actuation, contacts, costs, p.kktDamping, True
@@ -313,7 +315,9 @@ from walk_plotter import WalkPlotter
 plotter = WalkPlotter(model,contactIds)
 plotter.setData(contactPattern,xs_sol,us_sol,fs_sol0)
 
-plotter.plotBasis(p.X_TARGET)
+
+target=problem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference
+plotter.plotBasis(target)
 plotter.plotTimeCop()
 plotter.plotCopAndFeet(p.FOOT_SIZE,.6)
 plotter.plotForces(referenceForces)

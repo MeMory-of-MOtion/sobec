@@ -30,7 +30,7 @@ class WalkPlotter:
         self.foottraj = np.array(self.foottraj)
         self.footvtraj = np.array(self.footvtraj)
 
-    def plotBasis(self,X_TARGET):
+    def plotBasis(self,target):
         # Robot basis movement
         legend = ['x', 'y', 'z']
         plt.figure('Basis move')
@@ -38,8 +38,7 @@ class WalkPlotter:
             plt.subplot(3,1,i+1)
             plt.title('Base link position_' + legend[i])
             plt.plot(self.xs[:, i])
-            if i == 0:
-                plt.axhline(y = X_TARGET, color = 'black', linestyle = '--')
+            plt.axhline(y = target[i], color = 'black', linestyle = '--')
 
     def plotTimeCop(self):
         # Cop of each foot vs time

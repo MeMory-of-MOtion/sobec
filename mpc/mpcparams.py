@@ -1,4 +1,4 @@
 from params import WalkParams
 
-WalkParams.terminalNoVelocityWeight = 20
+WalkParams.stateTerminalWeight = 20
 

@@ -16,6 +16,8 @@ class WalkParams:
         basisQWeight+legQWeight+legQWeight+armQWeight \
         +basisVWeight+legVWeight+legVWeight+armVWeight)
 
+    stateTermWeights = np.array([10,10,0,0,0,1000]+[0]*14+[1]*20)
+    
     legUWeight = [1, 1, 1, 1, 10, 10]
     torsoUWeight = [1, 1]
     armUWeight = [10, 10 ]
@@ -49,6 +51,7 @@ class WalkParams:
     impactRotationWeight = 200
     refMainJointsAtImpactWeight = 0# 2e2 # For avoinding crossing legs
 
+    stateTerminalWeight = 2000
     terminalNoVelocityWeight = 2000
     terminalXTargetWeight = 0 ##DDP## 2000
 
@@ -62,7 +65,6 @@ class WalkParams:
     heelCollision = False
     MAIN_JOINTS = [ f'leg_{side}_{idx}_joint' for side in ['left','right'] for idx in [1,2,4] ]
 
-    X_TARGET = .35
     VCOM_TARGET = np.array([.1,0,0])
     vcomSelection = [0,1,2]
     FOOT_SIZE = .05

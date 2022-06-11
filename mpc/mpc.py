@@ -9,7 +9,6 @@ import time
 import sobec
 import talos_low
 from weight_share import computeReferenceForces
-import sobec
 from save_traj import save_traj
 from mpcparams import WalkParams
 
@@ -113,46 +112,18 @@ contactPattern = [] \
     + [ [ 1,1 ] ]
 T = len(contactPattern)-1
     
-def patternToId(pattern):
-    '''Return the tuple of active contact from a pattern like [0,1], [1,0] or [1,1].'''
-    return tuple( contactIds[i] for i,c in enumerate(pattern) if c==1 )
-
-# ### REF FORCES ######################################################################
-# The force costs are defined using a reference (smooth) force.
-
-# # Search the contact phase of minimal duration (typically double support)
-# contactState=[]
-# dur=mindur=len(contactPattern)
-# for t,s in enumerate(contactPattern):
-#     dur+=1
-#     if s!=contactState:
-#         contactState=s
-#         mindur=min(mindur,dur)
-#         dur=0
-# # Select the smoothing transition to be smaller than half of the minimal duration.
-# transDuration=(mindur-1)//2
-# # Compute contact importance, ie how much of the weight should be supported by each
-# # foot at each time.
-# contactImportance = weightShareSmoothProfile(contactPattern,transDuration,switch=switch_linear)
-# # Contact reference forces are set to contactimportance*weight
-# weightReaction = np.array([0,0,robotweight,0,0,0])
-# referenceForces = [ 
-#     [ weightReaction*contactImportance[t,cid] for cid,__c in enumerate(pattern) ]
-#       for t,pattern in enumerate(contactPattern) ]
-# # Take care, we suppose here that foot normal is vertical.
-
 referenceForces = computeReferenceForces(contactPattern,robotweight)
 
-# #################################################################################################
-# #################################################################################################
-# #################################################################################################
+# #####################################################################################
+# #####################################################################################
+# #####################################################################################
 
 
 models = []
 
-# #################################################################################################
-for t,pattern in enumerate(contactPattern[:-1]):
-    #print(f'time t={t}')
+# #####################################################################################
+for t, pattern in enumerate(contactPattern[:-1]):
+    # print(f'time t={t}')
 
     # Basics
     state = croc.StateMultibody(model)
@@ -167,13 +138,19 @@ for t,pattern in enumerate(contactPattern[:-1]):
 
     # Costs
     costs = croc.CostModelSum(state, actuation.nu)
-   
+
     xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
-    xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(p.STATE_WEIGHT**2),xRegResidual)
+    xRegCost = croc.CostModelResidual(
+        state, croc.ActivationModelWeightedQuad(p.STATE_WEIGHT**2), xRegResidual
+    )
     costs.addCost("stateReg", xRegCost, p.refStateWeight)
 
     uResidual = croc.ResidualModelControl(state, actuation.nu)
-    uRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array(p.CONTROL_WEIGHT**2)), uResidual)
+    uRegCost = croc.CostModelResidual(
+        state,
+        croc.ActivationModelWeightedQuad(np.array(p.CONTROL_WEIGHT**2)),
+        uResidual,
+    )
     costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
 
     comVelResidual = sobec.ResidualModelCoMVelocity(state, p.VCOM_TARGET, actuation.nu)
@@ -196,7 +173,7 @@ for t,pattern in enumerate(contactPattern[:-1]):
         coneCost = croc.ResidualModelContactWrenchCone(state,cid,cone,actuation.nu)
         ub = cone.ub.copy()
         ub[:4] = np.inf
-        #ub[5:] = np.inf  ### DEBUG
+        # ub[5:] = np.inf  ### DEBUG
         ub[-8:] = np.inf
         coneAct = croc.ActivationModelQuadraticBarrier(croc.ActivationBounds(cone.lb,ub))
         coneCost = croc.CostModelResidual(state,coneAct,coneCost)
@@ -205,11 +182,14 @@ for t,pattern in enumerate(contactPattern[:-1]):
         # Penalize the distance to the central axis of the cone ...
         #  ... using normalization weights depending on the axis.
         # The weights are squared to match the tuning of the CASADI formulation.
-        coneAxisResidual = croc.ResidualModelContactForce(state,cid,pin.Force.Zero(),6,actuation.nu);
-        w = np.array(p.forceImportance**2); w[2] = 0
+        coneAxisResidual = croc.ResidualModelContactForce(
+            state, cid, pin.Force.Zero(), 6, actuation.nu
+        )
+        w = np.array(p.forceImportance**2)
+        w[2] = 0
         coneAxisAct = croc.ActivationModelWeightedQuad(w)
-        coneAxisCost = croc.CostModelResidual(state,coneAxisAct,coneAxisResidual);
-        costs.addCost(f'{model.frames[cid].name}_coneaxis',coneAxisCost,p.coneAxisWeight)
+        coneAxisCost = croc.CostModelResidual(state, coneAxisAct, coneAxisResidual)
+        costs.addCost(f"{model.frames[cid].name}_coneaxis", coneAxisCost, p.coneAxisWeight)
 
         # Follow reference (smooth) contact forces
         forceRefResidual = croc.ResidualModelContactForce(state,cid,pin.Force(referenceForces[t][k]),6,actuation.nu)
@@ -251,8 +231,6 @@ for t,pattern in enumerate(contactPattern[:-1]):
             impactRefJointsAct = croc.ActivationModelWeightedQuad(jselec)
             impactRefJointCost = croc.CostModelResidual(state,impactRefJointsAct,impactRefJointsResidual)
             costs.addCost('impactRefJoint',impactRefJointCost,p.refMainJointsAtImpactWeight/p.DT)
-
-                
             
             
     # Flying foot
@@ -279,13 +257,13 @@ for t,pattern in enumerate(contactPattern[:-1]):
             
     # Action
     damodel = croc.DifferentialActionModelContactFwdDynamics(
-        state, actuation, contacts, costs, p.kktDamping, True)
+        state, actuation, contacts, costs, p.kktDamping, True
+    )
     amodel = croc.IntegratedActionModelEuler(damodel, p.DT)
 
     models.append(amodel)
-    #stophere
 
-# ### TERMINAL MODEL ##############################################################################
+# ### TERMINAL MODEL ##################################################################
 pattern = contactPattern[-1]
 
 state = croc.StateMultibody(model)
@@ -300,32 +278,36 @@ for k,cid in enumerate(contactIds):
 
 # Costs
 costs = croc.CostModelSum(state, actuation.nu)
-   
-xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
-#xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([0]*model.nv+[1]*model.nv)),xRegResidual)
-xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([10,10,0,0,0,1000]+[0]*(model.nv-6)+[1]*model.nv)),xRegResidual)
-costs.addCost("stateReg", xRegCost, p.terminalNoVelocityWeight)
 
-#termTargetResidual = croc.ResidualModelFrameTranslation(state,1,baseId,
+stateTermTarget = x0.copy()
+stateTermTarget[:3] += p.VCOM_TARGET*T*p.DT
+stateTermResidual = croc.ResidualModelState(state, stateTermTarget, actuation.nu)
+stateTermAct = croc.ActivationModelWeightedQuad(p.stateTermWeights)
+stateTermCost = croc.CostModelResidual(state, stateTermAct,stateTermResidual)
+costs.addCost("stateReg", stateTermCost, p.stateTerminalWeight)
 
 damodel = croc.DifferentialActionModelContactFwdDynamics(
-    state, actuation, contacts, costs, p.kktDamping, True)
+    state, actuation, contacts, costs, p.kktDamping, True
+)
 termmodel = croc.IntegratedActionModelEuler(damodel, p.DT)
 
-# #################################################################################################
-#GUESS_FILE = '/tmp/sol.npy'
-#guess = np.load(GUESS_FILE,allow_pickle=True)[()]
-#print(f'Load "{GUESS_FILE}"!')
-# #################################################################################################
-
+# ##############################################################################
 problem = croc.ShootingProblem(x0,models,termmodel)
 ddp = croc.SolverFDDP(problem)
-x0s = [x0.copy()]*(len(models)+1)
-u0s = [ m.quasiStatic(d,x) for m,d,x in zip(problem.runningModels,problem.runningDatas,x0s) ]
 ddp.setCallbacks([croc.CallbackVerbose()])
 
-#x0s = [x for x in guess['xs']]
-#u0s = [u for u in guess['us']]
+# ##############################################################################
+try:
+    GUESS_FILE = '/tmp/sol.npy'
+    guess = np.load(GUESS_FILE,allow_pickle=True)[()]
+    print(f'Load "{GUESS_FILE}"!')
+    x0s = [x for x in guess['xs']]
+    u0s = [u for u in guess['us']]
+    if len(x0s)!=T+1 or len(u0s)!=T: raise ImportError
+except:
+    print('No valid solution file, build quasistatic initial guess!')
+    x0s = [x0.copy()]*(len(models)+1)
+    u0s = [ m.quasiStatic(d,x) for m,d,x in zip(problem.runningModels,problem.runningDatas,x0s) ]
 
 # l = pin.StdVec_Double()
 # l.append(2)
@@ -383,8 +365,6 @@ for t in range(1,10000):
     if not t%10:
         viz.display(x[:model.nq])
         time.sleep(p.DT)
-
-
         
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
@@ -408,25 +388,18 @@ from walk_plotter import WalkPlotter
 plotter = WalkPlotter(model,contactIds)
 plotter.setData(contactPattern,xs_sol,us_sol,fs_sol0)
 
-plotter.plotBasis(p.X_TARGET)
+target=mpcproblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference
+plotter.plotBasis(target)
 plotter.plotTimeCop()
 plotter.plotCopAndFeet(p.FOOT_SIZE,.6)
 plotter.plotForces(referenceForces)
 plotter.plotCom(com0)
 plotter.plotFeet()
 plotter.plotFootCollision(p.footMinimalDistance)
-
+print('Run ```plt.ion(); plt.show()``` to display the plots.')
 # ### SAVE #####################################################################
 
-'''    
--B < tau/f < B                     
-tau < Bf
-Bf - tau >=0
-tau >= -Bf
-Bf + tau >= 0
-'''
-
-### DEBUG
+# ## DEBUG
 
 # dmodel = problem.runningModels[0].differential
 # ddata = problem.runningDatas[0].differential
@@ -444,10 +417,16 @@ Bf + tau >= 0
 t = 60; fid=48
 t=119; fid=34
 t=90; cid=48 # impact
-xs=guess['xs']
-us=guess['us']
-fs0=guess['fs']
-acs=guess['acs']
+try:
+    xs=guess['xs']
+    us=guess['us']
+    fs0=guess['fs']
+    acs=guess['acs']
+except:
+    xs=xs_sol
+    us=us_sol
+    fs0=fs_sol0
+    acs=acs_sol
 dadata=problem.runningDatas[t].differential
 damodel=problem.runningModels[t].differential
 damodel.calc(dadata,xs[t],us[t])
