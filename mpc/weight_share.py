@@ -78,11 +78,13 @@ def computeReferenceForces(contactPattern,robotweight,maxTransitionDuration=50):
     return referenceForces
 
 if __name__ == "__main__":
-    import matplotlib.pylab as plt
-
-    plt.ion()
-    contactPattern = [] + [[1, 1]] * 30 + [[1, 0]] * 50 + [[1, 1]] * 20 + [[1, 1]]
-    contactIds = [34, 48]
+    import matplotlib.pylab as plt; plt.ion()
+    contactPattern = [] \
+        + [ [ 1,1 ] ] * 30 \
+        + [ [ 1,0 ] ] * 50  \
+        + [ [ 1,1 ] ] * 20 \
+        + [ [ 1,1 ] ]
+    contactIds = [ 34,48 ]
 
     contactImportance = weightShareSmoothProfile(contactPattern, 10, verbose=True)
     assert np.linalg.norm(np.sum(contactImportance, 1) - 1) <= 1e-6
