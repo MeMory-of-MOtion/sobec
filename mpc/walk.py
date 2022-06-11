@@ -67,7 +67,7 @@ towIds = {idf: model.getFrameId(f"{model.frames[idf].name}_tow") for idf in cont
 heelIds = {idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds}
 baseId = model.getFrameId("root_joint")
 robotweight = -sum(Y.mass for Y in model.inertias) * model.gravity.linear[2]
-
+com0 = pin.centerOfMass(model, data, model.x0[:model.nq])
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -92,6 +92,10 @@ except:
     # Contact are specified with the order chosen in <contactIds>
     contactPattern = [] \
         + [ [ 1,1 ] ] * 40 \
+        + [ [ 1,0 ] ] * 50  \
+        + [ [ 1,1 ] ] * 11  \
+        + [ [ 0,1 ] ] * 50  \
+        + [ [ 1,1 ] ] * 11 \
         + [ [ 1,0 ] ] * 50  \
         + [ [ 1,1 ] ] * 11  \
         + [ [ 0,1 ] ] * 50  \
@@ -141,7 +145,12 @@ for t, pattern in enumerate(contactPattern[:-1]):
         croc.ActivationModelWeightedQuad(np.array(p.controlImportance**2)),
         uResidual,
     )
-    costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
+    if p.refTorqueWeight>0: costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
+
+    comResidual = sobec.ResidualModelCoM(state,com0,actuation.nu)
+    comAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
+    comCost = croc.CostModelResidual(state,comAct,comResidual)
+    if p.comWeight>0: costs.addCost("com",comCost,p.comWeight)
 
     comVelResidual = sobec.ResidualModelCoMVelocity(state, p.VCOM_TARGET, actuation.nu)
     comVelAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
@@ -326,7 +335,6 @@ plotter.setData(contactPattern,xs_sol,us_sol,fs_sol0)
 
 
 target=problem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference
-com0 = pin.centerOfMass(model, data, model.x0[:model.nq])
 plotter.plotBasis(target)
 plotter.plotTimeCop()
 plotter.plotCopAndFeet(p.FOOT_SIZE,.6)
