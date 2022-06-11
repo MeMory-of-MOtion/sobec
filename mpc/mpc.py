@@ -9,7 +9,7 @@ import time
 import sobec
 import talos_low
 from weight_share import computeReferenceForces
-from save_traj import save_traj
+from save_traj import save_traj,saveProblemConfig
 from mpcparams import WalkParams
 
 pin.SE3.__repr__=pin.SE3.__str__
@@ -90,7 +90,7 @@ pin.framesForwardKinematics(model, data, x0[: model.nq])
 # All these lines are marked with the tag ##0##.
 
 p = WalkParams()
-assert(len(p.STATE_WEIGHT)==model.nv*2)
+assert(len(p.stateImportance)==model.nv*2)
 
 # Contact are specified with the order chosen in <contactIds>
 # contactPattern = [] \
@@ -103,6 +103,14 @@ assert(len(p.STATE_WEIGHT)==model.nv*2)
 #     + [ [ 1,1 ] ]
 contactPattern = [] \
     + [ [ 1,1 ] ] * T_START \
+    + [ [ 1,1 ] ] * T_DOUBLE \
+    + [ [ 0,1 ] ] * T_SINGLE \
+    + [ [ 1,1 ] ] * T_DOUBLE \
+    + [ [ 1,0 ] ] * T_SINGLE \
+    + [ [ 1,1 ] ] * T_DOUBLE \
+    + [ [ 0,1 ] ] * T_SINGLE \
+    + [ [ 1,1 ] ] * T_DOUBLE \
+    + [ [ 1,0 ] ] * T_SINGLE \
     + [ [ 1,1 ] ] * T_DOUBLE \
     + [ [ 0,1 ] ] * T_SINGLE \
     + [ [ 1,1 ] ] * T_DOUBLE \
@@ -141,14 +149,14 @@ for t, pattern in enumerate(contactPattern[:-1]):
 
     xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
     xRegCost = croc.CostModelResidual(
-        state, croc.ActivationModelWeightedQuad(p.STATE_WEIGHT**2), xRegResidual
+        state, croc.ActivationModelWeightedQuad(p.stateImportance**2), xRegResidual
     )
     costs.addCost("stateReg", xRegCost, p.refStateWeight)
 
     uResidual = croc.ResidualModelControl(state, actuation.nu)
     uRegCost = croc.CostModelResidual(
         state,
-        croc.ActivationModelWeightedQuad(np.array(p.CONTROL_WEIGHT**2)),
+        croc.ActivationModelWeightedQuad(np.array(p.controlImportance**2)),
         uResidual,
     )
     costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
@@ -279,12 +287,12 @@ for k,cid in enumerate(contactIds):
 # Costs
 costs = croc.CostModelSum(state, actuation.nu)
 
-stateTermTarget = x0.copy()
-stateTermTarget[:3] += p.VCOM_TARGET*T*p.DT
-stateTermResidual = croc.ResidualModelState(state, stateTermTarget, actuation.nu)
-stateTermAct = croc.ActivationModelWeightedQuad(p.stateTermWeights)
-stateTermCost = croc.CostModelResidual(state, stateTermAct,stateTermResidual)
-costs.addCost("stateReg", stateTermCost, p.stateTerminalWeight)
+stateTerminalTarget = x0.copy()
+stateTerminalTarget[:3] += p.VCOM_TARGET*T*p.DT
+stateTerminalResidual = croc.ResidualModelState(state, stateTerminalTarget, actuation.nu)
+stateTerminalAct = croc.ActivationModelWeightedQuad(p.stateTerminalImportance**2)
+stateTerminalCost = croc.CostModelResidual(state, stateTerminalAct,stateTerminalResidual)
+costs.addCost("stateReg", stateTerminalCost, p.stateTerminalWeight)
 
 damodel = croc.DifferentialActionModelContactFwdDynamics(
     state, actuation, contacts, costs, p.kktDamping, True
@@ -306,7 +314,7 @@ try:
     if len(x0s)!=T+1 or len(u0s)!=T: raise ImportError
 except:
     print('No valid solution file, build quasistatic initial guess!')
-    x0s = [x0.copy()]*(len(models)+1)
+    x0s = [x0.copy()]*(T+1)
     u0s = [ m.quasiStatic(d,x) for m,d,x in zip(problem.runningModels,problem.runningDatas,x0s) ]
 
 # l = pin.StdVec_Double()
@@ -316,6 +324,9 @@ except:
 #ddp.th_acceptStep = 0.1
 ddp.th_stop = 1e-3
 ddp.solve(x0s,u0s,200)
+
+
+    
 
 
 # ### MPC #########################################################################################
@@ -342,25 +353,29 @@ def contact2car(contacts):
     
 def dispocp(pb):
     return ''.join([contact2car(r.differential.contacts.contacts) for r in pb.runningModels ])
-    
+
+hxs = [ np.array(ddp.xs) ]
 hx = [ x ]
 hiter = [ mpcSolver.iter ]
-for t in range(1,10000):
+for t in range(1,500):
     stateTarget = x0.copy()
-    stateTarget[:3] = x0[:3] + p.VCOM_TARGET*(t+T)*p.DT
+    stateTarget[:3] = x0[:3] + p.VCOM_TARGET*(t+Tmpc)*p.DT
     mpcProblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference = stateTarget
     #tlast = t+Tmpc
     tlast = T_START+((t+Tmpc-T_START)%(2*T_SINGLE+2*T_DOUBLE))
     #print(f't={t} ... last is {tlast}')
     mpcProblem.circularAppend(problem.runningModels[tlast],problem.runningDatas[tlast])
     mpcProblem.x0 = x.copy()
-    print(dispocp(mpcProblem),stateTarget[:3])
     #assert(mpcProblem.runningModels[0] == problem.runningModels[t])
     xg = list(mpcSolver.xs)[1:]+[mpcSolver.xs[-1]]
     ug = list(mpcSolver.us)[1:]+[mpcSolver.us[-1]]
+
+    if t==100: stophere
     mpcSolver.solve(xg,ug)
+    print(f'{t:4d} {dispocp(mpcProblem)} {stateTarget[0]:.03} {mpcSolver.iter:4d}')
     x = mpcSolver.xs[1].copy()
     hx.append(x)
+    hxs.append(np.array(mpcSolver.xs))
     hiter.append(mpcSolver.iter)
     if not t%10:
         viz.display(x[:model.nq])
@@ -386,13 +401,13 @@ fs_sol0 = [ np.concatenate([
 from walk_plotter import WalkPlotter
 
 plotter = WalkPlotter(model,contactIds)
-plotter.setData(contactPattern,xs_sol,us_sol,fs_sol0)
+plotter.setData(contactPattern,np.array(hx),None,None)
 
-target=mpcproblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference
+target=mpcProblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference
 plotter.plotBasis(target)
-plotter.plotTimeCop()
-plotter.plotCopAndFeet(p.FOOT_SIZE,.6)
-plotter.plotForces(referenceForces)
+#plotter.plotTimeCop()
+#plotter.plotCopAndFeet(p.FOOT_SIZE,.6)
+#plotter.plotForces(referenceForces)
 plotter.plotCom(com0)
 plotter.plotFeet()
 plotter.plotFootCollision(p.footMinimalDistance)

@@ -153,3 +153,22 @@ class WalkPlotter:
             bb = m-d*footMinimalDistance/2
             plt.plot([aa[0],bb[0]],[aa[1],bb[1]],'grey')
         plt.axis([ -.1,0.4,-.25,.25 ])
+
+
+def vanishingPlot(xs,color=None):
+    if color is None:
+        color = np.arange(xs.shape[0])
+    fig, axs = plt.subplots(xs.shape[1], 1, sharex=True)
+    ts = np.arange(xs.shape[0])
+    for ix,x in enumerate(xs.T):
+        points = np.array([ts, x]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        norm = plt.Normalize(color.min(), color.max())
+        lc = LineCollection(segments, cmap='Blues', norm=norm)
+        #lc.set_array(color)
+        lc.set_linewidth(2)
+        line = axs[ix].add_collection(lc)
+
+        axs[ix].set_xlim(0,len(x))
+        axs[ix].set_ylim(x.min(),x.max())
+

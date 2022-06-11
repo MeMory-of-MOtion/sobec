@@ -8,7 +8,7 @@ from numpy.linalg import norm,inv,pinv,svd,eig
 import sobec
 import talos_low
 from weight_share import computeReferenceForces
-from save_traj import save_traj
+from save_traj import save_traj,loadProblemConfig
 from params import WalkParams
 
 pin.SE3.__repr__=pin.SE3.__str__
@@ -58,20 +58,16 @@ except AttributeError:
 
 # The pinocchio model is what we are really interested by.
 model = robot.model
-model.q0 = robot.q0
+model.x0 = np.concatenate([robot.q0, np.zeros(model.nv)])
 data = model.createData()
 
-# Initial config, also used for warm start
-x0 = np.concatenate([model.q0, np.zeros(model.nv)])
 
 # Some key elements of the model
 towIds = {idf: model.getFrameId(f"{model.frames[idf].name}_tow") for idf in contactIds}
 heelIds = {idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds}
 baseId = model.getFrameId("root_joint")
 robotweight = -sum(Y.mass for Y in model.inertias) * model.gravity.linear[2]
-com0 = pin.centerOfMass(model, data, model.q0)
 
-pin.framesForwardKinematics(model, data, x0[: model.nq])
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -83,17 +79,27 @@ pin.framesForwardKinematics(model, data, x0[: model.nq])
 # All these lines are marked with the tag ##0##.
 
 p = WalkParams()
-assert(len(p.STATE_WEIGHT)==model.nv*2)
+assert(len(p.stateImportance)==model.nv*2)
 
-# Contact are specified with the order chosen in <contactIds>
-contactPattern = [] \
-    + [ [ 1,1 ] ] * 40 \
-    + [ [ 1,0 ] ] * 50  \
-    + [ [ 1,1 ] ] * 11  \
-    + [ [ 0,1 ] ] * 50  \
-    + [ [ 1,1 ] ] * 11 \
-    + [ [ 1,1 ] ] * 40 \
-    + [ [ 1,1 ] ]
+try:
+    ocpConfig = loadProblemConfig()
+    contactPattern = ocpConfig['contactPattern']
+    x0 = ocpConfig['x0']
+    stateTerminalTarget = ocpConfig['stateTerminalTarget']
+except:
+    # Initial config, also used for warm start
+    x0 = model.x0.copy()
+    # Contact are specified with the order chosen in <contactIds>
+    contactPattern = [] \
+        + [ [ 1,1 ] ] * 40 \
+        + [ [ 1,0 ] ] * 50  \
+        + [ [ 1,1 ] ] * 11  \
+        + [ [ 0,1 ] ] * 50  \
+        + [ [ 1,1 ] ] * 11 \
+        + [ [ 1,1 ] ] * 40 \
+        + [ [ 1,1 ] ]
+
+# Horizon length
 T = len(contactPattern)-1
     
 referenceForces = computeReferenceForces(contactPattern,robotweight)
@@ -125,14 +131,14 @@ for t, pattern in enumerate(contactPattern[:-1]):
 
     xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
     xRegCost = croc.CostModelResidual(
-        state, croc.ActivationModelWeightedQuad(p.STATE_WEIGHT**2), xRegResidual
+        state, croc.ActivationModelWeightedQuad(p.stateImportance**2), xRegResidual
     )
     costs.addCost("stateReg", xRegCost, p.refStateWeight)
 
     uResidual = croc.ResidualModelControl(state, actuation.nu)
     uRegCost = croc.CostModelResidual(
         state,
-        croc.ActivationModelWeightedQuad(np.array(p.CONTROL_WEIGHT**2)),
+        croc.ActivationModelWeightedQuad(np.array(p.controlImportance**2)),
         uResidual,
     )
     costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
@@ -255,12 +261,15 @@ for k,cid in enumerate(contactIds):
 # Costs
 costs = croc.CostModelSum(state, actuation.nu)
 
-stateTermTarget = x0.copy()
-stateTermTarget[:3] += p.VCOM_TARGET*T*p.DT
-stateTermResidual = croc.ResidualModelState(state, stateTermTarget, actuation.nu)
-stateTermAct = croc.ActivationModelWeightedQuad(p.stateTermWeights)
-stateTermCost = croc.CostModelResidual(state, stateTermAct,stateTermResidual)
-costs.addCost("stateReg", stateTermCost, p.stateTerminalWeight)
+try:
+    stateTerminalTarget
+except:
+    stateTerminalTarget = x0.copy()
+    stateTerminalTarget[:3] += p.VCOM_TARGET*T*p.DT
+stateTerminalResidual = croc.ResidualModelState(state, stateTerminalTarget, actuation.nu)
+stateTerminalAct = croc.ActivationModelWeightedQuad(p.stateTerminalImportance**2)
+stateTerminalCost = croc.CostModelResidual(state, stateTerminalAct,stateTerminalResidual)
+costs.addCost("stateReg", stateTerminalCost, p.stateTerminalWeight)
 
 damodel = croc.DifferentialActionModelContactFwdDynamics(
     state, actuation, contacts, costs, p.kktDamping, True
@@ -317,6 +326,7 @@ plotter.setData(contactPattern,xs_sol,us_sol,fs_sol0)
 
 
 target=problem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference
+com0 = pin.centerOfMass(model, data, model.x0[:model.nq])
 plotter.plotBasis(target)
 plotter.plotTimeCop()
 plotter.plotCopAndFeet(p.FOOT_SIZE,.6)

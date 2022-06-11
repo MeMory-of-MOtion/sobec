@@ -12,16 +12,16 @@ class WalkParams:
     torsoVWeight = [20]*2
     armVWeight = [2]*2
 
-    STATE_WEIGHT = np.array(  \
+    stateImportance = np.array(  \
         basisQWeight+legQWeight+legQWeight+armQWeight \
         +basisVWeight+legVWeight+legVWeight+armVWeight)
 
-    stateTermWeights = np.array([10,10,0,0,0,1000]+[0]*14+[1]*20)
+    stateTerminalImportance = np.array([3,3,0,0,0,30]+[0]*14+[1]*20)
     
     legUWeight = [1, 1, 1, 1, 10, 10]
     torsoUWeight = [1, 1]
     armUWeight = [10, 10 ]
-    CONTROL_WEIGHT = np.array( legUWeight*2+armUWeight )
+    controlImportance = np.array( legUWeight*2+armUWeight )
 
     ### Gains for force continuity: wfref for tracking the reference, wfcont for time difference
     refTorqueWeight = 0
