@@ -1,7 +1,7 @@
 import matplotlib.pylab as plt
 import pinocchio as pin
 import numpy as np
-from numpy.linalg import norm, inv, pinv, svd, eig
+from numpy.linalg import norm
 
 
 class WalkPlotter:
@@ -61,7 +61,11 @@ class WalkPlotter:
         plt.figure("cop time local")
         for ifig, cid in enumerate(self.contactIds):
             plt.subplot(len(self.contactIds), 1, ifig + 1)
-            # ftraj = [ [t,f[6*ifig:6*ifig+6]] for t,(f,p) in enumerate(zip(self.fs,self.contactPattern)) if cid in patternToId(p) ]
+            # ftraj = [
+            # [t, f[6 * ifig : 6 * ifig + 6]]
+            # for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))
+            # if cid in patternToId(p)
+            # ]
             ftraj = [
                 [t, f[6 * ifig : 6 * ifig + 6]]
                 for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))

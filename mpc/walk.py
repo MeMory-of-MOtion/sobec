@@ -1,19 +1,44 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-import example_robot_data as robex
-import matplotlib.pyplot as plt
-from numpy.linalg import norm, inv, pinv, svd, eig
 
 # Local imports
 import sobec
 import talos_low
 from weight_share import computeReferenceForces
-from params import *
+from walk_plotter import WalkPlotter
+from params import (
+    baumgartGains,
+    X_TARGET,
+    footMinimalDistance,
+    STATE_WEIGHT,
+    refStateWeight,
+    CONTROL_WEIGHT,
+    refTorqueWeight,
+    VCOM_TARGET,
+    vcomWeight,
+    FOOT_SIZE,
+    copWeight,
+    conePenaltyWeight,
+    forceImportance,
+    coneAxisWeight,
+    refForceWeight,
+    impactAltitudeWeight,
+    DT,
+    impactVelocityWeight,
+    impactRotationWeight,
+    MAIN_JOINTS,
+    refMainJointsAtImpactWeight,
+    verticalFootVelWeight,
+    flyHighSlope,
+    flyWeight,
+    groundColWeight,
+    kktDamping,
+    terminalNoVelocityWeight,
+)
 
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
-# plt.ion()
 
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
@@ -158,7 +183,8 @@ for t, pattern in enumerate(contactPattern[:-1]):
         costs.addCost(f"{model.frames[cid].name}_cop", copCost, copWeight)
 
         # Cone with enormous friction (Assuming the robot will barely ever slide).
-        # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates => x2
+        # FOOT_SIZE is the allowed area size,
+        # while cone expects the corner coordinates => x2
         cone = croc.WrenchCone(
             np.eye(3), 1000, np.array([FOOT_SIZE * 2] * 2), 4, True, 1, 10000
         )
@@ -201,8 +227,8 @@ for t, pattern in enumerate(contactPattern[:-1]):
     # IMPACT
     for k, cid in enumerate(contactIds):
         if t > 0 and not contactPattern[t - 1][k] and pattern[k]:
-            # REMEMBER TO divide the weight by DT, as impact should be independant of the node duration
-            # (at least, that s how weights are tuned in casadi).
+            # REMEMBER TO divide the weight by DT, as impact should be independant of
+            # the node duration (at least, that s how weights are tuned in casadi).
 
             print(f"Impact {cid} at time {t}")
             impactResidual = croc.ResidualModelFrameTranslation(
@@ -285,8 +311,11 @@ for t, pattern in enumerate(contactPattern[:-1]):
         groundColRes = croc.ResidualModelFrameTranslation(
             state, cid, np.zeros(3), actuation.nu
         )
-        # groundColBounds = croc.ActivationBounds(np.array([-np.inf,-np.inf,0.01]),np.array([np.inf,np.inf,np.inf]))
-        # np.inf introduces an error on lb[2] ... why? TODO ... patch by replacing np.inf with 1000
+        # groundColBounds = croc.ActivationBounds(
+        # np.array([-np.inf, -np.inf, 0.01]), np.array([np.inf, np.inf, np.inf])
+        # )
+        # np.inf introduces an error on lb[2] ... why?
+        # TODO ... patch by replacing np.inf with 1000
         groundColBounds = croc.ActivationBounds(
             np.array([-1000, -1000, 0.0]), np.array([1000, 1000, 1000])
         )
@@ -342,15 +371,12 @@ ddp = croc.SolverFDDP(problem)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
 # ##############################################################################
-try:
-    GUESS_FILE = "/tmp/sol.npy"
-    guess = np.load(GUESS_FILE, allow_pickle=True)[()]
-    print(f'Load "{GUESS_FILE}"!')
-    x0s = [x for x in guess["xs"]]
-    u0s = [u for u in guess["us"]]
-    if len(x0s) != T + 1 or len(u0s) != T:
-        raise ImportError
-except:
+GUESS_FILE = "/tmp/sol.npy"
+guess = np.load(GUESS_FILE, allow_pickle=True)[()]
+print(f'Load "{GUESS_FILE}"!')
+x0s = [x for x in guess["xs"]]
+u0s = [u for u in guess["us"]]
+if len(x0s) != T + 1 or len(u0s) != T:
     print("No valid solution file, build quasistatic initial guess!")
     x0s = [x0.copy()] * (len(models) + 1)
     u0s = [
@@ -400,7 +426,6 @@ fs_sol0 = [
     for m, d in zip(problem.runningModels, problem.runningDatas)
 ]
 
-from walk_plotter import WalkPlotter
 
 plotter = WalkPlotter(model, contactIds)
 plotter.setData(contactPattern, xs_sol, us_sol, fs_sol0)
@@ -414,6 +439,8 @@ plotter.plotFeet()
 plotter.plotFootCollision(footMinimalDistance)
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
 # ### SAVE #####################################################################
+
+
 def save():
     SOLU_FILE = "/tmp/ddp.npy"
     np.save(
@@ -454,7 +481,7 @@ try:
     us = guess["us"]
     fs0 = guess["fs"]
     acs = guess["acs"]
-except:
+except KeyError:
     xs = xs_sol
     us = us_sol
     fs0 = fs_sol0
