@@ -106,6 +106,9 @@ namespace sobec{
             Eigen::VectorXd get_x0(){return x0_;}
             void set_x0(Eigen::VectorXd x0){x0_=x0;}
 
+            HorizonManager get_walkingCycle(){return fullCycle_;}
+            void set_walkingCycle(HorizonManager walkingCycle){fullCycle_=walkingCycle;}
+
             // void solveControlCycle(const Eigen::VectorXd &measured_x);
             
             // ndcurves::piecewise_SE3_t defineBezier(const double &height, 

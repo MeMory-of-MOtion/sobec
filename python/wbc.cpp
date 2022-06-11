@@ -48,6 +48,7 @@ namespace sobec {
                 .def("timeToSolveDDP", &WBC::timeToSolveDDP, bp::args("self", "iteration"))
                 .def("recedeWithFullCycle", &WBC::recedeWithFullCycle, bp::args("self"))
                 .add_property("x0", &WBC::get_x0, &WBC::set_x0)
+                .add_property("walkingCycle", &WBC::get_walkingCycle, &WBC::set_walkingCycle)
                 ;
 
         }
