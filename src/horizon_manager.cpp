@@ -156,6 +156,7 @@ namespace sobec {
 		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placementFootLeft")->cost->get_residual());
 		goalTrackingResidual_->set_reference(ref_placement);
     }
+    
     // void HorizonManager::setResidualReferences(unsigned long time, const std::string &name);
 
     void HorizonManager::activateContactLF(){
@@ -194,26 +195,41 @@ namespace sobec {
 		quadRefActivationPtr_->set_reference(wrench_cone_.get_A() * reference);
     }
 
-    void HorizonManager::setSwingingLF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench){
+    void HorizonManager::setSwingingLF(const unsigned long &time, 
+                                       const pinocchio::SE3 &right_placement,
+                                       const pinocchio::SE3 &left_placement,
+                                       const eVector6 &ref_wrench){
 		updateDAM(time);
         removeContactLF();
+        activateContactRF();
         setForceReferenceLF(eVector6::Zero());
         setForceReferenceRF(ref_wrench);
-        setPlacementReferenceLF(ref_placement);
+        setPlacementReferenceLF(left_placement);
+        setPlacementReferenceRF(right_placement);
     }
-    void HorizonManager::setSwingingRF(const unsigned long &time, const pinocchio::SE3 &ref_placement, const eVector6 &ref_wrench){
+    void HorizonManager::setSwingingRF(const unsigned long &time, 
+                                       const pinocchio::SE3 &right_placement,
+                                       const pinocchio::SE3 &left_placement,
+                                       const eVector6 &ref_wrench){
 		updateDAM(time);
         removeContactRF();
+        activateContactLF();
         setForceReferenceRF(eVector6::Zero());
         setForceReferenceLF(ref_wrench);
-        setPlacementReferenceRF(ref_placement);
+        setPlacementReferenceLF(left_placement);
+        setPlacementReferenceRF(right_placement);
     }
-    void HorizonManager::setSupportingFeet(const unsigned long &time, const eVector6 &ref_wrench){
+    void HorizonManager::setSupportingFeet(const unsigned long &time,
+                                           const pinocchio::SE3 &right_placement,
+                                           const pinocchio::SE3 &left_placement,
+                                           const eVector6 &ref_wrench){
 		updateDAM(time);
         activateContactLF();
         activateContactRF();
         setForceReferenceRF(ref_wrench);
         setForceReferenceLF(ref_wrench);
+        setPlacementReferenceLF(left_placement);
+        setPlacementReferenceRF(right_placement);
     }
 
     void HorizonManager::recede(const IAM &new_model, const IAD &new_data){

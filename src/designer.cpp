@@ -86,12 +86,17 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
 
     leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
     rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
+    
+    updateReducedModel(q0_);
 }
 
-void RobotDesigner::updateReducedModel(Eigen::VectorXd x){
+void RobotDesigner::updateReducedModel(Eigen::VectorXd q){
     /** x is the reduced posture, or contains the reduced posture in the first elements */
-    pinocchio::forwardKinematics(rModel_, rData_, x.head(rModel_.nq));
+    pinocchio::forwardKinematics(rModel_, rData_, q);
     pinocchio::updateFramePlacements(rModel_, rData_);
+    com_position_ = pinocchio::centerOfMass(rModel_,rData_,q,false);
+    LF_position_ = rData_.oMf[leftFootId_].translation();
+    RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
 void RobotDesigner::updateCompleteModel(Eigen::VectorXd x){

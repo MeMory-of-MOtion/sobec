@@ -38,6 +38,10 @@ namespace sobec{
             Eigen::VectorXd q0Complete_, q0_;
             Eigen::VectorXd v0Complete_, v0_;
             Eigen::VectorXd x0_;
+            
+            Eigen::Vector3d com_position_;
+            Eigen::Vector3d LF_position_;
+            Eigen::Vector3d RF_position_;
 
         public:
             RobotDesigner();
@@ -68,6 +72,10 @@ namespace sobec{
             pinocchio::FrameIndex get_RF_id(){return rightFootId_;}
             RobotDesignerSettings &get_settings(){return settings_;}
             std::vector<unsigned long> get_controlledJointsIDs(){return controlled_joints_id_;}
+            
+            Eigen::Vector3d get_LF_position(){return LF_position_;}
+            Eigen::Vector3d get_RF_position(){return RF_position_;}
+            Eigen::Vector3d get_com_position(){return com_position_;}
     };
 
 }  // namespace
