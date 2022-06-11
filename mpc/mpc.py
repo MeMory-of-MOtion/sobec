@@ -9,6 +9,7 @@ import talos_low
 from weight_share import computeReferenceForces
 import sobec
 import time
+from save_traj import save_traj
 
 pin.SE3.__repr__=pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True,threshold=10000)
@@ -86,9 +87,9 @@ assert(len(STATE_WEIGHT)==model.nv*2)
 contactPattern = [] \
     + [ [ 1,1 ] ] * T_START \
     + [ [ 1,1 ] ] * T_DOUBLE \
-    + [ [ 1,0 ] ] * T_SINGLE \
-    + [ [ 1,1 ] ] * T_DOUBLE \
     + [ [ 0,1 ] ] * T_SINGLE \
+    + [ [ 1,1 ] ] * T_DOUBLE \
+    + [ [ 1,0 ] ] * T_SINGLE \
     + [ [ 1,1 ] ] * T_DOUBLE \
     + [ [ 1,1 ] ] * T_END \
     + [ [ 1,1 ] ]
@@ -158,7 +159,8 @@ for t,pattern in enumerate(contactPattern[:-1]):
     costs.addCost("ctrlReg", uRegCost, refTorqueWeight)
 
     comVelResidual = sobec.ResidualModelCoMVelocity(state, VCOM_TARGET, actuation.nu)
-    comVelCost = croc.CostModelResidual( state,comVelResidual )
+    comVelAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
+    comVelCost = croc.CostModelResidual( state,comVelAct,comVelResidual )
     costs.addCost("comVelCost", comVelCost, vcomWeight)
 
     # Contact costs
@@ -203,16 +205,18 @@ for t,pattern in enumerate(contactPattern[:-1]):
             # (at least, that s how weights are tuned in casadi).
             
             print(f'Impact {cid} at time {t}')
-
-            if 'left' in model.frames[cid].name:
-                itarget = np.array([0,.1,0])
-            else:
-                itarget = np.array([0,-.1,0])
-
-            impactResidual = croc.ResidualModelFrameTranslation(state,cid,itarget,actuation.nu)
-            impactAct = croc.ActivationModelWeightedQuad(np.array([0,100,1]))
+            impactResidual = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
+            impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
             impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
             costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,impactAltitudeWeight/DT)
+            # if 'left' in model.frames[cid].name:
+            #     itarget = np.array([0,.1,0])
+            # else:
+            #     itarget = np.array([0,-.1,0])
+            # impactResidual = croc.ResidualModelFrameTranslation(state,cid,itarget,actuation.nu)
+            # impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
+            # impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
+            # costs.addCost(f'{model.frames[cid].name}_atitudeimpact',impactCost,impactAltitudeWeight/DT)
 
             impactVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),pin.ReferenceFrame.LOCAL,actuation.nu)
             impactVelCost = croc.CostModelResidual(state,impactVelResidual)
@@ -263,7 +267,7 @@ for t,pattern in enumerate(contactPattern[:-1]):
     models.append(amodel)
     #stophere
 
-# #################################################################################################
+# ### TERMINAL MODEL ##############################################################################
 pattern = contactPattern[-1]
 
 state = croc.StateMultibody(model)
@@ -280,8 +284,11 @@ for k,cid in enumerate(contactIds):
 costs = croc.CostModelSum(state, actuation.nu)
    
 xRegResidual = croc.ResidualModelState(state, x0, actuation.nu)
-xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([0]*model.nv+[1]*model.nv)),xRegResidual)
+#xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([0]*model.nv+[1]*model.nv)),xRegResidual)
+xRegCost = croc.CostModelResidual(state, croc.ActivationModelWeightedQuad(np.array([10,10,0,0,0,1000]+[0]*(model.nv-6)+[1]*model.nv)),xRegResidual)
 costs.addCost("stateReg", xRegCost, terminalNoVelocityWeight)
+
+#termTargetResidual = croc.ResidualModelFrameTranslation(state,1,baseId,
 
 damodel = croc.DifferentialActionModelContactFwdDynamics(
     state, actuation, contacts, costs, kktDamping, True)
@@ -319,6 +326,10 @@ mpcSolver =  croc.SolverFDDP(mpcProblem)
 #mpcSolver.setCallbacks([croc.CallbackVerbose()])
 mpcSolver.th_stop = 1e-3
 
+stateTarget = x0.copy()
+stateTarget[:3] = x0[:3] + VCOM_TARGET*T*DT
+mpcProblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference = stateTarget
+
 mpcSolver.solve(ddp.xs[:Tmpc+1],ddp.us[:Tmpc],10,isFeasible=True)
 x = mpcSolver.xs[1].copy()
 
@@ -335,12 +346,15 @@ def dispocp(pb):
 hx = [ x ]
 hiter = [ mpcSolver.iter ]
 for t in range(1,10000):
+    stateTarget = x0.copy()
+    stateTarget[:3] = x0[:3] + VCOM_TARGET*(t+T)*DT
+    mpcProblem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference = stateTarget
     #tlast = t+Tmpc
     tlast = T_START+((t+Tmpc-T_START)%(2*T_SINGLE+2*T_DOUBLE))
     #print(f't={t} ... last is {tlast}')
     mpcProblem.circularAppend(problem.runningModels[tlast],problem.runningDatas[tlast])
     mpcProblem.x0 = x.copy()
-    print(dispocp(mpcProblem))
+    print(dispocp(mpcProblem),stateTarget[:3])
     #assert(mpcProblem.runningModels[0] == problem.runningModels[t])
     xg = list(mpcSolver.xs)[1:]+[mpcSolver.xs[-1]]
     ug = list(mpcSolver.us)[1:]+[mpcSolver.us[-1]]
@@ -352,13 +366,6 @@ for t in range(1,10000):
         viz.display(x[:model.nq])
         time.sleep(DT)
 
-def savempc():
-    SOLU_FILE = "/tmp/mpc.npy"
-    np.save(open(SOLU_FILE, "wb"),
-            {
-                "xs": np.array(hx),
-            })
-    print(f'Save "{SOLU_FILE}"!')
 
         
 # ### PLOT ######################################################################
@@ -392,16 +399,6 @@ plotter.plotFeet()
 plotter.plotFootCollision(footMinimalDistance)
 
 # ### SAVE #####################################################################
-def save():
-    SOLU_FILE = "/tmp/ddp.npy"
-    np.save(open(SOLU_FILE, "wb"),
-            {
-                "xs": xs_sol,
-                "us": us_sol,
-                "acs": acs_sol,
-                "fs": np.array(fs_sol0),
-            })
-    print(f'Save "{SOLU_FILE}"!')
 
 '''    
 -B < tau/f < B                     
