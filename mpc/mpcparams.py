@@ -1,3 +1,3 @@
 from params import *
-terminalNoVelocityWeight = 20
 
+terminalNoVelocityWeight = 20
