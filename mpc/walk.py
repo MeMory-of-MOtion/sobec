@@ -8,6 +8,7 @@ from weight_share import computeReferenceForces
 from save_traj import loadProblemConfig
 from params import WalkParams
 from walk_plotter import WalkPlotter
+import talos_low
 
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
@@ -16,6 +17,56 @@ np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
+robot = talos_low.load()
+
+contactIds = [ i for i,f in enumerate(robot.model.frames) if "sole_link" in f.name ]
+ankleToTow=0.1
+ankleToHeel=-0.1
+for cid in contactIds:
+    f = robot.model.frames[cid]
+    robot.model.addFrame(
+        pin.Frame(
+            f"{f.name}_tow",
+            f.parent,
+            f.previousFrame,
+            f.placement * pin.SE3(np.eye(3), np.array([ankleToTow, 0, 0])),
+            pin.FrameType.OP_FRAME,
+        )
+    )
+    robot.model.addFrame(
+        pin.Frame(
+            f"{f.name}_heel",
+            f.parent,
+            f.previousFrame,
+            f.placement * pin.SE3(np.eye(3), np.array([ankleToHeel, 0, 0])),
+            pin.FrameType.OP_FRAME,
+        )
+    )
+
+try:
+    viz = pin.visualize.GepettoVisualizer(
+        robot.model, robot.collision_model, robot.visual_model
+    )
+    viz.initViewer()
+    viz.loadViewerModel()
+    gv = viz.viewer.gui
+except ImportError:
+    print("No viewer")
+except AttributeError: 
+    print("No viewer")
+
+# The pinocchio model is what we are really interested by.
+model = robot.model
+model.x0 = np.concatenate([robot.q0, np.zeros(model.nv)])
+data = model.createData()
+
+
+# Some key elements of the model
+towIds = {idf: model.getFrameId(f"{model.frames[idf].name}_tow") for idf in contactIds}
+heelIds = {idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds}
+baseId = model.getFrameId("root_joint")
+robotweight = -sum(Y.mass for Y in model.inertias) * model.gravity.linear[2]
+com0 = pin.centerOfMass(model, data, model.x0[:model.nq])
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -34,7 +85,7 @@ try:
     contactPattern = ocpConfig["contactPattern"]
     x0 = ocpConfig["x0"]
     stateTerminalTarget = ocpConfig["stateTerminalTarget"]
-except KeyError:
+except (KeyError,FileNotFoundError):
     # Initial config, also used for warm start
     x0 = model.x0.copy()
     # Contact are specified with the order chosen in <contactIds>
@@ -447,7 +498,7 @@ try:
     us = guess["us"]
     fs0 = guess["fs"]
     acs = guess["acs"]
-except KeyError:
+except (KeyError,NameError):
     xs = xs_sol
     us = us_sol
     fs0 = fs_sol0
