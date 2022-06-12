@@ -407,6 +407,8 @@ plotter.plotFeet()
 plotter.plotFootCollision(p.footMinimalDistance)
 print('Run ```plt.ion(); plt.show()``` to display the plots.')
 
+mpcplotter = walk_plotter.WalkRecedingPlotter(model,contactIds,hxs)
+mpcplotter.plotFeet()
 
 
 # ### SAVE #####################################################################

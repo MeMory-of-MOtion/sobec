@@ -154,24 +154,9 @@ class WalkPlotter:
             plt.plot([aa[0],bb[0]],[aa[1],bb[1]],'grey')
         plt.axis([ -.1,0.4,-.25,.25 ])
 
-
-def vanishingPlot(xs,color=None):
-    if color is None:
-        color = np.arange(xs.shape[0])
-    fig, axs = plt.subplots(xs.shape[1], 1, sharex=True)
-    ts = np.arange(xs.shape[0])
-    for ix,x in enumerate(xs.T):
-        points = np.array([ts, x]).T.reshape(-1, 1, 2)
-        segments = np.concatenate([points[:-1], points[1:]], axis=1)
-        norm = plt.Normalize(color.min(), color.max())
-        lc = LineCollection(segments, cmap='Blues', norm=norm)
-        #lc.set_array(color)
-        lc.set_linewidth(2)
-        line = axs[ix].add_collection(lc)
-
-        axs[ix].set_xlim(0,len(x))
-        axs[ix].set_ylim(x.min(),x.max())
-
+# ######################################################################
+# ### PLOT FORCES ######################################################
+# ######################################################################
 
 def getForcesFromProblemDatas(problem,cid):
     fs = []
@@ -205,3 +190,57 @@ def plotProblemForces(problem,contactIds):
         fs = getForcesFromProblemDatas(problem,cid)
         ax.plot(fs[:,2])
 
+# ######################################################################
+# ### MPC ##############################################################
+# ######################################################################
+from matplotlib.collections import LineCollection
+#from matplotlib import colors as mcolors
+
+def vanishingPlot(t0,xs,axs=None,color=None):
+    if color is None:
+        color = np.arange(xs.shape[0])
+    if axs is None:
+        fig, axs = plt.subplots(xs.shape[1], 1, sharex=True)
+    ts = np.arange(t0,t0+xs.shape[0])
+    for ix,x in enumerate(xs.T):
+        points = np.array([ts, x]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        norm = plt.Normalize(color.min(), color.max())
+        lc = LineCollection(segments, cmap='Blues_r', norm=norm)
+        lc.set_array(color)
+        lc.set_linewidth(2)
+        line = axs[ix].add_collection(lc)
+
+        axs[ix].set_xlim(0,len(x))
+        axs[ix].set_ylim(x.min(),x.max())
+
+class WalkRecedingPlotter:
+    def __init__(self,model,contactIds,hxs):
+        self.contactIds = contactIds
+        self.plotters  = []
+        for xs in hxs:
+            p = WalkPlotter(model,contactIds)
+            p.setData(None,xs,None,None)
+            self.plotters.append(p)
+    
+    def plotFeet(self):
+        fig, axs = plt.subplots(3, 2, sharex=True)
+        fig.canvas.manager.set_window_title('Receding feet')
+        feetMin = np.array([ np.inf ]*3)
+        feetMax = np.array([ -np.inf ]*3)
+        for k,cid in enumerate(self.contactIds):
+            for t0,p in enumerate(self.plotters):
+                if t0 % 50: continue
+                vanishingPlot(t0,p.foottraj[:,:3],axs=axs[:,0])
+                m,M = np.min(p.foottraj[:,:3],0),np.max(p.foottraj[:,:3],0)
+                feetMin=np.min([m,feetMin],0)
+                feetMax=np.max([M,feetMax],0)
+                print(m,M,feetMin,feetMax)
+            for iax,ax in enumerate(axs[:,0]):
+                ax.set_xlim([0, len(p.foottraj)+len(self.plotters)])
+                ax.set_ylim(feetMin[iax],feetMax[iax])
+                print(f'set {iax} {feetMin[iax]}:{feetMax[iax]}')
+            break
+        
+
+    
