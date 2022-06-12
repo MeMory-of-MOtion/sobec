@@ -225,26 +225,38 @@ for t, pattern in enumerate(contactPattern[:-1]):
             
             
     # Flying foot
-    for k,cid in enumerate(contactIds):
+    for k,fid in enumerate(contactIds):
         if pattern[k]: continue
-        verticalFootVelResidual = croc.ResidualModelFrameVelocity(state,cid,pin.Motion.Zero(),
+        verticalFootVelResidual = croc.ResidualModelFrameVelocity(state,fid,pin.Motion.Zero(),
                                                                   pin.ReferenceFrame.LOCAL_WORLD_ALIGNED,actuation.nu)
         verticalFootVelAct = croc.ActivationModelWeightedQuad(np.array([0,0,1,0,0,0]))
         verticalFootVelCost = croc.CostModelResidual(state,verticalFootVelAct,verticalFootVelResidual)
-        costs.addCost(f'{model.frames[cid].name}_vfoot_vel',verticalFootVelCost,p.verticalFootVelWeight)
+        costs.addCost(f'{model.frames[fid].name}_vfoot_vel',verticalFootVelCost,p.verticalFootVelWeight)
 
         # Slope is /2 since it is squared in casadi (je me comprends)
-        flyHighResidual = sobec.ResidualModelFlyHigh(state,cid,p.flyHighSlope/2,actuation.nu)
+        flyHighResidual = sobec.ResidualModelFlyHigh(state,fid,p.flyHighSlope/2,actuation.nu)
         flyHighCost = croc.CostModelResidual(state,flyHighResidual)
-        costs.addCost(f'{model.frames[cid].name}_flyhigh',flyHighCost,p.flyWeight)
+        costs.addCost(f'{model.frames[fid].name}_flyhigh',flyHighCost,p.flyWeight)
 
-        groundColRes = croc.ResidualModelFrameTranslation(state,cid,np.zeros(3),actuation.nu)
+        groundColRes = croc.ResidualModelFrameTranslation(state,fid,np.zeros(3),actuation.nu)
         #groundColBounds = croc.ActivationBounds(np.array([-np.inf,-np.inf,0.01]),np.array([np.inf,np.inf,np.inf]))
         # np.inf introduces an error on lb[2] ... why? TODO ... patch by replacing np.inf with 1000
         groundColBounds = croc.ActivationBounds(np.array([-1000,-1000,0.0]),np.array([1000,1000,1000]))
         groundColAct = croc.ActivationModelQuadraticBarrier(groundColBounds)
         groundColCost = croc.CostModelResidual(state,groundColAct,groundColRes)
-        costs.addCost(f'{model.frames[cid].name}_groundcol',groundColCost,p.groundColWeight)
+        costs.addCost(f'{model.frames[fid].name}_groundcol',groundColCost,p.groundColWeight)
+
+        for kc,cid in enumerate(contactIds):
+            if not pattern[kc]: continue
+            assert(fid != cid)
+            #print(f'At t={t} add collision between {cid} and {fid}')
+
+            for id1,id2 in [ (i,j) for i in [ cid, towIds[cid], heelIds[cid] ] for j in [ fid, towIds[fid], heelIds[fid] ] ]:
+                feetColResidual = sobec.ResidualModelFeetCollision(state,id1,id2,actuation.nu)
+                feetColBounds = croc.ActivationBounds(np.array([ p.footMinimalDistance ]), np.array([ 1000 ]) )
+                feetColAct = croc.ActivationModelQuadraticBarrier(feetColBounds)
+                feetColCost = croc.CostModelResidual(state,feetColAct,feetColResidual)
+                costs.addCost(f'feetcol_{model.frames[id1].name}_VS_{model.frames[id2].name}', feetColCost,p.feetCollisionWeight)
             
     # Action
     damodel = croc.DifferentialActionModelContactFwdDynamics(
@@ -297,7 +309,9 @@ try:
     print(f'Load "{GUESS_FILE}"!')
     x0s = [x for x in guess['xs']]
     u0s = [u for u in guess['us']]
-    if len(x0s)!=T+1 or len(u0s)!=T: raise ImportError
+    if len(x0s)!=T+1 or len(u0s)!=T:
+        del guess
+        raise ImportError
 except:
     print('No valid solution file, build quasistatic initial guess!')
     x0s = [x0.copy()]*(len(models)+1)
@@ -363,6 +377,7 @@ print('Run ```plt.ion(); plt.show()``` to display the plots.')
 t = 60; fid=48
 t=119; fid=34
 t=90; cid=48 # impact
+t=251; cid=48; fid=34
 try:
     xs=guess['xs']
     us=guess['us']
@@ -386,6 +401,7 @@ cosname=f'{model.frames[fid].name}_flyhigh'
 cosname=f'{model.frames[fid].name}_groundcol'
 cosname=f'{model.frames[cid].name}_velimpact'
 cosname='impactRefJoint'
+cosname=f'feetcol_{model.frames[cid].name}_VS_{model.frames[fid].name}'
 cosdata = dadata.costs.costs[cosname]
 cosmodel = damodel.costs.costs[cosname].cost
 np.set_printoptions(precision=6, linewidth=300, suppress=True,threshold=10000)

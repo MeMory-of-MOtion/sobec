@@ -4,7 +4,7 @@ class WalkParams:
     DT = 0.010
 
     basisQWeight = [0,0,0,50,50,0]
-    legQWeight =  [30,300,1,2,1,1]
+    legQWeight =  [5,5,1,2,1,1]
     torsoQWeight = [10,10]
     armQWeight = [3,3]
     basisVWeight = [0,0,0,3,3,1] ### was 003331
@@ -30,7 +30,7 @@ class WalkParams:
     forceImportance = np.array([1,1,.1,10,10,2])
     coneAxisWeight =  2e-4
     comWeight = 0 # 20
-    vcomWeight = 160
+    vcomWeight = 1
     acomWeight = 0 # 16*DT
     copWeight = 2
     verticalFootVelWeight = 20
@@ -39,6 +39,7 @@ class WalkParams:
     flyWeight = 20
     groundColWeight = 200
     conePenaltyWeight = 20
+    feetCollisionWeight = 1000
 
     lowbandwidthweight = 0 # 2e-1
     minTorqueDiffWeight = 0 # 2e-2
@@ -59,7 +60,7 @@ class WalkParams:
 
     refFootFlyingAltitude = 3e-2
     flyHighSlope = 5/refFootFlyingAltitude
-    footMinimalDistance = .1 # 0.1  (.17 is the max value wrt initial config)
+    footMinimalDistance = .2 # (.17 is the max value wrt initial config)
     soleCollision = True
     towCollision = False
     heelCollision = False
