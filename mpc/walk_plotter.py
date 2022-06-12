@@ -111,7 +111,7 @@ class WalkPlotter:
     def plotForces(self, referenceForces):
         # Forces and reference forces wrt time
         plt.figure("forces")
-        frefplot = np.array([np.concatenate(fs) for fs in referenceForces])
+        frefplot = np.array(referenceForces)
         fs0plot = np.array(self.fs)
         plt.subplot(211)
         plt.plot(fs0plot[:, 2])
