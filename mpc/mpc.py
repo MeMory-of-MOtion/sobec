@@ -81,7 +81,7 @@ mpc = WalkMPC(robot,ddp.problem,walkParams,xs_init=ddp.xs,us_init=ddp.us)
 
 x = robot.x0
 
-for t in range(1, 500):
+for t in range(1, 1500):
     x = mpc.solver.xs[1]
     mpc.run(x,t)
 
@@ -114,7 +114,7 @@ print("Run ```plt.ion(); plt.show()``` to display the plots.")
 # ### SAVE #####################################################################
 
 if walkParams.saveFile is not None:
-    save_traj(np.array(hx),filename=walkParams.saveFile)
+    save_traj(np.array(mpc.hx),filename=walkParams.saveFile)
 
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
