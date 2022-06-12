@@ -50,9 +50,7 @@ try:
     viz.initViewer()
     viz.loadViewerModel()
     gv = viz.viewer.gui
-except ImportError:
-    print("No viewer")
-except AttributeError:
+except (ImportError, AttributeError):
     print("No viewer")
 
 # The pinocchio model is what we are really interested by.
