@@ -1,3 +1,5 @@
 ADD_PYTHON_UNIT_TEST("py-walk" "tests/python/test_walk.py" "python")
 ADD_PYTHON_UNIT_TEST("py-vel-collision" "tests/python/test_vel_collision.py" "python")
 ADD_PYTHON_UNIT_TEST("py-cop" "tests/python/test_cop.py" "python")
+ADD_PYTHON_UNIT_TEST("py-fly-high" "tests/python/test_fly_high.py" "python")
+ADD_PYTHON_UNIT_TEST("py-test-collision" "tests/python/test_feet_collision.py" "python")

@@ -1,4 +1,3 @@
-# flake8: noqa
-from params import *
+from params import WalkParams
 
-terminalNoVelocityWeight = 20
+WalkParams.stateTerminalWeight = 20
