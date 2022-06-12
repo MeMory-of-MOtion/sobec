@@ -153,7 +153,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
     )
     if p.refTorqueWeight>0: costs.addCost("ctrlReg", uRegCost, p.refTorqueWeight)
 
-    comResidual = sobec.ResidualModelCoM(state,com0,actuation.nu)
+    comResidual = croc.ResidualModelCoMPosition(state,com0,actuation.nu)
     comAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
     comCost = croc.CostModelResidual(state,comAct,comResidual)
     if p.comWeight>0: costs.addCost("com",comCost,p.comWeight)
