@@ -9,6 +9,7 @@ namespace python {
 void exposeResidualCoMVelocity();
 void exposeResidualVelCollision();
 void exposeResidualCenterOfPressure();
+void exposeResidualFeetCollision();
 void exposeResidualFlyHigh();
 void exposeActivationQuadRef();
 void exposeIntegratedActionLPF();
