@@ -19,7 +19,8 @@
 namespace sobec {
 using namespace crocoddyl;
 /**
- * @brief Cost penalizing distance between two frames r=||f1.translation-f2.translation||
+ * @brief Cost penalizing distance between two frames
+ * r=||f1.translation-f2.translation||
  *
  *
  * \sa `ResidualModelAbstractTpl`, `calc()`, `calcDiff()`, `createData()`
@@ -129,13 +130,12 @@ struct ResidualDataFeetCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
 
   template <template <typename Scalar> class Model>
   ResidualDataFeetCollisionTpl(Model<Scalar>* const model,
-                         DataCollectorAbstract* const data)
+                               DataCollectorAbstract* const data)
       : Base(model, data),
         J1(6, model->get_state()->get_nv()),
         J2(6, model->get_state()->get_nv()),
         dJ(2, model->get_state()->get_nv()),
-        p1p2(3)
-  {
+        p1p2(3) {
     //  Check that proper shared data has been passed
     DataCollectorMultibodyTpl<Scalar>* d =
         dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
@@ -155,7 +155,7 @@ struct ResidualDataFeetCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
   }
 
   pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
-  Matrix6xs J1,J2;
+  Matrix6xs J1, J2;
   Matrix2xs dJ;
   Vector3s p1p2;
   using Base::r;

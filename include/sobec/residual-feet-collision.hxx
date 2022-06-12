@@ -18,8 +18,7 @@ template <typename Scalar>
 ResidualModelFeetCollisionTpl<Scalar>::ResidualModelFeetCollisionTpl(
     boost::shared_ptr<StateMultibody> state,
     const pinocchio::FrameIndex frame_id1,
-    const pinocchio::FrameIndex frame_id2,
-    const std::size_t nu)
+    const pinocchio::FrameIndex frame_id2, const std::size_t nu)
     : Base(state, 1, nu, true, false, false),
       frame_id1(frame_id1),
       frame_id2(frame_id2),
@@ -50,9 +49,11 @@ void ResidualModelFeetCollisionTpl<Scalar>::calc(
   pinocchio::updateFramePlacement(pin_model_, *d->pinocchio, frame_id1);
   pinocchio::updateFramePlacement(pin_model_, *d->pinocchio, frame_id2);
 
-  const typename MathBase::Vector3s & p1 = d->pinocchio->oMf[frame_id1].translation();
-  const typename MathBase::Vector3s & p2 = d->pinocchio->oMf[frame_id2].translation();
-  d->p1p2  = p1-p2;
+  const typename MathBase::Vector3s& p1 =
+      d->pinocchio->oMf[frame_id1].translation();
+  const typename MathBase::Vector3s& p2 =
+      d->pinocchio->oMf[frame_id2].translation();
+  d->p1p2 = p1 - p2;
   d->r[0] = d->p1p2.template head<2>().norm();
 }
 
@@ -73,14 +74,15 @@ void ResidualModelFeetCollisionTpl<Scalar>::calcDiff(
                               pinocchio::LOCAL_WORLD_ALIGNED, d->J2);
 
   d->dJ = d->J1.template topRows<2>() - d->J2.template topRows<2>();
-  
-  data->Rx.leftCols(nv) = d->dJ.row(0)*(d->p1p2[0]/d->r[0]);
-  data->Rx.leftCols(nv) += d->dJ.row(1)*(d->p1p2[1]/d->r[0]);
+
+  data->Rx.leftCols(nv) = d->dJ.row(0) * (d->p1p2[0] / d->r[0]);
+  data->Rx.leftCols(nv) += d->dJ.row(1) * (d->p1p2[1] / d->r[0]);
 }
 
 template <typename Scalar>
 boost::shared_ptr<ResidualDataAbstractTpl<Scalar> >
-ResidualModelFeetCollisionTpl<Scalar>::createData(DataCollectorAbstract* const data) {
+ResidualModelFeetCollisionTpl<Scalar>::createData(
+    DataCollectorAbstract* const data) {
   return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this,
                                       data);
 }

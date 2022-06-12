@@ -79,8 +79,8 @@ void exposeResidualFeetCollision() {
       //               &ResidualModelFeetCollision::get_frame_id,
       //               &ResidualModelFeetCollision::set_frame_id,
       //               "Frame ID")
-    ;
-  
+      ;
+
   bp::register_ptr_to_python<boost::shared_ptr<ResidualDataFeetCollision> >();
 
   bp::class_<ResidualDataFeetCollision, bp::bases<ResidualDataAbstract> >(
