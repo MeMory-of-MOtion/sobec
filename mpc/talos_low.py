@@ -1,10 +1,7 @@
 import example_robot_data as robex
 import pinocchio as pin
 
-
-def load():
-    robot = robex.load("talos")
-    jointToLockNames = [
+jointToLockNames = [
         # "universe",
         "arm_left_1_joint",
         "arm_left_2_joint",
@@ -27,6 +24,10 @@ def load():
         "torso_1_joint",
         "torso_2_joint",
     ]
+
+def load():
+    robot = robex.load("talos")
+
     jointToLockIds = [
         i for (i, n) in enumerate(robot.model.names) if n in jointToLockNames
     ]
