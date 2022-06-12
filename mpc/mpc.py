@@ -14,6 +14,7 @@ import walk_ocp as walk
 from mpcparams import WalkParams
 import miscdisp
 import talos_low
+from walk_mpc import WalkMPC
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
@@ -76,52 +77,18 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 # ### MPC #############################################################################
 
-x0 = robot.x0.copy()
+mpc = WalkMPC(robot,ddp.problem,walkParams,xs_init=ddp.xs,us_init=ddp.us)
 
-mpcProblem = croc.ShootingProblem(x0, problem.runningModels[:walkParams.Tmpc], problem.terminalModel)
-mpcSolver = croc.SolverFDDP(mpcProblem)
-# mpcSolver.setCallbacks([croc.CallbackVerbose()])
-mpcSolver.th_stop = 1e-3
+x = robot.x0
 
-stateTarget = x0.copy()
-stateTarget[:3] = x0[:3] + walkParams.VCOM_TARGET * walkParams.Tmpc * walkParams.DT
-mpcProblem.terminalModel.differential.costs.costs[
-    "stateReg"
-].cost.residual.reference = stateTarget
-
-mpcSolver.solve(ddp.xs[: walkParams.Tmpc + 1], ddp.us[:walkParams.Tmpc], 10, isFeasible=True)
-x = mpcSolver.xs[1].copy()
-
-hxs = [np.array(ddp.xs)]
-hx = [x]
-hiter = [mpcSolver.iter]
 for t in range(1, 500):
-    stateTarget = x0.copy()
-    stateTarget[:3] = x0[:3] + walkParams.VCOM_TARGET * (t + walkParams.Tmpc) * walkParams.DT
-    mpcProblem.terminalModel.differential.costs.costs[
-        "stateReg"
-    ].cost.residual.reference = stateTarget
-    # tlast = t+walkParams.Tmpc
-    tlast = walkParams.T_START + 1 + ((t + walkParams.Tmpc - walkParams.T_START - 1) % (2 * walkParams.T_SINGLE + 2 * walkParams.T_DOUBLE))
-    # print(f't={t} ... last is {tlast}')
-    mpcProblem.circularAppend(problem.runningModels[tlast], problem.runningDatas[tlast])
-    mpcProblem.x0 = x.copy()
-    # assert(mpcProblem.runningModels[0] == problem.runningModels[t])
-    xg = list(mpcSolver.xs)[1:] + [mpcSolver.xs[-1]]
-    ug = list(mpcSolver.us)[1:] + [mpcSolver.us[-1]]
-    # if t==100: stophere
-    mpcSolver.solve(xg, ug, maxiter=1)
-    print(
-        f"{t:4d} {miscdisp.dispocp(mpcProblem,robot.contactIds)} "
-        f"{stateTarget[0]:.03} {mpcSolver.iter:4d}"
-    )
-    x = mpcSolver.xs[1].copy()
-    hx.append(x)
-    hxs.append(np.array(mpcSolver.xs))
-    hiter.append(mpcSolver.iter)
+    x = mpc.solver.xs[1]
+    mpc.run(x,t)
+
     if not t % 10:
         viz.display(x[: robot.model.nq])
         time.sleep(walkParams.DT)
+
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
