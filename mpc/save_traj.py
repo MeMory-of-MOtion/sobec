@@ -6,7 +6,8 @@ def save_traj(xs,us=None,fs=None,acs=None,filename="/tmp/ddp.npy"):
     if us is not None: data["us"] =  us
     if acs is not None: data["acs"] = acs
     if fs is not None: data["fs"] = fs
-    np.save(open(filename, "wb"),data)
+    with open(filename, "wb") as f:
+        np.save(f, data)
     print(f'Save "{filename}"!')
 
 def getContactActivationFromAModel(contactIds,action):
@@ -21,10 +22,12 @@ def saveProblemConfig(contactIds,problem,filename='/tmp/ddp.config'):
         'x0': problem.x0,
         'stateTerminalTarget': problem.terminalModel.differential.costs.costs['stateReg'].cost.residual.reference,
     }
-    np.save(open(filename, "wb"),data)
+    with open(filename, "wb") as f:
+        np.save(f, data)
     print(f'Save OCP config in "{filename}"!')
 
 def loadProblemConfig(filename='/tmp/ddp.config'):
     data = np.load(filename,allow_pickle=True)[()]
     print(f'Load OCP config from "{filename}"!')
+
     return data
