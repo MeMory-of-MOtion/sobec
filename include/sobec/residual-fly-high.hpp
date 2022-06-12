@@ -160,6 +160,15 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
 
     // Avoids data casting at runtime
     pinocchio = d->pinocchio;
+    // Clean buffer as pinocchio not necessarily initialize the memory.
+    d_dq.fill(0);
+    d_dv.fill(0);
+    l_dnu_dq.fill(0);
+    l_dnu_dv.fill(0);
+    o_dv_dq.fill(0);
+    o_dv_dv.fill(0);
+    o_Jw.fill(0);
+    vxJ.fill(0);
   }
 
   pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data

@@ -60,16 +60,7 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
     const Eigen::Ref<const VectorXs>& /*x*/,
     const Eigen::Ref<const VectorXs>&) {
   Data* d = static_cast<Data*>(data.get());
-  // const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic>
-  // q = x.head(state_->get_nq()); const Eigen::VectorBlock<const
-  // Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(state_->get_nv());
-
   const std::size_t nv = state_->get_nv();
-
-  // pinocchio::getCenterOfMassVelocityDerivatives(pin_model_, *d->pinocchio,
-  //                                               d->dvcom_dq);
-  // data->Rx.leftCols(nv) = d->dvcom_dq;
-  // data->Rx.rightCols(nv) = d->pinocchio->Jcom;
 
   /* Let' s do a little bit of maths ...
    * r = v/e    with e=exp(z/2)
@@ -102,9 +93,9 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
 
   // Second term with derivative of z
   data->Rx.leftCols(nv).row(0) -=
-      data->r[0] * slope * d->o_dv_dv.row(2);  // d->d_dq.row(2);
+      data->r[0] * slope * d->o_dv_dv.row(2);
   data->Rx.leftCols(nv).row(1) -=
-      data->r[1] * slope * d->o_dv_dv.row(2);  // d->d_dq.row(2);
+      data->r[1] * slope * d->o_dv_dv.row(2);
 }
 
 template <typename Scalar>
