@@ -19,9 +19,9 @@ np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 # Gepetto-viewer
 robot = talos_low.load()
 
-contactIds = [ i for i,f in enumerate(robot.model.frames) if "sole_link" in f.name ]
-ankleToTow=0.1
-ankleToHeel=-0.1
+contactIds = [i for i, f in enumerate(robot.model.frames) if "sole_link" in f.name]
+ankleToTow = 0.1
+ankleToHeel = -0.1
 for cid in contactIds:
     f = robot.model.frames[cid]
     robot.model.addFrame(
@@ -52,7 +52,7 @@ try:
     gv = viz.viewer.gui
 except ImportError:
     print("No viewer")
-except AttributeError: 
+except AttributeError:
     print("No viewer")
 
 # The pinocchio model is what we are really interested by.
@@ -63,10 +63,12 @@ data = model.createData()
 
 # Some key elements of the model
 towIds = {idf: model.getFrameId(f"{model.frames[idf].name}_tow") for idf in contactIds}
-heelIds = {idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds}
+heelIds = {
+    idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds
+}
 baseId = model.getFrameId("root_joint")
 robotweight = -sum(Y.mass for Y in model.inertias) * model.gravity.linear[2]
-com0 = pin.centerOfMass(model, data, model.x0[:model.nq])
+com0 = pin.centerOfMass(model, data, model.x0[: model.nq])
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -85,7 +87,7 @@ try:
     contactPattern = ocpConfig["contactPattern"]
     x0 = ocpConfig["x0"]
     stateTerminalTarget = ocpConfig["stateTerminalTarget"]
-except (KeyError,FileNotFoundError):
+except (KeyError, FileNotFoundError):
     # Initial config, also used for warm start
     x0 = model.x0.copy()
     # Contact are specified with the order chosen in <contactIds>
@@ -498,7 +500,7 @@ try:
     us = guess["us"]
     fs0 = guess["fs"]
     acs = guess["acs"]
-except (KeyError,NameError):
+except (KeyError, NameError):
     xs = xs_sol
     us = us_sol
     fs0 = fs_sol0
