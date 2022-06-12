@@ -2,12 +2,11 @@
 Some simple methods to display an OCP problem as string.
 """
 
-import pinocchio as pin
-from numpy.linalg import norm, inv, pinv, svd, eig
 import crocoddyl as croc
 
-### Save all the action details in a text file.
+
 def reprAction(amodel):
+    """Save all the action details in a text file."""
     str = ""
     dmodel = amodel.differential
     str += "=== Contact\n"
@@ -26,22 +25,18 @@ def reprAction(amodel):
 
 
 def reprProblem(problem):
-    str = ""
-    for t, r in enumerate(problem.runningModels):
-        str += f"*t={t}\n"
-        str += reprAction(r)
-    str += f"*TERMINAL\n"
-    str += reprAction(problem.terminalModel)
-    return str
+    return (
+        "".join(f"*t={t}\n{reprAction(r)}" for t, r in enumerate(problem.runningModels))
+        + f"*TERMINAL\n{reprAction(problem.terminalModel)}"
+    )
 
 
-### Represent an ocp as one line of ASCII caracters for contacts and impacts
 def contact2car(model, contactIds, contacts, costs):
+    """Represent an ocp as one line of ASCII caracters for contacts and impacts"""
     left = "⎻"
     right = "_"
     leftplus = "┘"
     rightplus = "┌"
-    double = "="
     res = ""
     if len(contacts) == 2:
         if f"{model.frames[contactIds[1]].name}_altitudeimpact" in costs:

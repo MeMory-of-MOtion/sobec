@@ -1,33 +1,29 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-import example_robot_data as robex
-import matplotlib.pyplot as plt
-from numpy.linalg import norm, inv, pinv, svd, eig
 import time
 
 # Local imports
 import sobec
 import talos_low
 from weight_share import computeReferenceForces
-from save_traj import save_traj, saveProblemConfig
 from mpcparams import WalkParams
 import miscdisp
 import walk_plotter
 
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
-# plt.ion()
 
-### HYPER PARAMETERS
+# ## HYPER PARAMETERS
 # Hyperparameters defining the optimal control problem.
 T_START = 30
 T_SINGLE = 50
 T_DOUBLE = 11
 T_END = 30
 
-### LOAD AND DISPLAY TALOS
-# Load the robot model from example robot data and display it if possible in Gepetto-viewer
+# ## LOAD AND DISPLAY TALOS
+# Load the robot model from example robot data and display it if possible in
+# Gepetto-viewer.
 robot = talos_low.load()
 
 contactIds = [i for i, f in enumerate(robot.model.frames) if "sole_link" in f.name]
@@ -186,7 +182,8 @@ for t, pattern in enumerate(contactPattern[:-1]):
         costs.addCost(f"{model.frames[cid].name}_cop", copCost, p.copWeight)
 
         # Cone with enormous friction (Assuming the robot will barely ever slide).
-        # p.FOOT_SIZE is the allowed area size, while cone expects the corner coordinates => x2
+        # p.FOOT_SIZE is the allowed area size, while cone expects the corner
+        # coordinates => x2
         cone = croc.WrenchCone(
             np.eye(3), 1000, np.array([p.FOOT_SIZE * 2] * 2), 4, True, 1, 10000
         )
@@ -229,8 +226,8 @@ for t, pattern in enumerate(contactPattern[:-1]):
     # IMPACT
     for k, cid in enumerate(contactIds):
         if t > 0 and not contactPattern[t - 1][k] and pattern[k]:
-            # REMEMBER TO divide the weight by p.DT, as impact should be independant of the node duration
-            # (at least, that s how weights are tuned in casadi).
+            # REMEMBER TO divide the weight by p.DT, as impact should be independant of
+            # the node duration (at least, that s how weights are tuned in casadi).
 
             print(f"Impact {cid} at time {t}")
             impactResidual = croc.ResidualModelFrameTranslation(
@@ -247,10 +244,16 @@ for t, pattern in enumerate(contactPattern[:-1]):
             #     itarget = np.array([0,.1,0])
             # else:
             #     itarget = np.array([0,-.1,0])
-            # impactResidual = croc.ResidualModelFrameTranslation(state,cid,itarget,actuation.nu)
-            # impactAct = croc.ActivationModelWeightedQuad(np.array([0,0,1]))
-            # impactCost = croc.CostModelResidual(state,impactAct,impactResidual)
-            # costs.addCost(f'{model.frames[cid].name}_altitudeimpact',impactCost,p.impactAltitudeWeight/p.DT)
+            # impactResidual = croc.ResidualModelFrameTranslation(
+            # state, cid, itarget, actuation.nu
+            # )
+            # impactAct = croc.ActivationModelWeightedQuad(np.array([0, 0, 1]))
+            # impactCost = croc.CostModelResidual(state, impactAct, impactResidual)
+            # costs.addCost(
+            # f"{model.frames[cid].name}_altitudeimpact",
+            # impactCost,
+            # p.impactAltitudeWeight / p.DT,
+            # )
 
             impactVelResidual = croc.ResidualModelFrameVelocity(
                 state, cid, pin.Motion.Zero(), pin.ReferenceFrame.LOCAL, actuation.nu
@@ -323,8 +326,11 @@ for t, pattern in enumerate(contactPattern[:-1]):
         groundColRes = croc.ResidualModelFrameTranslation(
             state, fid, np.zeros(3), actuation.nu
         )
-        # groundColBounds = croc.ActivationBounds(np.array([-np.inf,-np.inf,0.01]),np.array([np.inf,np.inf,np.inf]))
-        # np.inf introduces an error on lb[2] ... why? TODO ... patch by replacing np.inf with 1000
+        # groundColBounds = croc.ActivationBounds(
+        # np.array([-np.inf, -np.inf, 0.01]), np.array([np.inf, np.inf, np.inf])
+        # )
+        # np.inf introduces an error on lb[2] ... why? TODO ... patch by replacing
+        # np.inf with 1000
         groundColBounds = croc.ActivationBounds(
             np.array([-1000, -1000, 0.0]), np.array([1000, 1000, 1000])
         )
@@ -409,15 +415,12 @@ ddp = croc.SolverFDDP(problem)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
 # ##############################################################################
-try:
-    GUESS_FILE = "/tmp/sol.npy"
-    guess = np.load(GUESS_FILE, allow_pickle=True)[()]
-    print(f'Load "{GUESS_FILE}"!')
-    x0s = [x for x in guess["xs"]]
-    u0s = [u for u in guess["us"]]
-    if len(x0s) != T + 1 or len(u0s) != T:
-        raise ImportError
-except:
+GUESS_FILE = "/tmp/sol.npy"
+guess = np.load(GUESS_FILE, allow_pickle=True)[()]
+print(f'Load "{GUESS_FILE}"!')
+x0s = [x for x in guess["xs"]]
+u0s = [u for u in guess["us"]]
+if len(x0s) != T + 1 or len(u0s) != T:
     print("No valid solution file, build quasistatic initial guess!")
     x0s = [x0.copy()] * (T + 1)
     u0s = [
@@ -433,7 +436,7 @@ except:
 ddp.th_stop = 1e-3
 ddp.solve(x0s, u0s, 200)
 
-# ### MPC #########################################################################################
+# ### MPC #############################################################################
 
 Tmpc = 100
 mpcProblem = croc.ShootingProblem(x0, models[:Tmpc], termmodel)
@@ -470,7 +473,8 @@ for t in range(1, 500):
     # if t==100: stophere
     mpcSolver.solve(xg, ug, maxiter=1)
     print(
-        f"{t:4d} {miscdisp.dispocp(mpcProblem,contactIds)} {stateTarget[0]:.03} {mpcSolver.iter:4d}"
+        f"{t:4d} {miscdisp.dispocp(mpcProblem,contactIds)} "
+        f"{stateTarget[0]:.03} {mpcSolver.iter:4d}"
     )
     x = mpcSolver.xs[1].copy()
     hx.append(x)
@@ -561,7 +565,7 @@ try:
     us = guess["us"]
     fs0 = guess["fs"]
     acs = guess["acs"]
-except:
+except KeyError:
     xs = xs_sol
     us = us_sol
     fs0 = fs_sol0

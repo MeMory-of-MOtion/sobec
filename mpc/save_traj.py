@@ -15,7 +15,8 @@ def save_traj(xs, us=None, fs=None, acs=None, filename="/tmp/ddp.npy"):
 
 
 def getContactActivationFromAModel(contactIds, action):
-    """Return a list of binary values representing the contact activation of an action movel"""
+    """Return a list of binary values representing the contact activation of an action
+    movel"""
     model = action.differential.pinocchio
     return [
         int(

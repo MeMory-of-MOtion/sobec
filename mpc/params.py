@@ -8,7 +8,7 @@ class WalkParams:
     legQWeight = [5, 5, 1, 2, 1, 1]
     torsoQWeight = [10, 10]
     armQWeight = [3, 3]
-    basisVWeight = [0, 0, 0, 3, 3, 1]  ### was 003331
+    basisVWeight = [0, 0, 0, 3, 3, 1]  # ## was 003331
     legVWeight = [1] * 6
     torsoVWeight = [20] * 2
     armVWeight = [2] * 2
@@ -31,7 +31,8 @@ class WalkParams:
     armUWeight = [10, 10]
     controlImportance = np.array(legUWeight * 2 + armUWeight)
 
-    ### Gains for force continuity: wfref for tracking the reference, wfcont for time difference
+    # ## Gains for force continuity: wfref for tracking the reference, wfcont for time
+    # difference
     refTorqueWeight = 0
     refStateWeight = 1e-1
     flatBaseWeight = 0  # 20
@@ -62,7 +63,7 @@ class WalkParams:
 
     stateTerminalWeight = 20  # 2000
     terminalNoVelocityWeight = 2000
-    terminalXTargetWeight = 0  ##DDP## 2000
+    terminalXTargetWeight = 0  # ##DDP## 2000
 
     enforceMinimalFootDistance = False
 

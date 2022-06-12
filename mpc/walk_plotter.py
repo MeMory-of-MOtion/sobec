@@ -1,7 +1,8 @@
 import matplotlib.pylab as plt
 import pinocchio as pin
 import numpy as np
-from numpy.linalg import norm, inv, pinv, svd, eig
+from numpy.linalg import norm
+from matplotlib.collections import LineCollection
 
 
 class WalkPlotter:
@@ -60,7 +61,11 @@ class WalkPlotter:
         plt.figure("cop time local")
         for ifig, cid in enumerate(self.contactIds):
             plt.subplot(len(self.contactIds), 1, ifig + 1)
-            # ftraj = [ [t,f[6*ifig:6*ifig+6]] for t,(f,p) in enumerate(zip(self.fs,self.contactPattern)) if cid in patternToId(p) ]
+            # ftraj = [
+            # [t, f[6 * ifig : 6 * ifig + 6]]
+            # for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))
+            # if cid in patternToId(p)
+            # ]
             ftraj = [
                 [t, f[6 * ifig : 6 * ifig + 6]]
                 for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))
@@ -237,7 +242,6 @@ def plotProblemForces(problem, contactIds):
 # ######################################################################
 # ### MPC ##############################################################
 # ######################################################################
-from matplotlib.collections import LineCollection
 
 # from matplotlib import colors as mcolors
 
@@ -255,7 +259,6 @@ def vanishingPlot(t0, xs, axs=None, color=None):
         lc = LineCollection(segments, cmap="Blues_r", norm=norm)
         lc.set_array(color)
         lc.set_linewidth(2)
-        line = axs[ix].add_collection(lc)
 
         axs[ix].set_xlim(0, len(x))
         axs[ix].set_ylim(x.min(), x.max())

@@ -79,8 +79,9 @@ J1 = pin.getFrameJacobian(model, data, cid1, pin.LOCAL_WORLD_ALIGNED)
 J2 = pin.getFrameJacobian(model, data, cid2, pin.LOCAL_WORLD_ALIGNED)
 J = (p1[:2] - p2[:2]).T / dist @ (J1[:2] - J2[:2])
 
-# Finite-diff for the residual jacobian
+
 def fun2(q):
+    """Finite-diff for the residual jacobian"""
     pin.framesForwardKinematics(model, data, q)
     p1 = data.oMf[cid1].translation[:2]
     p2 = data.oMf[cid2].translation[:2]
