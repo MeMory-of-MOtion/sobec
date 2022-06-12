@@ -63,6 +63,7 @@ try:
     viz.loadViewerModel()
     gv = viz.viewer.gui
     viz.display(simu.getState()[:robot.model.nq])
+
 except (ImportError,AttributeError):
     print("No viewer")
 
@@ -72,7 +73,7 @@ hx = []
 hu = []
 
 # FOR LOOP
-for s in range(1000):
+for s in range(2000):
 
 
     # ###############################################################################
@@ -90,16 +91,17 @@ for s in range(1000):
     # ###############################################################################
     #mpc.run(mpc.solver.xs[1],s)
     mpc.run(simu.getState(),s)
+    if mpc.solver.iter == 0:
+        errorinthesolver
+
+    lrm = mpc.problem.runningModels[20].differential.costs.costs
+    if (f"{robot.model.frames[robot.contactIds[0]].name}_altitudeimpact" in lrm 
+        or f"{robot.model.frames[robot.contactIds[1]].name}_altitudeimpact" in lrm):
+        mpc.moreIterations(50)
+        print(f'+{mpc.solver.iter}')
+        
     viz.display(simu.getState()[:robot.model.nq])
 
-    '''
-    for t in range(1, 500):
-        x = mpc.solver.xs[1]
-    mpc.run(x,t)
 
-    if not t % 10:
-        viz.display(x[: robot.model.nq])
-        time.sleep(walkParams.DT)
-    '''
 if walkParams.saveFile is not None:
     save_traj(np.array(hx),filename=walkParams.saveFile)

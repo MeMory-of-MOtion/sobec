@@ -27,11 +27,31 @@ class WalkParams(params.WalkParams):
         + armVWeight
     )
 
+    #impactAltitudeWeight = 1000  #100
+    impactVelocityWeight = 1000    #10 
+    #impactRotationWeight = 50    #5
+
+    #groundColWeight = 0
+    conePenaltyWeight = 0
+
+    #feetCollisionWeight = 200
+    #footMinimalDistance = 0.3  # (.17 is the max value wrt initial config)
+    #copWeight = .5
+
+    
     # New parameters
     T_START = 30
-    T_SINGLE = 50
+    T_SINGLE = 60
     T_DOUBLE = 11
     T_END = 30
-    Tmpc = 100
+    Tmpc = 120
     
-    maxiter = 200
+    refFootFlyingAltitude = 7e-2
+    flyHighSlope = 3 / refFootFlyingAltitude
+    baumgartGains = np.array([0, 50])
+
+    VCOM_TARGET = np.array([0.05, 0, 0])
+
+
+    maxiter = 1
+    solver_reg_min = 1e-6

@@ -38,6 +38,9 @@ try:
 except (ImportError,AttributeError):
     print("No viewer")
 
+import viewer_multiple
+vizs = viewer_multiple.GepettoMultipleVisualizers(urdf.model, urdf.collision_model, urdf
+                                                  .visual_model,5)
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -86,9 +89,9 @@ for t in range(1, 1500):
     mpc.run(x,t)
 
     if not t % 10:
-        viz.display(x[: robot.model.nq])
+        #viz.display(x[: robot.model.nq])
+        vizs.subdisplay([x[:robot.model.nq] for x in mpc.solver.xs])
         time.sleep(walkParams.DT)
-
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################

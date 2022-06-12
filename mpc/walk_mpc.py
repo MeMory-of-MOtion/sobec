@@ -50,6 +50,8 @@ class WalkMPC:
             f"{0:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
             f"{self.basisRef[0]:.03} {self.solver.iter:4d}"
         )
+        self.reg = p.solver_reg_min
+        self.solver.reg_min = p.solver_reg_min
         
     def run(self,x,t):
         
@@ -68,13 +70,22 @@ class WalkMPC:
 
         xg = list(self.solver.xs)[1:] + [self.solver.xs[-1]]
         ug = list(self.solver.us)[1:] + [self.solver.us[-1]]
-        self.solver.solve(xg, ug, maxiter=p.maxiter)
+        solved = self.solver.solve(xg, ug, maxiter=p.maxiter,isFeasible=False,regInit=self.reg)
+        self.ref = self.solver.x_reg
         print(
             f"{t:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
-            f"{self.basisRef[0]:.03} {self.solver.iter:4d}"
+            #f"{self.basisRef[0]:.03} "
+            f"{self.solver.iter:4d} "
+            f"reg={self.solver.x_reg:.3} "
+            f"a={self.solver.stepLength:.3} "
+            
         )
         x = self.solver.xs[1].copy()
         self.hx.append(x)
         self.hxs.append(np.array(self.solver.xs))
         self.hiter.append(self.solver.iter)
 
+        return solved
+
+    def moreIterations(self,mult):
+        self.solver.solve(self.solver.xs, self.solver.us, maxiter=self.walkParams.maxiter*mult)
