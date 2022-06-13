@@ -83,3 +83,6 @@ class WalkParams:
 
     kktDamping = 0  # 1e-6
     baumgartGains = np.array([0, 50])
+    solver_th_stop = 1e-3
+    guessFile = "/tmp/ddp.npy"
+    saveFile = "/tmp/ddp.npy"

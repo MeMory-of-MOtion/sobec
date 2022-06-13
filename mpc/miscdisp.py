@@ -21,6 +21,10 @@ def reprAction(amodel):
         if isinstance(cost.activation, croc.ActivationModelQuadraticBarrier):
             str += f"\t\tlower = {cost.activation.bounds.lb}\n"
             str += f"\t\tupper = {cost.activation.bounds.lb}\n"
+        try:
+            str += f"\t\tref = {cost.residual.reference}\n"
+        except AttributeError:
+            pass
     return str
 
 
