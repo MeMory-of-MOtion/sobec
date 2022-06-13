@@ -43,7 +43,8 @@ namespace sobec {
 			u_init.push_back(zero_u);
 		}
 		x_init.push_back(xc_);
-		horizon_.solve(x_init,u_init,500);
+		
+		horizon_.get_ddp()->solve(x_init, u_init, 500, false);
 		
 		// Initialize first foot trajectory
 		starting_position_right_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);
@@ -149,7 +150,7 @@ namespace sobec {
 			// else, this is a double support phase
 			else{
 				std::cout << "Double support phase with TswitchTraj = " << TswitchTraj_ << ", and TswitchPhase = " << TswitchPhase_ << std::endl;
-				horizon_.setSupportingFeet(0,starting_position_right_,starting_position_left_,wrench_reference_double_);
+				horizon_.setDoubleSupport(0,starting_position_right_,starting_position_left_,wrench_reference_double_);
 			}
 			updateEndPhase();
 			// Put first model in last position

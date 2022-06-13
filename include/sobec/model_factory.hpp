@@ -56,16 +56,20 @@ namespace sobec{
             boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation_;
             Eigen::VectorXd x0_;
 
+            
+
         public:
             ModelMaker();
             ModelMaker(const ModelMakerSettings &settings, const RobotDesigner &design);
             void initialize(const ModelMakerSettings &settings, const RobotDesigner &design);
+            bool initialized_ = false;
 
             AMA formulateStepTracker(const Support &support = Support::DOUBLE);
             // AMA formulate_flat_walker(const Support &support = Support::DOUBLE);
             AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
 
             std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
+            std::vector<AMA> formulateHorizon(const int &T);
             ModelMakerSettings &get_settings(){return settings_;}
 
             // formulation parts: 

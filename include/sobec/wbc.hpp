@@ -77,13 +77,16 @@ namespace sobec{
 					     const RobotDesigner &design,
                          const HorizonManager &horizon,
 					     const Eigen::VectorXd &q0,
-						 const Eigen::VectorXd &v0);
+						 const Eigen::VectorXd &v0,
+                         const std::string &actuationCostName);
             
             void initialize(const WBCSettings &settings,
 					        const RobotDesigner &design,
                             const HorizonManager &horizon,
 					        const Eigen::VectorXd &q0,
-						    const Eigen::VectorXd &v0);
+						    const Eigen::VectorXd &v0,
+                            const std::string &actuationCostName);
+            bool initialized_ = false;
 
             Eigen::VectorXd shapeState(Eigen::VectorXd q, Eigen::VectorXd v);
 
@@ -108,6 +111,26 @@ namespace sobec{
 
             HorizonManager get_walkingCycle(){return fullCycle_;}
             void set_walkingCycle(HorizonManager walkingCycle){fullCycle_=walkingCycle;}
+
+            HorizonManager get_horizon(){return horizon_;}
+            void set_horizon(HorizonManager horizon){horizon_= horizon;}
+
+            RobotDesigner get_designer(){return designer_;}
+            void set_designer(RobotDesigner designer){designer_=designer;}
+
+            Eigen::VectorXd get_LF_land(){return t_land_LF_.matrix().cast<double>();}
+            void set_LF_land(Eigen::VectorXi t){t_land_LF_ = t.array();}
+
+            Eigen::VectorXd get_RF_land(){return t_land_RF_.matrix().cast<double>();}
+            void set_RF_land(Eigen::VectorXi t){t_land_RF_ = t.array();}
+
+            Eigen::VectorXd get_LF_takeoff(){return t_takeoff_LF_.matrix().cast<double>();}
+            void set_LF_takeoff(Eigen::VectorXi t){t_takeoff_LF_ = t.array();}
+
+            Eigen::VectorXd get_RF_takeoff(){return t_takeoff_RF_.matrix().cast<double>();}
+            void set_RF_takeoff(Eigen::VectorXi t){t_takeoff_RF_ = t.array();}
+
+
 
             // void solveControlCycle(const Eigen::VectorXd &measured_x);
             

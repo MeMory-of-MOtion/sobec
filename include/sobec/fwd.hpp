@@ -96,6 +96,7 @@ typedef Eigen::Vector2d eVector2;
 typedef boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> IAM;
 typedef boost::shared_ptr<crocoddyl::IntegratedActionDataEuler> IAD;
 typedef boost::shared_ptr<crocoddyl::ActionModelAbstract> AMA;
+typedef boost::shared_ptr<crocoddyl::ActionDataAbstract> ADA;
 typedef boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> DAM;
 typedef boost::shared_ptr<crocoddyl::CostModelSum> Cost;
 typedef boost::shared_ptr<crocoddyl::ContactModelMultiple> Contact;

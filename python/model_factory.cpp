@@ -93,13 +93,22 @@ namespace sobec {
         return settings;
     }
 
-    bp::list formulateHorizon(ModelMaker &self, const bp::list &supports){
-        
-        std::vector<Support> contacts;
-        py_list_to_std_vector(supports, contacts);
-        std::vector<AMA> models = self.formulateHorizon(contacts);
+    bp::list formulateHorizon(ModelMaker &self, const bp::list &supports = bp::list(), const int &lenght = 0){
 
-        return std_vector_to_py_list(models);
+        if (bp::len(supports) > 0){
+            std::vector<Support> contacts;
+            py_list_to_std_vector(supports, contacts);
+            std::vector<AMA> models = self.formulateHorizon(contacts);
+
+            return std_vector_to_py_list(models);
+        
+        }else if (lenght > 0){
+            
+            std::vector<AMA> models = self.formulateHorizon(lenght);
+            return std_vector_to_py_list(models);
+        }else{
+            throw std::runtime_error("Either a list of supports or an horizon lenght must be provided.");
+        }
     }
 
     void defineFeetContact(ModelMaker &self, crocoddyl::ContactModelMultiple &contactCollector, const Support &supports=Support::DOUBLE){
@@ -145,8 +154,7 @@ namespace sobec {
 
         bp::class_<ModelMaker>("ModelMaker", bp::init<>())
             .def("initialize", &initialize, bp::args("self", "settings", "design"))
-            .def("formulateHorizon", &formulateHorizon, bp::args("self", "supports"))
-            // .def("formulate_flat_walker", &ModelMaker::formulate_flat_walker, (bp::arg("self"), bp::arg("supports")=Support::DOUBLE))
+            // .def("formulateHorizon", &formulateHorizon, bp::args("self", "supports"))
             .def("get_settings", &get_settings, bp::args("self"))
             .def("defineFeetContact", &defineFeetContact, (bp::arg("self"), bp::arg("contactCollector"), bp::arg("supports")=Support::DOUBLE))
             .def("defineFeetWrenchCost", &defineFeetWrenchCost, (bp::arg("self"), bp::arg("costCollector"), bp::arg("supports")=Support::DOUBLE))
@@ -160,7 +168,9 @@ namespace sobec {
             .def("setState", &ModelMaker::setState, bp::args("self"))
             .def("getActuation", &ModelMaker::getActuation, bp::args("self"))
             .def("setActuation", &ModelMaker::setActuation, bp::args("self"))
+            .def("formulateHorizon", &formulateHorizon, (bp::arg("self"), bp::arg("supports")=bp::list(), bp::arg("lenght")=0))
             ;
     }
     }  // namespace
 }
+

@@ -88,6 +88,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
     rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
     
     updateReducedModel(q0_);
+    initialized_ = true;
 }
 
 void RobotDesigner::updateReducedModel(Eigen::VectorXd q){
