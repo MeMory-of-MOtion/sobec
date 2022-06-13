@@ -63,8 +63,8 @@ namespace sobec{
             void setForceReferenceLF(const unsigned long &time, const std::string &nameCostLF, const eVector6 &reference);
             void setForceReferenceRF(const unsigned long &time, const std::string &nameCostRF, const eVector6 &reference);
 
-            void setSwingingLF(const unsigned long &time, const std::string &nameContactLF, const std::string &nameContactRF, const std::string &nameForceContactLF);
-            void setSwingingRF(const unsigned long &time, const std::string &nameContactLF, const std::string &nameContactRF, const std::string &nameForceContactRF);
+            void setSwingingLF(const unsigned long &time, const std::string &nameContactLF, const std::string &nameContactRF);
+            void setSwingingRF(const unsigned long &time, const std::string &nameContactLF, const std::string &nameContactRF);
             void setDoubleSupport(const unsigned long &time, const std::string &nameContactLF, const std::string &nameContactRF);
 
             void recede(const AMA &new_model, const ADA &new_data);

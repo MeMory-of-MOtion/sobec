@@ -140,17 +140,29 @@ namespace sobec {
 				// Get desired foot reference for the end of the horizon
 				if (swingRightPhase_){
 					starting_position_right_ = swing_trajectory_right_->compute(static_cast<double>(contacts_sequence_[0]) * OCP_settings_.Dt);
-					horizon_.setSwingingRF(0,starting_position_right_,starting_position_left_,wrench_reference_simple_);
+					horizon_.setSwingingRF(0,designer_.get_LF_name(),designer_.get_RF_name());
+					horizon_.setForceReferenceLF(0,"wrench_LF",wrench_reference_simple_);
+					horizon_.setForceReferenceRF(0,"wrench_RF",eVector6::Zero());
+					horizon_.setPoseReferenceLF(0,"placement_LF",starting_position_left_);
+					horizon_.setPoseReferenceRF(0,"placement_RF",starting_position_right_);
 				}
 				else{
 					starting_position_left_ = swing_trajectory_left_->compute(static_cast<double>(contacts_sequence_[0]) * OCP_settings_.Dt);
-					horizon_.setSwingingLF(0,starting_position_right_,starting_position_left_,wrench_reference_simple_);
+					horizon_.setSwingingLF(0,designer_.get_LF_name(),designer_.get_RF_name());
+					horizon_.setForceReferenceLF(0,"wrench_LF",eVector6::Zero());
+					horizon_.setForceReferenceRF(0,"wrench_RF",wrench_reference_simple_);
+					horizon_.setPoseReferenceLF(0,"placement_LF",starting_position_left_);
+					horizon_.setPoseReferenceRF(0,"placement_RF",starting_position_right_);
 				}
 			}
 			// else, this is a double support phase
 			else{
 				std::cout << "Double support phase with TswitchTraj = " << TswitchTraj_ << ", and TswitchPhase = " << TswitchPhase_ << std::endl;
-				horizon_.setDoubleSupport(0,starting_position_right_,starting_position_left_,wrench_reference_double_);
+				horizon_.setDoubleSupport(0,designer_.get_LF_name(),designer_.get_RF_name());
+				horizon_.setForceReferenceLF(0,"wrench_LF",wrench_reference_double_);
+				horizon_.setForceReferenceRF(0,"wrench_RF",wrench_reference_double_);
+				horizon_.setPoseReferenceLF(0,"placement_LF",starting_position_left_);
+				horizon_.setPoseReferenceRF(0,"placement_LF",starting_position_right_);
 			}
 			updateEndPhase();
 			// Put first model in last position

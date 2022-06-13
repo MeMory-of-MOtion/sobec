@@ -122,20 +122,16 @@ namespace sobec {
 
     void HorizonManager::setSwingingLF(const unsigned long &time, 
                                        const std::string &nameContactLF, 
-                                       const std::string &nameContactRF,
-                                       const std::string &nameForceCostLF){
+                                       const std::string &nameContactRF){
         removeContactLF(time, nameContactLF);
         activateContactRF(time, nameContactRF);
-        setForceReferenceRF(time, nameForceCostLF, eVector6::Zero());
     }
 
     void HorizonManager::setSwingingRF(const unsigned long &time, 
                                        const std::string &nameContactLF, 
-                                       const std::string &nameContactRF,
-                                       const std::string &nameForceCostRF){
+                                       const std::string &nameContactRF){
         activateContactLF(time, nameContactLF);
         removeContactRF(time, nameContactRF);
-        setForceReferenceRF(time, nameForceCostRF, eVector6::Zero());
     }
     
     void HorizonManager::setDoubleSupport(const unsigned long &time, 
