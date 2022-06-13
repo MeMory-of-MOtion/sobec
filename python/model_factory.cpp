@@ -1,12 +1,10 @@
 #include "sobec/fwd.hpp"
 //keep this line on top
 #include <boost/python.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/enum.hpp>
+#include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
-
 #include <eigenpy/eigenpy.hpp>
-
 #include <sobec/model_factory.hpp>
 
 namespace sobec {

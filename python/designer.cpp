@@ -9,15 +9,14 @@
 #include <pinocchio/fwd.hpp>  
 // This line must be the first include
 #include <boost/python.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/enum.hpp>
+#include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
+#include <eigenpy/eigenpy.hpp>
+#include <pinocchio/algorithm/model.hpp>
+#include <pinocchio/fwd.hpp>  // This line must be the first include
 
 #include "pinocchio/multibody/model.hpp"
-#include <pinocchio/algorithm/model.hpp>
-#include <eigenpy/eigenpy.hpp>
-
-#include "sobec/designer.hpp"
 
 namespace sobec {
 namespace python {
