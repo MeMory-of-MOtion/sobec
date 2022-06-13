@@ -60,6 +60,13 @@ using namespace crocoddyl;
     assert(iam!=0);
     std::cout << "IAM" << std::endl;
 
+    boost::shared_ptr<DifferentialActionModelAbstract> dama = iam->get_differential();
+    std::cout<<"DAMA"<<std::endl;
+
+    //boost::shared_ptr<DifferentialActionModelContactFwdDynamics> dam0 =
+      boost::dynamic_pointer_cast<DifferentialActionModelContactFwdDynamics>(dama);
+    std::cout<<"DAM0" << std::endl;
+    
     boost::shared_ptr<DAM> dam =
       boost::dynamic_pointer_cast<DAM>(iam->get_differential());
     assert(dam!=0);
