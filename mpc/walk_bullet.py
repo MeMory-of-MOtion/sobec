@@ -71,6 +71,7 @@ except (ImportError,AttributeError):
 
 hx = []
 hu = []
+hxs = []
 
 # FOR LOOP
 for s in range(2000):
@@ -88,20 +89,51 @@ for s in range(2000):
         # Run one step of simu
         simu.step(torques)
 
+        hx.append(simu.getState())
+        hu.append(torques.copy())
+
     # ###############################################################################
     #mpc.run(mpc.solver.xs[1],s)
     mpc.run(simu.getState(),s)
     if mpc.solver.iter == 0:
         errorinthesolver
+    hxs.append(np.array(mpc.solver.xs))
 
     lrm = mpc.problem.runningModels[20].differential.costs.costs
     if (f"{robot.model.frames[robot.contactIds[0]].name}_altitudeimpact" in lrm 
         or f"{robot.model.frames[robot.contactIds[1]].name}_altitudeimpact" in lrm):
         mpc.moreIterations(50)
         print(f'+{mpc.solver.iter}')
-        
+
     viz.display(simu.getState()[:robot.model.nq])
 
+# #####################################################################################
+# #####################################################################################
+# #####################################################################################
 
 if walkParams.saveFile is not None:
     save_traj(np.array(hx),filename=walkParams.saveFile)
+
+# #####################################################################################
+# #####################################################################################
+# #####################################################################################
+import walk_plotter
+import matplotlib.pylab as plt
+
+plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+plotter.setData(contactPattern, np.array(hx), None, None)
+
+target = problem.terminalModel.differential.costs.costs["stateReg"].cost.residual.reference
+
+plotter.plotBasis(target)
+plotter.plotCom(robot.com0)
+plotter.plotFeet()
+plotter.plotFootCollision(walkParams.footMinimalDistance)
+
+# mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
+# mpcplotter.plotFeet()
+
+print("Run ```plt.ion(); plt.show()``` to display the plots.")
+
+pin.SE3.__repr__ = pin.SE3.__str__
+np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)

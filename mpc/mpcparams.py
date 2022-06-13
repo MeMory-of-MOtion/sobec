@@ -51,7 +51,9 @@ class WalkParams(params.WalkParams):
     baumgartGains = np.array([0, 50])
 
     VCOM_TARGET = np.array([0.05, 0, 0])
-
+    #vcomWeight = 2
+    #comWeight = 1000  # 20
+    vcomImportance = np.array([0., 0, 1])
 
     maxiter = 1
     solver_reg_min = 1e-6

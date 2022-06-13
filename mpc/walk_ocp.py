@@ -62,7 +62,7 @@ def buildRunningModels(robotWrapper,contactPattern,params):
             costs.addCost("com", comCost, p.comWeight)
 
         comVelResidual = sobec.ResidualModelCoMVelocity(state, p.VCOM_TARGET, actuation.nu)
-        comVelAct = croc.ActivationModelWeightedQuad(np.array([0, 0, 1]))
+        comVelAct = croc.ActivationModelWeightedQuad(p.vcomImportance)
         comVelCost = croc.CostModelResidual(state, comVelAct, comVelResidual)
         costs.addCost("comVelCost", comVelCost, p.vcomWeight)
 
