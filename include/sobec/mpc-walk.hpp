@@ -9,10 +9,10 @@
 #ifndef SOBEC_MPC_WALK_HPP_
 #define SOBEC_MPC_WALK_HPP_
 
-#include <crocoddyl/multibody/data/multibody.hpp>
 #include <crocoddyl/core/fwd.hpp>
-#include <crocoddyl/core/solvers/fddp.hpp>
 #include <crocoddyl/multibody/fwd.hpp>
+#include <crocoddyl/core/solvers/fddp.hpp>
+//#include <crocoddyl/multibody/data/multibody.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 
 #include "sobec/fwd.hpp"
@@ -28,7 +28,7 @@ class MPCWalk {
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
   typedef boost::shared_ptr<ActionModelAbstract> ActionPtr;
   typedef std::vector<ActionPtr> ActionList;
-  typedef typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double> DAM;
+  //typedef typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double> DAM;
   
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
