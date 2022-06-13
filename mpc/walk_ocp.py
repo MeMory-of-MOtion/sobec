@@ -8,20 +8,20 @@ from weight_share import computeReferenceForces
 from robot_wrapper import RobotWrapper
 
 
-def buildRunningModels(robotWrapper,contactPattern,params):
+def buildRunningModels(robotWrapper, contactPattern, params):
 
     p = params
     robot = robotWrapper
-    
+
     # Horizon length
     T = len(contactPattern) - 1
 
-    referenceForces = computeReferenceForces(contactPattern,robot.gravForce)
+    referenceForces = computeReferenceForces(contactPattern, robot.gravForce)
     models = []
 
     # #####################################################################################
     for t, pattern in enumerate(contactPattern[:-1]):
-        #print(f'time t={t} {pattern}')
+        # print(f'time t={t} {pattern}')
 
         # Basics
         state = croc.StateMultibody(robot.model)
@@ -42,7 +42,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
 
         xRegResidual = croc.ResidualModelState(state, robot.x0, actuation.nu)
         xRegCost = croc.CostModelResidual(
-            state, croc.ActivationModelWeightedQuad(p.stateImportance**2), xRegResidual
+            state,
+            croc.ActivationModelWeightedQuad(p.stateImportance**2),
+            xRegResidual,
         )
         costs.addCost("stateReg", xRegCost, p.refStateWeight)
 
@@ -61,7 +63,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
         if p.comWeight > 0:
             costs.addCost("com", comCost, p.comWeight)
 
-        comVelResidual = sobec.ResidualModelCoMVelocity(state, p.VCOM_TARGET, actuation.nu)
+        comVelResidual = sobec.ResidualModelCoMVelocity(
+            state, p.VCOM_TARGET, actuation.nu
+        )
         comVelAct = croc.ActivationModelWeightedQuad(p.vcomImportance)
         comVelCost = croc.CostModelResidual(state, comVelAct, comVelResidual)
         costs.addCost("comVelCost", comVelCost, p.vcomWeight)
@@ -72,7 +76,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
                 continue
 
             copResidual = sobec.ResidualModelCenterOfPressure(state, cid, actuation.nu)
-            copAct = croc.ActivationModelWeightedQuad(np.array([1 / p.FOOT_SIZE**2] * 2))
+            copAct = croc.ActivationModelWeightedQuad(
+                np.array([1 / p.FOOT_SIZE**2] * 2)
+            )
             copCost = croc.CostModelResidual(state, copAct, copResidual)
             costs.addCost(f"{robot.model.frames[cid].name}_cop", copCost, p.copWeight)
 
@@ -82,7 +88,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
             cone = croc.WrenchCone(
                 np.eye(3), 1000, np.array([p.FOOT_SIZE * 2] * 2), 4, True, 1, 10000
             )
-            coneCost = croc.ResidualModelContactWrenchCone(state, cid, cone, actuation.nu)
+            coneCost = croc.ResidualModelContactWrenchCone(
+                state, cid, cone, actuation.nu
+            )
             ub = cone.ub.copy()
             ub[:4] = np.inf
             # ub[5:] = np.inf  ### DEBUG
@@ -91,7 +99,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
                 croc.ActivationBounds(cone.lb, ub)
             )
             coneCost = croc.CostModelResidual(state, coneAct, coneCost)
-            costs.addCost(f"{robot.model.frames[cid].name}_cone", coneCost, p.conePenaltyWeight)
+            costs.addCost(
+                f"{robot.model.frames[cid].name}_cone", coneCost, p.conePenaltyWeight
+            )
 
             # Penalize the distance to the central axis of the cone ...
             #  ... using normalization weights depending on the axis.
@@ -104,7 +114,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
             coneAxisAct = croc.ActivationModelWeightedQuad(w)
             coneAxisCost = croc.CostModelResidual(state, coneAxisAct, coneAxisResidual)
             costs.addCost(
-                f"{robot.model.frames[cid].name}_coneaxis", coneAxisCost, p.coneAxisWeight
+                f"{robot.model.frames[cid].name}_coneaxis",
+                coneAxisCost,
+                p.coneAxisWeight,
             )
 
             # Follow reference (smooth) contact forces
@@ -137,7 +149,11 @@ def buildRunningModels(robotWrapper,contactPattern,params):
                 )
 
                 impactVelResidual = croc.ResidualModelFrameVelocity(
-                    state, cid, pin.Motion.Zero(), pin.ReferenceFrame.LOCAL, actuation.nu
+                    state,
+                    cid,
+                    pin.Motion.Zero(),
+                    pin.ReferenceFrame.LOCAL,
+                    actuation.nu,
                 )
                 impactVelCost = croc.CostModelResidual(state, impactVelResidual)
                 costs.addCost(
@@ -159,10 +175,15 @@ def buildRunningModels(robotWrapper,contactPattern,params):
                     p.impactRotationWeight / p.DT,
                 )
 
-                impactRefJointsResidual = croc.ResidualModelState(state, robot.x0, actuation.nu)
+                impactRefJointsResidual = croc.ResidualModelState(
+                    state, robot.x0, actuation.nu
+                )
                 jselec = np.zeros(robot.model.nv * 2)
                 jselec[
-                    [robot.model.joints[robot.model.getJointId(name)].idx_v for name in p.MAIN_JOINTS]
+                    [
+                        robot.model.joints[robot.model.getJointId(name)].idx_v
+                        for name in p.MAIN_JOINTS
+                    ]
                 ] = 1
                 impactRefJointsAct = croc.ActivationModelWeightedQuad(jselec)
                 impactRefJointCost = croc.CostModelResidual(
@@ -202,7 +223,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
                 state, fid, p.flyHighSlope / 2, actuation.nu
             )
             flyHighCost = croc.CostModelResidual(state, flyHighResidual)
-            costs.addCost(f"{robot.model.frames[fid].name}_flyhigh", flyHighCost, p.flyWeight)
+            costs.addCost(
+                f"{robot.model.frames[fid].name}_flyhigh", flyHighCost, p.flyWeight
+            )
 
             groundColRes = croc.ResidualModelFrameTranslation(
                 state, fid, np.zeros(3), actuation.nu
@@ -218,7 +241,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
             groundColAct = croc.ActivationModelQuadraticBarrier(groundColBounds)
             groundColCost = croc.CostModelResidual(state, groundColAct, groundColRes)
             costs.addCost(
-                f"{robot.model.frames[fid].name}_groundcol", groundColCost, p.groundColWeight
+                f"{robot.model.frames[fid].name}_groundcol",
+                groundColCost,
+                p.groundColWeight,
             )
 
             for kc, cid in enumerate(robot.contactIds):
@@ -239,7 +264,9 @@ def buildRunningModels(robotWrapper,contactPattern,params):
                         np.array([p.footMinimalDistance]), np.array([1000])
                     )
                     feetColAct = croc.ActivationModelQuadraticBarrier(feetColBounds)
-                    feetColCost = croc.CostModelResidual(state, feetColAct, feetColResidual)
+                    feetColCost = croc.CostModelResidual(
+                        state, feetColAct, feetColResidual
+                    )
                     costs.addCost(
                         f"feetcol_{robot.model.frames[id1].name}_VS_{robot.model.frames[id2].name}",
                         feetColCost,
@@ -256,12 +283,12 @@ def buildRunningModels(robotWrapper,contactPattern,params):
 
     return models
 
-    
+
 # ### TERMINAL MODEL ##################################################################
-def buildTerminalModel(robotWrapper,contactPattern,params):
+def buildTerminalModel(robotWrapper, contactPattern, params):
 
     robot = robotWrapper
-    p = params    
+    p = params
     pattern = contactPattern[-1]
 
     # Horizon length
@@ -305,29 +332,30 @@ def buildTerminalModel(robotWrapper,contactPattern,params):
     return termmodel
 
 
-
 # ### SOLVER ########################################################################
 
-def buildSolver(robotWrapper,contactPattern,walkParams):
-    models = buildRunningModels(robotWrapper,contactPattern,walkParams)
-    termmodel = buildTerminalModel(robotWrapper,contactPattern,walkParams)
+
+def buildSolver(robotWrapper, contactPattern, walkParams):
+    models = buildRunningModels(robotWrapper, contactPattern, walkParams)
+    termmodel = buildTerminalModel(robotWrapper, contactPattern, walkParams)
 
     problem = croc.ShootingProblem(robotWrapper.x0, models, termmodel)
     ddp = croc.SolverFDDP(problem)
     ddp.th_stop = walkParams.solver_th_stop
     return ddp
 
-def buildInitialGuess(problem,walkParams):
+
+def buildInitialGuess(problem, walkParams):
     if walkParams.guessFile is not None:
         try:
             guess = np.load(walkParams.guessFile, allow_pickle=True)[()]
             print(f'Load "{walkParams.guessFile}"!')
             x0s = [x for x in guess["xs"]]
             u0s = [u for u in guess["us"]]
-        except (FileNotFoundError,KeyError):
+        except (FileNotFoundError, KeyError):
             x0s = []
             u0s = []
-    
+
     if len(x0s) != problem.T + 1 or len(u0s) != problem.T:
         print("No valid solution file, build quasistatic initial guess!")
         x0s = [problem.x0.copy() for _ in range(problem.T + 1)]
@@ -336,12 +364,14 @@ def buildInitialGuess(problem,walkParams):
             for m, d, x in zip(problem.runningModels, problem.runningDatas, x0s)
         ]
 
-    return x0s,u0s
+    return x0s, u0s
+
 
 # ### SOLUTION ######################################################################
 
+
 class Solution:
-    def __init__(self,robotWrapper,ddp):
+    def __init__(self, robotWrapper, ddp):
         model = ddp.problem.terminalModel.differential.pinocchio
         self.xs = np.array(ddp.xs)
         self.us = np.array(ddp.us)
