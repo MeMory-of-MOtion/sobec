@@ -2,7 +2,6 @@ import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
-import matplotlib.pylab as plt  # noqa: F401
 import time
 
 # Local imports
@@ -10,7 +9,6 @@ from save_traj import save_traj
 from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
-import walk_plotter
 import talos_low
 from walk_mpc import WalkMPC
 from pinbullet import SimuProxy
@@ -107,17 +105,19 @@ for s in range(2000):
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
-    lrm = mpc.problem.runningModels[20].differential.costs.costs
-    if (
-        f"{robot.model.frames[robot.contactIds[0]].name}_altitudeimpact" in lrm
-        or f"{robot.model.frames[robot.contactIds[1]].name}_altitudeimpact" in lrm
-    ):
-        mpc.moreIterations(50)
-        print(f"+{mpc.solver.iter}")
+    # lrm = mpc.problem.runningModels[20].differential.costs.costs
+    # if (
+    #     f"{robot.model.frames[robot.contactIds[0]].name}_altitudeimpact" in lrm
+    #     or f"{robot.model.frames[robot.contactIds[1]].name}_altitudeimpact" in lrm
+    # ):
+    #     mpc.moreIterations(50)
+    #     print(f"+{mpc.solver.iter}")
 
     viz.display(simu.getState()[: robot.model.nq])
 
-    if (len(mpc.problem.runningModels[0].differential.contacts.contacts)==2 and
+    # Before each takeoff, the robot display the previewed movement (3 times)
+    if (walkParams.showPreview and
+        len(mpc.problem.runningModels[0].differential.contacts.contacts)==2 and
         len(mpc.problem.runningModels[1].differential.contacts.contacts)==1):
         print('Ready to take off!')
         viz0.show()
@@ -138,6 +138,10 @@ if walkParams.saveFile is not None:
 # #####################################################################################
 # #####################################################################################
 # #####################################################################################
+
+# The 2 next import must not be included **AFTER** pyBullet starts.
+import matplotlib.pylab as plt  # noqa: E402,F401
+import walk_plotter # noqa: E402
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)

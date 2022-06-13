@@ -57,3 +57,7 @@ class WalkParams(params.WalkParams):
 
     maxiter = 1
     solver_reg_min = 1e-6
+
+    ### DEBUG
+    #showPreview = True
+    
