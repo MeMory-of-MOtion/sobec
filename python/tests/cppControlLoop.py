@@ -86,8 +86,7 @@ all_models = formuler.formulateHorizon(lenght=conf.T)
 
 ## Horizon
 
-H_conf = dict(leftFootName = conf.lf_frame_name, 
-              rightFootName = conf.rf_frame_name)
+H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
 horizon = HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), all_models, all_models[-1])
 
