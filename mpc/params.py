@@ -39,6 +39,7 @@ class WalkParams:
     forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
     coneAxisWeight = 2e-4
     comWeight = 0  # 20
+    vcomImportance = np.array([0.0, 0, 1])
     vcomWeight = 1
     acomWeight = 0  # 16*DT
     copWeight = 2
