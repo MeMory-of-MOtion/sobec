@@ -8,33 +8,56 @@ namespace sobec {
              const RobotDesigner &design,
              const HorizonManager &horizon,
              const Eigen::VectorXd &q0,
-             const Eigen::VectorXd &v0){ 
-		initialize(settings,design, horizon, q0, v0);
+             const Eigen::VectorXd &v0,
+			 const std::string &actuationCostName){ 
+		initialize(settings,design, horizon, q0, v0, actuationCostName);
 	}
 
 	void WBC::initialize(const WBCSettings &settings,
 					     const RobotDesigner &design,
                          const HorizonManager &horizon,
 					     const Eigen::VectorXd &q0,
-						 const Eigen::VectorXd &v0){
+						 const Eigen::VectorXd &v0,
+						 const std::string &actuationCostName){
 		/** The posture required here is the full robot posture in the order of pinicchio*/
-							 
+		if (!design.initialized_ || !horizon.initialized_){
+			throw std::runtime_error("The designer and horizon must be initialized.");
+		}
 		settings_ = settings;
 		designer_ = design;
         horizon_ = horizon;
 
+		// designer settings
 		controlled_joints_id_ = designer_.get_controlledJointsIDs();
 		x_internal_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
 
 		x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
         x0_ << shapeState(q0, v0);
+		designer_.updateReducedModel(x0_);
 
+		// horizon settings
+		std::vector<Eigen::VectorXd> xs_init;
+        std::vector<Eigen::VectorXd> us_init;
+        Eigen::VectorXd zero_u = Eigen::VectorXd::Zero(designer_.get_rModel().nv - 6);
+
+        for(std::size_t i = 0; i < horizon_.get_size() ;i++){
+			xs_init.push_back(x0_);
+			us_init.push_back(zero_u);
+			horizon_.setBalancingTorque(i, actuationCostName, x0_);// it sets the actuation reference.
+		}
+		xs_init.push_back(x0_);
+		
+		horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
+
+		// timming 
 		t_takeoff_RF_ = Eigen::ArrayXi::LinSpaced(settings_.horizonSteps, 0,
 												   2*settings_.horizonSteps*settings_.Tstep);
 		t_takeoff_RF_ += (int)settings_.T;
         t_takeoff_LF_ = t_takeoff_RF_ + settings_.Tstep;
         t_land_RF_ = t_takeoff_RF_ + settings_.TsingleSupport;
         t_land_LF_ = t_takeoff_LF_ + settings_.TsingleSupport;
+
+		initialized_ = true;
 	}
 
 	void WBC::generateFullCycle(ModelMaker &mm){
@@ -90,7 +113,9 @@ namespace sobec {
 			//setDesiredFeetPose(iteration, settings_.T - 1);
 
 			// ~~SOLVER~~ //
+			std::cout<<"It starts the solve computation."<<std::endl;
 			horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+			std::cout<<"It finishes the solve computation."<<std::endl;
 		}
 		return horizon_.currentTorques(x0_);
 	}
@@ -100,7 +125,7 @@ namespace sobec {
 	// }
 
 	void WBC::recedeWithFullCycle() {
-		horizon_.recede(fullCycle_.iam(0), fullCycle_.data(0));
+		horizon_.recede(fullCycle_.ama(0), fullCycle_.ada(0));
 		fullCycle_.recede();
 	}
 

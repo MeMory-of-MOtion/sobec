@@ -138,4 +138,12 @@ class ReceidingHorizon:
             print("model ",i , " contacts : \n", 
                   self.costs(i).costs[name].cost.residual.reference, "\n")
             
-                    
+if __name__ == "__main__":
+    
+    import configuration as config
+    from pyRobotWrapper import PinTalos
+    from pyModelMaker import modeller
+    
+    design = PinTalos(config)
+    x0 = np.hstack([design.q0, np.zeros(design.rmodel.nv)])
+    o = ReceidingHorizon(config, design, x0, modeller, config.T)

@@ -47,6 +47,7 @@ namespace sobec{
             RobotDesigner();
             RobotDesigner(const RobotDesignerSettings &settings);
             void initialize(const RobotDesignerSettings &settings);
+            bool initialized_ = false;
 
             void updateReducedModel(Eigen::VectorXd q);
             void updateCompleteModel(Eigen::VectorXd q);

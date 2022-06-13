@@ -22,7 +22,7 @@ from sobec import RobotDesigner, HorizonManager, WBC, ModelMaker, Support
 import configuration as config
 
 
-class DynamicsTestCase(unittest.TestCase):
+class ClasesTestCase(unittest.TestCase):
     def setUp(self):
         
         py_design = PinTalos(config)
@@ -169,6 +169,25 @@ class DynamicsTestCase(unittest.TestCase):
         self.assertEqual(self.horizon.iam(0).nu, self.py_horizon.IAM(0).nu)
         self.assertEqual(self.horizon.ddp.problem.T, self.py_horizon.ddp.problem.T)
         
+        model0_0 = self.horizon.ama(0)
+        model0_1 = self.horizon.ama(1)
+        model0_end = self.horizon.ama(self.horizon.size()-1)
+        
+        self.horizon.recede()
+        
+        model1_0 = self.horizon.ama(0)
+        model1_1 = self.horizon.ama(1)
+        model1_end = self.horizon.ama(self.horizon.size()-1)
+        
+        self.assertTrue(model0_0 is not model0_1)
+        self.assertTrue(model0_0 is not model0_end)
+        self.assertTrue(model0_end is not model1_end)
+        self.assertTrue(model0_1 is not model1_1)
+        self.assertTrue(model0_0 is model1_end)
+        self.assertTrue(model1_0 is model0_1)
+        
+#        self.assertTrue(self.horizon.ddp.solve())
+        
     def test_MPC(self):
         
         nq = self.design.get_rModelComplete().nq
@@ -185,6 +204,3 @@ class DynamicsTestCase(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
     
-    # FOR MANUAL TEST
-    o = DynamicsTestCase()
-    o.setUp()
