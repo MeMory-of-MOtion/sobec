@@ -1,4 +1,3 @@
-
 # flake8: noqa
 
 import crocoddyl
@@ -10,9 +9,18 @@ import pinocchio
 from .sobec_pywrap import (
     ResidualModelCoMVelocity,
     ResidualModelVelCollision,
-    ActivationModelQuadRef, 
+    ActivationModelQuadRef,
     RobotDesigner,
     HorizonManager,
-    ModelMaker, Support,
+    ModelMaker,
+    Support,
+    ResidualModelCenterOfPressure,
+    ResidualModelFlyHigh,
+    IntegratedActionModelLPF,
+    ContactModel3D,
+    ContactModel1D,
+    ContactModelMultiple,
+    DifferentialActionModelContactFwdDynamics,
+    ResidualModelContactForce,
     WBC
 )

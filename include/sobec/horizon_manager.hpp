@@ -11,8 +11,8 @@
 namespace sobec{
 	struct HorizonManagerSettings{
         public:
-            std::string leftFootName = "";
-            std::string rightFootName = "";
+            std::string leftFootName = "left_sole_link";
+            std::string rightFootName = "right_sole_link";
     };
 			
     class HorizonManager{
@@ -27,9 +27,6 @@ namespace sobec{
             //NEW ~ ocp related ~
             std::vector<Eigen::VectorXd> xs_; //using it
             std::vector<Eigen::VectorXd> us_; //using it
-            
-            sobec::RobotDesigner designer_;
-            sobec::ModelMaker modelMaker_;
             
             ResidualModelFramePlacementPtr goalTrackingResidual_;
             ResidualModelContactWrenchConePtr wrenchConeResidual_;
@@ -99,9 +96,18 @@ namespace sobec{
             void removeContactRF();
             void setForceReferenceLF(const eVector6 &reference);
             void setForceReferenceRF(const eVector6 &reference);
-            void setSwingingLF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
-            void setSwingingRF(const unsigned long &time, const pinocchio::SE3 &ref_placement,  const eVector6 &ref_wrench);
-            void setSupportingFeet(const unsigned long &time, const eVector6 &ref_wrench);
+            void setSwingingLF(const unsigned long &time, 
+							   const pinocchio::SE3 &right_placement,
+							   const pinocchio::SE3 &left_placement,
+							   const eVector6 &ref_wrench);
+            void setSwingingRF(const unsigned long &time, 
+                               const pinocchio::SE3 &right_placement,
+                               const pinocchio::SE3 &left_placement,
+                               const eVector6 &ref_wrench);
+            void setSupportingFeet(const unsigned long &time,
+								   const pinocchio::SE3 &right_placement,
+								   const pinocchio::SE3 &left_placement,
+								   const eVector6 &ref_wrench);
             //end NEW ~ ocp related ~
 
             //std::vector<std::string> get_contacts(const unsigned long &time);
@@ -125,7 +131,7 @@ namespace sobec{
             
             Eigen::VectorXd get_xs0(){return xs_[0];}
             Eigen::VectorXd get_us0(){return us_[0];}
-            // Eigen::VectorXd get_K0(){return ddp_->get_K()[0];}   // This is not a vector...
+            Eigen::MatrixXd get_K0(){return ddp_->get_K()[0];}  
             DDP get_ddp(){return ddp_;}
             void set_ddp(const DDP &ddp){ddp_ = ddp;}
             

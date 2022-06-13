@@ -25,13 +25,14 @@ using namespace crocoddyl;
 struct CostModelTypes {
   enum Type {
     // CostModelResidualState,
-    // CostModelResidualControl,
-    // CostModelResidualCoMPosition,
+    CostModelResidualControl,
+    CostModelResidualCoMPosition,
     CostModelResidualCoMVelocity,
-    // CostModelResidualFramePlacement,
-    // CostModelResidualFrameRotation,
-    // CostModelResidualFrameTranslation,
-    // CostModelResidualFrameVelocity,
+    CostModelResidualFlyHigh,
+    CostModelResidualFramePlacement,
+    CostModelResidualFrameRotation,
+    CostModelResidualFrameTranslation,
+    CostModelResidualFrameVelocity,
     NbCostModelTypes
   };
   static std::vector<Type> init_all() {

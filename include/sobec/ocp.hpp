@@ -4,12 +4,7 @@
 #include "sobec/designer.hpp"
 #include "sobec/model_factory.hpp"
 #include "sobec/horizon_manager.hpp"
-
-#include <ndcurves/fwd.h>
-#include <ndcurves/se3_curve.h>
-#include <ndcurves/polynomial.h>
-#include <ndcurves/bezier_curve.h>
-#include <ndcurves/piecewise_curve.h>
+#include "sobec/foot_trajectory.hpp"
 
 namespace sobec{
 
@@ -42,12 +37,13 @@ namespace sobec{
             RobotDesigner designer_;
             ModelMaker modelMaker_; 
             HorizonManager horizon_;
+            FootTrajectory_ptr swing_trajectory_left_;
+            FootTrajectory_ptr swing_trajectory_right_;
+
             
-            Eigen::VectorXd x0_;
+            Eigen::VectorXd xc_;
             eVector6 wrench_reference_double_;
             eVector6 wrench_reference_simple_;
-            ndcurves::piecewise_SE3_t transBezierRight_;
-            ndcurves::piecewise_SE3_t transBezierLeft_;
             std::vector<unsigned long> contacts_sequence_;
             
             unsigned long TswitchPhase_;
@@ -60,8 +56,6 @@ namespace sobec{
             pinocchio::SE3 starting_position_right_;
             pinocchio::SE3 final_position_left_;
             pinocchio::SE3 final_position_right_;
-            pinocchio::SE3 frame_placement_next_;
-            ndcurves::point3_t point_now_;
 
         public:
             OCP();
@@ -73,19 +67,17 @@ namespace sobec{
             
             void initialize(const OCPSettings &settings,
 					        const ModelMakerSettings &model_settings,
-					        const RobotDesigner &design,
+					        const RobotDesignerSettings &design,
 					        const Eigen::VectorXd &q0,
 					        const Eigen::VectorXd &v0);
-                            
-            void solveControlCycle(const Eigen::VectorXd &measured_x);
-            
-            ndcurves::piecewise_SE3_t defineBezier(const double &height, 
-                                                        const double &time_init,
-                                                        const double &time_final, 
-                                                        const pinocchio::SE3 &placement_init,
-                                                        const pinocchio::SE3 &placement_final);
+
             void updateEndPhase();
-            void updateOCP(const Eigen::VectorXd &measured_x);
+            void updateOCP(const Eigen::VectorXd &qc, const Eigen::VectorXd &vc);
+            HorizonManager get_horizon(){return horizon_;}
+            
+            eVector3 get_LF_position(){return designer_.get_LF_position();}
+            eVector3 get_RF_position(){return designer_.get_RF_position();}
+            eVector3 get_com_position(){return designer_.get_com_position();}
             
     };
 }

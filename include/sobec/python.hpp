@@ -9,10 +9,18 @@ namespace python {
 
 void exposeResidualCoMVelocity();
 void exposeResidualVelCollision();
+void exposeResidualCenterOfPressure();
+void exposeResidualFlyHigh();
 void exposeActivationQuadRef();
 void exposeDesigner();
 void exposeHorizonManager();
 void exposeModelFactory();
+void exposeIntegratedActionLPF();
+void exposeContact3D();
+void exposeContact1D();
+void exposeMultipleContacts();
+void exposeDAMContactFwdDyn();
+void exposeResidualContactForce();
 void exposeWBC();
 
 }  // namespace python
