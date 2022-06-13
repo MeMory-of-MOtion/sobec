@@ -186,14 +186,6 @@ AMA ModelMaker::formulateStepTracker(const Support &support){
 		(state_, actuation_, contacts, costs, 0.,true);
 	AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>
 		(runningDAM, settings_.timeStep);  
-		
-	const boost::shared_ptr<crocoddyl::ActionDataAbstract> temp_data = runningModel->createData();
-	Eigen::VectorXd uref = Eigen::VectorXd::Zero(Eigen::Index(actuation_->get_nu()));
-	runningModel->quasiStatic(temp_data,uref,x0_);
-	
-	boost::shared_ptr<crocoddyl::ResidualModelControl> uResidualControl = 
-	    boost::static_pointer_cast<crocoddyl::ResidualModelControl>(runningDAM->get_costs()->get_costs().at("actuationTask")->cost->get_residual());
-	uResidualControl->set_reference(uref);
 
 	return runningModel;
 }
