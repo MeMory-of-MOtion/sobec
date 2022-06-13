@@ -10,6 +10,7 @@
 #include <boost/python/return_internal_reference.hpp>
 #include <boost/python/enum.hpp>
 #include <crocoddyl/core/activation-base.hpp>
+#include <string.h>
 
 #include <eigenpy/eigenpy.hpp>
 
@@ -32,14 +33,25 @@ namespace sobec {
                                           const Eigen::VectorXd &x0, 
                                           const bp::list runningModels, 
                                           const AMA &terminalModel){
-    HorizonManagerSettings conf;
-    conf.leftFootName = bp::extract<std::string>(settings["leftFootName"]);
-    conf.rightFootName = bp::extract<std::string>(settings["rightFootName"]);
+        HorizonManagerSettings conf;
+        conf.leftFootName = bp::extract<std::string>(settings["leftFootName"]);
+        conf.rightFootName = bp::extract<std::string>(settings["rightFootName"]);
 
-    std::vector<AMA> horizonModels;
-    py_list_to_std_vector(runningModels, horizonModels);
-    self.initialize(conf, x0, horizonModels, terminalModel);
-}
+        std::vector<AMA> horizonModels;
+        py_list_to_std_vector(runningModels, horizonModels);
+        self.initialize(conf, x0, horizonModels, terminalModel);
+    }
+
+    bp::dict get_contacts(HorizonManager &self, const unsigned long time){
+
+        bp::dict contacts;
+        for (std::string frame : self.contacts(time)->get_active_set())
+            contacts[frame] = self.contacts(time)->get_active_set().find(frame) != self.contacts(time)->get_active_set().end();
+
+        for (std::string frame : self.contacts(time)->get_inactive_set())
+            contacts[frame] = self.contacts(time)->get_active_set().find(frame) != self.contacts(time)->get_active_set().end();
+        return contacts;
+    }
 
     void exposeHorizonManager() {
         bp::class_<HorizonManager>("HorizonManager", bp::init<>())
@@ -62,8 +74,7 @@ namespace sobec {
             .def("setForceReferenceRF", &HorizonManager::setForceReferenceRF, bp::args("self", "time", "costName", "ref_wrench"))
             .def("setSwingingLF", &HorizonManager::setSwingingLF, bp::args("self", "time", "contactNameLF", "contactNameRF", "forceCostName"))
             .def("setSwingingRF", &HorizonManager::setSwingingRF, bp::args("self", "time", "contactNameLF", "contactNameRF", "forceCostName"))
-            .def("setSupportingLF", &HorizonManager::setSupportingLF, bp::args("self", "time", "contactNameLF", "contactNameLF"))
-            .def("setSupportingRF", &HorizonManager::setSupportingRF, bp::args("self", "time", "contactNameLF", "contactNameLF"))
+            .def("setDoubleSupport", &HorizonManager::setDoubleSupport, bp::args("self", "time", "contactNameLF", "contactNameRF"))
             .def<void (HorizonManager::*)(const AMA &, const ADA &)>("recede", &HorizonManager::recede, bp::args("self", "IAM", "IAD"))
             .def<void (HorizonManager::*)(const AMA &)>("recede", &HorizonManager::recede, bp::args("self", "IAM"))
             .def<void (HorizonManager::*)()>("recede", &HorizonManager::recede, bp::args("self"))
@@ -74,6 +85,7 @@ namespace sobec {
             .def<void (HorizonManager::*)(const unsigned long &, const std::string &, const Eigen::VectorXd &)>("setBalancingTorque", &HorizonManager::setBalancingTorque, bp::args("self", "time", "x"))
             .def("size", &HorizonManager::get_size, (bp::arg("self")))
             .def("setActuationReference", &HorizonManager::setActuationReference, bp::args("self", "time", "actuationCostName"))
+            .def("get_contacts", &get_contacts, bp::args("self", "time"))
         ;
         return;
         }

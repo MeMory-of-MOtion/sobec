@@ -91,11 +91,11 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings){
     initialized_ = true;
 }
 
-void RobotDesigner::updateReducedModel(Eigen::VectorXd q){
+void RobotDesigner::updateReducedModel(Eigen::VectorXd x){
     /** x is the reduced posture, or contains the reduced posture in the first elements */
-    pinocchio::forwardKinematics(rModel_, rData_, q);
+    pinocchio::forwardKinematics(rModel_, rData_, x.head(rModel_.nq));
     pinocchio::updateFramePlacements(rModel_, rData_);
-    com_position_ = pinocchio::centerOfMass(rModel_,rData_,q,false);
+    com_position_ = pinocchio::centerOfMass(rModel_, rData_, x.head(rModel_.nq), false);
     LF_position_ = rData_.oMf[leftFootId_].translation();
     RF_position_ = rData_.oMf[rightFootId_].translation();
 }
@@ -104,6 +104,9 @@ void RobotDesigner::updateCompleteModel(Eigen::VectorXd x){
     /** x is the complete posture, or contains the complete posture in the first elements */
     pinocchio::forwardKinematics(rModelComplete_, rDataComplete_, x.head(rModelComplete_.nq));
     pinocchio::updateFramePlacements(rModelComplete_, rDataComplete_);
+    com_position_ = pinocchio::centerOfMass(rModelComplete_, rDataComplete_, x.head(rModelComplete_.nq), false);
+    LF_position_ = rData_.oMf[leftFootId_].translation();
+    RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
 pinocchio::SE3 RobotDesigner::get_LF_frame(){

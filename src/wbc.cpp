@@ -33,6 +33,7 @@ namespace sobec {
 
 		x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
         x0_ << shapeState(q0, v0);
+		std::cout<<x0_.size()<<std::endl;
 		designer_.updateReducedModel(x0_);
 
 		// horizon settings
@@ -133,6 +134,7 @@ namespace sobec {
 		if (q.size() != designer_.get_rModelComplete().nq || v.size() != designer_.get_rModelComplete().nv){
 			throw std::runtime_error("The full posture must be provided to shape the state.");
 		}
+		std::cout << "Enters to the stateShape"<< std::endl;
         x_internal_.head<7>() = q.head<7>();
         x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
 		
@@ -142,7 +144,7 @@ namespace sobec {
 				x_internal_(i + 7) = q(jointID + 5);
 				x_internal_(designer_.get_rModel().nq + i + 6) = v(jointID + 4);
 				i++;}
-		
+		std::cout << "And finishes the stateShape i = "<< i << std::endl;
         return x_internal_;
     }
 }

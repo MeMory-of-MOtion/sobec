@@ -7,6 +7,7 @@ Created on Wed May 25 11:49:27 2022
 """
 
 import crocoddyl
+import sobec as crocobec
 import numpy as np
 
 
@@ -64,7 +65,7 @@ def wrench_cone(conf, design, state, actuation, support, costs):
         lf_wrench_ref = np.array([0, 0, fz_ref, 0, 0, 0])
         ds_wrenchRef_lf = wrenchConeFrameLeft.A @ lf_wrench_ref
         wrenchConeResidualLeft = crocoddyl.ResidualModelContactWrenchCone(state,design.leftFootId,wrenchConeFrameLeft,actuation.nu)
-        wrenchConeCostLeft = crocoddyl.CostModelResidual(state,crocoddyl.ActivationModelQuadRef(ds_wrenchRef_lf),wrenchConeResidualLeft)
+        wrenchConeCostLeft = crocoddyl.CostModelResidual(state,crocobec.ActivationModelQuadRef(ds_wrenchRef_lf),wrenchConeResidualLeft)
         costs.addCost("left_wrench_cone", wrenchConeCostLeft, conf.wWrenchCone)
     
     if support == "right" or support == "double":
@@ -74,7 +75,7 @@ def wrench_cone(conf, design, state, actuation, support, costs):
         rf_wrench_ref = np.array([0, 0, fz_ref, 0, 0, 0])
         ds_wrenchRef_rf = wrenchConeFrameRight.A @ rf_wrench_ref
         wrenchConeResidualRight = crocoddyl.ResidualModelContactWrenchCone(state,design.rightFootId,wrenchConeFrameRight,actuation.nu)
-        wrenchConeCostRight = crocoddyl.CostModelResidual(state,crocoddyl.ActivationModelQuadRef(ds_wrenchRef_rf),wrenchConeResidualRight)
+        wrenchConeCostRight = crocoddyl.CostModelResidual(state,crocobec.ActivationModelQuadRef(ds_wrenchRef_rf),wrenchConeResidualRight)
         costs.addCost("right_wrench_cone", wrenchConeCostRight, conf.wWrenchCone)
         
     #boundsFrictionLeft = crocoddyl.ActivationBounds(wrenchConeFrameLeft.lb,wrenchConeFrameLeft.ub,1.)
@@ -129,7 +130,7 @@ def feet_tracking(conf, design, state, actuation, costs):
     
 def com_velocity_tracking(conf, design, state, actuation, costs):
     
-    residualCoMVelocity = crocoddyl.ResidualModelCoMVelocity(
+    residualCoMVelocity = crocobec.ResidualModelCoMVelocity(
             state,  np.array([0, 0, 0]), actuation.nu
             )
     comVelCost = crocoddyl.CostModelResidual(state, residualCoMVelocity)

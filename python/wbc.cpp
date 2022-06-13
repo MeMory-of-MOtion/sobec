@@ -34,7 +34,7 @@ namespace sobec {
             // conf.stepSize = bp::extract<double>(settings["stepSize"]);
             // conf.stepHeight = bp::extract<double>(settings["stepHeight"]);
             // conf.stepDepth = bp::extract<double>(settings["stepDepth"]);
-            
+            std::cout<<"arrives here"<<std::endl;
             self.initialize(conf, designer, horizon, q0, v0, actuationCostName);
         }
 

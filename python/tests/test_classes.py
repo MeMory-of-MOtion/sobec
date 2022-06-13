@@ -32,7 +32,6 @@ class ClasesTestCase(unittest.TestCase):
                                py_design.rmodelComplete.v0)
         py_horizon = ReceidingHorizon(config, py_design, x0, modeller, config.T)
         
-        
         ############# Bindings ##############
         design_conf = dict(urdfPath= config.modelPath + config.URDF_SUBPATH,
                            srdfPath= config.modelPath + config.SRDF_SUBPATH,
@@ -121,7 +120,7 @@ class ClasesTestCase(unittest.TestCase):
                        design, 
                        horizon, 
                        design.get_q0Complete(), 
-                       design.get_v0Complete())
+                       design.get_v0Complete(), "actuationTask")
 
         self.design = design
         self.py_design = py_design

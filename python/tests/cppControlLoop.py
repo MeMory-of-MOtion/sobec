@@ -81,25 +81,25 @@ all_models = formuler.formulateHorizon(lenght = conf.T)
 ## Horizon
 
 ########## MIXING
-design.leftFootId = design.get_LF_id()
-design.rightFootId = design.get_RF_id()
-design.get_robot_mass = design.getRobotMass
-design.rmodel = design.get_rModel()
-design.rmodel.defaultState = design.get_x0()
-
-import crocoddyl
-state = crocoddyl.StateMultibody(design.get_rModel())
-actuation = crocoddyl.ActuationModelFloatingBase(state)  
-
-ia_models = [modeller(conf, design, state, actuation) 
-             for i in range(conf.T)]
+#design.leftFootId = design.get_LF_id()
+#design.rightFootId = design.get_RF_id()
+#design.get_robot_mass = design.getRobotMass
+#design.rmodel = design.get_rModel()
+#design.rmodel.defaultState = design.get_x0()
+#
+#import crocoddyl
+#state = crocoddyl.StateMultibody(design.get_rModel())
+#actuation = crocoddyl.ActuationModelFloatingBase(state)  
+#
+#ia_models = [modeller(conf, design, state, actuation) 
+#             for i in range(conf.T)]
 
 ###############MIXING 
 
 H_conf = dict(leftFootName = conf.lf_frame_name, 
               rightFootName = conf.rf_frame_name)
 horizon = HorizonManager()
-horizon.initialize(H_conf, design.get_x0(), ia_models, ia_models[-1])
+horizon.initialize(H_conf, design.get_x0(), all_models, all_models[-1])
 
 ## MPC
 wbc_conf = dict(horizonSteps = conf.preview_steps,
@@ -118,13 +118,8 @@ mpc.initialize(wbc_conf,
                design, 
                horizon, 
                design.get_q0Complete(), 
-               design.get_v0Complete(), "control")
-
-#mpc.generateFullCycle(formuler)
-mpc.walkingCycle = horizon
-stop
-### SIMULATION ###
-
+               design.get_v0Complete(), "actuationTask")
+mpc.generateFullCycle(formuler)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
@@ -133,10 +128,15 @@ if conf.simulator == "bullet":
     q_current,v_current = device.measureState()
     
 elif conf.simulator == "pinocchio":
-
+    design.rmodelComplete = design.get_rModelComplete()
+    design.rmodelComplete.q0 = design.get_q0Complete() 
+    design.rmodelComplete.v0 = design.get_v0Complete() 
+    
     device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
-    device.initialize(design.get_rModelComplete())
+    device.initialize(design.rmodelComplete)
     q_current,v_current = device.Cq0, device.Cv0
+
+### SIMULATION LOOP ###
 
 for s in range (conf.T_total*conf.Nc):
 #    time.sleep(0.001)
@@ -145,17 +145,16 @@ for s in range (conf.T_total*conf.Nc):
     if conf.simulator == "bullet":
         device.execute(torques)
         q_current,v_current = device.measureState()
-        device.moveMarkers(wbc.LF_sample,
-                           wbc.RF_sample)
-        x0_meas = wbc.shapeState(q_current, v_current)
+#        device.moveMarkers(mpc.LF_sample,
+#                           mpc.RF_sample)
         
     elif conf.simulator == "pinocchio":
 
-        correct_contacts = wbc.get_current_contact()
+        correct_contacts = mpc.horizon.get_contacts(0)
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
-        esti_state = wbc.joint_estimation(real_state, command)
-        x0_meas = wbc.shapeState(esti_state["q"], esti_state["dq"])
+        esti_state = real_state#wbc.joint_estimation(real_state, command)
+        q_current, v_current = esti_state["q"], esti_state["dq"]
     
 #    if s == 900:stop
         

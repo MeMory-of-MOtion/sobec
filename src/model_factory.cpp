@@ -25,13 +25,13 @@ void ModelMaker::initialize(const ModelMakerSettings &settings, const RobotDesig
 
 void ModelMaker::defineFeetContact(Contact &contactCollector, const Support &support){
 	
-	crocoddyl::FramePlacement xrefLeft(designer_.get_LF_id(), designer_.get_LF_frame());
 	boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelLeft = 
-		boost::make_shared<crocoddyl::ContactModel6D>(state_, xrefLeft, actuation_->get_nu(), eVector2(0., 50.));
+		boost::make_shared<crocoddyl::ContactModel6D>(state_, designer_.get_LF_id(), designer_.get_LF_frame(), 
+													  actuation_->get_nu(), eVector2(0., 50.));
 
-	crocoddyl::FramePlacement xrefRight(designer_.get_RF_id(), designer_.get_RF_frame());
 	boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelRight =
-		boost::make_shared<crocoddyl::ContactModel6D>(state_, xrefRight, actuation_->get_nu(), eVector2(0., 50.));
+		boost::make_shared<crocoddyl::ContactModel6D>(state_, designer_.get_RF_id(), designer_.get_RF_frame(), 
+													  actuation_->get_nu(), eVector2(0., 50.));
 	
 	contactCollector->addContact(designer_.get_LF_name(), ContactModelLeft, false);
 	contactCollector->addContact(designer_.get_RF_name(), ContactModelRight, false); 
@@ -153,7 +153,7 @@ void ModelMaker::defineJointLimits(Cost &costCollector){
 		 boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
 	boost::shared_ptr<crocoddyl::CostModelAbstract> jointLimitCost =
 		boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQB,
-		boost::make_shared<crocoddyl::ResidualModelState>(state_, Eigen::VectorXd::Zero(state_->get_nx()), actuation_->get_nu()));
+		boost::make_shared<crocoddyl::ResidualModelState>(state_, actuation_->get_nu()));
 	
 	costCollector.get()->addCost("jointLimits", jointLimitCost, settings_.wLimit, true);
 }

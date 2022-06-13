@@ -60,8 +60,8 @@ Tstep = T2contact + T1contact
                     #### PHYSICS #####
                     
 simulator = (
-        "bullet"
-#        "pinocchio"
+#        "bullet"
+        "pinocchio"
         )
                     
 gravity = np.array([0, 0, -9.81])
@@ -75,7 +75,7 @@ planned_push = [[(0, 10000*simu_period)],
                 [np.zeros(6)], 
                 ["base_link"]]
 
-model_name = "talos_flex"#
+model_name = "talos"#_flex
 
 # Flexibility Parameters
 compensate_deflections = True
