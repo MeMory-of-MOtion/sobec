@@ -105,6 +105,9 @@ namespace sobec {
 	}
 
     Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v){ 
+		if (q.size() != designer_.get_rModelComplete().nq || v.size() != designer_.get_rModelComplete().nv){
+			throw std::runtime_error("The full posture must be provided to shape the state.");
+		}
         x_internal_.head<7>() = q.head<7>();
         x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
 		
