@@ -5,7 +5,6 @@ import numpy as np
 # Local imports
 import sobec
 from weight_share import computeReferenceForces
-from robot_wrapper import RobotWrapper
 
 
 def buildRunningModels(robotWrapper, contactPattern, params):
@@ -13,13 +12,10 @@ def buildRunningModels(robotWrapper, contactPattern, params):
     p = params
     robot = robotWrapper
 
-    # Horizon length
-    T = len(contactPattern) - 1
-
     referenceForces = computeReferenceForces(contactPattern, robot.gravForce)
     models = []
 
-    # #####################################################################################
+    # #################################################################################
     for t, pattern in enumerate(contactPattern[:-1]):
         # print(f'time t={t} {pattern}')
 
@@ -133,8 +129,9 @@ def buildRunningModels(robotWrapper, contactPattern, params):
         # IMPACT
         for k, cid in enumerate(robot.contactIds):
             if t > 0 and not contactPattern[t - 1][k] and pattern[k]:
-                # REMEMBER TO divide the weight by p.DT, as impact should be independant of
-                # the node duration (at least, that s how weights are tuned in casadi).
+                # REMEMBER TO divide the weight by p.DT, as impact should be independant
+                # of the node duration (at least, that s how weights are tuned in
+                # casadi).
 
                 print(f"Impact {cid} at time {t}")
                 impactResidual = croc.ResidualModelFrameTranslation(
@@ -268,7 +265,10 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                         state, feetColAct, feetColResidual
                     )
                     costs.addCost(
-                        f"feetcol_{robot.model.frames[id1].name}_VS_{robot.model.frames[id2].name}",
+                        (
+                            f"feetcol_{robot.model.frames[id1].name}_"
+                            f"VS_{robot.model.frames[id2].name}"
+                        ),
                         feetColCost,
                         p.feetCollisionWeight,
                     )
@@ -310,9 +310,7 @@ def buildTerminalModel(robotWrapper, contactPattern, params):
     # Costs
     costs = croc.CostModelSum(state, actuation.nu)
 
-    try:
-        stateTerminalTarget
-    except Exception:
+    if "stateTerminalTarget" not in locals():
         stateTerminalTarget = robot.x0.copy()
         stateTerminalTarget[:3] += p.VCOM_TARGET * T * p.DT
     stateTerminalResidual = croc.ResidualModelState(
@@ -372,7 +370,7 @@ def buildInitialGuess(problem, walkParams):
 
 class Solution:
     def __init__(self, robotWrapper, ddp):
-        model = ddp.problem.terminalModel.differential.pinocchio
+        # model = ddp.problem.terminalModel.differential.pinocchio
         self.xs = np.array(ddp.xs)
         self.us = np.array(ddp.us)
         self.acs = np.array([d.differential.xout for d in ddp.problem.runningDatas])

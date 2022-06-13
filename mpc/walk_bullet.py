@@ -1,13 +1,8 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-from numpy.linalg import (
-    norm,
-    pinv,
-    inv,
-    svd,
-    eig,
-)  ### Me as well, I am also super useful
+from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
+import matplotlib.pylab as plt  # noqa: F401
 
 # import time
 
@@ -16,12 +11,12 @@ from save_traj import save_traj
 from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
+import walk_plotter
 
 # import miscdisp
 import talos_low
 from walk_mpc import WalkMPC
 from pinbullet import SimuProxy
-import pybullet as pyb
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
@@ -81,6 +76,11 @@ hx = []
 hu = []
 hxs = []
 
+
+class SolverError(Exception):
+    pass
+
+
 # FOR LOOP
 for s in range(2000):
 
@@ -105,7 +105,7 @@ for s in range(2000):
     # mpc.run(mpc.solver.xs[1],s)
     mpc.run(simu.getState(), s)
     if mpc.solver.iter == 0:
-        errorinthesolver
+        raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
     lrm = mpc.problem.runningModels[20].differential.costs.costs
@@ -128,8 +128,6 @@ if walkParams.saveFile is not None:
 # #####################################################################################
 # #####################################################################################
 # #####################################################################################
-import walk_plotter
-import matplotlib.pylab as plt
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)

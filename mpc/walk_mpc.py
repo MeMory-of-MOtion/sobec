@@ -1,4 +1,3 @@
-import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 
@@ -59,8 +58,8 @@ class WalkMPC:
         p = self.walkParams
         runmodels = self.storage.runningModels
         rundatas = self.storage.runningDatas
-        termmodel = self.storage.terminalModel
-        Tmpc = p.Tmpc
+        # termmodel = self.storage.terminalModel
+        # Tmpc = p.Tmpc
 
         self.updateTerminalStateTarget(t)
 

@@ -1,18 +1,10 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-import matplotlib.pylab as plt  ### Keep me, I am useful
-from numpy.linalg import (
-    norm,
-    pinv,
-    inv,
-    svd,
-    eig,
-)  ### Me as well, I am also super useful
+import matplotlib.pylab as plt  # noqa: F401
+from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
 # Local imports
-import sobec
-from weight_share import computeReferenceForces
 from save_traj import loadProblemConfig, save_traj
 from params import WalkParams
 import walk_plotter

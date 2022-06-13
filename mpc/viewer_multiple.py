@@ -1,13 +1,6 @@
 import pinocchio as pin
-import crocoddyl as croc
 import numpy as np
-from numpy.linalg import (
-    norm,
-    pinv,
-    inv,
-    svd,
-    eig,
-)  ### Me as well, I am also super useful
+from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
 
 class GepettoMultipleVisualizers:

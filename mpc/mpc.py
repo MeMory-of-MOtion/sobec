@@ -1,26 +1,19 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-import matplotlib.pylab as plt  ### Keep me, I am useful
-from numpy.linalg import (
-    norm,
-    pinv,
-    inv,
-    svd,
-    eig,
-)  ### Me as well, I am also super useful
+import matplotlib.pylab as plt  # noqa: F401
+from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 import time
 
 # Local imports
-import sobec
-from save_traj import loadProblemConfig, save_traj
+from save_traj import save_traj
 import walk_plotter
 from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
-import miscdisp
 import talos_low
 from walk_mpc import WalkMPC
+import viewer_multiple
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
@@ -44,7 +37,6 @@ try:
 except (ImportError, AttributeError):
     print("No viewer")
 
-import viewer_multiple
 
 vizs = viewer_multiple.GepettoMultipleVisualizers(
     urdf.model, urdf.collision_model, urdf.visual_model, 5
@@ -106,7 +98,7 @@ for t in range(1, 1500):
 # ### PLOT ######################################################################
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
-plotter.setData(contactPattern, np.array(hx), None, None)
+plotter.setData(contactPattern, np.array(mpc.hx), None, None)
 
 target = problem.terminalModel.differential.costs.costs[
     "stateReg"
