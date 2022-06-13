@@ -48,7 +48,6 @@ void exposeActivationQuadRef() {
                                       bp::return_internal_reference<>()),
                     &ActivationModelQuadRef::set_reference,
                     "reference of the quadratic term");
-
 }
 
 }  // namespace python
