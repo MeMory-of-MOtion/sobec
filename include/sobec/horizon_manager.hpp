@@ -11,8 +11,8 @@
 namespace sobec{
 	struct HorizonManagerSettings{
         public:
-            std::string leftFootName = "";
-            std::string rightFootName = "";
+            std::string leftFootName = "left_sole_link";
+            std::string rightFootName = "right_sole_link";
     };
 			
     class HorizonManager{
@@ -27,9 +27,6 @@ namespace sobec{
             //NEW ~ ocp related ~
             std::vector<Eigen::VectorXd> xs_; //using it
             std::vector<Eigen::VectorXd> us_; //using it
-            
-            sobec::RobotDesigner designer_;
-            sobec::ModelMaker modelMaker_;
             
             ResidualModelFramePlacementPtr goalTrackingResidual_;
             ResidualModelContactWrenchConePtr wrenchConeResidual_;

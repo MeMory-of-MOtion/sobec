@@ -70,14 +70,7 @@ namespace sobec{
 					        const RobotDesignerSettings &design,
 					        const Eigen::VectorXd &q0,
 					        const Eigen::VectorXd &v0);
-                            
-            void solveControlCycle(const Eigen::VectorXd &measured_x);
-            
-            ndcurves::piecewise_SE3_t defineBezier(const double &height, 
-                                                        const double &time_init,
-                                                        const double &time_final, 
-                                                        const pinocchio::SE3 &placement_init,
-                                                        const pinocchio::SE3 &placement_final);
+
             void updateEndPhase();
             void updateOCP(const Eigen::VectorXd &qc, const Eigen::VectorXd &vc);
             HorizonManager get_horizon(){return horizon_;}

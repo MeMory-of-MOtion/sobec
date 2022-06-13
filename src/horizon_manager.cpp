@@ -87,21 +87,21 @@ namespace sobec {
     }
     
     void HorizonManager::setPoseReferenceLF(const unsigned long &time, const pinocchio::SE3 &ref_placement){
-		boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs(time)->get_costs().at("placementFootLeft")->cost->get_residual())->set_reference(ref_placement);
+		boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs(time)->get_costs().at("placement_LF")->cost->get_residual())->set_reference(ref_placement);
     }
 
     void HorizonManager::setPoseReferenceRF(const unsigned long &time, const pinocchio::SE3 &ref_placement){
-		boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs(time)->get_costs().at("placementFootRight")->cost->get_residual())->set_reference(ref_placement);
+		boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs(time)->get_costs().at("placement_RF")->cost->get_residual())->set_reference(ref_placement);
     }
 
     void HorizonManager::setForceReferenceLF(const unsigned long &time, const eVector6 &reference){
-        cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at("wrenchLeftContact")->cost);
+        cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at("wrench_LF")->cost);
         Eigen::VectorXd new_ref = boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(cone_->get_residual())->get_reference().get_A() * reference;
         boost::static_pointer_cast<ActivationModelQuadRef>(cone_->get_activation())->set_reference(new_ref);
     }
     
     void HorizonManager::setForceReferenceRF(const unsigned long &time, const eVector6 &reference){
-        cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at("wrenchRightContact")->cost);
+        cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at("wrench_RF")->cost);
         Eigen::VectorXd new_ref = boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(cone_->get_residual())->get_reference().get_A() * reference;
         boost::static_pointer_cast<ActivationModelQuadRef>(cone_->get_activation())->set_reference(new_ref);
     }
@@ -146,50 +146,54 @@ namespace sobec {
     }
 
     void HorizonManager::setPlacementReferenceRF(const pinocchio::SE3 &ref_placement){
+		std::cout << "Set right position to " << ref_placement.translation()[0] << ", " << ref_placement.translation()[1] << ", " << ref_placement.translation()[2] << std::endl;
 		goalTrackingResidual_ = 
-		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placementFootRight")->cost->get_residual());
+		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placement_RF")->cost->get_residual());
 		goalTrackingResidual_->set_reference(ref_placement);
     }
     
     void HorizonManager::setPlacementReferenceLF(const pinocchio::SE3 &ref_placement){
+		std::cout << "Set left position to " << ref_placement.translation()[0] << ", " << ref_placement.translation()[1] << ", " << ref_placement.translation()[2] << std::endl;
 		goalTrackingResidual_ = 
-		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placementFootLeft")->cost->get_residual());
+		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placement_LF")->cost->get_residual());
 		goalTrackingResidual_->set_reference(ref_placement);
     }
     
     // void HorizonManager::setResidualReferences(unsigned long time, const std::string &name);
 
     void HorizonManager::activateContactLF(){
-        contacts()->changeContactStatus(designer_.get_LF_name(), true);
+        contacts()->changeContactStatus(settings_.leftFootName, true);
     }
 
     void HorizonManager::activateContactRF(){
-        contacts()->changeContactStatus(designer_.get_RF_name(), true);
+        contacts()->changeContactStatus(settings_.rightFootName, true);
     }
 
     void HorizonManager::removeContactLF(){
-        contacts()->changeContactStatus(designer_.get_LF_name(), false);
+        contacts()->changeContactStatus(settings_.leftFootName, false);
     }
 
     void HorizonManager::removeContactRF(){
-        contacts()->changeContactStatus(designer_.get_RF_name(), false);
+        contacts()->changeContactStatus(settings_.rightFootName, false);
     }
 
     void HorizonManager::setForceReferenceLF(const eVector6 &reference){
+		std::cout << "Set left wrench ref to " << reference[2] << std::endl;
 		quadRefActivationPtr_ = 
-		    boost::static_pointer_cast<ActivationModelQuadRef>(costs()->get_costs().at("wrenchLeftContact")->cost->get_activation());
+		    boost::static_pointer_cast<ActivationModelQuadRef>(costs()->get_costs().at("wrench_LF")->cost->get_activation());
 		wrenchConeResidual_ = 
-		    boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(costs()->get_costs().at("wrenchLeftContact")->cost->get_residual());
+		    boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(costs()->get_costs().at("wrench_LF")->cost->get_residual());
 		wrench_cone_ = wrenchConeResidual_->get_reference();
 		
 		quadRefActivationPtr_->set_reference(wrench_cone_.get_A() * reference);
     }
     
     void HorizonManager::setForceReferenceRF(const eVector6 &reference){
+		std::cout << "Set right wrench ref to " << reference[2] << std::endl;
         quadRefActivationPtr_ = 
-		    boost::static_pointer_cast<ActivationModelQuadRef>(DAM_->get_costs()->get_costs().at("wrenchRightContact")->cost->get_activation());
+		    boost::static_pointer_cast<ActivationModelQuadRef>(DAM_->get_costs()->get_costs().at("wrench_RF")->cost->get_activation());
 		wrenchConeResidual_ = 
-		    boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(DAM_->get_costs()->get_costs().at("wrenchRightContact")->cost->get_residual());
+		    boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(DAM_->get_costs()->get_costs().at("wrench_RF")->cost->get_residual());
 		wrench_cone_ = wrenchConeResidual_->get_reference();
 		
 		quadRefActivationPtr_->set_reference(wrench_cone_.get_A() * reference);
@@ -272,6 +276,7 @@ namespace sobec {
 		us_ = ddp_->get_us();
 		xs_ = ddp_->get_xs();
 	}
+	
     Eigen::VectorXd HorizonManager::currentTorques(const Eigen::VectorXd &measured_x){ 
         /// @todo: make a boolean -> IT is necessary to have solved at least one time to use this method.
         return us_[0] + ddp_->get_K()[0] * state(0)->diff_dx(measured_x, xs_[0]);

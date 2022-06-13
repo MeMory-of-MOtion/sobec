@@ -21,7 +21,7 @@ namespace sobec {
 		OCP_settings_ = settings;
 		designer_ = sobec::RobotDesigner(design); 
 		modelMaker_ = sobec::ModelMaker(model_settings, designer_);
-		
+
 		std::vector<Support> supports(OCP_settings_.T, Support::DOUBLE);
         std::vector<AMA> runningModels = modelMaker_.formulateHorizon(supports);
         AMA terminalModel = modelMaker_.formulateStepTracker(Support::DOUBLE);
@@ -29,8 +29,11 @@ namespace sobec {
 		xc_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
 		xc_ << q0, v0;
 		
+		std::cout << "left contact name = " << designer_.get_LF_name() << std::endl;
 		sobec::HorizonManagerSettings horizonSettings = {designer_.get_LF_name(),designer_.get_RF_name()};
 		horizon_ = sobec::HorizonManager(horizonSettings, xc_, runningModels, terminalModel);
+		
+		std::cout << "horizon left contact is " << horizon_.contacts(0)->getContactStatus(designer_.get_LF_name()) << std::endl;
 		
 		std::vector<Eigen::VectorXd> x_init;
         std::vector<Eigen::VectorXd> u_init;
@@ -68,9 +71,11 @@ namespace sobec {
 		swingRightPhase_ = true;
 		swingRightTraj_ = false;
 		steps_ = 0;
+		
+		double Mg = -designer_.getRobotMass() * model_settings.gravity(2);
 
-		wrench_reference_double_ << 0,0,500,0,0,0;
-		wrench_reference_simple_ << 0,0,1000,0,0,0;
+		wrench_reference_double_ << 0,0,Mg / 2.,0,0,0;
+		wrench_reference_simple_ << 0,0,Mg,0,0,0;
 		
 		// Initialize the whole sequence of contacts
 		std::vector<unsigned long> simple_contacts;
@@ -134,6 +139,7 @@ namespace sobec {
 			//std::cout << "Contact sequence " << contacts_sequence_[0] << " at Tswitch " << Tswitch_ << " and iteration " << iteration_ << std::endl;
 			// If contacts_sequence[0] > 0 , this is a swing phase
 			if (contacts_sequence_[0] > 0){
+				std::cout << "Simple support phase with TswitchTraj = " << TswitchTraj_ << ", and TswitchPhase = " << TswitchPhase_ << std::endl;
 				// Get desired foot reference for the end of the horizon
 				if (swingRightPhase_){
 					starting_position_right_ = swing_trajectory_right_->compute(static_cast<double>(contacts_sequence_[0]) * OCP_settings_.Dt);
@@ -146,6 +152,7 @@ namespace sobec {
 			}
 			// else, this is a double support phase
 			else{
+				std::cout << "Double support phase with TswitchTraj = " << TswitchTraj_ << ", and TswitchPhase = " << TswitchPhase_ << std::endl;
 				horizon_.setSupportingFeet(0,starting_position_right_,starting_position_left_,wrench_reference_double_);
 			}
 			updateEndPhase();
@@ -154,10 +161,8 @@ namespace sobec {
 			
 			// Update contact sequence
 			contacts_sequence_.erase(contacts_sequence_.begin());
-			// Solve ddp
-			horizon_.solve(xc_, OCP_settings_.ddpIteration);
-			
 		}
-		
+		// Solve ddp
+		horizon_.solve(xc_, OCP_settings_.ddpIteration);
 	}
 }

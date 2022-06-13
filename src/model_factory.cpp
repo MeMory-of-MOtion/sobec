@@ -31,14 +31,14 @@ void ModelMaker::defineFeetContact(Contact &contactCollector, const Support &sup
 	boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelRight =
 		boost::make_shared<crocoddyl::ContactModel6D>(state_, xrefRight, actuation_->get_nu(), eVector2(0., 50.));
 	
-	contactCollector->addContact("contact_LF", ContactModelLeft, false);
-	contactCollector->addContact("contact_RF", ContactModelRight, false); 
+	contactCollector->addContact(designer_.get_LF_name(), ContactModelLeft, false);
+	contactCollector->addContact(designer_.get_RF_name(), ContactModelRight, false); 
 
 	if(support == Support::LEFT || support == Support::DOUBLE)
-		contactCollector->changeContactStatus("contact_LF", true);
+		contactCollector->changeContactStatus(designer_.get_LF_name(), true);
 	
 	if(support == Support::RIGHT || support == Support::DOUBLE)
-		contactCollector->changeContactStatus("contact_RF", true);
+		contactCollector->changeContactStatus(designer_.get_RF_name(), true);
 }
 
 void ModelMaker::defineFeetWrenchCost(Cost &costCollector, const Support &support){
@@ -46,6 +46,8 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector, const Support &suppor
 	double Mg = -designer_.getRobotMass() * settings_.gravity(2);
 	double Fz_ref;
 	support == Support::DOUBLE? Fz_ref = Mg/2 : Fz_ref = Mg;
+	
+	std::cout << "Fz ref " << Fz_ref << std::endl;
 
 	Eigen::Matrix3d coneRotationLeft = designer_.get_LF_frame().rotation().transpose();
 	Eigen::Matrix3d coneRotationRight = designer_.get_RF_frame().rotation().transpose();
@@ -105,7 +107,9 @@ void ModelMaker::defineFeetTracking(Cost &costCollector){
 }
 
 void ModelMaker::definePostureTask(Cost &costCollector){
-
+    if (settings_.stateWeights.size() != designer_.get_rModel().nv * 2) {
+		throw std::invalid_argument("State weight size is wrong ");
+	}
 	boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> activationWQ = 
 		 boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(settings_.stateWeights);
 
@@ -117,14 +121,15 @@ void ModelMaker::definePostureTask(Cost &costCollector){
 }
 
 void ModelMaker::defineActuationTask(Cost &costCollector){
-
+	if (settings_.controlWeights.size() != actuation_->get_nu()) {
+		throw std::invalid_argument("Control weight size is wrong ");
+	}
 	boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> activationWQ = 
 		 boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(settings_.controlWeights); //.tail(actuation->get_nu())
 	
 	boost::shared_ptr<crocoddyl::CostModelAbstract>  actuationModel =
 	    boost::make_shared<crocoddyl::CostModelResidual>(state_, activationWQ, 
 		boost::make_shared<crocoddyl::ResidualModelControl>(state_,actuation_->get_nu()));
-	  
 	costCollector.get()->addCost("actuationTask", actuationModel, settings_.wControlReg,true);
 }
 
@@ -179,6 +184,14 @@ AMA ModelMaker::formulateStepTracker(const Support &support){
 		(state_, actuation_, contacts, costs, 0.,true);
 	AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>
 		(runningDAM, settings_.timeStep);  
+		
+	const boost::shared_ptr<crocoddyl::ActionDataAbstract> temp_data = runningModel->createData();
+	Eigen::VectorXd uref = Eigen::VectorXd::Zero(Eigen::Index(actuation_->get_nu()));
+	runningModel->quasiStatic(temp_data,uref,x0_);
+	
+	boost::shared_ptr<crocoddyl::ResidualModelControl> uResidualControl = 
+	    boost::static_pointer_cast<crocoddyl::ResidualModelControl>(runningDAM->get_costs()->get_costs().at("actuationTask")->cost->get_residual());
+	uResidualControl->set_reference(uref);
 
 	return runningModel;
 }
