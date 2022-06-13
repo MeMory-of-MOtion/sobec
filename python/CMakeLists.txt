@@ -15,6 +15,7 @@ set(${PY_NAME}_SOURCES
   contact-fwddyn.cpp
   contact-force.cpp
   wbc.cpp
+  ocp.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})

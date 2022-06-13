@@ -20,6 +20,8 @@ namespace sobec {
 							 
 		OCP_settings_ = settings;
 		designer_ = sobec::RobotDesigner(design); 
+		designer_.updateReducedModel(q0);
+
 		modelMaker_ = sobec::ModelMaker(model_settings, designer_);
 
 		std::vector<Support> supports(OCP_settings_.T, Support::DOUBLE);
@@ -29,11 +31,8 @@ namespace sobec {
 		xc_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
 		xc_ << q0, v0;
 		
-		std::cout << "left contact name = " << designer_.get_LF_name() << std::endl;
 		sobec::HorizonManagerSettings horizonSettings = {designer_.get_LF_name(),designer_.get_RF_name()};
 		horizon_ = sobec::HorizonManager(horizonSettings, xc_, runningModels, terminalModel);
-		
-		std::cout << "horizon left contact is " << horizon_.contacts(0)->getContactStatus(designer_.get_LF_name()) << std::endl;
 		
 		std::vector<Eigen::VectorXd> x_init;
         std::vector<Eigen::VectorXd> u_init;
@@ -44,10 +43,7 @@ namespace sobec {
 			u_init.push_back(zero_u);
 		}
 		x_init.push_back(xc_);
-		
 		horizon_.solve(x_init,u_init,500);
-		
-		designer_.updateReducedModel(q0);
 		
 		// Initialize first foot trajectory
 		starting_position_right_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);

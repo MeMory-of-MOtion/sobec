@@ -146,14 +146,12 @@ namespace sobec {
     }
 
     void HorizonManager::setPlacementReferenceRF(const pinocchio::SE3 &ref_placement){
-		std::cout << "Set right position to " << ref_placement.translation()[0] << ", " << ref_placement.translation()[1] << ", " << ref_placement.translation()[2] << std::endl;
 		goalTrackingResidual_ = 
 		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placement_RF")->cost->get_residual());
 		goalTrackingResidual_->set_reference(ref_placement);
     }
     
     void HorizonManager::setPlacementReferenceLF(const pinocchio::SE3 &ref_placement){
-		std::cout << "Set left position to " << ref_placement.translation()[0] << ", " << ref_placement.translation()[1] << ", " << ref_placement.translation()[2] << std::endl;
 		goalTrackingResidual_ = 
 		    boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement >(costs()->get_costs().at("placement_LF")->cost->get_residual());
 		goalTrackingResidual_->set_reference(ref_placement);
@@ -178,7 +176,6 @@ namespace sobec {
     }
 
     void HorizonManager::setForceReferenceLF(const eVector6 &reference){
-		std::cout << "Set left wrench ref to " << reference[2] << std::endl;
 		quadRefActivationPtr_ = 
 		    boost::static_pointer_cast<ActivationModelQuadRef>(costs()->get_costs().at("wrench_LF")->cost->get_activation());
 		wrenchConeResidual_ = 
@@ -189,7 +186,6 @@ namespace sobec {
     }
     
     void HorizonManager::setForceReferenceRF(const eVector6 &reference){
-		std::cout << "Set right wrench ref to " << reference[2] << std::endl;
         quadRefActivationPtr_ = 
 		    boost::static_pointer_cast<ActivationModelQuadRef>(DAM_->get_costs()->get_costs().at("wrench_RF")->cost->get_activation());
 		wrenchConeResidual_ = 

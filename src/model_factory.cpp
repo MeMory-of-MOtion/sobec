@@ -16,7 +16,7 @@ void ModelMaker::initialize(const ModelMakerSettings &settings, const RobotDesig
 
     state_ = boost::make_shared<crocoddyl::StateMultibody>(boost::make_shared<pinocchio::Model>(designer_.get_rModel()));
     actuation_ = boost::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
-    
+
     x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
     x0_ << designer_.get_q0(), Eigen::VectorXd::Zero(designer_.get_rModel().nv);
 }
@@ -46,8 +46,6 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector, const Support &suppor
 	double Mg = -designer_.getRobotMass() * settings_.gravity(2);
 	double Fz_ref;
 	support == Support::DOUBLE? Fz_ref = Mg/2 : Fz_ref = Mg;
-	
-	std::cout << "Fz ref " << Fz_ref << std::endl;
 
 	Eigen::Matrix3d coneRotationLeft = designer_.get_LF_frame().rotation().transpose();
 	Eigen::Matrix3d coneRotationRight = designer_.get_RF_frame().rotation().transpose();
@@ -101,7 +99,7 @@ void ModelMaker::defineFeetTracking(Cost &costCollector){
 		boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF, residual_LF_Tracking);
 	boost::shared_ptr<crocoddyl::CostModelAbstract> trackingModel_RF = 
 		boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF, residual_RF_Tracking);
-	
+
 	costCollector.get()->addCost("placement_LF", trackingModel_LF, settings_.wFootTrans, true);
 	costCollector.get()->addCost("placement_RF", trackingModel_RF, settings_.wFootTrans, true);
 }
@@ -138,20 +136,20 @@ void ModelMaker::defineJointLimits(Cost &costCollector){
 	Eigen::VectorXd lower_bound(2*state_->get_nv()), upper_bound(2*state_->get_nv());
 	double inf = 9999.0;
 	lower_bound << Eigen::VectorXd::Constant(6, -inf), 
-				   designer_.get_rModel().lowerPositionLimit.tail(state_->get_nq() - 7), 
+				   designer_.get_rModel().lowerPositionLimit.tail(state_->get_nq() - 7),
 				   Eigen::VectorXd::Constant(state_->get_nv(), -inf);
 	
 	upper_bound << Eigen::VectorXd::Constant(6, inf), 
-				   designer_.get_rModel().upperPositionLimit.tail(state_->get_nq() - 7), 
-				   Eigen::VectorXd::Constant(state_->get_nv(), inf);
+				   designer_.get_rModel().upperPositionLimit.tail(state_->get_nq() - 7),
+				   Eigen::VectorXd::Constant(state_->get_nv(), +inf);
 	
-	crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(lower_bound, upper_bound, 1.);
+	crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(lower_bound,upper_bound, 1.);
 	
 	boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationQB = 
 		 boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
 	boost::shared_ptr<crocoddyl::CostModelAbstract> jointLimitCost =
 		boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQB,
-		boost::make_shared<crocoddyl::ResidualModelState>(state_, Eigen::VectorXd::Zero(state_->get_nx()), actuation_->get_nu()));
+		boost::make_shared<crocoddyl::ResidualModelState>(state_, actuation_->get_nu()));
 	
 	costCollector.get()->addCost("jointLimits", jointLimitCost, settings_.wLimit, true);
 }

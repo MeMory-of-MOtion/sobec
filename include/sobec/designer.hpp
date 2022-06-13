@@ -21,6 +21,7 @@ namespace sobec{
 
             std::string leftFootName = "";
             std::string rightFootName = "";
+            
     };
 
     class RobotDesigner{
