@@ -180,12 +180,13 @@ class WalkPlotter:
         plt.legend(hplot, names)
         plt.ylabel("horz vel")
 
-    def plotFootCollision(self, footMinimalDistance):
+    def plotFootCollision(self, footMinimalDistance,subsample=0):
         plt.figure("foot collision")
         h1 = plt.plot([f[0] for f in self.foottraj], [f[1] for f in self.foottraj])
         h2 = plt.plot([f[3] for f in self.foottraj], [f[4] for f in self.foottraj])
         plt.legend(h1 + h2, ["left", "right"])
         for t, __p in enumerate(self.xs):
+            if subsample>0 and t % subsample: continue
             a = self.foottraj[t][:2]
             b = self.foottraj[t][3:5]
             m = (a + b) / 2
