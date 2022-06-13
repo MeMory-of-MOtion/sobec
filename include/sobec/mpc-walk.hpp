@@ -28,6 +28,7 @@ class MPCWalk {
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
   typedef boost::shared_ptr<ActionModelAbstract> ActionPtr;
   typedef std::vector<ActionPtr> ActionList;
+  typedef typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double> DAM;
   
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -47,7 +48,7 @@ class MPCWalk {
 
   /////// INTERNALS
   void updateTerminalCost(const int t);
-
+  void findTerminalStateResidual();
 
   
   // Setters and getters
@@ -75,6 +76,8 @@ public:
   
   /// @brief reference COM velocity
   Vector3d vcomRef;
+  /// @brief reference 0 state
+  VectorXd x0;
   /// @brief Duration of the MPC horizon.
   int Tmpc;
   /// @brief Duration of start phase of the OCP.
@@ -86,6 +89,9 @@ public:
   /// @brief Duration of the end phase of the OCP.
   int Tend;
 
+  /// @brief name of the regularization cost that is modified by mpc update.
+  std::string stateRegCostName;
+  
   /// @brief The reference shooting problem storing all shooting nodes
   boost::shared_ptr<ShootingProblem> storage;
 
@@ -94,6 +100,10 @@ public:
   
   /// @brief Solver for MPC
   boost::shared_ptr<SolverFDDP> solver;
+
+  /// @brief Keep a direct reference to the terminal residual
+  boost::shared_ptr<ResidualModelState> terminalStateResidual;
+  
 };
 
 }  // namespace sobec
