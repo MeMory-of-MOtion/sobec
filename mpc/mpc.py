@@ -1,13 +1,19 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-import matplotlib.pylab as plt   ### Keep me, I am useful
-from numpy.linalg import norm,pinv,inv,svd,eig ### Me as well, I am also super useful
+import matplotlib.pylab as plt  ### Keep me, I am useful
+from numpy.linalg import (
+    norm,
+    pinv,
+    inv,
+    svd,
+    eig,
+)  ### Me as well, I am also super useful
 import time
 
 # Local imports
 import sobec
-from save_traj import loadProblemConfig,save_traj
+from save_traj import loadProblemConfig, save_traj
 import walk_plotter
 from robot_wrapper import RobotWrapper
 import walk_ocp as walk
@@ -24,7 +30,7 @@ from walk_mpc import WalkMPC
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
 urdf = talos_low.load()
-robot = RobotWrapper(urdf.model,contactKey='sole_link')
+robot = RobotWrapper(urdf.model, contactKey="sole_link")
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -35,12 +41,14 @@ try:
     viz.initViewer()
     viz.loadViewerModel()
     gv = viz.viewer.gui
-except (ImportError,AttributeError):
+except (ImportError, AttributeError):
     print("No viewer")
 
 import viewer_multiple
-vizs = viewer_multiple.GepettoMultipleVisualizers(urdf.model, urdf.collision_model, urdf
-                                                  .visual_model,5)
+
+vizs = viewer_multiple.GepettoMultipleVisualizers(
+    urdf.model, urdf.collision_model, urdf.visual_model, 5
+)
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -69,9 +77,9 @@ contactPattern = (
 # ### DDP #############################################################################
 # #####################################################################################
 
-ddp = walk.buildSolver(robot,contactPattern,walkParams)
+ddp = walk.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s,u0s = walk.buildInitialGuess(ddp.problem,walkParams)
+x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
 ddp.solve(x0s, u0s, 200)
@@ -80,17 +88,17 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 # ### MPC #############################################################################
 
-mpc = WalkMPC(robot,ddp.problem,walkParams,xs_init=ddp.xs,us_init=ddp.us)
+mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
 
 x = robot.x0
 
 for t in range(1, 1500):
     x = mpc.solver.xs[1]
-    mpc.run(x,t)
+    mpc.run(x, t)
 
     if not t % 10:
-        #viz.display(x[: robot.model.nq])
-        vizs.subdisplay([x[:robot.model.nq] for x in mpc.solver.xs])
+        # viz.display(x[: robot.model.nq])
+        vizs.subdisplay([x[: robot.model.nq] for x in mpc.solver.xs])
         time.sleep(walkParams.DT)
 
 # ### PLOT ######################################################################
@@ -100,7 +108,9 @@ for t in range(1, 1500):
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)
 
-target = problem.terminalModel.differential.costs.costs["stateReg"].cost.residual.reference
+target = problem.terminalModel.differential.costs.costs[
+    "stateReg"
+].cost.residual.reference
 
 plotter.plotBasis(target)
 plotter.plotCom(robot.com0)
@@ -117,7 +127,7 @@ print("Run ```plt.ion(); plt.show()``` to display the plots.")
 # ### SAVE #####################################################################
 
 if walkParams.saveFile is not None:
-    save_traj(np.array(mpc.hx),filename=walkParams.saveFile)
+    save_traj(np.array(mpc.hx), filename=walkParams.saveFile)
 
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################

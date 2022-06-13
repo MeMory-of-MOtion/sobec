@@ -22,7 +22,7 @@ def reprAction(amodel):
             str += f"\t\tlower = {cost.activation.bounds.lb}\n"
             str += f"\t\tupper = {cost.activation.bounds.lb}\n"
         try:
-            str += f'\t\tref = {cost.residual.reference}\n'
+            str += f"\t\tref = {cost.residual.reference}\n"
         except AttributeError:
             pass
     return str

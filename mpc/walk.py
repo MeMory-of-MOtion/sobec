@@ -1,13 +1,19 @@
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
-import matplotlib.pylab as plt   ### Keep me, I am useful
-from numpy.linalg import norm,pinv,inv,svd,eig ### Me as well, I am also super useful
+import matplotlib.pylab as plt  ### Keep me, I am useful
+from numpy.linalg import (
+    norm,
+    pinv,
+    inv,
+    svd,
+    eig,
+)  ### Me as well, I am also super useful
 
 # Local imports
 import sobec
 from weight_share import computeReferenceForces
-from save_traj import loadProblemConfig,save_traj
+from save_traj import loadProblemConfig, save_traj
 from params import WalkParams
 import walk_plotter
 import talos_low
@@ -22,7 +28,7 @@ import walk_ocp as walk
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
 urdf = talos_low.load()
-robot = RobotWrapper(urdf.model,contactKey='sole_link')
+robot = RobotWrapper(urdf.model, contactKey="sole_link")
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -33,7 +39,7 @@ try:
     viz.initViewer()
     viz.loadViewerModel()
     gv = viz.viewer.gui
-except (ImportError,AttributeError):
+except (ImportError, AttributeError):
     print("No viewer")
 
 
@@ -55,8 +61,8 @@ try:
     contactPattern = ocpConfig["contactPattern"]
     robot.x0 = ocpConfig["x0"]
     stateTerminalTarget = ocpConfig["stateTerminalTarget"]
-except (KeyError,FileNotFoundError):
-    # When the config file is not found ...    
+except (KeyError, FileNotFoundError):
+    # When the config file is not found ...
     # Initial config, also used for warm start, both taken from robot wrapper.
     # Contact are specified with the order chosen in <contactIds>.
     contactPattern = (
@@ -74,17 +80,21 @@ except (KeyError,FileNotFoundError):
         + [[1, 1]]
     )
 
-q0 = robot.x0[:robot.model.nq]
-print('Start from q0=',
-      'half_sitting' if norm(q0-robot.model.referenceConfigurations['half_sitting'])<1e-9 else q0)
+q0 = robot.x0[: robot.model.nq]
+print(
+    "Start from q0=",
+    "half_sitting"
+    if norm(q0 - robot.model.referenceConfigurations["half_sitting"]) < 1e-9
+    else q0,
+)
 
 # #####################################################################################
 # ### DDP #############################################################################
 # #####################################################################################
 
-ddp = walk.buildSolver(robot,contactPattern,walkParams)
+ddp = walk.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s,u0s = walk.buildInitialGuess(ddp.problem,walkParams)
+x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
 ddp.solve(x0s, u0s, 200)
@@ -93,14 +103,19 @@ ddp.solve(x0s, u0s, 200)
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
 
-sol = walk.Solution(robot,ddp)
+sol = walk.Solution(robot, ddp)
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, sol.xs, sol.us, sol.fs0)
 
-target = problem.terminalModel.differential.costs.costs["stateReg"].cost.residual.reference
-forceRef = [walk_plotter.getReferenceForcesFromProblemModels(problem,cid) for cid in robot.contactIds]
-forceRef = [ np.concatenate(fs) for fs in zip(*forceRef) ]
+target = problem.terminalModel.differential.costs.costs[
+    "stateReg"
+].cost.residual.reference
+forceRef = [
+    walk_plotter.getReferenceForcesFromProblemModels(problem, cid)
+    for cid in robot.contactIds
+]
+forceRef = [np.concatenate(fs) for fs in zip(*forceRef)]
 
 plotter.plotBasis(target)
 plotter.plotTimeCop()
@@ -116,7 +131,7 @@ print("Run ```plt.ion(); plt.show()``` to display the plots.")
 # ### SAVE #####################################################################
 
 if walkParams.saveFile is not None:
-    save_traj(np.array(sol.xs),filename=walkParams.saveFile)
+    save_traj(np.array(sol.xs), filename=walkParams.saveFile)
 
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
@@ -136,12 +151,12 @@ cid = 48
 fid = 34
 try:
     # Load solution from Casadi
-    guess = np.load('/tmp/sol.npy', allow_pickle=True)[()]
+    guess = np.load("/tmp/sol.npy", allow_pickle=True)[()]
     xs = guess["xs"]
     us = guess["us"]
     fs0 = guess["fs"]
     acs = guess["acs"]
-except (KeyError,FileNotFoundError):
+except (KeyError, FileNotFoundError):
     xs = sol.xs
     us = sol.us
     fs0 = sol.fs0
@@ -152,7 +167,7 @@ damodel.calc(dadata, xs[t], us[t])
 damodel.calcDiff(dadata, xs[t], us[t])
 cosname = "left_sole_link_cone"
 cosname = "right_sole_link_cone"
-cosname='altitudeImpact'
+cosname = "altitudeImpact"
 cosname = "right_sole_link_vfoot_vel"  # t = 60
 cosname = "right_sole_link_flyhigh"
 cosname = f"{robot.model.frames[fid].name}_flyhigh"
@@ -162,5 +177,3 @@ cosname = "impactRefJoint"
 cosname = f"feetcol_{robot.model.frames[cid].name}_VS_{robot.model.frames[fid].name}"
 cosdata = dadata.costs.costs[cosname]
 cosmodel = damodel.costs.costs[cosname].cost
-
-
