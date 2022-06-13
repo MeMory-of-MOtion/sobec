@@ -90,6 +90,11 @@ endif()
 
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
+  add_library(${PROJECT_NAME}_py2cpp SHARED src/py2cpp.cpp include/${PROJECT_NAME}/py2cpp.hpp)
+  target_link_libraries(${PROJECT_NAME}_py2cpp PUBLIC crocoddyl::crocoddyl)
+  target_link_libraries(${PROJECT_NAME}_py2cpp PRIVATE Python3::Python)
+  TARGET_LINK_BOOST_PYTHON(${PROJECT_NAME}_py2cpp PRIVATE)
+
   add_subdirectory(python)
 endif()
 
