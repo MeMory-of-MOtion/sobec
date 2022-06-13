@@ -64,13 +64,15 @@ void exposeMPCWalk() {
                   bp::make_getter(&MPCWalk::x0, bp::return_internal_reference<>()),
                   bp::make_setter(&MPCWalk::x0),
                   "Reference of the com velocity, to tune the MPC at runtime.")
-    // .add_property("storage",bp::make_getter(&MPCWalk::storage,
-    //                                         bp::return_value_policy<bp::copy_const_reference>()),
-    //               //bp::return_internal_reference<>()),
-    //               "Storage shooting problem")
+    .add_property("storage",
+                  bp::make_getter(&MPCWalk::storage, bp::return_value_policy<bp::return_by_value>()),
+                  "Shooting storage used for MPC solver")
     .add_property("problem",
                   bp::make_getter(&MPCWalk::problem, bp::return_value_policy<bp::return_by_value>()),
                   "Shooting problem used for MPC solver")
+    .add_property("solver",
+                  bp::make_getter(&MPCWalk::solver, bp::return_value_policy<bp::return_by_value>()),
+                  "OCP Solver inside the MPC.")
 
     ;
 

@@ -9,9 +9,10 @@
 #include <crocoddyl/core/utils/exception.hpp>
 #include <crocoddyl/core/optctrl/shooting.hpp>
 #include <crocoddyl/core/integrator/euler.hpp>
-#include <crocoddyl/multibody/actions/contact-fwddyn.hpp>
 #include <crocoddyl/core/costs/residual.hpp>
 #include <crocoddyl/core/costs/cost-sum.hpp>
+
+#include <crocoddyl/multibody/actions/contact-fwddyn.hpp>
 #include <crocoddyl/multibody/residuals/state.hpp>
 #include "sobec/mpc-walk.hpp"
 
@@ -30,6 +31,9 @@ using namespace crocoddyl;
   void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
                            const std::vector<Eigen::VectorXd>& us)
   {
+    assert(Tmpc>0);
+    assert(Tstart+Tend+2*(Tdouble+Tsingle) == storage->T);
+
     if (x0.size()==0)
       x0 = storage->get_x0();
     
@@ -50,7 +54,7 @@ using namespace crocoddyl;
     solver = boost::make_shared<SolverFDDP>(problem);
 
     // Run first solve
-    //solver->solve(xs,us);
+    solver->solve(xs,us);
   }
 
   void MPCWalk::findTerminalStateResidual()
@@ -60,21 +64,14 @@ using namespace crocoddyl;
     assert(iam!=0);
     std::cout << "IAM" << std::endl;
 
-    boost::shared_ptr<DifferentialActionModelAbstract> dama = iam->get_differential();
-    std::cout<<"DAMA"<<std::endl;
-
-    //boost::shared_ptr<DifferentialActionModelContactFwdDynamics> dam0 =
-      boost::dynamic_pointer_cast<DifferentialActionModelContactFwdDynamics>(dama);
-    std::cout<<"DAM0" << std::endl;
-    
-    boost::shared_ptr<DAM> dam =
-      boost::dynamic_pointer_cast<DAM>(iam->get_differential());
+    boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> dam =
+      boost::dynamic_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(iam->get_differential());
     assert(dam!=0);
-    std::cout << "DAM" << std::endl;
-
+    std::cout<<"DAM0" << *dam << std::endl;
+    
     boost::shared_ptr<CostModelSum> costsum = dam->get_costs();
     std::cout << "Cost sum" << std::endl;
-    
+
     const CostModelSum::CostModelContainer & costs = costsum->get_costs();
     std::cout << "Costs" << std::endl;
     assert(costs.find(stateRegCostName)!=costs.end());
@@ -111,21 +108,31 @@ using namespace crocoddyl;
     std::cout << "calc Tmpc=" << Tmpc << std::endl;
 
     /// Change the value of the reference cost
-    updateTerminalCost(t);
+    //updateTerminalCost(t);
 
+    /// Recede the horizon
+    int Tcycle = 2*(Tsingle+Tdouble);
+    int tlast = Tstart+1 + ((t+Tmpc-Tstart-1) % Tcycle);
+    std::cout << "tlast = " << tlast << std::endl;
+    problem->circularAppend(storage->get_runningModels()[tlast],
+                            storage->get_runningDatas()[tlast]);
+
+    
     /// Change Warm start
     std::vector<Eigen::VectorXd>& xs_opt =
       const_cast< std::vector<Eigen::VectorXd>& > (solver->get_xs());
     std::vector<Eigen::VectorXd> xs_guess( xs_opt.begin()+1,xs_opt.end() );
-    xs_guess.push_back(*xs_guess.end());
+    xs_guess.push_back(xs_guess.back());
     
     std::vector<Eigen::VectorXd>& us_opt =
       const_cast< std::vector<Eigen::VectorXd>& > (solver->get_us());
     std::vector<Eigen::VectorXd> us_guess( us_opt.begin()+1,us_opt.end() );
-    us_guess.push_back(*us_guess.end());
+    us_guess.push_back(us_guess.back());
 
+    solver->setCandidate(xs_guess,us_guess);
+    
     /// Change init constraint
-    problem->set_x0(x);
+    problem->set_x0(x); 
   }
 
 
