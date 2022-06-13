@@ -6,74 +6,69 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <pinocchio/fwd.hpp>  // This line must be the first include
+#include "sobec/designer.hpp"
+
 #include <boost/python.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/enum.hpp>
+#include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
+#include <eigenpy/eigenpy.hpp>
+#include <pinocchio/algorithm/model.hpp>
+#include <pinocchio/fwd.hpp>  // This line must be the first include
 
 #include "pinocchio/multibody/model.hpp"
-#include <pinocchio/algorithm/model.hpp>
-#include <eigenpy/eigenpy.hpp>
-
-#include "sobec/designer.hpp"
 
 namespace sobec {
 namespace python {
 namespace bp = boost::python;
 
-template<typename T>
-inline
-void py_list_to_std_vector( const bp::object& iterable, std::vector< T > &out)
-{
-    out = std::vector< T >( boost::python::stl_input_iterator< T >( iterable ),
-                             boost::python::stl_input_iterator< T >( ) );
+template <typename T>
+inline void py_list_to_std_vector(const bp::object &iterable,
+                                  std::vector<T> &out) {
+  out = std::vector<T>(boost::python::stl_input_iterator<T>(iterable),
+                       boost::python::stl_input_iterator<T>());
 }
 
-void initialize(RobotDesigner& self, bp::dict settings){
-    RobotDesignerSettings conf;
-    conf.urdfPath = bp::extract<std::string>(settings["urdfPath"]);
-    conf.srdfPath = bp::extract<std::string>(settings["srdfPath"]);
-    conf.leftFootName = bp::extract<std::string>(settings["leftFootName"]);
-    conf.rightFootName = bp::extract<std::string>(settings["rightFootName"]);
-    conf.robotDescription = bp::extract<std::string>(settings["robotDescription"]);
-    py_list_to_std_vector(settings["controlledJointsNames"], conf.controlledJointsNames);
+void initialize(RobotDesigner &self, bp::dict settings) {
+  RobotDesignerSettings conf;
+  conf.urdfPath = bp::extract<std::string>(settings["urdfPath"]);
+  conf.srdfPath = bp::extract<std::string>(settings["srdfPath"]);
+  conf.leftFootName = bp::extract<std::string>(settings["leftFootName"]);
+  conf.rightFootName = bp::extract<std::string>(settings["rightFootName"]);
+  conf.robotDescription =
+      bp::extract<std::string>(settings["robotDescription"]);
+  py_list_to_std_vector(settings["controlledJointsNames"],
+                        conf.controlledJointsNames);
 
-    self.initialize(conf);
+  self.initialize(conf);
 }
 
-bp::dict get_settings(RobotDesigner &self){
-    RobotDesignerSettings conf = self.get_settings();
-    bp::dict settings;
-    settings["urdfPath"] = conf.urdfPath;
-    settings["srdfPath"] = conf.srdfPath;
-    settings["leftFootName"] = conf.leftFootName;
-    settings["rightFootName"] = conf.rightFootName; 
-    settings["robotDescription"] = conf.robotDescription; 
+bp::dict get_settings(RobotDesigner &self) {
+  RobotDesignerSettings conf = self.get_settings();
+  bp::dict settings;
+  settings["urdfPath"] = conf.urdfPath;
+  settings["srdfPath"] = conf.srdfPath;
+  settings["leftFootName"] = conf.leftFootName;
+  settings["rightFootName"] = conf.rightFootName;
+  settings["robotDescription"] = conf.robotDescription;
 
-    return settings;
+  return settings;
 }
 
-pinocchio::Model get_rModelComplete(RobotDesigner &self){
-    return self.get_rModelComplete();
+pinocchio::Model get_rModelComplete(RobotDesigner &self) {
+  return self.get_rModelComplete();
 }
 
-pinocchio::Model get_rModel(RobotDesigner &self){
-    return self.get_rModel();
-}
+pinocchio::Model get_rModel(RobotDesigner &self) { return self.get_rModel(); }
 
-pinocchio::Data get_rData(RobotDesigner &self){
-  return self.get_rData();
-}
+pinocchio::Data get_rData(RobotDesigner &self) { return self.get_rData(); }
 
-pinocchio::Data get_rDataComplete(RobotDesigner &self){
+pinocchio::Data get_rDataComplete(RobotDesigner &self) {
   return self.get_rDataComplete();
 }
 
-
 void exposeDesigner() {
-
-    bp::class_<RobotDesigner>("RobotDesigner", bp::init<>())
+  bp::class_<RobotDesigner>("RobotDesigner", bp::init<>())
       .def("initialize", &initialize)
       .def("updateReducedModel", &RobotDesigner::updateReducedModel)
       .def("updateCompleteModel", &RobotDesigner::updateCompleteModel)
@@ -94,10 +89,9 @@ void exposeDesigner() {
       .def("get_LF_id", &RobotDesigner::get_LF_id)
       .def("get_RF_id", &RobotDesigner::get_RF_id)
       .def("get_settings", &get_settings)
-      .def("get_controlledJointsIDs", &RobotDesigner::get_controlledJointsIDs)
-      ;
+      .def("get_controlledJointsIDs", &RobotDesigner::get_controlledJointsIDs);
 
-    return;
+  return;
 }
 
 }  // namespace python
