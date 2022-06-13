@@ -3,8 +3,7 @@ import crocoddyl as croc
 import numpy as np
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 import matplotlib.pylab as plt  # noqa: F401
-
-# import time
+import time
 
 # Local imports
 from save_traj import save_traj
@@ -12,11 +11,10 @@ from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
 import walk_plotter
-
-# import miscdisp
 import talos_low
 from walk_mpc import WalkMPC
 from pinbullet import SimuProxy
+import viewer_multiple
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
@@ -66,8 +64,9 @@ try:
     viz.loadViewerModel()
     gv = viz.viewer.gui
     viz.display(simu.getState()[: robot.model.nq])
-
-except (ImportError, AttributeError):
+    viz0 = viewer_multiple.GepettoGhostViewer(simu.rmodel, simu.gmodel_col,simu.gmodel_vis,.8)
+    viz0.hide()
+except (ImportError,AttributeError):
     print("No viewer")
 
 # ## MAIN LOOP ##################################################################
@@ -118,6 +117,17 @@ for s in range(2000):
 
     viz.display(simu.getState()[: robot.model.nq])
 
+    if (len(mpc.problem.runningModels[0].differential.contacts.contacts)==2 and
+        len(mpc.problem.runningModels[1].differential.contacts.contacts)==1):
+        print('Ready to take off!')
+        viz0.show()
+        viz0.play(np.array(mpc.solver.xs)[:,:robot.model.nq].T,walkParams.DT)
+        time.sleep(1)
+        viz0.play(np.array(mpc.solver.xs)[::-1,:robot.model.nq].T,walkParams.DT)
+        time.sleep(1)
+        viz0.play(np.array(mpc.solver.xs)[:,:robot.model.nq].T,walkParams.DT)
+        time.sleep(1)
+
 # #####################################################################################
 # #####################################################################################
 # #####################################################################################
@@ -139,7 +149,7 @@ target = problem.terminalModel.differential.costs.costs[
 plotter.plotBasis(target)
 plotter.plotCom(robot.com0)
 plotter.plotFeet()
-plotter.plotFootCollision(walkParams.footMinimalDistance)
+plotter.plotFootCollision(walkParams.footMinimalDistance,50)
 
 # mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
 # mpcplotter.plotFeet()
