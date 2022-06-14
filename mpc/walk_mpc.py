@@ -73,7 +73,7 @@ x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks(
     [
         croc.CallbackVerbose(),
-        #miscdisp.CallbackMPCWalk(robot.contactIds)
+        # miscdisp.CallbackMPCWalk(robot.contactIds)
     ]
 )
 
@@ -89,7 +89,7 @@ mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
 x = robot.x0
 
-hx = [ x.copy() ]
+hx = [x.copy()]
 for t in range(1, 1500):
     x = mpc.solver.xs[1]
     mpc.calc(x, t)

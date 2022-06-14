@@ -1,19 +1,20 @@
 from sobec.walk import params
 import numpy as np
 
+
 class WalkParams(params.WalkParams):
     conePenaltyWeight = 20
     flyWeight = 20
     impactVelocityWeight = 200
     refFootFlyingAltitude = 0.03
     flyHighSlope = 5 / refFootFlyingAltitude
-    vcomRef = np.array([.1,0,0])
-    baumgartGains = np.array([0,50])
+    vcomRef = np.array([0.1, 0, 0])
+    baumgartGains = np.array([0, 50])
 
-    def __init__(self,name='talos_14'):
-        params.WalkParams.__init__(self,name)
+    def __init__(self, name="talos_14"):
+        params.WalkParams.__init__(self, name)
 
-    
+
 # ### KEPT FOR REFERENCES ##################################################
 # ### KEPT FOR REFERENCES ##################################################
 # ### KEPT FOR REFERENCES ##################################################
@@ -30,9 +31,9 @@ legUWeight = [1, 1, 1, 1, 1, 1]
 torsoUWeight = [1, 1]
 armUWeight = [1, 1]
 
+
 class WalkParamsOld:
     DT = 0.010
-
 
     stateImportance = np.array(
         basisQWeight
@@ -99,7 +100,7 @@ class WalkParamsOld:
     ]
 
     vcomRef = np.array([0.1, 0, 0])
-    #vcomSelection = [0, 1, 2]
+    # vcomSelection = [0, 1, 2]
     vcomImportance = np.array([0.0, 0, 1])
     footSize = 0.05
 
@@ -108,5 +109,3 @@ class WalkParamsOld:
     solver_th_stop = 1e-3
     guessFile = "/tmp/ddp.npy"
     saveFile = "/tmp/ddp.npy"
-
-

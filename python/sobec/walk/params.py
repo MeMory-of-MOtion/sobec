@@ -1,25 +1,29 @@
-'''
+"""
 This file define the class WalkParam, containing all the weights needed for the
 OCP.
-'''
+"""
 
 import numpy as np
 
+
 class StateRelatedParams:
-    '''These params are only acceptable for some robots'''
-    def __init__(self,stateImportance,stateTerminalImportance,controlImportance):
+    """These params are only acceptable for some robots"""
+
+    def __init__(self, stateImportance, stateTerminalImportance, controlImportance):
         self.stateImportance = stateImportance
         self.stateTerminalImportance = stateTerminalImportance
         self.controlImportance = controlImportance
-        
+
+
 # ### TALOS INFO ##################################################
 # ### TALOS INFO ##################################################
 # ### TALOS INFO ##################################################
 
+
 class TalosInfo:
-    '''Store here the main info we need for Talos,
-    to be use in the robot_2_state map for convenience.'''
-    
+    """Store here the main info we need for Talos,
+    to be use in the robot_2_state map for convenience."""
+
     basisQWeights = [0, 0, 0, 50, 50, 0]
     legQWeights = [5, 5, 1, 2, 1, 1]
     torsoQWeights = [10, 10]
@@ -29,28 +33,30 @@ class TalosInfo:
     torsoVWeights = [20] * 2
     armVWeight = 2
 
+
 # ### STATE FOR EACH ROBOT ##################################################
 # ### STATE FOR EACH ROBOT ##################################################
 # ### STATE FOR EACH ROBOT ##################################################
 
 Robot_2_StateMap = {
     "talos_14": StateRelatedParams(
-        stateImportance = np.array( TalosInfo.basisQWeights
-                                    + TalosInfo.legQWeights *2
-                                    + [TalosInfo.armQWeight]*2
-                                    + TalosInfo.basisVWeights
-                                    + TalosInfo.legVWeights *2
-                                    + [TalosInfo.armVWeight]*2),
-        stateTerminalImportance = np.array( [3,3,0,0,0,30 ]
-                                        + [0]*14 + [1]*20 ),
-        controlImportance = np.array([ 1 ]*14)
+        stateImportance=np.array(
+            TalosInfo.basisQWeights
+            + TalosInfo.legQWeights * 2
+            + [TalosInfo.armQWeight] * 2
+            + TalosInfo.basisVWeights
+            + TalosInfo.legVWeights * 2
+            + [TalosInfo.armVWeight] * 2
+        ),
+        stateTerminalImportance=np.array([3, 3, 0, 0, 0, 30] + [0] * 14 + [1] * 20),
+        controlImportance=np.array([1] * 14),
     )
-    
 }
 
 # ### MAIN PARAM CLASS ##################################################
 # ### MAIN PARAM CLASS ##################################################
 # ### MAIN PARAM CLASS ##################################################
+
 
 class WalkParams:
 
@@ -58,7 +64,7 @@ class WalkParams:
     # Weights for the importance of cost functions.  Weights are multiply to
     # the residual squared Importance terms are multiplied during the
     # activation (hence are not squared).
-    
+
     refTorqueWeight = 0
     refStateWeight = 1e-1
     flatBaseWeight = 0  # 20
@@ -110,7 +116,7 @@ class WalkParams:
 
     footSize = 0.05
 
-    ### Contact parameters for the kkt dynamics    
+    ### Contact parameters for the kkt dynamics
     kktDamping = 0  # 1e-6
     baumgartGains = np.array([0, 100])
 
@@ -121,15 +127,15 @@ class WalkParams:
 
     ### Parameter related to the time lines
     DT = 0.010
-    Tstart = int(0.3/DT)
-    Tsingle = int(0.8/DT) #60
-    Tdouble = int(0.11/DT) #11
-    Tend = int(0.3/DT)
-    Tmpc = int(1.6/DT) #120
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.8 / DT)  # 60
+    Tdouble = int(0.11 / DT)  # 11
+    Tend = int(0.3 / DT)
+    Tmpc = int(1.6 / DT)  # 120
 
     ### Parameters related to the IO file (load and save)
     guessFile = None
-    saveFile = '/tmp/sobec.npy'
+    saveFile = "/tmp/sobec.npy"
     showPreview = False
 
     ### Parameters related to the control environment
@@ -137,15 +143,12 @@ class WalkParams:
     # (i.e. 1=100%)
     torque_noise = 0.0
 
-    
-    def __init__(self,robotName):
-        '''
-        Init from the robot name used as a key to 
+    def __init__(self, robotName):
+        """
+        Init from the robot name used as a key to
         selec the info related to the state dimension.
-        '''
+        """
         w = Robot_2_StateMap[robotName]
         self.stateImportance = w.stateImportance
         self.stateTerminalImportance = w.stateTerminalImportance
         self.controlImportance = w.controlImportance
-        
-
