@@ -79,6 +79,7 @@ class WalkParams:
 
     VCOM_TARGET = np.array([0.1, 0, 0])
     vcomSelection = [0, 1, 2]
+    vcomImportance = np.array([0.0, 0, 1])
     FOOT_SIZE = 0.05
 
     kktDamping = 0  # 1e-6
