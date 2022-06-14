@@ -10,7 +10,8 @@ from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
 #from mpc_params import WalkParams
 from sobec.walk.config_mpc import configureMPCWalk
-
+from sobec.walk.miscdisp import CallbackMPCWalk
+print('---TOTOT--',CallbackMPCWalk)
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
 # #####################################################################################
@@ -148,7 +149,9 @@ contactPattern = (
 ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
 x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
-ddp.setCallbacks([croc.CallbackVerbose()])
+ddp.setCallbacks([
+    croc.CallbackVerbose(),
+])
 
 ddp.solve(x0s, u0s, 200)
 
@@ -159,4 +162,12 @@ ddp.solve(x0s, u0s, 200)
 mpc = sobec.MPCWalk(ddp.problem)
 configureMPCWalk(mpc,walkParams)
 mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
-#mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+mpc.solver.setCallbacks([
+    #croc.CallbackVerbose(),
+    CallbackMPCWalk(robot.contactIds)
+ ])
+
+x = robot.x0.copy()
+for t in range(1,100):
+    mpc.calc(x,t)
+    x = mpc.solver.xs[1]

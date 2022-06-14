@@ -7,7 +7,7 @@ import numpy as np
 
 # Local imports
 import sobec
-from sobec.walk.weight_share import computeReferenceForces
+from .weight_share import computeReferenceForces
 
 
 # workaround python 2

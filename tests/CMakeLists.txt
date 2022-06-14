@@ -50,8 +50,8 @@ if(BUILD_PYTHON_INTERFACE)
   ADD_UNIT_TEST(test_init_shooting_problem test_init_shooting_problem.cpp)
   target_link_libraries(test_init_shooting_problem PUBLIC ${PROJECT_NAME}_py2cpp)
   target_compile_definitions(test_init_shooting_problem PRIVATE PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
-  set_tests_properties(test_init_shooting_problem PROPERTIES ENVIRONMENT
-    "PYTHONPATH=${PROJECT_SOURCE_DIR}/mpc:${PROJECT_BINARY_DIR}/python")
+  #set_tests_properties(test_init_shooting_problem PROPERTIES ENVIRONMENT
+  #   "PYTHONPATH=${PROJECT_SOURCE_DIR}/mpc:${PROJECT_BINARY_DIR}/python")
 
   add_subdirectory(python)
 endif()
