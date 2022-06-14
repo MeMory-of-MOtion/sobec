@@ -39,6 +39,7 @@ set(${PY_WALK_NAME}_PYTHON
   ocp.py
   weight_share.py
   robot_wrapper.py
+  config_mpc.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})
