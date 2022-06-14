@@ -194,13 +194,16 @@ for s in range(int(20.0 / walkParams.DT)):
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
+    # f"{mpc.basisRef[0]:.03} "
     print(
-        f"{s:4d} {miscdisp.dispocp(mpc.problem,robot.contactIds)} "
-        # f"{mpc.basisRef[0]:.03} "
-        f"{mpc.solver.iter:4d} "
-        f"reg={mpc.solver.x_reg:.3} "
-        f"a={mpc.solver.stepLength:.3} "
-        f"solveTime={solve_time:.3}"
+        "{:4d} {} {:4d} reg={:.3} a={:.3} solveTime={:.3}".format(
+            s,
+            miscdisp.dispocp(mpc.problem, robot.contactIds),
+            mpc.solver.iter,
+            mpc.solver.x_reg,
+            mpc.solver.stepLength,
+            solve_time,
+        )
     )
     if not s % 10:
         viz.display(simu.getState()[: robot.model.nq])

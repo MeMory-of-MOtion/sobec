@@ -100,12 +100,14 @@ class WalkMPC:
 
         self.ref = self.solver.x_reg
         print(
-            f"{t:4d} {utils.miscdisp.dispocp(self.problem,robot.contactIds)} "
-            # f"{self.basisRef[0]:.03} "
-            f"{self.solver.iter:4d} "
-            f"reg={self.solver.x_reg:.3} "
-            f"a={self.solver.stepLength:.3} "
-            f"solveTime={solve_time:.3}"
+            "{:4d} {} {:4d} reg={:.3} a={:.3} solveTime={:.3}".format(
+                t,
+                utils.miscdisp.dispocp(self.problem, robot.contactIds),
+                self.solver.iter,
+                self.solver.x_reg,
+                self.solver.stepLength,
+                solve_time,
+            )
         )
         x = self.solver.xs[1].copy()
         self.hx.append(x)
@@ -169,7 +171,7 @@ if __name__ == "__main__":
     assert norm(mpc.solver.xs[10] - mpccpp.solver.xs[10]) < 1e-9
 
     for t in range(1, 200):
-        print(f"\n\n\n *** ITER {t} \n\n")
+        print("\n\n\n *** ITER %s \n\n" % t)
         x = mpc.solver.xs[1]
         mpc.run(x, t)
 

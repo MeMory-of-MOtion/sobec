@@ -87,7 +87,9 @@ class WalkParams:
     towCollision = False
     heelCollision = False
     MAIN_JOINTS = [
-        f"leg_{side}_{idx}_joint" for side in ["left", "right"] for idx in [1, 2, 4]
+        "leg_%s_%s_joint" % (side, idx)
+        for side in ["left", "right"]
+        for idx in [1, 2, 4]
     ]
 
     vcomRef = np.array([0.1, 0, 0])

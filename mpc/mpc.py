@@ -91,10 +91,13 @@ for t in range(1, 1500):
     mpc.calc(x, t)
 
     print(
-        f"{t:4d} {miscdisp.dispocp(mpc.problem,robot.contactIds)} "
-        f"{mpc.solver.iter:4d} "
-        f"reg={mpc.solver.x_reg:.3} "
-        f"a={mpc.solver.stepLength:.3} "
+        "{:4d} {} {:4d} reg={:.3} a={:.3} ".format(
+            t,
+            miscdisp.dispocp(mpc.problem, robot.contactIds),
+            mpc.solver.iter,
+            mpc.solver.x_reg,
+            mpc.solver.stepLength,
+        )
     )
 
     hx.append(mpc.solver.xs[1].copy())
