@@ -74,17 +74,17 @@ class WalkPlotter:
             cop = [[t, [f[4] / f[2], -f[3] / f[2]]] for (t, f) in ftraj]
             plt.plot([t for t, p in cop], [p for t, p in cop], ".")
 
-    def plotCopAndFeet(self, FOOT_SIZE, ARENA_SIZE=0.6):
+    def plotCopAndFeet(self, footSize, ARENA_SIZE=0.6):
         # Cop of each foot in x-vs-y (with limits)
         plt.figure(figsize=(12, 6))
         plt.title("cop local")
         l_foot = np.array(
             [
-                [-FOOT_SIZE, -FOOT_SIZE, 0, 1],
-                [-FOOT_SIZE, FOOT_SIZE, 0, 1],
-                [FOOT_SIZE, FOOT_SIZE, 0, 1],
-                [FOOT_SIZE, -FOOT_SIZE, 0, 1],
-                [-FOOT_SIZE, -FOOT_SIZE, 0, 1],
+                [-footSize, -footSize, 0, 1],
+                [-footSize, footSize, 0, 1],
+                [footSize, footSize, 0, 1],
+                [footSize, -footSize, 0, 1],
+                [-footSize, -footSize, 0, 1],
             ]
         ).T
         for ifig, cid in enumerate(self.contactIds):

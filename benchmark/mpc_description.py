@@ -107,7 +107,7 @@ class WalkParams:
 
     vcomRef = np.array([0.05, 0, 0])
 
-    FOOT_SIZE = 0.05
+    footSize = 0.05
 
     kktDamping = 0  # 1e-6
     baumgartGains = np.array([0, 100])
