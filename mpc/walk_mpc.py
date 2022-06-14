@@ -34,7 +34,7 @@ class WalkMPC:
         self.problem = croc.ShootingProblem(robot.x0, runmodels[:Tmpc], termmodel)
         self.solver = croc.SolverFDDP(self.problem)
         self.solver.th_stop = p.solver_th_stop
-        #self.solver.setCallbacks([croc.CallbackVerbose()])
+        # self.solver.setCallbacks([croc.CallbackVerbose()])
 
         self.updateTerminalStateTarget(0)
 
@@ -87,7 +87,7 @@ class WalkMPC:
             xg, ug, maxiter=p.maxiter, isFeasible=False, regInit=self.reg
         )
         solve_time = time.time() - start_time
-        
+
         self.ref = self.solver.x_reg
         print(
             f"{t:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
@@ -110,7 +110,7 @@ class WalkMPC:
         )
 
 
-def configureMPCWalk(mpc,params):
+def configureMPCWalk(mpc, params):
     mpc.Tmpc = params.Tmpc
     mpc.Tstart = params.Tstart
     mpc.Tdouble = params.Tdouble
@@ -123,8 +123,7 @@ def configureMPCWalk(mpc,params):
     mpc.solver_maxiter = params.maxiter
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     import pinocchio as pin
     import crocoddyl as croc
     import numpy as np
@@ -169,24 +168,23 @@ if __name__=="__main__":
 
     mpc = WalkMPC(robot, problem1, walkParams, xs_init=ddp.xs, us_init=ddp.us)
     mpccpp = sobec.MPCWalk(problem2)
-    configureMPCWalk(mpccpp,walkParams)
+    configureMPCWalk(mpccpp, walkParams)
     x = robot.x0
 
-    mpccpp.initialize(ddp.xs[:p.Tmpc+1],ddp.us[:p.Tmpc])
-    mpccpp.solver.setCallbacks([ croc.CallbackVerbose() ])
-    mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
-    assert( norm(mpc.solver.xs[10]-mpccpp.solver.xs[10]) < 1e-9 )
-    
+    mpccpp.initialize(ddp.xs[: p.Tmpc + 1], ddp.us[: p.Tmpc])
+    mpccpp.solver.setCallbacks([croc.CallbackVerbose()])
+    mpc.solver.setCallbacks([croc.CallbackVerbose()])
+    assert norm(mpc.solver.xs[10] - mpccpp.solver.xs[10]) < 1e-9
+
     for t in range(1, 200):
-        print(f'\n\n\n *** ITER {t} \n\n')
+        print(f"\n\n\n *** ITER {t} \n\n")
         x = mpc.solver.xs[1]
         mpc.run(x, t)
 
-        mpccpp.calc(x,t)
+        mpccpp.calc(x, t)
 
-        assert( norm(mpc.solver.xs[10]-mpccpp.solver.xs[10]) < 1e-6 )
+        assert norm(mpc.solver.xs[10] - mpccpp.solver.xs[10]) < 1e-6
 
-        
     # ### DEBUG ##########################################################################
     pin.SE3.__repr__ = pin.SE3.__str__
     np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
