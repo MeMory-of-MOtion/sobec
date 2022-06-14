@@ -40,18 +40,6 @@ class TalosInfo:
 
 Robot_2_StateMap = {
     "talos_14": StateRelatedParams(
-<<<<<<< HEAD
-        stateImportance=np.array(
-            TalosInfo.basisQWeights
-            + TalosInfo.legQWeights * 2
-            + [TalosInfo.armQWeight] * 2
-            + TalosInfo.basisVWeights
-            + TalosInfo.legVWeights * 2
-            + [TalosInfo.armVWeight] * 2
-        ),
-        stateTerminalImportance=np.array([3, 3, 0, 0, 0, 30] + [0] * 14 + [1] * 20),
-        controlImportance=np.array([1] * 14),
-=======
         stateImportance = np.array( TalosInfo.basisQWeights
                                     + TalosInfo.legQWeights *2
                                     + [TalosInfo.armQWeight]*2
@@ -71,7 +59,6 @@ Robot_2_StateMap = {
         stateTerminalImportance = np.array( [3,3,0,0,0,30 ]
                                         + [0]*12 + [1]*18 ),
         controlImportance = np.array([ 1 ]*12)
->>>>>>> Add parameters for talos 12 and use param in the benchmark.
     )
 }
 
