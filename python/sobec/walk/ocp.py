@@ -1,10 +1,18 @@
+import sys
+
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 
+
 # Local imports
 import sobec
 from sobec.walk.weight_share import computeReferenceForces
+
+
+# workaround python 2
+if sys.version_info.major < 3:
+    FileNotFoundError = IOError
 
 
 def buildRunningModels(robotWrapper, contactPattern, params):
