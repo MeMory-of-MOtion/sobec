@@ -1,5 +1,4 @@
 import crocoddyl as croc
-import numpy as np
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 import example_robot_data as robex
 

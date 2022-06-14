@@ -139,7 +139,7 @@ class WalkParams:
     DT = 0.010
     Tstart = int(0.3 / DT)
     Tsingle = int(0.8 / DT)  # 60
-    ### I prefer an even number for Tdouble
+    # I prefer an even number for Tdouble
     Tdouble = 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
     Tend = int(0.3 / DT)
     Tmpc = int(1.6 / DT)  # 120
