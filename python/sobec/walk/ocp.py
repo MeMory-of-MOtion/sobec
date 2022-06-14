@@ -365,7 +365,7 @@ def buildInitialGuess(problem, walkParams):
     else:
         x0s = []
         us0 = []
-            
+
     if len(x0s) != problem.T + 1 or len(u0s) != problem.T:
         print("No valid solution file, build quasistatic initial guess!")
         x0s = [problem.x0.copy() for _ in range(problem.T + 1)]

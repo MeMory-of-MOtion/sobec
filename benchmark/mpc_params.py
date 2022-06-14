@@ -14,12 +14,7 @@ class WalkParams:
     armVWeight = [2] * 2
 
     stateImportance = np.array(
-        basisQWeight
-        + legQWeight
-        + legQWeight
-        + basisVWeight
-        + legVWeight
-        + legVWeight
+        basisQWeight + legQWeight + legQWeight + basisVWeight + legVWeight + legVWeight
     )
 
     stateTerminalImportance = np.array([3, 3, 0, 0, 0, 30] + [0] * 12 + [1] * 18)
@@ -90,10 +85,10 @@ class WalkParams:
     solver_reg_min = 1e-6
 
     # New parameters
-    Tstart = int(0.3/DT)
-    Tsingle = int(0.8/DT) #60
-    Tdouble = int(0.11/DT) #11
-    Tend = int(0.3/DT)
-    Tmpc = int(1.6/DT) #120
-    
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.8 / DT)  # 60
+    Tdouble = int(0.11 / DT)  # 11
+    Tend = int(0.3 / DT)
+    Tmpc = int(1.6 / DT)  # 120
+
     guessFile = None

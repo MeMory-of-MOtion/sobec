@@ -8,10 +8,12 @@ import example_robot_data as robex
 import sobec
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
-#from mpc_params import WalkParams
+
+# from mpc_params import WalkParams
 from sobec.walk.config_mpc import configureMPCWalk
 from sobec.walk.miscdisp import CallbackMPCWalk
-print('---TOTOT--',CallbackMPCWalk)
+
+print("---TOTOT--", CallbackMPCWalk)
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
 # #####################################################################################
@@ -19,7 +21,7 @@ print('---TOTOT--',CallbackMPCWalk)
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
-urdf = robex.load('talos_legs')
+urdf = robex.load("talos_legs")
 robot = RobotWrapper(urdf.model, contactKey="sole_link")
 
 # #####################################################################################
@@ -30,6 +32,7 @@ robot = RobotWrapper(urdf.model, contactKey="sole_link")
 # An example of working weight value is then given as comment at the end of the line.
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
+
 
 class WalkParams:
     DT = 0.010
@@ -44,12 +47,7 @@ class WalkParams:
     armVWeight = [2] * 2
 
     stateImportance = np.array(
-        basisQWeight
-        + legQWeight
-        + legQWeight
-        + basisVWeight
-        + legVWeight
-        + legVWeight
+        basisQWeight + legQWeight + legQWeight + basisVWeight + legVWeight + legVWeight
     )
 
     stateTerminalImportance = np.array([3, 3, 0, 0, 0, 30] + [0] * 12 + [1] * 18)
@@ -120,13 +118,14 @@ class WalkParams:
     solver_reg_min = 1e-6
 
     # New parameters
-    Tstart = int(0.3/DT)
-    Tsingle = int(0.8/DT) #60
-    Tdouble = int(0.11/DT) #11
-    Tend = int(0.3/DT)
-    Tmpc = int(1.6/DT) #120
-    
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.8 / DT)  # 60
+    Tdouble = int(0.11 / DT)  # 11
+    Tend = int(0.3 / DT)
+    Tmpc = int(1.6 / DT)  # 120
+
     guessFile = None
+
 
 walkParams = WalkParams()
 assert len(walkParams.stateImportance) == robot.model.nv * 2
@@ -149,9 +148,11 @@ contactPattern = (
 ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
 x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
-ddp.setCallbacks([
-    croc.CallbackVerbose(),
-])
+ddp.setCallbacks(
+    [
+        croc.CallbackVerbose(),
+    ]
+)
 
 ddp.solve(x0s, u0s, 200)
 
@@ -160,14 +161,16 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 
 mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc,walkParams)
-mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
-mpc.solver.setCallbacks([
-    #croc.CallbackVerbose(),
-    CallbackMPCWalk(robot.contactIds)
- ])
+configureMPCWalk(mpc, walkParams)
+mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
+mpc.solver.setCallbacks(
+    [
+        # croc.CallbackVerbose(),
+        CallbackMPCWalk(robot.contactIds)
+    ]
+)
 
 x = robot.x0.copy()
-for t in range(1,100):
-    mpc.calc(x,t)
+for t in range(1, 100):
+    mpc.calc(x, t)
     x = mpc.solver.xs[1]

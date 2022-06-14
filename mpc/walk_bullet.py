@@ -118,10 +118,10 @@ ddp.solve(x0s, u0s, 200)
 mpc = sobec.MPCWalk(ddp.problem)
 configureMPCWalk(mpc, walkParams)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
-#mpc.solver.setCallbacks([
-    #croc.CallbackVerbose(),
-    #miscdisp.CallbackMPCWalk(robot.contactIds)
-#])
+# mpc.solver.setCallbacks([
+# croc.CallbackVerbose(),
+# miscdisp.CallbackMPCWalk(robot.contactIds)
+# ])
 
 # #####################################################################################
 # ### VIZ #############################################################################

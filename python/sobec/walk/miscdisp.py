@@ -77,9 +77,11 @@ def dispocp(pb, contactIds):
         ]
     )
 
+
 class CallbackMPCWalk(croc.CallbackAbstract):
-    def __init__(self,contactIds):
+    def __init__(self, contactIds):
         croc.CallbackAbstract.__init__(self)
         self.contactIds = contactIds
+
     def __call__(self, solver):
-        print(dispocp(solver.problem,self.contactIds))
+        print(dispocp(solver.problem, self.contactIds))
