@@ -7,15 +7,15 @@ import numpy.random
 
 # Local imports
 import sobec
-from save_traj import save_traj
+from utils.save_traj import save_traj
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
 from mpcparams import WalkParams
-import talos_low
+import utils.talos_low as talos_low
 from sobec.walk.config_mpc import configureMPCWalk
-from pinbullet import SimuProxy
-import viewer_multiple
-import miscdisp
+from utils.pinbullet import SimuProxy
+from utils import viewer_multiple
+from sobec.walk import miscdisp
 
 q_init = np.array(
     [
@@ -118,7 +118,10 @@ ddp.solve(x0s, u0s, 200)
 mpc = sobec.MPCWalk(ddp.problem)
 configureMPCWalk(mpc, walkParams)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
-# mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+#mpc.solver.setCallbacks([
+    #croc.CallbackVerbose(),
+    #miscdisp.CallbackMPCWalk(robot.contactIds)
+#])
 
 # #####################################################################################
 # ### VIZ #############################################################################
