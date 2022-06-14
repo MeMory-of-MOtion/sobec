@@ -96,7 +96,7 @@ public:
   /// @brief solver param reg_min
   double solver_reg_min;
   /// @brief Solver max number of iteration
-  double solver_maxiter;
+  int solver_maxiter;
   
   /// @brief name of the regularization cost that is modified by mpc update.
   std::string stateRegCostName;
