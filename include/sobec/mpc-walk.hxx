@@ -33,7 +33,7 @@ MPCWalk::MPCWalk(boost::shared_ptr<ShootingProblem> problem)
 void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
                          const std::vector<Eigen::VectorXd>& us) {
   assert(Tmpc > 0);
-  assert(Tstart + Tend + 2 * (Tdouble + Tsingle) == storage->T);
+  assert(Tstart + Tend + 2 * (Tdouble + Tsingle) == storage->get_T());
 
   if (x0.size() == 0) x0 = storage->get_x0();
 
