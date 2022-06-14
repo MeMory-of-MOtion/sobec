@@ -86,23 +86,8 @@ all_models = formuler.formulateHorizon(lenght=conf.T)
 
 ## Horizon
 
-########## MIXING
-# design.leftFootId = design.get_LF_id()
-# design.rightFootId = design.get_RF_id()
-# design.get_robot_mass = design.getRobotMass
-# design.rmodel = design.get_rModel()
-# design.rmodel.defaultState = design.get_x0()
-#
-# import crocoddyl
-# state = crocoddyl.StateMultibody(design.get_rModel())
-# actuation = crocoddyl.ActuationModelFloatingBase(state)
-#
-# ia_models = [modeller(conf, design, state, actuation)
-#             for i in range(conf.T)]
-
-###############MIXING
-
-H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
+H_conf = dict(leftFootName = conf.lf_frame_name, 
+              rightFootName = conf.rf_frame_name)
 horizon = HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), all_models, all_models[-1])
 
