@@ -40,6 +40,7 @@ class TalosInfo:
 
 Robot_2_StateMap = {
     "talos_14": StateRelatedParams(
+<<<<<<< HEAD
         stateImportance=np.array(
             TalosInfo.basisQWeights
             + TalosInfo.legQWeights * 2
@@ -50,6 +51,27 @@ Robot_2_StateMap = {
         ),
         stateTerminalImportance=np.array([3, 3, 0, 0, 0, 30] + [0] * 14 + [1] * 20),
         controlImportance=np.array([1] * 14),
+=======
+        stateImportance = np.array( TalosInfo.basisQWeights
+                                    + TalosInfo.legQWeights *2
+                                    + [TalosInfo.armQWeight]*2
+                                    + TalosInfo.basisVWeights
+                                    + TalosInfo.legVWeights *2
+                                    + [TalosInfo.armVWeight]*2),
+        stateTerminalImportance = np.array( [3,3,0,0,0,30 ]
+                                        + [0]*14 + [1]*20 ),
+        controlImportance = np.array([ 1 ]*14)
+    ),
+    
+    "talos_12": StateRelatedParams(
+        stateImportance = np.array( TalosInfo.basisQWeights
+                                    + TalosInfo.legQWeights *2
+                                    + TalosInfo.basisVWeights
+                                    + TalosInfo.legVWeights *2),
+        stateTerminalImportance = np.array( [3,3,0,0,0,30 ]
+                                        + [0]*12 + [1]*18 ),
+        controlImportance = np.array([ 1 ]*12)
+>>>>>>> Add parameters for talos 12 and use param in the benchmark.
     )
 }
 
@@ -128,10 +150,11 @@ class WalkParams:
     # ## Parameter related to the time lines
     DT = 0.010
     Tstart = int(0.3 / DT)
-    Tsingle = int(0.8 / DT)  # 60
-    Tdouble = int(0.11 / DT)  # 11
+    Tsingle = int(0.8 / DT) # 60
+    ### I prefer an even number for Tdouble
+    Tdouble = 2*int(np.round(0.11 / DT / 2 - .75)) + 1 # 11
     Tend = int(0.3 / DT)
-    Tmpc = int(1.6 / DT)  # 120
+    Tmpc = int(1.6 / DT) # 120
 
     # ## Parameters related to the IO file (load and save)
     guessFile = None
