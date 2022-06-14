@@ -16,7 +16,7 @@ import sobec.walk.ocp as walk
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
-urdf = robex.load('talos_legs')
+urdf = robex.load("talos_legs")
 robot = RobotWrapper(urdf.model, contactKey="sole_link")
 
 # #####################################################################################
@@ -28,6 +28,7 @@ robot = RobotWrapper(urdf.model, contactKey="sole_link")
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
+
 class WalkParams:
     DT = 0.010
 
@@ -37,12 +38,7 @@ class WalkParams:
     legVWeight = [1] * 6
 
     stateImportance = np.array(
-        basisQWeight
-        + legQWeight
-        + legQWeight
-        + basisVWeight
-        + legVWeight
-        + legVWeight
+        basisQWeight + legQWeight + legQWeight + basisVWeight + legVWeight + legVWeight
     )
 
     stateTerminalImportance = np.array([3, 3, 0, 0, 0, 30] + [0] * 12 + [1] * 18)
@@ -138,15 +134,45 @@ ddp.setCallbacks([croc.CallbackVerbose()])
 
 ddp.solve(x0s, u0s, 200)
 
-check = np.array([ 3.15812463e-01, -4.44631989e-03,  1.03557792e+00, -2.84186401e-03,
-                   6.41050576e-03,  2.50842913e-06,  9.99975414e-01,  2.73143210e-02,
-                   5.62718368e-02, -3.56145437e-01,  7.35471487e-01, -3.92421939e-01,
-                   -4.96056156e-02,  3.89824155e-02,  1.54883314e-02, -4.02183036e-01,
-                   7.25496089e-01, -3.39097274e-01, -1.76945975e-02,  4.50751241e-03,
-                   2.12906042e-03,  2.81653759e-04, -1.59541228e-03,  4.26372467e-03,
-                   -5.12017268e-05,  3.21540456e-04, -1.05209226e-03,  1.13691676e-03,
-                   -6.82627950e-04, -4.79744147e-03,  2.45665041e-03,  1.34906157e-04,
-                   -1.04575429e-03,  1.87336735e-03, -2.17019766e-03, -4.05249273e-03,
-                   2.40620228e-03])
-assert(norm(ddp.xs[-1]-check)<1e-6)
-
+check = np.array(
+    [
+        3.15812463e-01,
+        -4.44631989e-03,
+        1.03557792e00,
+        -2.84186401e-03,
+        6.41050576e-03,
+        2.50842913e-06,
+        9.99975414e-01,
+        2.73143210e-02,
+        5.62718368e-02,
+        -3.56145437e-01,
+        7.35471487e-01,
+        -3.92421939e-01,
+        -4.96056156e-02,
+        3.89824155e-02,
+        1.54883314e-02,
+        -4.02183036e-01,
+        7.25496089e-01,
+        -3.39097274e-01,
+        -1.76945975e-02,
+        4.50751241e-03,
+        2.12906042e-03,
+        2.81653759e-04,
+        -1.59541228e-03,
+        4.26372467e-03,
+        -5.12017268e-05,
+        3.21540456e-04,
+        -1.05209226e-03,
+        1.13691676e-03,
+        -6.82627950e-04,
+        -4.79744147e-03,
+        2.45665041e-03,
+        1.34906157e-04,
+        -1.04575429e-03,
+        1.87336735e-03,
+        -2.17019766e-03,
+        -4.05249273e-03,
+        2.40620228e-03,
+    ]
+)
+assert norm(ddp.xs[-1] - check) < 1e-6

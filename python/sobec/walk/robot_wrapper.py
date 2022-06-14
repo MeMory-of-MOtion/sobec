@@ -1,6 +1,7 @@
 import pinocchio as pin
 import numpy as np
 
+
 def addChildrenFrames(
     model,
     parentFrameIds,
@@ -77,5 +78,3 @@ class RobotWrapper:
             -sum(Y.mass for Y in self.model.inertias) * self.model.gravity.linear[2]
         )
         self.com0 = pin.centerOfMass(self.model, self.data, q0)
-
-

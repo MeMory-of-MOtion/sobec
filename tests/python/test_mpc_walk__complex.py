@@ -18,7 +18,7 @@ from sobec.walk.config_mpc import configureMPCWalk
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
-urdf = robex.load('talos_legs')
+urdf = robex.load("talos_legs")
 robot = RobotWrapper(urdf.model, contactKey="sole_link")
 
 # #####################################################################################
@@ -30,6 +30,7 @@ robot = RobotWrapper(urdf.model, contactKey="sole_link")
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
+
 class WalkParams:
     DT = 0.010
 
@@ -39,12 +40,7 @@ class WalkParams:
     legVWeight = [1] * 6
 
     stateImportance = np.array(
-        basisQWeight
-        + legQWeight
-        + legQWeight
-        + basisVWeight
-        + legVWeight
-        + legVWeight
+        basisQWeight + legQWeight + legQWeight + basisVWeight + legVWeight + legVWeight
     )
 
     stateTerminalImportance = np.array([3, 3, 0, 0, 0, 30] + [0] * 12 + [1] * 18)
@@ -109,12 +105,13 @@ class WalkParams:
     guessFile = "/tmp/test_walk.npy"
     saveFile = "/tmp/test_walk.npy"
 
-    Tstart = int(0.3/DT)
-    Tsingle = int(0.8/DT) #60
-    Tdouble = int(0.11/DT) #11
-    Tend = int(0.3/DT)
-    Tmpc = int(1.6/DT) #120
- 
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.8 / DT)  # 60
+    Tdouble = int(0.11 / DT)  # 11
+    Tend = int(0.3 / DT)
+    Tmpc = int(1.6 / DT)  # 120
+
+
 walkParams = WalkParams()
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
@@ -149,24 +146,55 @@ ddp.solve(x0s, u0s, 200)
 # #####################################################################################
 
 mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc,walkParams)
-mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
-mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+configureMPCWalk(mpc, walkParams)
+mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
+mpc.solver.setCallbacks([croc.CallbackVerbose()])
 x = robot.x0
 
 for t in range(1, 15):
     x = mpc.solver.xs[1]
     mpc.calc(x, t)
 
-check = np.array([  8.19811307e-04, -7.07255527e-03,  1.02688869e+00, -8.02112629e-04,
-        1.17162324e-03, -2.72496255e-03,  9.99995279e-01,  5.48002571e-03,
-        1.29941872e-02, -3.88250814e-01,  8.05909236e-01, -4.20006554e-01,
-       -1.31048098e-02,  5.48000220e-03,  1.29846596e-02, -3.88707695e-01,
-        8.03790868e-01, -4.17431304e-01, -1.30952821e-02,  1.79525819e-03,
-       -9.11847767e-02,  5.42256698e-02, -7.59432201e-05,  7.22967759e-03,
-       -3.05032681e-02,  3.09301339e-02,  1.38597821e-01,  1.80816609e-01,
-       -4.04190683e-01,  2.16138447e-01, -1.38563774e-01,  3.09298128e-02,
-        1.38493824e-01,  1.73809030e-01, -4.06037793e-01,  2.24993143e-01,
-       -1.38459777e-01])
+check = np.array(
+    [
+        8.19811307e-04,
+        -7.07255527e-03,
+        1.02688869e00,
+        -8.02112629e-04,
+        1.17162324e-03,
+        -2.72496255e-03,
+        9.99995279e-01,
+        5.48002571e-03,
+        1.29941872e-02,
+        -3.88250814e-01,
+        8.05909236e-01,
+        -4.20006554e-01,
+        -1.31048098e-02,
+        5.48000220e-03,
+        1.29846596e-02,
+        -3.88707695e-01,
+        8.03790868e-01,
+        -4.17431304e-01,
+        -1.30952821e-02,
+        1.79525819e-03,
+        -9.11847767e-02,
+        5.42256698e-02,
+        -7.59432201e-05,
+        7.22967759e-03,
+        -3.05032681e-02,
+        3.09301339e-02,
+        1.38597821e-01,
+        1.80816609e-01,
+        -4.04190683e-01,
+        2.16138447e-01,
+        -1.38563774e-01,
+        3.09298128e-02,
+        1.38493824e-01,
+        1.73809030e-01,
+        -4.06037793e-01,
+        2.24993143e-01,
+        -1.38459777e-01,
+    ]
+)
 
-assert(norm(x-check)<1e-6)
+assert norm(x - check) < 1e-6

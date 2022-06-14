@@ -17,30 +17,64 @@ from pinbullet import SimuProxy
 import viewer_multiple
 import miscdisp
 
-q_init = np.array([ 
-        0.00000e+00,  0.00000e+00,  1.01927e+00,  
-        0.00000e+00, 0.00000e+00,  0.00000e+00,  1.00000e+00,  
-        0.00000e+00, 0.00000e+00, -4.11354e-01,  8.59395e-01, -4.48041e-01, -1.70800e-03,  
-        0.00000e+00,  0.00000e+00, -4.11354e-01, 8.59395e-01, -4.48041e-01, -1.70800e-03,  
-        0.00000e+00, 6.76100e-03,  
-        2.58470e-01,  1.73046e-01, -2.00000e-04, -5.25366e-01,  0.00000e+00,  0.00000e+00,  1.00000e-01, 0.00000e+00, 
-        -2.58470e-01, -1.73046e-01,  2.00000e-04,-5.25366e-01,  0.00000e+00,  0.00000e+00,  1.00000e-01, 0.00000e+00,  
-        0.00000e+00,  0.00000e+00])
-q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24+8]]])
+q_init = np.array(
+    [
+        0.00000e00,
+        0.00000e00,
+        1.01927e00,
+        0.00000e00,
+        0.00000e00,
+        0.00000e00,
+        1.00000e00,
+        0.00000e00,
+        0.00000e00,
+        -4.11354e-01,
+        8.59395e-01,
+        -4.48041e-01,
+        -1.70800e-03,
+        0.00000e00,
+        0.00000e00,
+        -4.11354e-01,
+        8.59395e-01,
+        -4.48041e-01,
+        -1.70800e-03,
+        0.00000e00,
+        6.76100e-03,
+        2.58470e-01,
+        1.73046e-01,
+        -2.00000e-04,
+        -5.25366e-01,
+        0.00000e00,
+        0.00000e00,
+        1.00000e-01,
+        0.00000e00,
+        -2.58470e-01,
+        -1.73046e-01,
+        2.00000e-04,
+        -5.25366e-01,
+        0.00000e00,
+        0.00000e00,
+        1.00000e-01,
+        0.00000e00,
+        0.00000e00,
+        0.00000e00,
+    ]
+)
+q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
 simu = SimuProxy()
 simu.loadExampleRobot("talos")
 simu.rmodel.q0 = q_init
-simu.loadBulletModel()#pyb.GUI)
+simu.loadBulletModel()  # pyb.GUI)
 simu.freeze(talos_low.jointToLockNames)
 simu.setTorqueControlMode()
 simu.setTalosDefaultFriction()
 # ## OCP ########################################################################
 # ## OCP ########################################################################
 
-robot = RobotWrapper(simu.rmodel,contactKey='sole_link')
+robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
 robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
 walkParams = WalkParams()
 assert len(walkParams.stateImportance) == robot.model.nv * 2
@@ -80,11 +114,11 @@ x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 
-#mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
+# mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
 mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc,walkParams)
-mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
-#mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+configureMPCWalk(mpc, walkParams)
+mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
+# mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -96,9 +130,11 @@ try:
     viz.loadViewerModel()
     gv = viz.viewer.gui
     viz.display(simu.getState()[: robot.model.nq])
-    viz0 = viewer_multiple.GepettoGhostViewer(simu.rmodel, simu.gmodel_col,simu.gmodel_vis,.8)
+    viz0 = viewer_multiple.GepettoGhostViewer(
+        simu.rmodel, simu.gmodel_col, simu.gmodel_vis, 0.8
+    )
     viz0.hide()
-except (ImportError,AttributeError):
+except (ImportError, AttributeError):
     print("No viewer")
 
 # ## MAIN LOOP ##################################################################
@@ -107,17 +143,21 @@ hx = []
 hu = []
 hxs = []
 
+
 class SolverError(Exception):
     pass
 
+
 def play():
     import time
+
     for i in range(0, len(hx), 10):
-        viz.display(hx[i][:robot.model.nq])
+        viz.display(hx[i][: robot.model.nq])
         time.sleep(1e-2)
 
+
 # FOR LOOP
-for s in range(int(20.0/walkParams.DT)):
+for s in range(int(20.0 / walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -130,11 +170,12 @@ for s in range(int(20.0/walkParams.DT)):
             mpc.state.diff(x, mpc.solver.xs[0])
         )
 
-        
         # generate random numbers close to 1 that multiply the desired torques
-        noise = np.ones_like(torques) + walkParams.torque_noise*(2*np.random.rand(torques.shape[0])-1.0)
-        real_torques = noise*torques
-        
+        noise = np.ones_like(torques) + walkParams.torque_noise * (
+            2 * np.random.rand(torques.shape[0]) - 1.0
+        )
+        real_torques = noise * torques
+
         # Run one step of simu
         simu.step(real_torques)
 
@@ -162,16 +203,18 @@ for s in range(int(20.0/walkParams.DT)):
         viz.display(simu.getState()[: robot.model.nq])
 
     # Before each takeoff, the robot display the previewed movement (3 times)
-    if (walkParams.showPreview and
-        len(mpc.problem.runningModels[0].differential.contacts.contacts)==2 and
-        len(mpc.problem.runningModels[1].differential.contacts.contacts)==1):
-        print('Ready to take off!')
+    if (
+        walkParams.showPreview
+        and len(mpc.problem.runningModels[0].differential.contacts.contacts) == 2
+        and len(mpc.problem.runningModels[1].differential.contacts.contacts) == 1
+    ):
+        print("Ready to take off!")
         viz0.show()
-        viz0.play(np.array(mpc.solver.xs)[:,:robot.model.nq].T,walkParams.DT)
+        viz0.play(np.array(mpc.solver.xs)[:, : robot.model.nq].T, walkParams.DT)
         time.sleep(1)
-        viz0.play(np.array(mpc.solver.xs)[::-1,:robot.model.nq].T,walkParams.DT)
+        viz0.play(np.array(mpc.solver.xs)[::-1, : robot.model.nq].T, walkParams.DT)
         time.sleep(1)
-        viz0.play(np.array(mpc.solver.xs)[:,:robot.model.nq].T,walkParams.DT)
+        viz0.play(np.array(mpc.solver.xs)[:, : robot.model.nq].T, walkParams.DT)
         time.sleep(1)
 
 # #####################################################################################
@@ -187,7 +230,7 @@ if walkParams.saveFile is not None:
 
 # The 2 next import must not be included **AFTER** pyBullet starts.
 import matplotlib.pylab as plt  # noqa: E402,F401
-import walk_plotter # noqa: E402
+import walk_plotter  # noqa: E402
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)
@@ -199,7 +242,7 @@ target = problem.terminalModel.differential.costs.costs[
 plotter.plotBasis(target)
 plotter.plotCom(robot.com0)
 plotter.plotFeet()
-plotter.plotFootCollision(walkParams.footMinimalDistance,50)
+plotter.plotFootCollision(walkParams.footMinimalDistance, 50)
 
 # mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
 # mpcplotter.plotFeet()
@@ -210,4 +253,3 @@ pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 
 print("Run ```play()``` to visualize the motion.")
-
