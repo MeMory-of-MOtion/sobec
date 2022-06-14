@@ -3,6 +3,7 @@ import params
 
 
 class WalkParams(params.WalkParams):
+    DT = 0.010
 
     # Inherited from params.WalkParams
     stateTerminalWeight = 20
@@ -41,12 +42,12 @@ class WalkParams(params.WalkParams):
     # copWeight = .5
 
     # New parameters
-    Tstart = 30
-    Tsingle = 80 # 60
-    Tdouble = 11 # 11
-    Tend = 30
-    Tmpc = 160 # 120
-
+    T_START = int(0.3/DT)
+    T_SINGLE = int(0.8/DT) #60
+    T_DOUBLE = int(0.11/DT) #11
+    T_END = int(0.3/DT)
+    Tmpc = int(1.6/DT) #120
+    
     refFootFlyingAltitude = 7e-2
     flyHighSlope = 3 / refFootFlyingAltitude
     flyWeight = 10*20
@@ -64,4 +65,3 @@ class WalkParams(params.WalkParams):
 
     ### DEBUG
     showPreview = False
-    
