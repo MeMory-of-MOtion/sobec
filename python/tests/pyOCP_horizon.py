@@ -130,7 +130,8 @@ class ReceidingHorizon:
     @property
     def size(self):
         return self.ddp.problem.T
-        #### printers ####
+
+        # printers
 
     def print_cost_names(self, time):
         print(self.costs(time).costs.todict().keys())

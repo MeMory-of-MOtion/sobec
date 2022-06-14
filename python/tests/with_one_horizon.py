@@ -7,7 +7,6 @@ Created on Thu May 19 18:47:13 2022
 
 import crocoddyl
 
-crocoddyl.switchToNumpyArray()
 import numpy as np
 import pinocchio as pin
 
@@ -101,7 +100,8 @@ class CrocoWBC:
             # ~~ decide ~~ #
             self.decide_actions(x0, OL_MPC)
 
-        # ~~ funtion to obtain x_ref by integrating xs[0] with us[0] during one tracking period.
+        # ~~ funtion to obtain x_ref by integrating xs[0] with us[0] during one tracking
+        # period.
         torques = self.horizon.ddp.us[0] + self.horizon.ddp.K[
             0
         ] @ self.horizon.state.diff(x0, self.horizon.ddp.xs[0])
@@ -239,20 +239,20 @@ class CrocoWBC:
         t = time_to_land - 4  # minus landing_advance
 
         if trajectory == "sine":
-            z = (
-                0 if t < 0 or t > tmax - 8 else (np.sin(t * np.pi / (tmax - 8))) * 0.04
-            )  ### SINE
+            # SINE
+            z = 0 if t < 0 or t > tmax - 8 else (np.sin(t * np.pi / (tmax - 8))) * 0.04
         else:
+            # SMOTHER
             z = (
                 0
                 if t < 0 or t > tmax - 8
                 else (1 - np.cos(2 * t * np.pi / (tmax - 8))) * 0.02
-            )  ### SMOTHER
+            )
 
         result = np.array([pose.translation[0], pose.translation[1], z])
         return result
 
-    ##### FLEXIBILITY
+    # ##### FLEXIBILITY
     def estimate_deflection(self, command, hip_yawls=[0, 0]):
         flexing_idx = [2, 1, 8, 7]
         L_yawl = pin.utils.rotate("z", hip_yawls[0])[0:2, 0:2].T
@@ -384,7 +384,8 @@ def solve_hip_joints(equivalence):
     q4 = np.arctan2(-equivalence[2, 0], equivalence[2, 2])
     return q2, q3, q4
 
-    ########### END FLEXIBILITY ##########
+
+# ########### END FLEXIBILITY ##########
 
 
 if __name__ == "__main__":
