@@ -15,6 +15,11 @@ if sys.version_info.major < 3:
     FileNotFoundError = IOError
 
 
+# workaround python 2
+if sys.version_info.major < 3:
+    FileNotFoundError = IOError
+
+
 def buildRunningModels(robotWrapper, contactPattern, params):
 
     p = params
