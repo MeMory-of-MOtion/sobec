@@ -79,7 +79,7 @@ class WalkParams:
     terminalXTargetWeight = 0  # ##DDP## 2000
 
     refFootFlyingAltitude = 3e-2
-    flyHighSlope = 5 / refFootFlyingAltitude
+    flyHighSlope = 5.0 / refFootFlyingAltitude
     footMinimalDistance = 0.2  # (.17 is the max value wrt initial config)
     soleCollision = True
     towCollision = False
