@@ -55,6 +55,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
   include/${PROJECT_NAME}/residual-cop.hpp
+  include/${PROJECT_NAME}/residual-feet-collision.hpp
   include/${PROJECT_NAME}/residual-vel-collision.hpp
   include/${PROJECT_NAME}/residual-fly-high.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
@@ -73,6 +74,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/foot_trajectory.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/residual-cop.hxx
+  include/${PROJECT_NAME}/residual-feet-collision.hxx
   include/${PROJECT_NAME}/residual-vel-collision.hxx
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hxx
   include/${PROJECT_NAME}/lowpassfilter/lpf.hxx
@@ -104,6 +106,12 @@ endif()
 
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
+  add_library(${PROJECT_NAME}_py2cpp SHARED src/py2cpp.cpp include/${PROJECT_NAME}/py2cpp.hpp)
+  target_link_libraries(${PROJECT_NAME}_py2cpp PUBLIC crocoddyl::crocoddyl)
+  target_link_libraries(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_LIBRARIES})
+  target_include_directories(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_INCLUDE_DIRS})
+  TARGET_LINK_BOOST_PYTHON(${PROJECT_NAME}_py2cpp PRIVATE)
+
   add_subdirectory(python)
 endif()
 

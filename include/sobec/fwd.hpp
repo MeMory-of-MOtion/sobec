@@ -80,6 +80,14 @@ struct ResidualDataFlyHighTpl;
 typedef ResidualModelFlyHighTpl<double> ResidualModelFlyHigh;
 typedef ResidualDataFlyHighTpl<double> ResidualDataFlyHigh;
 
+// Cost fly high
+template <typename Scalar>
+class ResidualModelFeetCollisionTpl;
+template <typename Scalar>
+struct ResidualDataFeetCollisionTpl;
+typedef ResidualModelFeetCollisionTpl<double> ResidualModelFeetCollision;
+typedef ResidualDataFeetCollisionTpl<double> ResidualDataFeetCollision;
+
 // Activation quad-ref
 template <typename Scalar>
 class ActivationModelQuadRefTpl;

@@ -9,6 +9,7 @@ from .sobec_pywrap import (
     ModelMaker,
     Support,
     ResidualModelCenterOfPressure,
+    ResidualModelFeetCollision,
     ResidualModelFlyHigh,
     IntegratedActionModelLPF,
     ContactModel3D,

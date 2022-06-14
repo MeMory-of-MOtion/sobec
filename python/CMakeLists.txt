@@ -3,6 +3,7 @@ set(${PY_NAME}_SOURCES
   residual-com-velocity.cpp
   residual-vel-collision.cpp
   residual-cop.cpp
+  residual-feet-collision.cpp
   residual-fly-high.cpp
   activation-quad-ref.cpp
   designer.cpp
