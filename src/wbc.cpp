@@ -36,7 +36,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   ref_LF_poses_.reserve(horizon_.size());
   ref_RF_poses_.reserve(horizon_.size());
 
-  for(unsigned long i = 0; i <horizon_.size(); i++){
+  for (unsigned long i = 0; i < horizon_.size(); i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
     ref_RF_poses_.push_back(designer_.get_RF_frame());
   }
@@ -88,16 +88,17 @@ void WBC::generateWalkigCycle(ModelMaker &mm) {
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
-                              cyclicModels[2 * settings_.Tstep - 1]);
+                                 cyclicModels[2 * settings_.Tstep - 1]);
 }
 
-void WBC::generateStandingCycle(ModelMaker &mm) { 
+void WBC::generateStandingCycle(ModelMaker &mm) {
   ///@todo: bind it
-  std::vector<Support> cycle(2* settings_.Tstep, DOUBLE);
+  std::vector<Support> cycle(2 * settings_.Tstep, DOUBLE);
   std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
-  standingCycle_ = HorizonManager(names, x0_, cyclicModels, cyclicModels[2 * settings_.Tstep - 1]);
+  standingCycle_ = HorizonManager(names, x0_, cyclicModels,
+                                  cyclicModels[2 * settings_.Tstep - 1]);
 }
 
 void WBC::updateStepCycleTiming() {
@@ -128,8 +129,7 @@ Eigen::VectorXd WBC::iterate(const int &iteration,
 
     // ~~REFERENCES~~ //
     designer_.updateReducedModel(x0_);
-    switch (settings_.typeOfCommand)
-    {
+    switch (settings_.typeOfCommand) {
       case StepTracker:
         updateStepTrackerReferences();
         break;
@@ -146,48 +146,48 @@ Eigen::VectorXd WBC::iterate(const int &iteration,
   return horizon_.currentTorques(x0_);
 }
 
-void WBC::updateStepTrackerReferences(){
-  for(unsigned long time=0; time<horizon_.size(); time++){
+void WBC::updateStepTrackerReferences() {
+  for (unsigned long time = 0; time < horizon_.size(); time++) {
     horizon_.setPoseReferenceLF(time, "placement_LF", getPoseRef_LF(time));
-    horizon_.setPoseReferenceRF(time, "placement_RF", getPoseRef_RF(time)); 
+    horizon_.setPoseReferenceRF(time, "placement_RF", getPoseRef_RF(time));
     ///@todo: the names must be provided by the user
   }
 }
 
-void WBC::updateNonThinkingReferences(){
-  for(unsigned long time=0; time<horizon_.size(); time++){
-    horizon_.setVelocityRefCOM(time, "comVelocity", ref_com_vel_[time]); 
+void WBC::updateNonThinkingReferences() {
+  for (unsigned long time = 0; time < horizon_.size(); time++) {
+    horizon_.setVelocityRefCOM(time, "comVelocity", ref_com_vel_[time]);
     ///@todo: the names must be provided by the user
   }
 }
 
 void WBC::recedeWithCycle() {
-  ///@todo: We switch from walking to standing at the beggining of the double support stage.
-  /// We can evaluate later the possibility of resetting the walking cycle, to start at the end of the
-  /// beginning of a single support when we switch back to walking.
-  if (now_ == WALKING){
+  ///@todo: We switch from walking to standing at the beggining of the double
+  ///support stage.
+  /// We can evaluate later the possibility of resetting the walking cycle, to
+  /// start at the end of the beginning of a single support when we switch back
+  /// to walking.
+  if (now_ == WALKING) {
     recedeWithCycle(walkingCycle_);
-  }
-  else if (now_ == STANDING && horizon_.contacts(horizon_.size() - 1)->get_active_set().size() == 2){
+  } else if (now_ == STANDING &&
+             horizon_.contacts(horizon_.size() - 1)->get_active_set().size() ==
+                 2) {
     recedeWithCycle(standingCycle_);
-  }
-  else {
+  } else {
     recedeWithCycle(walkingCycle_);
   }
   return;
 }
 
-void WBC::recedeWithCycle(HorizonManager &cycle){
+void WBC::recedeWithCycle(HorizonManager &cycle) {
   horizon_.recede(cycle.ama(0), cycle.ada(0));
   cycle.recede();
   return;
 }
 
 Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v) {
-
   if (q.size() == designer_.get_rModelComplete().nq &&
-    v.size() == designer_.get_rModelComplete().nv) {
-
+      v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
     x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
 
@@ -199,14 +199,12 @@ Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v) {
         i++;
       }
     return x_internal_;
-  }
-  else if (q.size() == designer_.get_rModel().nq &&
-             v.size() == designer_.get_rModel().nv)
-  {
+  } else if (q.size() == designer_.get_rModel().nq &&
+             v.size() == designer_.get_rModel().nv) {
     x_internal_ << q, v;
     return x_internal_;
-  }
-  else throw std::runtime_error(
-      "q and v must have the dimentions of the reduced or complete model.");
-  }
+  } else
+    throw std::runtime_error(
+        "q and v must have the dimentions of the reduced or complete model.");
+}
 }  // namespace sobec

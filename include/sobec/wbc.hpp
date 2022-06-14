@@ -13,10 +13,11 @@
 
 namespace sobec {
 
-/// @todo: in order to switch between locomotions safely, incorporate a terminal constraint 
+/// @todo: in order to switch between locomotions safely, incorporate a terminal
+/// constraint
 /// @todo: bind these enumerations
 enum ControlForm { StepTracker, NonThinking, StairClimber };
-enum LocomotionType { WALKING, STANDING};
+enum LocomotionType { WALKING, STANDING };
 
 struct WBCSettings {
   ///@todo: add the cost names as setting parameters.
@@ -38,13 +39,12 @@ struct WBCSettings {
 };
 
 class WBC {
-
-/**    
- * Form to use this class: 
- * 1) The function iterate produces the torques to command.
- * 2) All cost references must be updated separtely in the control loop.
- * 
-*/
+  /**
+   * Form to use this class:
+   * 1) The function iterate produces the torques to command.
+   * 2) All cost references must be updated separtely in the control loop.
+   *
+   */
 
  private:
   WBCSettings settings_;
@@ -64,9 +64,8 @@ class WBC {
   void updateStepTrackerReferences();
   void updateNonThinkingReferences();
   // References for costs:
-  std::vector<pinocchio::SE3>  ref_LF_poses_, ref_RF_poses_;
+  std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
   std::vector<eVector3> ref_com_vel_;
-
 
   // Memory preallocations:
   std::vector<unsigned long> controlled_joints_id_;
@@ -142,25 +141,44 @@ class WBC {
 
   // REFERENCE SETTERS AND GETTERS
 
-  const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_;}
-  const pinocchio::SE3 &getPoseRef_LF(const unsigned long &time) { return ref_LF_poses_[time];}
-  void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses){ref_LF_poses_ = ref_LF_poses;}
-  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose, const unsigned long &time){ref_LF_poses_[time] = ref_LF_pose;}
+  const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
+  const pinocchio::SE3 &getPoseRef_LF(const unsigned long &time) {
+    return ref_LF_poses_[time];
+  }
+  void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) {
+    ref_LF_poses_ = ref_LF_poses;
+  }
+  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose,
+                     const unsigned long &time) {
+    ref_LF_poses_[time] = ref_LF_pose;
+  }
 
-  const std::vector<pinocchio::SE3> &getPoseRef_RF() { return ref_RF_poses_;}
-  const pinocchio::SE3 &getPoseRef_RF(const unsigned long &time) { return ref_RF_poses_[time];}
-  void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses){ref_RF_poses_ = ref_RF_poses;}
-  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, const unsigned long &time){ref_RF_poses_[time] = ref_RF_pose;}
+  const std::vector<pinocchio::SE3> &getPoseRef_RF() { return ref_RF_poses_; }
+  const pinocchio::SE3 &getPoseRef_RF(const unsigned long &time) {
+    return ref_RF_poses_[time];
+  }
+  void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses) {
+    ref_RF_poses_ = ref_RF_poses;
+  }
+  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose,
+                     const unsigned long &time) {
+    ref_RF_poses_[time] = ref_RF_pose;
+  }
 
-  const std::vector<eVector3> &getVelRef_COM() { return ref_com_vel_;}
-  const eVector3 &getVelRef_COM(const unsigned long &time) { return ref_com_vel_[time];}
-  void setVelRef_COM(const std::vector<eVector3> &ref_com_vel){ref_com_vel_ = ref_com_vel;}
-  void setVelRef_COM(const eVector3 &ref_com_vel, const unsigned long &time){ref_com_vel_[time] = ref_com_vel;}
+  const std::vector<eVector3> &getVelRef_COM() { return ref_com_vel_; }
+  const eVector3 &getVelRef_COM(const unsigned long &time) {
+    return ref_com_vel_[time];
+  }
+  void setVelRef_COM(const std::vector<eVector3> &ref_com_vel) {
+    ref_com_vel_ = ref_com_vel;
+  }
+  void setVelRef_COM(const eVector3 &ref_com_vel, const unsigned long &time) {
+    ref_com_vel_[time] = ref_com_vel;
+  }
 
-  void switchToWalk(){now_ = WALKING;}
-  void switchToStand(){now_ = STANDING;}
-  const LocomotionType &currentLocomotion(){return now_;}
-
+  void switchToWalk() { now_ = WALKING; }
+  void switchToStand() { now_ = STANDING; }
+  const LocomotionType &currentLocomotion() { return now_; }
 };
 }  // namespace sobec
 

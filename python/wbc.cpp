@@ -50,18 +50,21 @@ void exposeWBC() {
            bp::args("self"))
       .def("timeToSolveDDP", &WBC::timeToSolveDDP,
            bp::args("self", "iteration"))
-      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self"))
-      .def<void (WBC::*)(HorizonManager &)>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
+      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle,
+                            bp::args("self"))
+      .def<void (WBC::*)(HorizonManager &)>(
+          "recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
       .add_property("x0", &WBC::get_x0, &WBC::set_x0)
-      .add_property("walkingCycle", &WBC::get_walkingCycle, &WBC::set_walkingCycle)
-      .add_property("standingCycle", &WBC::get_standingCycle, &WBC::set_standingCycle)
+      .add_property("walkingCycle", &WBC::get_walkingCycle,
+                    &WBC::set_walkingCycle)
+      .add_property("standingCycle", &WBC::get_standingCycle,
+                    &WBC::set_standingCycle)
       .add_property("horizon", &WBC::get_horizon, &WBC::set_horizon)
       .add_property("design", &WBC::get_designer, &WBC::set_designer)
       .add_property("landing_LF", &WBC::get_LF_land, &WBC::set_LF_land)
       .add_property("landing_RF", &WBC::get_RF_land, &WBC::set_RF_land)
       .add_property("takingoff_LF", &WBC::get_LF_takeoff, &WBC::set_LF_takeoff)
-      .add_property("takingoff_RF", &WBC::get_RF_takeoff, &WBC::set_RF_takeoff)
-      ;
+      .add_property("takingoff_RF", &WBC::get_RF_takeoff, &WBC::set_RF_takeoff);
 }
 }  // namespace python
 }  // namespace sobec

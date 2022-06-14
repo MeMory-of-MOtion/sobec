@@ -139,9 +139,8 @@ void HorizonManager::setPoseReferenceRF(const unsigned long &time,
 }
 
 void HorizonManager::setVelocityRefCOM(const unsigned long &time,
-                                        const std::string &nameCost,
-                                        const eVector3 &ref_velocity) {
-
+                                       const std::string &nameCost,
+                                       const eVector3 &ref_velocity) {
   boost::static_pointer_cast<sobec::ResidualModelCoMVelocity>(
       costs(time)->get_costs().at(nameCost)->cost->get_residual())
       ->set_reference(ref_velocity);
@@ -216,9 +215,7 @@ void HorizonManager::recede() {
   ddp_->get_problem()->circularAppend(ama(0), ada(0));
 }
 
-unsigned long HorizonManager::size() {
-  return ddp_->get_problem()->get_T();
-}
+unsigned long HorizonManager::size() { return ddp_->get_problem()->get_T(); }
 
 void HorizonManager::solve(const Eigen::VectorXd &measured_x,
                            const std::size_t &ddpIteration,

@@ -60,10 +60,10 @@ Tstep = T2contact + T1contact
 # #### PHYSICS #####
 
 simulator = (
-#        "bullet"
-        "pinocchio"
-        )
-                    
+    #        "bullet"
+    "pinocchio"
+)
+
 
 gravity = np.array([0, 0, -9.81])
 

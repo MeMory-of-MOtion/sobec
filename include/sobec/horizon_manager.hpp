@@ -65,8 +65,7 @@ class HorizonManager {
   void setPoseReferenceRF(const unsigned long &time,
                           const std::string &nameCostRF,
                           const pinocchio::SE3 &ref_placement);
-  void setVelocityRefCOM(const unsigned long &time,
-                         const std::string &nameCost,
+  void setVelocityRefCOM(const unsigned long &time, const std::string &nameCost,
                          const eVector3 &ref_placement);
   void activateContactLF(const unsigned long &time,
                          const std::string &nameContacttLF);
