@@ -1,7 +1,7 @@
 """
 This is the first pure-python proto of the class sobec.MPCWalk, now converted in c++.
-I keep it here as an integrative test with the correct parameters. It will be used in the future
-as the basis to develop new MPC policy.
+I keep it here as an integrative test with the correct parameters. It will be used in
+the future as the basis to develop new MPC policy.
 
 
 """
@@ -63,7 +63,7 @@ class WalkMPC:
         print(
             "{:4d} {} {:.03} {:4d}".format(
                 0,
-                miscdisp.dispocp(self.problem, robot.contactIds),
+                utils.miscdisp.dispocp(self.problem, robot.contactIds),
                 self.basisRef[0],
                 self.solver.iter,
             )
@@ -98,7 +98,7 @@ class WalkMPC:
 
         self.ref = self.solver.x_reg
         print(
-            f"{t:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
+            f"{t:4d} {utils.miscdisp.dispocp(self.problem,robot.contactIds)} "
             # f"{self.basisRef[0]:.03} "
             f"{self.solver.iter:4d} "
             f"reg={self.solver.x_reg:.3} "
@@ -120,21 +120,19 @@ class WalkMPC:
 
 if __name__ == "__main__":
     import pinocchio as pin
-    import crocoddyl as croc
-    import numpy as np
     import matplotlib.pylab as plt  # noqa: F401
     from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
-    import time
 
     # Local imports
-    from utils.save_traj import save_traj
+    # from utils.save_traj import save_traj
     import utils.walk_plotter
+    from sobec.walk.config_mpc import configureMPCWalk
     from sobec.walk.robot_wrapper import RobotWrapper
     from mpcparams import WalkParams
     import utils.talos_low
     import utils.viewer_multiple
 
-    urdf = talos_low.load()
+    urdf = utils.talos_low.load()
     robot = RobotWrapper(urdf.model, contactKey="sole_link")
     p = walkParams = WalkParams()
     contactPattern = (
@@ -148,14 +146,14 @@ if __name__ == "__main__":
         + [[1, 1]] * walkParams.Tend
         + [[1, 1]]
     )
-    # ### DDP #############################################################################
+    # ### DDP ##########################################################################
     ddp = ocp.buildSolver(robot, contactPattern, walkParams)
     problem = ddp.problem
     x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
     ddp.setCallbacks([croc.CallbackVerbose()])
     ddp.solve(x0s, u0s, 200)
 
-    # ### MPC #############################################################################
+    # ### MPC ##########################################################################
     problem1 = ocp.buildSolver(robot, contactPattern, walkParams).problem
     problem2 = ocp.buildSolver(robot, contactPattern, walkParams).problem
 
@@ -178,6 +176,6 @@ if __name__ == "__main__":
 
         assert norm(mpc.solver.xs[10] - mpccpp.solver.xs[10]) < 1e-6
 
-    # ### DEBUG ##########################################################################
+    # ### DEBUG ########################################################################
     pin.SE3.__repr__ = pin.SE3.__str__
     np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)

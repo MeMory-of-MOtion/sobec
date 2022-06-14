@@ -61,7 +61,9 @@ class WalkParams(params.WalkParams):
     solver_maxiter = 2
     solver_reg_min = 1e-6
 
-    torque_noise = 0.0  # max magnitude of the multiplicative joint torque noise, expressed as a percentage (i.e. 1=100%)
+    # max magnitude of the multiplicative joint torque noise, expressed as a percentage
+    # (i.e. 1=100%)
+    torque_noise = 0.0
 
-    ### DEBUG
+    # DEBUG
     showPreview = False
