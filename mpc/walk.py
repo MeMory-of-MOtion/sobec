@@ -162,10 +162,10 @@ cosname = "right_sole_link_cone"
 cosname = "altitudeImpact"
 cosname = "right_sole_link_vfoot_vel"  # t = 60
 cosname = "right_sole_link_flyhigh"
-cosname = f"{robot.model.frames[fid].name}_flyhigh"
-cosname = f"{robot.model.frames[fid].name}_groundcol"
-cosname = f"{robot.model.frames[cid].name}_velimpact"
+# cosname = f"{robot.model.frames[fid].name}_flyhigh"
+# cosname = f"{robot.model.frames[fid].name}_groundcol"
+# cosname = f"{robot.model.frames[cid].name}_velimpact"
 cosname = "impactRefJoint"
-cosname = f"feetcol_{robot.model.frames[cid].name}_VS_{robot.model.frames[fid].name}"
+# cosname = f"feetcol_{robot.model.frames[cid].name}_VS_{robot.model.frames[fid].name}"
 cosdata = dadata.costs.costs[cosname]
 cosmodel = damodel.costs.costs[cosname].cost

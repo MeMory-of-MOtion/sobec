@@ -11,28 +11,27 @@ def reprAction(amodel):
     dmodel = amodel.differential
     str += "=== Contact\n"
     for citem in dmodel.contacts.contacts:
-        str += f"  - {citem.key()}: {citem.data()}\n"
+        str += "  - %s: %s\n" % (citem.key(), citem.data())
     str += "=== Cost\n"
     for citem in dmodel.costs.costs:
-        str += f"  - {citem.key()}: {citem.data()}\n"
+        str += "  - %s: %s\n" % (citem.key(), citem.data())
         cost = citem.data().cost
         if isinstance(cost.activation, croc.ActivationModelWeightedQuad):
-            str += f"\t\twact = {cost.activation.weights}\n"
+            str += "\t\twact = %s\n" % cost.activation.weights
         if isinstance(cost.activation, croc.ActivationModelQuadraticBarrier):
-            str += f"\t\tlower = {cost.activation.bounds.lb}\n"
-            str += f"\t\tupper = {cost.activation.bounds.lb}\n"
+            str += "\t\tlower = %s\n" % cost.activation.bounds.lb
+            str += "\t\tupper = %s\n" % cost.activation.bounds.lb
         try:
-            str += f"\t\tref = {cost.residual.reference}\n"
+            str += "\t\tref = %s\n" % cost.residual.reference
         except AttributeError:
             pass
     return str
 
 
 def reprProblem(problem):
-    return (
-        "".join(f"*t={t}\n{reprAction(r)}" for t, r in enumerate(problem.runningModels))
-        + f"*TERMINAL\n{reprAction(problem.terminalModel)}"
-    )
+    return "".join(
+        "*t=%s\n%s" % (t, reprAction(r)) for t, r in enumerate(problem.runningModels)
+    ) + "*TERMINAL\n%s" % {reprAction(problem.terminalModel)}
 
 
 def contact2car(model, contactIds, contacts, costs):
@@ -43,20 +42,20 @@ def contact2car(model, contactIds, contacts, costs):
     rightplus = "┌"
     res = ""
     if len(contacts) == 2:
-        if f"{model.frames[contactIds[1]].name}_altitudeimpact" in costs:
+        if "%s_altitudeimpact" % model.frames[contactIds[1]].name in costs:
             res += ","
-        if f"{model.frames[contactIds[0]].name}_altitudeimpact" in costs:
+        if "%s_altitudeimpact" % model.frames[contactIds[0]].name in costs:
             res += "'"
         res += "="
     elif len(contacts) == 0:
         res += " "
-    elif f"{model.frames[contactIds[1]].name}" in next(iter(contacts)).key():
-        if f"{model.frames[contactIds[1]].name}_altitudeimpact" in costs:
+    elif model.frames[contactIds[1]].name in next(iter(contacts)).key():
+        if "%s_altitudeimpact" % model.frames[contactIds[1]].name in costs:
             res += rightplus
         else:
             res += right
-    elif f"{model.frames[contactIds[0]].name}" in next(iter(contacts)).key():
-        if f"{model.frames[contactIds[0]].name}_altitudeimpact" in costs:
+    elif model.frames[contactIds[0]].name in next(iter(contacts)).key():
+        if "%s_altitudeimpact" % model.frames[contactIds[0]].name in costs:
             res += leftplus
         else:
             res += left
