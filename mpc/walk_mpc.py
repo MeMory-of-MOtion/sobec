@@ -1,5 +1,6 @@
 import crocoddyl as croc
 import numpy as np
+import time
 
 import walk_ocp
 import miscdisp
@@ -73,9 +74,12 @@ class WalkMPC:
 
         xg = list(self.solver.xs)[1:] + [self.solver.xs[-1]]
         ug = list(self.solver.us)[1:] + [self.solver.us[-1]]
+        start_time = time.time()
         solved = self.solver.solve(
             xg, ug, maxiter=p.maxiter, isFeasible=False, regInit=self.reg
         )
+        solve_time = time.time() - start_time
+        
         self.ref = self.solver.x_reg
         print(
             f"{t:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
@@ -83,6 +87,7 @@ class WalkMPC:
             f"{self.solver.iter:4d} "
             f"reg={self.solver.x_reg:.3} "
             f"a={self.solver.stepLength:.3} "
+            f"solveTime={solve_time:.3}"
         )
         x = self.solver.xs[1].copy()
         self.hx.append(x)
