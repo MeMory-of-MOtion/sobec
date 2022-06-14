@@ -46,8 +46,12 @@ class WalkMPC:
 
         self.solver.solve(x0s, u0s, 10 * p.maxiter)
         print(
-            f"{0:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
-            f"{self.basisRef[0]:.03} {self.solver.iter:4d}"
+            "{:4d} {} {:.03} {:4d}".format(
+                0,
+                miscdisp.dispocp(self.problem, robot.contactIds),
+                self.basisRef[0],
+                self.solver.iter,
+            )
         )
         self.reg = p.solver_reg_min
         self.solver.reg_min = p.solver_reg_min
@@ -78,11 +82,13 @@ class WalkMPC:
         )
         self.ref = self.solver.x_reg
         print(
-            f"{t:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
-            # f"{self.basisRef[0]:.03} "
-            f"{self.solver.iter:4d} "
-            f"reg={self.solver.x_reg:.3} "
-            f"a={self.solver.stepLength:.3} "
+            "{:4d} {} {:4d} reg={:.3} a={:.3} ".format(
+                t,
+                miscdisp.dispocp(self.problem, robot.contactIds),
+                self.solver.iter,
+                self.solver.x_reg,
+                self.solver.stepLength,
+            )
         )
         x = self.solver.xs[1].copy()
         self.hx.append(x)

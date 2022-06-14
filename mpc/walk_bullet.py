@@ -110,11 +110,11 @@ for s in range(2000):
 
     lrm = mpc.problem.runningModels[20].differential.costs.costs
     if (
-        f"{robot.model.frames[robot.contactIds[0]].name}_altitudeimpact" in lrm
-        or f"{robot.model.frames[robot.contactIds[1]].name}_altitudeimpact" in lrm
+        "%s_altitudeimpact" % robot.model.frames[robot.contactIds[0]].name in lrm
+        or "%s_altitudeimpact" % robot.model.frames[robot.contactIds[1]].name in lrm
     ):
         mpc.moreIterations(50)
-        print(f"+{mpc.solver.iter}")
+        print("+%s" % mpc.solver.iter)
 
     viz.display(simu.getState()[: robot.model.nq])
 

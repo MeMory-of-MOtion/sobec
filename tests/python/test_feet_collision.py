@@ -77,7 +77,7 @@ assert abs(cosdata.residual.r[0] - dist) < 1e-10
 
 J1 = pin.getFrameJacobian(model, data, cid1, pin.LOCAL_WORLD_ALIGNED)
 J2 = pin.getFrameJacobian(model, data, cid2, pin.LOCAL_WORLD_ALIGNED)
-J = (p1[:2] - p2[:2]).T / dist @ (J1[:2] - J2[:2])
+J = np.dot((p1[:2] - p2[:2]).T / dist, (J1[:2] - J2[:2]))
 
 
 def fun2(q):
