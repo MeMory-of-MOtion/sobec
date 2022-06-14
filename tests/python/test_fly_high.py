@@ -94,9 +94,9 @@ assert norm(cosdata.residual.r - r) < 1e-6
 dq, dv = pin.getFrameVelocityDerivatives(model, data, cid, pin.ReferenceFrame.LOCAL)
 J = pin.getFrameJacobian(model, data, cid, pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
 R = data.oMf[cid].rotation
-o_dv = R @ dv[:3]
-o_dq = R @ dq[:3] - pin.skew(v.linear) @ R @ dv[3:]
-assert norm(J[3:] - R @ dv[3:]) < 1e-6
+o_dv = np.dot(R, dv[:3])
+o_dq = np.dot(R, dq[:3]) - np.dot(np.dot(pin.skew(v.linear), R), dv[3:])
+assert norm(J[3:] - np.dot(R, dv[3:])) < 1e-6
 
 # Compute residual derivatives, first due to the velocity ...
 Rv = o_dv[:2] * ez
