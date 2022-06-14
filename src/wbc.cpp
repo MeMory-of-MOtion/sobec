@@ -31,17 +31,25 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   x0_ << shapeState(q0, v0);
   std::cout << x0_.size() << std::endl;
   designer_.updateReducedModel(x0_);
+  designer_.updateCompleteModel(q0);
+
+  ref_LF_poses_.reserve(horizon_.size());
+  ref_RF_poses_.reserve(horizon_.size());
+
+  for(unsigned long i = 0; i <horizon_.size(); i++){
+    ref_LF_poses_.push_back(designer_.get_LF_frame());
+    ref_RF_poses_.push_back(designer_.get_RF_frame());
+  }
 
   // horizon settings
   std::vector<Eigen::VectorXd> xs_init;
   std::vector<Eigen::VectorXd> us_init;
   Eigen::VectorXd zero_u = Eigen::VectorXd::Zero(designer_.get_rModel().nv - 6);
 
-  for (std::size_t i = 0; i < horizon_.get_size(); i++) {
+  for (std::size_t i = 0; i < horizon_.size(); i++) {
     xs_init.push_back(x0_);
     us_init.push_back(zero_u);
-    horizon_.setBalancingTorque(i, actuationCostName,
-                                x0_);  // it sets the actuation reference.
+    horizon_.setBalancingTorque(i, actuationCostName, x0_);  // sets ref torqs.
   }
   xs_init.push_back(x0_);
 
@@ -58,7 +66,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   initialized_ = true;
 }
 
-void WBC::generateFullCycle(ModelMaker &mm) {
+void WBC::generateWalkigCycle(ModelMaker &mm) {
   std::vector<Support> cycle;
   int takeoff_RF, land_RF, takeoff_LF, land_LF;
   takeoff_RF = 0;
@@ -79,8 +87,17 @@ void WBC::generateFullCycle(ModelMaker &mm) {
   std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
-  fullCycle_ = HorizonManager(names, x0_, cyclicModels,
+  walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
                               cyclicModels[2 * settings_.Tstep - 1]);
+}
+
+void WBC::generateStandingCycle(ModelMaker &mm) { 
+  ///@todo: bind it
+  std::vector<Support> cycle(2* settings_.Tstep, DOUBLE);
+  std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
+  HorizonManagerSettings names = {designer_.get_LF_name(),
+                                  designer_.get_RF_name()};
+  standingCycle_ = HorizonManager(names, x0_, cyclicModels, cyclicModels[2 * settings_.Tstep - 1]);
 }
 
 void WBC::updateStepCycleTiming() {
@@ -107,47 +124,89 @@ Eigen::VectorXd WBC::iterate(const int &iteration,
   if (timeToSolveDDP(iteration)) {
     // ~~TIMING~~ //
     updateStepCycleTiming();
-    recedeWithFullCycle();
+    recedeWithCycle();
 
     // ~~REFERENCES~~ //
     designer_.updateReducedModel(x0_);
-    // setDesiredFeetPose(iteration, settings_.T - 1);
+    switch (settings_.typeOfCommand)
+    {
+      case StepTracker:
+        updateStepTrackerReferences();
+        break;
+      case NonThinking:
+        updateNonThinkingReferences();
+        break;
+      default:
+        break;
+    }
 
     // ~~SOLVER~~ //
-    std::cout << "It starts the solve computation." << std::endl;
     horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
-    std::cout << "It finishes the solve computation." << std::endl;
   }
   return horizon_.currentTorques(x0_);
 }
 
-// void WBC::setDesiredFeetPoses(unsigned long iteration, unsigned long time){
+void WBC::updateStepTrackerReferences(){
+  for(unsigned long time=0; time<horizon_.size(); time++){
+    horizon_.setPoseReferenceLF(time, "placement_LF", getPoseRef_LF(time));
+    horizon_.setPoseReferenceRF(time, "placement_RF", getPoseRef_RF(time)); 
+    ///@todo: the names must be provided by the user
+  }
+}
 
-// }
+void WBC::updateNonThinkingReferences(){
+  for(unsigned long time=0; time<horizon_.size(); time++){
+    horizon_.setVelocityRefCOM(time, "comVelocity", ref_com_vel_[time]); 
+    ///@todo: the names must be provided by the user
+  }
+}
 
-void WBC::recedeWithFullCycle() {
-  horizon_.recede(fullCycle_.ama(0), fullCycle_.ada(0));
-  fullCycle_.recede();
+void WBC::recedeWithCycle() {
+  ///@todo: We switch from walking to standing at the beggining of the double support stage.
+  /// We can evaluate later the possibility of resetting the walking cycle, to start at the end of the
+  /// beginning of a single support when we switch back to walking.
+  if (now_ == WALKING){
+    recedeWithCycle(walkingCycle_);
+  }
+  else if (now_ == STANDING && horizon_.contacts(horizon_.size() - 1)->get_active_set().size() == 2){
+    recedeWithCycle(standingCycle_);
+  }
+  else {
+    recedeWithCycle(walkingCycle_);
+  }
+  return;
+}
+
+void WBC::recedeWithCycle(HorizonManager &cycle){
+  horizon_.recede(cycle.ama(0), cycle.ada(0));
+  cycle.recede();
+  return;
 }
 
 Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v) {
-  if (q.size() != designer_.get_rModelComplete().nq ||
-      v.size() != designer_.get_rModelComplete().nv) {
-    throw std::runtime_error(
-        "The full posture must be provided to shape the state.");
-  }
-  std::cout << "Enters to the stateShape" << std::endl;
-  x_internal_.head<7>() = q.head<7>();
-  x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
 
-  int i = 0;
-  for (unsigned long jointID : controlled_joints_id_)
-    if (jointID > 1) {
-      x_internal_(i + 7) = q(jointID + 5);
-      x_internal_(designer_.get_rModel().nq + i + 6) = v(jointID + 4);
-      i++;
-    }
-  std::cout << "And finishes the stateShape i = " << i << std::endl;
-  return x_internal_;
-}
+  if (q.size() == designer_.get_rModelComplete().nq &&
+    v.size() == designer_.get_rModelComplete().nv) {
+
+    x_internal_.head<7>() = q.head<7>();
+    x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
+
+    int i = 0;
+    for (unsigned long jointID : controlled_joints_id_)
+      if (jointID > 1) {
+        x_internal_(i + 7) = q(jointID + 5);
+        x_internal_(designer_.get_rModel().nq + i + 6) = v(jointID + 4);
+        i++;
+      }
+    return x_internal_;
+  }
+  else if (q.size() == designer_.get_rModel().nq &&
+             v.size() == designer_.get_rModel().nv)
+  {
+    x_internal_ << q, v;
+    return x_internal_;
+  }
+  else throw std::runtime_error(
+      "q and v must have the dimentions of the reduced or complete model.");
+  }
 }  // namespace sobec

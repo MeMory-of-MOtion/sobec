@@ -8,7 +8,6 @@
 #include <eigenpy/eigenpy.hpp>
 
 #include <sobec/wbc.hpp>
-
 namespace sobec {
 namespace python {
 namespace bp = boost::python;
@@ -32,7 +31,7 @@ void initialize(WBC &self, const bp::dict &settings,
   // conf.stepSize = bp::extract<double>(settings["stepSize"]);
   // conf.stepHeight = bp::extract<double>(settings["stepHeight"]);
   // conf.stepDepth = bp::extract<double>(settings["stepDepth"]);
-  std::cout << "arrives here" << std::endl;
+
   self.initialize(conf, designer, horizon, q0, v0, actuationCostName);
 }
 
@@ -44,7 +43,7 @@ void exposeWBC() {
            "The posture required here is the full robot posture in the order "
            "of pinicchio")
       .def("shapeState", &WBC::shapeState, bp::args("self", "q", "v"))
-      .def("generateFullCycle", &WBC::generateFullCycle,
+      .def("generateWalkigCycle", &WBC::generateWalkigCycle,
            bp::args("self", "modelMaker"))
       .def("iterate", &WBC::iterate,
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
@@ -53,17 +52,18 @@ void exposeWBC() {
            bp::args("self"))
       .def("timeToSolveDDP", &WBC::timeToSolveDDP,
            bp::args("self", "iteration"))
-      .def("recedeWithFullCycle", &WBC::recedeWithFullCycle, bp::args("self"))
+      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self"))
+      .def<void (WBC::*)(HorizonManager &)>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
       .add_property("x0", &WBC::get_x0, &WBC::set_x0)
-      .add_property("walkingCycle", &WBC::get_walkingCycle,
-                    &WBC::set_walkingCycle)
+      .add_property("walkingCycle", &WBC::get_walkingCycle, &WBC::set_walkingCycle)
+      .add_property("standingCycle", &WBC::get_standingCycle, &WBC::set_standingCycle)
       .add_property("horizon", &WBC::get_horizon, &WBC::set_horizon)
       .add_property("design", &WBC::get_designer, &WBC::set_designer)
       .add_property("landing_LF", &WBC::get_LF_land, &WBC::set_LF_land)
       .add_property("landing_RF", &WBC::get_RF_land, &WBC::set_RF_land)
       .add_property("takingoff_LF", &WBC::get_LF_takeoff, &WBC::set_LF_takeoff)
-      .add_property("takingoff_RF", &WBC::get_RF_takeoff, &WBC::set_RF_takeoff);
+      .add_property("takingoff_RF", &WBC::get_RF_takeoff, &WBC::set_RF_takeoff)
+      ;
 }
-
 }  // namespace python
 }  // namespace sobec
