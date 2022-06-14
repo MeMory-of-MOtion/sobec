@@ -81,23 +81,13 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 
 mpc = sobec.MPCWalk(ddp.problem)
-<<<<<<< HEAD
 configureMPCWalk(mpc, walkParams)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
-mpc.solver.setCallbacks([croc.CallbackVerbose()])
-x = robot.x0
-
-hx = [x.copy()]
-for t in range(1, 150):
-=======
-configureMPCWalk(mpc,walkParams)
-mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
-#mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+#mpc.solver.setCallbacks([croc.CallbackVerbose()])
 x = robot.x0
 
 hx = [ x.copy() ]
 for t in range(1, 1500):
->>>>>>> Take into account repackagin in sobec.walk.
     x = mpc.solver.xs[1]
     mpc.calc(x, t)
 
