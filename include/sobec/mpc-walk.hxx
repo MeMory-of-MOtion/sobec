@@ -21,11 +21,12 @@ using namespace crocoddyl;
 
   MPCWalk::MPCWalk(boost::shared_ptr<ShootingProblem> problem)
     : vcomRef(3)
+    ,solver_th_stop(1e-9)
     ,stateRegCostName("stateReg")
 
     ,storage(problem)
   {
-    std::cout << "Constructor" << std::endl;
+    //std::cout << "Constructor" << std::endl;
   }
   
   void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
@@ -41,7 +42,7 @@ using namespace crocoddyl;
     ActionList runmodels;
     for(int t=0;t<Tmpc;++t)
       {
-        std::cout << storage->get_runningModels().size() << " " << t << std::endl;
+        //std::cout << storage->get_runningModels().size() << " " << t << std::endl;
         runmodels.push_back(storage->get_runningModels()[t]);
       }
     ActionPtr termmodel = storage->get_terminalModel();
@@ -49,10 +50,15 @@ using namespace crocoddyl;
                                                   runmodels,termmodel);
 
     findTerminalStateResidual();
+    updateTerminalCost(0);
     
     // Init solverc
     solver = boost::make_shared<SolverFDDP>(problem);
+    solver->set_th_stop(solver_th_stop);
+    solver->set_reg_min(solver_reg_min);
 
+    reg = solver_reg_min;
+    
     // Run first solve
     solver->solve(xs,us);
   }
@@ -62,35 +68,35 @@ using namespace crocoddyl;
     boost::shared_ptr<IntegratedActionModelEuler> iam =
       boost::dynamic_pointer_cast<IntegratedActionModelEuler>(problem->get_terminalModel());
     assert(iam!=0);
-    std::cout << "IAM" << std::endl;
+    //std::cout << "IAM" << std::endl;
 
     boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> dam =
       boost::dynamic_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(iam->get_differential());
     assert(dam!=0);
-    std::cout<<"DAM0" << *dam << std::endl;
+    //std::cout<<"DAM0" << *dam << std::endl;
     
     boost::shared_ptr<CostModelSum> costsum = dam->get_costs();
-    std::cout << "Cost sum" << std::endl;
+    //std::cout << "Cost sum" << std::endl;
 
     const CostModelSum::CostModelContainer & costs = costsum->get_costs();
-    std::cout << "Costs" << std::endl;
+    //std::cout << "Costs" << std::endl;
     assert(costs.find(stateRegCostName)!=costs.end());
            
     boost::shared_ptr<CostModelAbstract> costa =
       boost::const_pointer_cast<CostModelAbstract>(costs.at(stateRegCostName)->cost);
-    std::cout << "IAM" << std::endl;
+    //std::cout << "IAM" << std::endl;
     
     boost::shared_ptr<CostModelResidual> cost =
       boost::dynamic_pointer_cast<CostModelResidual>(costa);
     assert(cost!=0);
-    std::cout << "Cost" << std::endl;
+    //std::cout << "Cost" << std::endl;
     
     cost->get_residual();
     boost::shared_ptr<ResidualModelState> residual =
       boost::dynamic_pointer_cast<ResidualModelState>(cost->get_residual());
     assert(residual!=0);
     residual->get_reference();
-    std::cout << "Res" << std::endl;
+    //std::cout << "Res" << std::endl;
     
     this->terminalStateResidual = residual;
   }
@@ -98,22 +104,22 @@ using namespace crocoddyl;
   void MPCWalk::updateTerminalCost(const int t)
   {
     VectorXd xref = x0;
-    xref.head<3>() += vcomRef*(t+Tmpc);
+    xref.head<3>() += vcomRef*(t+Tmpc)*DT;
     terminalStateResidual->set_reference(xref);
   }
   
   void MPCWalk::calc(const Eigen::Ref<const VectorXd>& x,
                      const int t)
   {
-    std::cout << "calc Tmpc=" << Tmpc << std::endl;
+    //std::cout << "calc Tmpc=" << Tmpc << std::endl;
 
     /// Change the value of the reference cost
-    //updateTerminalCost(t);
+    updateTerminalCost(t);
 
     /// Recede the horizon
     int Tcycle = 2*(Tsingle+Tdouble);
     int tlast = Tstart+1 + ((t+Tmpc-Tstart-1) % Tcycle);
-    std::cout << "tlast = " << tlast << std::endl;
+    // std::cout << "tlast = " << tlast << std::endl;
     problem->circularAppend(storage->get_runningModels()[tlast],
                             storage->get_runningDatas()[tlast]);
 
@@ -132,7 +138,11 @@ using namespace crocoddyl;
     solver->setCandidate(xs_guess,us_guess);
     
     /// Change init constraint
-    problem->set_x0(x); 
+    problem->set_x0(x);
+
+    /// Solve
+    solver->solve(xs_guess,us_guess,solver_maxiter,false,reg);
+    reg = solver->get_xreg();
   }
 
 

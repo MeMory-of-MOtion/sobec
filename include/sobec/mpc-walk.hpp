@@ -88,7 +88,15 @@ public:
   int Tsingle;
   /// @brief Duration of the end phase of the OCP.
   int Tend;
-
+  /// @brief timestep in problem shooting nodes
+  double DT;
+  /// @brief stop threshold to configure the solver
+  double solver_th_stop;
+  /// @brief solver param reg_min
+  double solver_reg_min;
+  /// @brief Solver max number of iteration
+  double solver_maxiter;
+  
   /// @brief name of the regularization cost that is modified by mpc update.
   std::string stateRegCostName;
   
@@ -103,6 +111,9 @@ public:
 
   /// @brief Keep a direct reference to the terminal residual
   boost::shared_ptr<ResidualModelState> terminalStateResidual;
+
+protected:
+  double reg;
   
 };
 
