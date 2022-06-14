@@ -2,6 +2,7 @@ import pinocchio as pin
 import numpy as np
 import matplotlib.pylab as plt  # noqa: F401
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
+import crocoddyl as croc
 
 # Local imports
 import sobec
