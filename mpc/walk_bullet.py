@@ -3,6 +3,7 @@ import crocoddyl as croc
 import numpy as np
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 import time
+import numpy.random
 
 # Local imports
 from save_traj import save_traj
@@ -14,30 +15,55 @@ from walk_mpc import WalkMPC
 from pinbullet import SimuProxy
 import viewer_multiple
 
+q_init = np.array([ 
+        0.00000e+00,  0.00000e+00,  1.01927e+00,  
+        0.00000e+00, 0.00000e+00,  0.00000e+00,  1.00000e+00,  
+        0.00000e+00, 0.00000e+00, -4.11354e-01,  8.59395e-01, -4.48041e-01, -1.70800e-03,  
+        0.00000e+00,  0.00000e+00, -4.11354e-01, 8.59395e-01, -4.48041e-01, -1.70800e-03,  
+        0.00000e+00, 6.76100e-03,  
+        2.58470e-01,  1.73046e-01, -2.00000e-04, -5.25366e-01,  0.00000e+00,  0.00000e+00,  1.00000e-01, 0.00000e+00, 
+        -2.58470e-01, -1.73046e-01,  2.00000e-04,-5.25366e-01,  0.00000e+00,  0.00000e+00,  1.00000e-01, 0.00000e+00,  
+        0.00000e+00,  0.00000e+00])
+q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24+8]]])
+
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
 simu = SimuProxy()
 simu.loadExampleRobot("talos")
-simu.loadBulletModel()  # pyb.GUI)
+simu.rmodel.q0 = q_init
+simu.loadBulletModel()#pyb.GUI)
 simu.freeze(talos_low.jointToLockNames)
 simu.setTorqueControlMode()
 simu.setTalosDefaultFriction()
 # ## OCP ########################################################################
 # ## OCP ########################################################################
 
-robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
+robot = RobotWrapper(simu.rmodel,contactKey='sole_link')
+robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
 walkParams = WalkParams()
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 assert norm(robot.x0 - simu.getState()) < 1e-6
 
+#contactPattern = (
+#    []
+#    + [[1, 1]] * walkParams.T_START
+#    + [[1, 1]] * walkParams.T_DOUBLE
+#    + [[0, 1]] * walkParams.T_SINGLE
+#    + [[1, 1]] * walkParams.T_DOUBLE
+#    + [[1, 0]] * walkParams.T_SINGLE
+#    + [[1, 1]] * walkParams.T_DOUBLE
+#    + [[1, 1]] * walkParams.T_END
+#    + [[1, 1]]
+#)
+
 contactPattern = (
     []
     + [[1, 1]] * walkParams.T_START
     + [[1, 1]] * walkParams.T_DOUBLE
-    + [[0, 1]] * walkParams.T_SINGLE
-    + [[1, 1]] * walkParams.T_DOUBLE
     + [[1, 0]] * walkParams.T_SINGLE
+    + [[1, 1]] * walkParams.T_DOUBLE
+    + [[0, 1]] * walkParams.T_SINGLE
     + [[1, 1]] * walkParams.T_DOUBLE
     + [[1, 1]] * walkParams.T_END
     + [[1, 1]]
@@ -73,10 +99,14 @@ hx = []
 hu = []
 hxs = []
 
-
 class SolverError(Exception):
     pass
 
+def play():
+    import time
+    for i in range(0, len(hx), 10):
+        viz.display(hx[i][:robot.model.nq])
+        time.sleep(1e-2)
 
 # FOR LOOP
 for s in range(2000):
@@ -92,8 +122,13 @@ for s in range(2000):
             mpc.state.diff(x, mpc.solver.xs[0])
         )
 
+        
+        # generate random numbers close to 1 that multiply the desired torques
+        noise = np.ones_like(torques) + walkParams.torque_noise*(2*np.random.rand(torques.shape[0])-1.0)
+        real_torques = noise*torques
+        
         # Run one step of simu
-        simu.step(torques)
+        simu.step(real_torques)
 
         hx.append(simu.getState())
         hu.append(torques.copy())
@@ -154,3 +189,6 @@ print("Run ```plt.ion(); plt.show()``` to display the plots.")
 
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
+
+print("Run ```play()``` to visualize the motion.")
+
