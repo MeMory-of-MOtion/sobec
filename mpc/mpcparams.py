@@ -41,18 +41,18 @@ class WalkParams(params.WalkParams):
     # copWeight = .5
 
     # New parameters
-    T_START = 30
-    T_SINGLE = 80 #60
-    T_DOUBLE = 11 #11
-    T_END = 30
-    Tmpc = 160 #120
-    
+    Tstart = 30
+    Tsingle = 80 # 60
+    Tdouble = 11 # 11
+    Tend = 30
+    Tmpc = 160 # 120
+
     refFootFlyingAltitude = 7e-2
     flyHighSlope = 3 / refFootFlyingAltitude
     flyWeight = 10*20
     baumgartGains = np.array([0, 100])
 
-    VCOM_TARGET = np.array([0.05, 0, 0])
+    vcomRef = np.array([0.05, 0, 0])
     # vcomWeight = 2
     # comWeight = 1000  # 20
     vcomImportance = np.array([0.0, 0, 1])
@@ -63,5 +63,5 @@ class WalkParams(params.WalkParams):
     torque_noise = 0.0 # max magnitude of the multiplicative joint torque noise, expressed as a percentage (i.e. 1=100%)
 
     ### DEBUG
-    #showPreview = True
-        
+    showPreview = False
+    
