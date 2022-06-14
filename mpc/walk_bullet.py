@@ -45,27 +45,29 @@ assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 assert norm(robot.x0 - simu.getState()) < 1e-6
 
-#contactPattern = (
-#    []
-#    + [[1, 1]] * walkParams.T_START
-#    + [[1, 1]] * walkParams.T_DOUBLE
-#    + [[0, 1]] * walkParams.T_SINGLE
-#    + [[1, 1]] * walkParams.T_DOUBLE
-#    + [[1, 0]] * walkParams.T_SINGLE
-#    + [[1, 1]] * walkParams.T_DOUBLE
-#    + [[1, 1]] * walkParams.T_END
-#    + [[1, 1]]
-#)
+# Left foot moves first
+# contactPattern = (
+#     []
+#     + [[1, 1]] * walkParams.Tstart
+#     + [[1, 1]] * walkParams.Tdouble
+#     + [[0, 1]] * walkParams.Tsingle
+#     + [[1, 1]] * walkParams.Tdouble
+#     + [[1, 0]] * walkParams.Tsingle
+#     + [[1, 1]] * walkParams.Tdouble
+#     + [[1, 1]] * walkParams.Tend
+#     + [[1, 1]]
+# )
 
+# Right foot moves first
 contactPattern = (
     []
-    + [[1, 1]] * walkParams.T_START
-    + [[1, 1]] * walkParams.T_DOUBLE
-    + [[1, 0]] * walkParams.T_SINGLE
-    + [[1, 1]] * walkParams.T_DOUBLE
-    + [[0, 1]] * walkParams.T_SINGLE
-    + [[1, 1]] * walkParams.T_DOUBLE
-    + [[1, 1]] * walkParams.T_END
+    + [[1, 1]] * walkParams.Tstart
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 0]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[0, 1]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 1]] * walkParams.Tend
     + [[1, 1]]
 )
 

@@ -60,7 +60,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             costs.addCost("com", comCost, p.comWeight)
 
         comVelResidual = sobec.ResidualModelCoMVelocity(
-            state, p.VCOM_TARGET, actuation.nu
+            state, p.vcomRef, actuation.nu
         )
         comVelAct = croc.ActivationModelWeightedQuad(p.vcomImportance)
         comVelCost = croc.CostModelResidual(state, comVelAct, comVelResidual)
@@ -315,7 +315,7 @@ def buildTerminalModel(robotWrapper, contactPattern, params):
 
     if "stateTerminalTarget" not in locals():
         stateTerminalTarget = robot.x0.copy()
-        stateTerminalTarget[:3] += p.VCOM_TARGET * T * p.DT
+        stateTerminalTarget[:3] += p.vcomRef * T * p.DT
     stateTerminalResidual = croc.ResidualModelState(
         state, stateTerminalTarget, actuation.nu
     )
