@@ -106,8 +106,8 @@ ddp.solve(x0s, u0s, 200)
 
 sol = walk.Solution(robot, ddp)
 
-plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
-plotter.setData(contactPattern, sol.xs, sol.us, sol.fs0)
+# plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+# plotter.setData(contactPattern, sol.xs, sol.us, sol.fs0)
 
 target = problem.terminalModel.differential.costs.costs[
     "stateReg"
@@ -118,13 +118,13 @@ forceRef = [
 ]
 forceRef = [np.concatenate(fs) for fs in zip(*forceRef)]
 
-plotter.plotBasis(target)
-plotter.plotTimeCop()
-plotter.plotCopAndFeet(walkParams.FOOT_SIZE, 0.6)
-plotter.plotForces(forceRef)
-plotter.plotCom(robot.com0)
-plotter.plotFeet()
-plotter.plotFootCollision(walkParams.footMinimalDistance)
+# plotter.plotBasis(target)
+# plotter.plotTimeCop()
+# plotter.plotCopAndFeet(walkParams.FOOT_SIZE, 0.6)
+# plotter.plotForces(forceRef)
+# plotter.plotCom(robot.com0)
+# plotter.plotFeet()
+# plotter.plotFootCollision(walkParams.footMinimalDistance)
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
 
 # ### SAVE #####################################################################
