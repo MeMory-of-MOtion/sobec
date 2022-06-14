@@ -1,5 +1,5 @@
 #include "sobec/fwd.hpp"
-//keep this line on top
+// keep this line on top
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/return_internal_reference.hpp>
