@@ -169,8 +169,8 @@ for s in range(int(20.0 / walkParams.DT)):
         x = simu.getState()
 
         # Compute Ricatti feedback
-        torques = mpc.solver.us[0] + mpc.solver.K[0] @ (
-            mpc.state.diff(x, mpc.solver.xs[0])
+        torques = mpc.solver.us[0] + np.dot(
+            mpc.solver.K[0], (mpc.state.diff(x, mpc.solver.xs[0]))
         )
 
         # generate random numbers close to 1 that multiply the desired torques
