@@ -60,6 +60,18 @@ void exposeMPCWalk() {
                   bp::make_getter(&MPCWalk::vcomRef, bp::return_internal_reference<>()),
                   bp::make_setter(&MPCWalk::vcomRef),
                   "Reference of the com velocity, to tune the MPC at runtime.")
+    .add_property("solver_th_stop",
+                  bp::make_getter(&MPCWalk::solver_th_stop),bp::make_setter(&MPCWalk::solver_th_stop),
+                  "Stop threshold to configure the solver.")
+    .add_property("solver_reg_min",
+                  bp::make_getter(&MPCWalk::solver_reg_min),bp::make_setter(&MPCWalk::solver_reg_min),
+                  "reg_min param (minimal regularization) to configure the solver.")
+    .add_property("solver_maxiter",
+                  bp::make_getter(&MPCWalk::solver_maxiter),bp::make_setter(&MPCWalk::solver_maxiter),
+                  "maxiter param to configure the solver.")
+    .add_property("DT",
+                  bp::make_getter(&MPCWalk::DT),bp::make_setter(&MPCWalk::DT),
+                  "time step duration of the shooting nodes.")
     .add_property("x0",
                   bp::make_getter(&MPCWalk::x0, bp::return_internal_reference<>()),
                   bp::make_setter(&MPCWalk::x0),
