@@ -62,7 +62,7 @@ Robot_2_StateMap = {
                                         + [0]*14 + [1]*20 ),
         controlImportance = np.array([ 1 ]*14)
     ),
-    
+
     "talos_12": StateRelatedParams(
         stateImportance = np.array( TalosInfo.basisQWeights
                                     + TalosInfo.legQWeights *2

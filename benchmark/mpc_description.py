@@ -21,7 +21,7 @@ from sobec.walk.params import WalkParams as WalkDefaultParams
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
 urdf = robex.load("talos_legs")
-urdf.model.name = 'talos'
+urdf.model.name = "talos"
 robot = RobotWrapper(urdf.model, contactKey="sole_link")
 
 # #####################################################################################
@@ -36,6 +36,7 @@ robot = RobotWrapper(urdf.model, contactKey="sole_link")
 
 class WalkParams(WalkDefaultParams):
     pass
+
 
 walkParams = WalkParams(robot.name)
 assert len(walkParams.stateImportance) == robot.model.nv * 2
@@ -81,11 +82,11 @@ mpc.solver.setCallbacks(
 )
 
 
-'''
+"""
 if __name__ == "__main__":
     print("*** MAIN ***")
     x = robot.x0.copy()
     for t in range(1, 100):
         mpc.calc(x, t)
         x = mpc.solver.xs[1]
-'''
+"""
