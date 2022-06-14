@@ -14,6 +14,7 @@
 
 #include <crocoddyl/multibody/actions/contact-fwddyn.hpp>
 #include <crocoddyl/multibody/residuals/state.hpp>
+#include <crocoddyl/multibody/states/multibody.hpp>
 #include "sobec/mpc-walk.hpp"
 
 namespace sobec {
@@ -49,7 +50,8 @@ using namespace crocoddyl;
     problem = boost::make_shared<ShootingProblem>(x0,
                                                   runmodels,termmodel);
 
-    findTerminalStateResidual();
+    findTerminalStateResidualModel();
+    findStateModel();
     updateTerminalCost(0);
     
     // Init solverc
@@ -63,7 +65,12 @@ using namespace crocoddyl;
     solver->solve(xs,us);
   }
 
-  void MPCWalk::findTerminalStateResidual()
+  void MPCWalk::findStateModel()
+  {
+    state = boost::dynamic_pointer_cast<StateMultibody>(problem->get_terminalModel()->get_state());
+  }
+    
+  void MPCWalk::findTerminalStateResidualModel()
   {
     boost::shared_ptr<IntegratedActionModelEuler> iam =
       boost::dynamic_pointer_cast<IntegratedActionModelEuler>(problem->get_terminalModel());

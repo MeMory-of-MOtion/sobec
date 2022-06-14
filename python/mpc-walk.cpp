@@ -82,6 +82,9 @@ void exposeMPCWalk() {
     .add_property("problem",
                   bp::make_getter(&MPCWalk::problem, bp::return_value_policy<bp::return_by_value>()),
                   "Shooting problem used for MPC solver")
+    .add_property("state",
+                  bp::make_getter(&MPCWalk::state, bp::return_value_policy<bp::return_by_value>()),
+                  "State model of the terminal node")
     .add_property("solver",
                   bp::make_getter(&MPCWalk::solver, bp::return_value_policy<bp::return_by_value>()),
                   "OCP Solver inside the MPC.")

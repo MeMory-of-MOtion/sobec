@@ -48,7 +48,8 @@ class MPCWalk {
 
   /////// INTERNALS
   void updateTerminalCost(const int t);
-  void findTerminalStateResidual();
+  void findTerminalStateResidualModel();
+  void findStateModel();
 
   
   // Setters and getters
@@ -112,6 +113,9 @@ public:
   /// @brief Keep a direct reference to the terminal residual
   boost::shared_ptr<ResidualModelState> terminalStateResidual;
 
+  /// @brief Keep a direct reference to the terminal state
+  boost::shared_ptr<StateMultibody> state;
+  
 protected:
   double reg;
   
