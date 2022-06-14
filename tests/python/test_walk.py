@@ -1,4 +1,3 @@
-import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 import matplotlib.pylab as plt  # noqa: F401

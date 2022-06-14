@@ -1,4 +1,2 @@
-from . import ocp
-from . import weight_share
-from . import params
-from . import robot_wrapper
+# flake8: noqa
+from . import ocp, weight_share, params, robot_wrapper

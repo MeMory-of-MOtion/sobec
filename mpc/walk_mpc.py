@@ -125,21 +125,19 @@ def configureMPCWalk(mpc, params):
 
 if __name__ == "__main__":
     import pinocchio as pin
-    import crocoddyl as croc
-    import numpy as np
     import matplotlib.pylab as plt  # noqa: F401
     from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
-    import time
 
     # Local imports
-    from save_traj import save_traj
-    import walk_plotter
     from robot_wrapper import RobotWrapper
     import walk_ocp as walk
     from mpcparams import WalkParams
     import talos_low
-    from walk_mpc import WalkMPC
-    import viewer_multiple
+
+    # import viewer_multiple
+    # from save_traj import save_traj
+    # import walk_plotter
+    # from walk_mpc import WalkMPC
 
     urdf = talos_low.load()
     robot = RobotWrapper(urdf.model, contactKey="sole_link")
@@ -155,14 +153,14 @@ if __name__ == "__main__":
         + [[1, 1]] * walkParams.Tend
         + [[1, 1]]
     )
-    # ### DDP #############################################################################
+    # ### DDP #########################################################################
     ddp = walk.buildSolver(robot, contactPattern, walkParams)
     problem = ddp.problem
     x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
     ddp.setCallbacks([croc.CallbackVerbose()])
     ddp.solve(x0s, u0s, 200)
 
-    # ### MPC #############################################################################
+    # ### MPC #########################################################################
     problem1 = walk.buildSolver(robot, contactPattern, walkParams).problem
     problem2 = walk.buildSolver(robot, contactPattern, walkParams).problem
 
@@ -185,6 +183,6 @@ if __name__ == "__main__":
 
         assert norm(mpc.solver.xs[10] - mpccpp.solver.xs[10]) < 1e-6
 
-    # ### DEBUG ##########################################################################
+    # ### DEBUG #######################################################################
     pin.SE3.__repr__ = pin.SE3.__str__
     np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)

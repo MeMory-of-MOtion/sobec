@@ -3,7 +3,6 @@ import crocoddyl as croc
 import numpy as np
 import matplotlib.pylab as plt  # noqa: F401
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
-import time
 
 # Local imports
 import sobec
@@ -13,9 +12,11 @@ from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
 import talos_low
-from walk_mpc import WalkMPC, configureMPCWalk
-import viewer_multiple
+from walk_mpc import configureMPCWalk
 import miscdisp
+
+# import viewer_multiple
+# from walk_mpc import WalkMPC
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
