@@ -4,7 +4,7 @@ import numpy as np
 
 class WalkParamsNew(swparams.WalkParams):
     def __init__(self, name="talos_14"):
-        swparams.WalkParams.__init__(self, name)
+        super(WalkParamsNew, self).__init__(self, name)
 
 
 # ### KEPT FOR REFERENCES ##################################################
