@@ -15,4 +15,5 @@ from .sobec_pywrap import (
     ContactModelMultiple,
     DifferentialActionModelContactFwdDynamics,
     ResidualModelContactForce,
+    MPCWalk,
 )

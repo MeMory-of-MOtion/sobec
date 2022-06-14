@@ -2,26 +2,71 @@ import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
-import matplotlib.pylab as plt  # noqa: F401
-
-# import time
+import time
+import numpy.random
 
 # Local imports
+import sobec
 from save_traj import save_traj
 from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
-import walk_plotter
-
-# import miscdisp
 import talos_low
-from walk_mpc import WalkMPC
+from walk_mpc import configureMPCWalk
 from pinbullet import SimuProxy
+import viewer_multiple
+import miscdisp
+
+q_init = np.array(
+    [
+        0.00000e00,
+        0.00000e00,
+        1.01927e00,
+        0.00000e00,
+        0.00000e00,
+        0.00000e00,
+        1.00000e00,
+        0.00000e00,
+        0.00000e00,
+        -4.11354e-01,
+        8.59395e-01,
+        -4.48041e-01,
+        -1.70800e-03,
+        0.00000e00,
+        0.00000e00,
+        -4.11354e-01,
+        8.59395e-01,
+        -4.48041e-01,
+        -1.70800e-03,
+        0.00000e00,
+        6.76100e-03,
+        2.58470e-01,
+        1.73046e-01,
+        -2.00000e-04,
+        -5.25366e-01,
+        0.00000e00,
+        0.00000e00,
+        1.00000e-01,
+        0.00000e00,
+        -2.58470e-01,
+        -1.73046e-01,
+        2.00000e-04,
+        -5.25366e-01,
+        0.00000e00,
+        0.00000e00,
+        1.00000e-01,
+        0.00000e00,
+        0.00000e00,
+        0.00000e00,
+    ]
+)
+q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
 simu = SimuProxy()
 simu.loadExampleRobot("talos")
+simu.rmodel.q0 = q_init
 simu.loadBulletModel()  # pyb.GUI)
 simu.freeze(talos_low.jointToLockNames)
 simu.setTorqueControlMode()
@@ -30,20 +75,35 @@ simu.setTalosDefaultFriction()
 # ## OCP ########################################################################
 
 robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
+robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
 walkParams = WalkParams()
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 assert norm(robot.x0 - simu.getState()) < 1e-6
 
+# Left foot moves first
+# contactPattern = (
+#     []
+#     + [[1, 1]] * walkParams.Tstart
+#     + [[1, 1]] * walkParams.Tdouble
+#     + [[0, 1]] * walkParams.Tsingle
+#     + [[1, 1]] * walkParams.Tdouble
+#     + [[1, 0]] * walkParams.Tsingle
+#     + [[1, 1]] * walkParams.Tdouble
+#     + [[1, 1]] * walkParams.Tend
+#     + [[1, 1]]
+# )
+
+# Right foot moves first
 contactPattern = (
     []
-    + [[1, 1]] * walkParams.T_START
-    + [[1, 1]] * walkParams.T_DOUBLE
-    + [[0, 1]] * walkParams.T_SINGLE
-    + [[1, 1]] * walkParams.T_DOUBLE
-    + [[1, 0]] * walkParams.T_SINGLE
-    + [[1, 1]] * walkParams.T_DOUBLE
-    + [[1, 1]] * walkParams.T_END
+    + [[1, 1]] * walkParams.Tstart
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 0]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[0, 1]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 1]] * walkParams.Tend
     + [[1, 1]]
 )
 
@@ -54,7 +114,11 @@ x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 
-mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
+# mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
+mpc = sobec.MPCWalk(ddp.problem)
+configureMPCWalk(mpc, walkParams)
+mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
+# mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -66,7 +130,10 @@ try:
     viz.loadViewerModel()
     gv = viz.viewer.gui
     viz.display(simu.getState()[: robot.model.nq])
-
+    viz0 = viewer_multiple.GepettoGhostViewer(
+        simu.rmodel, simu.gmodel_col, simu.gmodel_vis, 0.8
+    )
+    viz0.hide()
 except (ImportError, AttributeError):
     print("No viewer")
 
@@ -81,8 +148,16 @@ class SolverError(Exception):
     pass
 
 
+def play():
+    import time
+
+    for i in range(0, len(hx), 10):
+        viz.display(hx[i][: robot.model.nq])
+        time.sleep(1e-2)
+
+
 # FOR LOOP
-for s in range(2000):
+for s in range(int(20.0 / walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -95,28 +170,52 @@ for s in range(2000):
             mpc.state.diff(x, mpc.solver.xs[0])
         )
 
+        # generate random numbers close to 1 that multiply the desired torques
+        noise = np.ones_like(torques) + walkParams.torque_noise * (
+            2 * np.random.rand(torques.shape[0]) - 1.0
+        )
+        real_torques = noise * torques
+
         # Run one step of simu
-        simu.step(torques)
+        simu.step(real_torques)
 
         hx.append(simu.getState())
         hu.append(torques.copy())
 
     # ###############################################################################
-    # mpc.run(mpc.solver.xs[1],s)
-    mpc.run(simu.getState(), s)
+
+    start_time = time.time()
+    mpc.calc(simu.getState(), s)
+    solve_time = time.time() - start_time
     if mpc.solver.iter == 0:
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
-    lrm = mpc.problem.runningModels[20].differential.costs.costs
-    if (
-        "%s_altitudeimpact" % robot.model.frames[robot.contactIds[0]].name in lrm
-        or "%s_altitudeimpact" % robot.model.frames[robot.contactIds[1]].name in lrm
-    ):
-        mpc.moreIterations(50)
-        print("+%s" % mpc.solver.iter)
+    print(
+        f"{s:4d} {miscdisp.dispocp(mpc.problem,robot.contactIds)} "
+        # f"{mpc.basisRef[0]:.03} "
+        f"{mpc.solver.iter:4d} "
+        f"reg={mpc.solver.x_reg:.3} "
+        f"a={mpc.solver.stepLength:.3} "
+        f"solveTime={solve_time:.3}"
+    )
+    if not s % 10:
+        viz.display(simu.getState()[: robot.model.nq])
 
-    viz.display(simu.getState()[: robot.model.nq])
+    # Before each takeoff, the robot display the previewed movement (3 times)
+    if (
+        walkParams.showPreview
+        and len(mpc.problem.runningModels[0].differential.contacts.contacts) == 2
+        and len(mpc.problem.runningModels[1].differential.contacts.contacts) == 1
+    ):
+        print("Ready to take off!")
+        viz0.show()
+        viz0.play(np.array(mpc.solver.xs)[:, : robot.model.nq].T, walkParams.DT)
+        time.sleep(1)
+        viz0.play(np.array(mpc.solver.xs)[::-1, : robot.model.nq].T, walkParams.DT)
+        time.sleep(1)
+        viz0.play(np.array(mpc.solver.xs)[:, : robot.model.nq].T, walkParams.DT)
+        time.sleep(1)
 
 # #####################################################################################
 # #####################################################################################
@@ -129,6 +228,10 @@ if walkParams.saveFile is not None:
 # #####################################################################################
 # #####################################################################################
 
+# The 2 next import must not be included **AFTER** pyBullet starts.
+import matplotlib.pylab as plt  # noqa: E402,F401
+import walk_plotter  # noqa: E402
+
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)
 
@@ -139,7 +242,7 @@ target = problem.terminalModel.differential.costs.costs[
 plotter.plotBasis(target)
 plotter.plotCom(robot.com0)
 plotter.plotFeet()
-plotter.plotFootCollision(walkParams.footMinimalDistance)
+plotter.plotFootCollision(walkParams.footMinimalDistance, 50)
 
 # mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
 # mpcplotter.plotFeet()
@@ -148,3 +251,5 @@ print("Run ```plt.ion(); plt.show()``` to display the plots.")
 
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
+
+print("Run ```play()``` to visualize the motion.")

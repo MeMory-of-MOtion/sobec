@@ -1,10 +1,18 @@
+import sys
+
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 
+
 # Local imports
 import sobec
-from weight_share import computeReferenceForces
+from sobec.walk.weight_share import computeReferenceForces
+
+
+# workaround python 2
+if sys.version_info.major < 3:
+    FileNotFoundError = IOError
 
 
 def buildRunningModels(robotWrapper, contactPattern, params):
@@ -59,9 +67,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
         if p.comWeight > 0:
             costs.addCost("com", comCost, p.comWeight)
 
-        comVelResidual = sobec.ResidualModelCoMVelocity(
-            state, p.VCOM_TARGET, actuation.nu
-        )
+        comVelResidual = sobec.ResidualModelCoMVelocity(state, p.vcomRef, actuation.nu)
         comVelAct = croc.ActivationModelWeightedQuad(p.vcomImportance)
         comVelCost = croc.CostModelResidual(state, comVelAct, comVelResidual)
         costs.addCost("comVelCost", comVelCost, p.vcomWeight)
@@ -73,7 +79,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
 
             copResidual = sobec.ResidualModelCenterOfPressure(state, cid, actuation.nu)
             copAct = croc.ActivationModelWeightedQuad(
-                np.array([1 / p.FOOT_SIZE**2] * 2)
+                np.array([1.0 / p.FOOT_SIZE**2] * 2)
             )
             copCost = croc.CostModelResidual(state, copAct, copResidual)
             costs.addCost("%s_cop" % robot.model.frames[cid].name, copCost, p.copWeight)
@@ -217,7 +223,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
 
             # Slope is /2 since it is squared in casadi (je me comprends)
             flyHighResidual = sobec.ResidualModelFlyHigh(
-                state, fid, p.flyHighSlope / 2, actuation.nu
+                state, fid, p.flyHighSlope / 2.0, actuation.nu
             )
             flyHighCost = croc.CostModelResidual(state, flyHighResidual)
             costs.addCost(
@@ -313,9 +319,9 @@ def buildTerminalModel(robotWrapper, contactPattern, params):
     # Costs
     costs = croc.CostModelSum(state, actuation.nu)
 
-    if "stateTerminalTarget" not in locals():
-        stateTerminalTarget = robot.x0.copy()
-        stateTerminalTarget[:3] += p.VCOM_TARGET * T * p.DT
+    # if "stateTerminalTarget" not in locals():
+    stateTerminalTarget = robot.x0.copy()
+    stateTerminalTarget[:3] += p.vcomRef * T * p.DT
     stateTerminalResidual = croc.ResidualModelState(
         state, stateTerminalTarget, actuation.nu
     )

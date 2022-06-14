@@ -1,6 +1,34 @@
 import pinocchio as pin
 import numpy as np
-from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
+
+
+class GepettoGhostViewer:
+    def __init__(self, model, collision_model, visual_model, alpha, sceneName="ghost"):
+        Viz = pin.visualize.GepettoVisualizer
+        viz = Viz(model, collision_model, visual_model)
+        viz.initViewer(sceneName=sceneName)
+        viz.loadViewerModel()
+
+        self.viz = viz
+        self.setTransparency(alpha)
+        self.viewer = viz.viewer
+
+    def setTransparency(self, alpha):
+        for g in self.viz.visual_model.geometryObjects:
+            node = self.viz.getViewerNodeName(g, pin.GeometryType.VISUAL)
+            self.viz.viewer.gui.setFloatProperty(node, "Alpha", alpha)
+
+    def display(self, q):
+        self.viz.display(q)
+
+    def play(self, qs, dt):
+        self.viz.play(qs, dt)
+
+    def hide(self):
+        self.viz.displayVisuals(False)
+
+    def show(self):
+        self.viz.displayVisuals(True)
 
 
 class GepettoMultipleVisualizers:

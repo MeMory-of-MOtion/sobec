@@ -3,6 +3,7 @@
 #include "sobec/python.hpp"
 
 BOOST_PYTHON_MODULE(sobec_pywrap) {
+  boost::python::import("crocoddyl");
   sobec::python::exposeResidualVelCollision();
   sobec::python::exposeResidualCoMVelocity();
   sobec::python::exposeResidualCenterOfPressure();
@@ -15,4 +16,5 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeMultipleContacts();
   sobec::python::exposeDAMContactFwdDyn();
   sobec::python::exposeResidualContactForce();
+  sobec::python::exposeMPCWalk();
 }
