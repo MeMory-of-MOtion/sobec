@@ -86,7 +86,7 @@ class WalkParams:
     soleCollision = True
     towCollision = False
     heelCollision = False
-    MAIN_JOINTS = [
+    mainJointIds = [
         "leg_%s_%s_joint" % (side, idx)
         for side in ["left", "right"]
         for idx in [1, 2, 4]
