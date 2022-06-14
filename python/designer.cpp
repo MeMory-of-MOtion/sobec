@@ -6,17 +6,16 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <pinocchio/fwd.hpp>  
+#include <pinocchio/fwd.hpp>
 // This line must be the first include
 #include <boost/python.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/enum.hpp>
+#include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
+#include <eigenpy/eigenpy.hpp>
+#include <pinocchio/algorithm/model.hpp>
 
 #include "pinocchio/multibody/model.hpp"
-#include <pinocchio/algorithm/model.hpp>
-#include <eigenpy/eigenpy.hpp>
-
 #include "sobec/designer.hpp"
 
 namespace sobec {
@@ -30,7 +29,7 @@ inline void py_list_to_std_vector(const bp::object &iterable,
                        boost::python::stl_input_iterator<T>());
 }
 
-void initialize(RobotDesigner &self, bp::dict settings) {
+void initialize(sobec::RobotDesigner &self, bp::dict settings) {
   RobotDesignerSettings conf;
   conf.urdfPath = bp::extract<std::string>(settings["urdfPath"]);
   conf.srdfPath = bp::extract<std::string>(settings["srdfPath"]);

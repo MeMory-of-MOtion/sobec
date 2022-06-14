@@ -31,7 +31,7 @@ class ClasesTestCase(unittest.TestCase):
         x0 = py_mpc.shapeState(py_design.rmodelComplete.q0, py_design.rmodelComplete.v0)
         py_horizon = ReceidingHorizon(config, py_design, x0, modeller, config.T)
 
-        ############# Bindings ##############
+        # ############# Bindings ##############
         design_conf = dict(
             urdfPath=config.modelPath + config.URDF_SUBPATH,
             srdfPath=config.modelPath + config.SRDF_SUBPATH,
@@ -67,7 +67,7 @@ class ClasesTestCase(unittest.TestCase):
         design = RobotDesigner()
         design.initialize(design_conf)
 
-        ## model formulation -- to create Horizon
+        # model formulation -- to create Horizon
         MM_conf = dict(
             timeStep=config.DT,
             gravity=config.gravity,
@@ -99,7 +99,7 @@ class ClasesTestCase(unittest.TestCase):
         supports = [Support.DOUBLE] * config.T
         all_models = formuler.formulateHorizon(supports)
 
-        ## Horizon
+        # Horizon
 
         # Checking horizon_manager
         H_conf = dict(
@@ -108,7 +108,7 @@ class ClasesTestCase(unittest.TestCase):
         horizon = HorizonManager()
         horizon.initialize(H_conf, design.get_x0(), all_models, all_models[-1])
 
-        ## MPC
+        # MPC
 
         wbc_conf = dict(
             horizonSteps=config.preview_steps,
