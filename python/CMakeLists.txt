@@ -40,6 +40,7 @@ set(${PY_WALK_NAME}_PYTHON
   weight_share.py
   robot_wrapper.py
   config_mpc.py
+  miscdisp.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})

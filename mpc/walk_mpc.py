@@ -15,7 +15,7 @@ from mpcparams import WalkParams
 import utils.talos_low as talos_low
 from sobec.walk.config_mpc import configureMPCWalk
 import utils.viewer_multiple as viewer_multiple
-import utils.miscdisp as miscdisp
+import sobec.walk.miscdisp as miscdisp
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
@@ -70,7 +70,10 @@ contactPattern = (
 ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
 x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
-ddp.setCallbacks([croc.CallbackVerbose()])
+ddp.setCallbacks([
+    #croc.CallbackVerbose(),
+    miscdisp.CallbackMPCWalk(robot.contactIds)
+])
 
 ddp.solve(x0s, u0s, 200)
 
