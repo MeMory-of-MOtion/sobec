@@ -163,7 +163,7 @@ void WBC::updateNonThinkingReferences() {
 
 void WBC::recedeWithCycle() {
   ///@todo: We switch from walking to standing at the beggining of the double
-  ///support stage.
+  /// support stage.
   /// We can evaluate later the possibility of resetting the walking cycle, to
   /// start at the end of the beginning of a single support when we switch back
   /// to walking.
