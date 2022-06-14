@@ -37,7 +37,6 @@ endforeach()
 set(${PY_WALK_NAME}_PYTHON
   __init__.py
   ocp.py
-  params.py
   weight_share.py
   robot_wrapper.py
   )
