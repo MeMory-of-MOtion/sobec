@@ -5,10 +5,10 @@ import matplotlib.pylab as plt  # noqa: F401
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
 # Local imports
-from save_traj import loadProblemConfig, save_traj
+from utils.save_traj import loadProblemConfig, save_traj
 from params import WalkParams
-import walk_plotter
-import talos_low
+import utils.walk_plotter as walk_plotter
+import utils.talos_low as talos_low
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
 
