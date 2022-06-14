@@ -98,7 +98,7 @@ class WalkParams:
     terminalNoVelocityWeight = 2000
     terminalXTargetWeight = 0  # ##DDP## 2000
 
-    ### Other terms related to the cost functions
+    # ## Other terms related to the cost functions
     enforceMinimalFootDistance = False
 
     refFootFlyingAltitude = 7e-2
@@ -116,16 +116,16 @@ class WalkParams:
 
     footSize = 0.05
 
-    ### Contact parameters for the kkt dynamics
+    # ## Contact parameters for the kkt dynamics
     kktDamping = 0  # 1e-6
     baumgartGains = np.array([0, 100])
 
-    ### Parameters related to the solver
+    # ## Parameters related to the solver
     solver_th_stop = 1e-3
     solver_maxiter = 2
     solver_reg_min = 1e-6
 
-    ### Parameter related to the time lines
+    # ## Parameter related to the time lines
     DT = 0.010
     Tstart = int(0.3 / DT)
     Tsingle = int(0.8 / DT)  # 60
@@ -133,12 +133,12 @@ class WalkParams:
     Tend = int(0.3 / DT)
     Tmpc = int(1.6 / DT)  # 120
 
-    ### Parameters related to the IO file (load and save)
+    # ## Parameters related to the IO file (load and save)
     guessFile = None
     saveFile = "/tmp/sobec.npy"
     showPreview = False
 
-    ### Parameters related to the control environment
+    # ## Parameters related to the control environment
     # max magnitude of the multiplicative joint torque noise, expressed as a percentage
     # (i.e. 1=100%)
     torque_noise = 0.0

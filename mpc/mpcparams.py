@@ -11,7 +11,7 @@ class WalkParamsNew(swparams.WalkParams):
 # ### KEPT FOR REFERENCES ##################################################
 # ### KEPT FOR REFERENCES ##################################################
 
-import params
+import params  # noqa: E402
 
 basisQWeight = [0, 0, 0, 50, 50, 0]
 legQWeight = [5, 5, 1, 2, 1, 1]
