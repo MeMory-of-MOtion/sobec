@@ -111,7 +111,7 @@ def play():
         time.sleep(1e-2)
 
 # FOR LOOP
-for s in range(2000):
+for s in range(int(20.0/walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates

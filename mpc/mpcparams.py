@@ -42,10 +42,10 @@ class WalkParams(params.WalkParams):
     # copWeight = .5
 
     # New parameters
-    T_START = int(0.3/DT)
-    T_SINGLE = int(0.8/DT) #60
-    T_DOUBLE = int(0.11/DT) #11
-    T_END = int(0.3/DT)
+    Tstart = int(0.3/DT)
+    Tsingle = int(0.8/DT) #60
+    Tdouble = int(0.11/DT) #11
+    Tend = int(0.3/DT)
     Tmpc = int(1.6/DT) #120
     
     refFootFlyingAltitude = 7e-2
