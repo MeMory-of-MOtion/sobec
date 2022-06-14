@@ -1,4 +1,5 @@
 import pinocchio as pin
+import numpy as np
 from pinbullet import SimuProxy
 from ocp_walk_feet_traj import OCP
 
@@ -75,7 +76,9 @@ for s in range(T_total):
         x = models.getState()
 
         # Compute Ricatti feedback
-        torques = ocp.ddp.us[0] + ocp.ddp.K[0] @ (ocp.state.diff(x, ocp.ddp.xs[0]))
+        torques = ocp.ddp.us[0] + np.dot(
+            ocp.ddp.K[0], (ocp.state.diff(x, ocp.ddp.xs[0]))
+        )
 
         # Run one step of simu
         models.step(torques)

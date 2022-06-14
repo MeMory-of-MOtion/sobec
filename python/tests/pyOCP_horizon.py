@@ -83,12 +83,12 @@ class ReceidingHorizon:
 
     def set_force_reference_LF(self, time, ref_wrench):
         cone = self.costs(time).costs["left_wrench_cone"]
-        new_ref = cone.cost.residual.reference.A @ ref_wrench
+        new_ref = np.dot(cone.cost.residual.reference.A, ref_wrench)
         cone.cost.activation.reference = new_ref
 
     def set_force_reference_RF(self, time, ref_wrench):
         cone = self.costs(time).costs["right_wrench_cone"]
-        new_ref = cone.cost.residual.reference.A @ ref_wrench
+        new_ref = np.dot(cone.cost.residual.reference.A, ref_wrench)
         cone.cost.activation.reference = new_ref
 
     def set_swinging_LF(self, time):

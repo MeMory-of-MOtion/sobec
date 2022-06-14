@@ -105,7 +105,7 @@ class WalkPlotter:
                 )
                 w_cop = self.data.oMf[cid] * l_cop
                 plt.plot(w_cop[0], w_cop[1], "r.")
-                w_foot = self.data.oMf[cid].homogeneous @ l_foot
+                w_foot = np.dot(self.data.oMf[cid].homogeneous, l_foot)
                 plt.plot(w_foot[0, :], w_foot[1, :], "grey")
 
     def plotForces(self, referenceForces):

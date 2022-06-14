@@ -78,7 +78,7 @@ def wrench_cone(conf, design, state, actuation, support, costs):
         )
 
         lf_wrench_ref = np.array([0, 0, fz_ref, 0, 0, 0])
-        ds_wrenchRef_lf = wrenchConeFrameLeft.A @ lf_wrench_ref
+        ds_wrenchRef_lf = np.dot(wrenchConeFrameLeft.A, lf_wrench_ref)
         wrenchConeResidualLeft = crocoddyl.ResidualModelContactWrenchCone(
             state, design.leftFootId, wrenchConeFrameLeft, actuation.nu
         )
@@ -102,7 +102,7 @@ def wrench_cone(conf, design, state, actuation, support, costs):
         )
 
         rf_wrench_ref = np.array([0, 0, fz_ref, 0, 0, 0])
-        ds_wrenchRef_rf = wrenchConeFrameRight.A @ rf_wrench_ref
+        ds_wrenchRef_rf = np.dot(wrenchConeFrameRight.A, rf_wrench_ref)
         wrenchConeResidualRight = crocoddyl.ResidualModelContactWrenchCone(
             state, design.rightFootId, wrenchConeFrameRight, actuation.nu
         )

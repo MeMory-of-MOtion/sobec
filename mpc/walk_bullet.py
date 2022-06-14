@@ -91,8 +91,8 @@ for s in range(2000):
         x = simu.getState()
 
         # Compute Ricatti feedback
-        torques = mpc.solver.us[0] + mpc.solver.K[0] @ (
-            mpc.state.diff(x, mpc.solver.xs[0])
+        torques = mpc.solver.us[0] + np.dot(
+            mpc.solver.K[0], (mpc.state.diff(x, mpc.solver.xs[0]))
         )
 
         # Run one step of simu
