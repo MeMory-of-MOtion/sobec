@@ -58,7 +58,7 @@ class WalkParams(params.WalkParams):
     # comWeight = 1000  # 20
     vcomImportance = np.array([0.0, 0, 1])
 
-    maxiter = 2
+    solver_maxiter = 2
     solver_reg_min = 1e-6
 
     # max magnitude of the multiplicative joint torque noise, expressed as a percentage

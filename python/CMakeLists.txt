@@ -41,9 +41,10 @@ endforeach()
 set(${PY_WALK_NAME}_PYTHON
   __init__.py
   ocp.py
-  params.py
   weight_share.py
   robot_wrapper.py
+  config_mpc.py
+  miscdisp.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})

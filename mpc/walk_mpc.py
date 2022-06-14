@@ -1,188 +1,145 @@
-import crocoddyl as croc
+import pinocchio as pin
 import numpy as np
-import time
-import warnings
+import matplotlib.pylab as plt  # noqa: F401
+from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
-import walk_ocp
-import miscdisp
+# Local imports
 import sobec
+from utils.save_traj import save_traj
+import utils.walk_plotter as walk_plotter
+from sobec.walk.robot_wrapper import RobotWrapper
+from sobec.walk import ocp
+from mpcparams import WalkParams
+import utils.talos_low as talos_low
+from sobec.walk.config_mpc import configureMPCWalk
+import sobec.walk.miscdisp as miscdisp
+
+# import utils.viewer_multiple as viewer_multiple
+
+# #####################################################################################
+# ### LOAD ROBOT ######################################################################
+# #####################################################################################
+
+# ## LOAD AND DISPLAY TALOS
+# Load the robot model from example robot data and display it if possible in
+# Gepetto-viewer
+urdf = talos_low.load()
+robot = RobotWrapper(urdf.model, contactKey="sole_link")
+
+# #####################################################################################
+# ### VIZ #############################################################################
+# #####################################################################################
+try:
+    Viz = pin.visualize.GepettoVisualizer
+    viz = Viz(urdf.model, urdf.collision_model, urdf.visual_model)
+    viz.initViewer()
+    viz.loadViewerModel()
+    gv = viz.viewer.gui
+except (ImportError, AttributeError):
+    print("No viewer")
 
 
-class WalkMPC:
-    def updateTerminalStateTarget(self, t):
-        """t is the current time, the target should be computed at t+Tmpc"""
-        costmodel = self.problem.terminalModel.differential.costs.costs["stateReg"].cost
+# #####################################################################################
+# ## TUNING ###########################################################################
+# #####################################################################################
 
-        stateTarget = self.robotWrapper.x0.copy()
-        termtime = (t + self.walkParams.Tmpc) * self.walkParams.DT
-        stateTarget[:3] = stateTarget[:3] + self.walkParams.vcomRef * termtime
-        self.basisRef = stateTarget[:3].copy()  # For debug mostly
+# In the code, cost terms with 0 weight are commented for reducing execution cost
+# An example of working weight value is then given as comment at the end of the line.
+# When setting them to >0, take care to uncomment the corresponding line.
+# All these lines are marked with the tag ##0##.
 
-        costmodel.residual.reference = stateTarget
+walkParams = WalkParams()
+assert len(walkParams.stateImportance) == robot.model.nv * 2
 
-    def __init__(self, robotWrapper, storage, walkParams, xs_init=None, us_init=None):
-        warnings.warn("Class WalkMPC is deprecated. Now use sobec.MPCWalk.")
+contactPattern = (
+    []
+    + [[1, 1]] * walkParams.Tstart
+    + [[1, 1]] * walkParams.Tdouble
+    + [[0, 1]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 0]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 1]] * walkParams.Tend
+    + [[1, 1]]
+)
+# #####################################################################################
+# ### DDP #############################################################################
+# #####################################################################################
 
-        robot = self.robotWrapper = robotWrapper
-        p = self.walkParams = walkParams
-        self.storage = storage
-        runmodels = self.storage.runningModels
-        termmodel = self.storage.terminalModel
-        Tmpc = p.Tmpc
+ddp = ocp.buildSolver(robot, contactPattern, walkParams)
+problem = ddp.problem
+x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
+ddp.setCallbacks(
+    [
+        # croc.CallbackVerbose(),
+        miscdisp.CallbackMPCWalk(robot.contactIds)
+    ]
+)
 
-        self.state = termmodel.state
-        self.problem = croc.ShootingProblem(robot.x0, runmodels[:Tmpc], termmodel)
-        self.solver = croc.SolverFDDP(self.problem)
-        self.solver.th_stop = p.solver_th_stop
-        # self.solver.setCallbacks([croc.CallbackVerbose()])
+ddp.solve(x0s, u0s, 200)
 
-        self.updateTerminalStateTarget(0)
+# ### MPC #############################################################################
+# ### MPC #############################################################################
+# ### MPC #############################################################################
 
-        if xs_init is not None and us_init is not None:
-            x0s = xs_init[: Tmpc + 1]
-            u0s = us_init[:Tmpc]
-        else:
-            x0s, u0s = walk_ocp.buildInitialGuess(self.problem, self.walkParams)
+mpc = sobec.MPCWalk(ddp.problem)
+configureMPCWalk(mpc, walkParams)
+mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
+# mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+x = robot.x0
 
-        self.hxs = [np.array(self.solver.xs)]
-        self.hx = [self.problem.x0]
-        self.hiter = [self.solver.iter]
+hx = [x.copy()]
+for t in range(1, 1500):
+    x = mpc.solver.xs[1]
+    mpc.calc(x, t)
 
-        self.reg = p.solver_reg_min
-        self.solver.reg_min = p.solver_reg_min
-
-        self.solver.solve(x0s, u0s)
-        print(
-            "{:4d} {} {:.03} {:4d}".format(
-                0,
-                miscdisp.dispocp(self.problem, robot.contactIds),
-                self.basisRef[0],
-                self.solver.iter,
-            )
+    print(
+        "{:4d} {} {:4d} reg={:.3} a={:.3} ".format(
+            t,
+            miscdisp.dispocp(mpc.problem, robot.contactIds),
+            mpc.solver.iter,
+            mpc.solver.x_reg,
+            mpc.solver.stepLength,
         )
-
-    def run(self, x, t):
-
-        robot = self.robotWrapper
-        p = self.walkParams
-        runmodels = self.storage.runningModels
-        rundatas = self.storage.runningDatas
-        # termmodel = self.storage.terminalModel
-        # Tmpc = p.Tmpc
-
-        self.updateTerminalStateTarget(t)
-
-        tlast = (
-            p.Tstart
-            + 1
-            + ((t + p.Tmpc - p.Tstart - 1) % (2 * p.Tsingle + 2 * p.Tdouble))
-        )
-        self.problem.circularAppend(runmodels[tlast], rundatas[tlast])
-        self.problem.x0 = x.copy()
-
-        xg = list(self.solver.xs)[1:] + [self.solver.xs[-1]]
-        ug = list(self.solver.us)[1:] + [self.solver.us[-1]]
-        start_time = time.time()
-        solved = self.solver.solve(
-            xg, ug, maxiter=p.maxiter, isFeasible=False, regInit=self.reg
-        )
-        solve_time = time.time() - start_time
-
-        self.ref = self.solver.x_reg
-        print(
-            f"{t:4d} {miscdisp.dispocp(self.problem,robot.contactIds)} "
-            # f"{self.basisRef[0]:.03} "
-            f"{self.solver.iter:4d} "
-            f"reg={self.solver.x_reg:.3} "
-            f"a={self.solver.stepLength:.3} "
-            f"solveTime={solve_time:.3}"
-        )
-        x = self.solver.xs[1].copy()
-        self.hx.append(x)
-        self.hxs.append(np.array(self.solver.xs))
-        self.hiter.append(self.solver.iter)
-
-        return solved
-
-    def moreIterations(self, mult):
-        self.solver.solve(
-            self.solver.xs, self.solver.us, maxiter=self.walkParams.maxiter * mult
-        )
-
-
-def configureMPCWalk(mpc, params):
-    mpc.Tmpc = params.Tmpc
-    mpc.Tstart = params.Tstart
-    mpc.Tdouble = params.Tdouble
-    mpc.Tsingle = params.Tsingle
-    mpc.Tend = params.Tend
-    mpc.DT = params.DT
-    mpc.solver_th_stop = params.solver_th_stop
-    mpc.vcomRef = params.vcomRef
-    mpc.solver_reg_min = params.solver_reg_min
-    mpc.solver_maxiter = params.maxiter
-
-
-if __name__ == "__main__":
-    import pinocchio as pin
-    import matplotlib.pylab as plt  # noqa: F401
-    from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
-
-    # Local imports
-    from robot_wrapper import RobotWrapper
-    import walk_ocp as walk
-    from mpcparams import WalkParams
-    import talos_low
-
-    # import viewer_multiple
-    # from save_traj import save_traj
-    # import walk_plotter
-    # from walk_mpc import WalkMPC
-
-    urdf = talos_low.load()
-    robot = RobotWrapper(urdf.model, contactKey="sole_link")
-    p = walkParams = WalkParams()
-    contactPattern = (
-        []
-        + [[1, 1]] * walkParams.Tstart
-        + [[1, 1]] * walkParams.Tdouble
-        + [[0, 1]] * walkParams.Tsingle
-        + [[1, 1]] * walkParams.Tdouble
-        + [[1, 0]] * walkParams.Tsingle
-        + [[1, 1]] * walkParams.Tdouble
-        + [[1, 1]] * walkParams.Tend
-        + [[1, 1]]
     )
-    # ### DDP #########################################################################
-    ddp = walk.buildSolver(robot, contactPattern, walkParams)
-    problem = ddp.problem
-    x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
-    ddp.setCallbacks([croc.CallbackVerbose()])
-    ddp.solve(x0s, u0s, 200)
 
-    # ### MPC #########################################################################
-    problem1 = walk.buildSolver(robot, contactPattern, walkParams).problem
-    problem2 = walk.buildSolver(robot, contactPattern, walkParams).problem
+    hx.append(mpc.solver.xs[1].copy())
 
-    mpc = WalkMPC(robot, problem1, walkParams, xs_init=ddp.xs, us_init=ddp.us)
-    mpccpp = sobec.MPCWalk(problem2)
-    configureMPCWalk(mpccpp, walkParams)
-    x = robot.x0
+    if not t % 10:
+        viz.display(x[: robot.model.nq])
+        # time.sleep(walkParams.DT)
 
-    mpccpp.initialize(ddp.xs[: p.Tmpc + 1], ddp.us[: p.Tmpc])
-    mpccpp.solver.setCallbacks([croc.CallbackVerbose()])
-    mpc.solver.setCallbacks([croc.CallbackVerbose()])
-    assert norm(mpc.solver.xs[10] - mpccpp.solver.xs[10]) < 1e-9
+# ### PLOT ######################################################################
+# ### PLOT ######################################################################
+# ### PLOT ######################################################################
 
-    for t in range(1, 200):
-        print(f"\n\n\n *** ITER {t} \n\n")
-        x = mpc.solver.xs[1]
-        mpc.run(x, t)
+plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+plotter.setData(contactPattern, np.array(hx), None, None)
 
-        mpccpp.calc(x, t)
+target = problem.terminalModel.differential.costs.costs[
+    "stateReg"
+].cost.residual.reference
 
-        assert norm(mpc.solver.xs[10] - mpccpp.solver.xs[10]) < 1e-6
+plotter.plotBasis(target)
+plotter.plotCom(robot.com0)
+plotter.plotFeet()
+plotter.plotFootCollision(walkParams.footMinimalDistance)
 
-    # ### DEBUG #######################################################################
-    pin.SE3.__repr__ = pin.SE3.__str__
-    np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
+# mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
+# mpcplotter.plotFeet()
+
+print("Run ```plt.ion(); plt.show()``` to display the plots.")
+
+# ### SAVE #####################################################################
+# ### SAVE #####################################################################
+# ### SAVE #####################################################################
+
+if walkParams.saveFile is not None:
+    save_traj(np.array(hx), filename=walkParams.saveFile)
+
+# ## DEBUG ######################################################################
+# ## DEBUG ######################################################################
+# ## DEBUG ######################################################################
+
+pin.SE3.__repr__ = pin.SE3.__str__
+np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)

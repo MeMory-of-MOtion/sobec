@@ -1,5 +1,5 @@
-import pinocchio as pin
 import numpy as np
+import pinocchio as pin
 from pinbullet import SimuProxy
 from ocp_walk_feet_traj import OCP
 

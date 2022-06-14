@@ -7,15 +7,15 @@ import numpy.random
 
 # Local imports
 import sobec
-from save_traj import save_traj
-from robot_wrapper import RobotWrapper
-import walk_ocp as walk
+from utils.save_traj import save_traj
+from sobec.walk.robot_wrapper import RobotWrapper
+from sobec.walk import ocp
 from mpcparams import WalkParams
-import talos_low
-from walk_mpc import configureMPCWalk
-from pinbullet import SimuProxy
-import viewer_multiple
-import miscdisp
+import utils.talos_low as talos_low
+from sobec.walk.config_mpc import configureMPCWalk
+from utils.pinbullet import SimuProxy
+from utils import viewer_multiple
+from sobec.walk import miscdisp
 
 q_init = np.array(
     [
@@ -108,9 +108,9 @@ contactPattern = (
 )
 
 # DDP for a full walk cycle, use as a standard pattern for the MPC.
-ddp = walk.buildSolver(robot, contactPattern, walkParams)
+ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 
@@ -118,7 +118,10 @@ ddp.solve(x0s, u0s, 200)
 mpc = sobec.MPCWalk(ddp.problem)
 configureMPCWalk(mpc, walkParams)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
-# mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+# mpc.solver.setCallbacks([
+# croc.CallbackVerbose(),
+# miscdisp.CallbackMPCWalk(robot.contactIds)
+# ])
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -191,13 +194,16 @@ for s in range(int(20.0 / walkParams.DT)):
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
+    # f"{mpc.basisRef[0]:.03} "
     print(
-        f"{s:4d} {miscdisp.dispocp(mpc.problem,robot.contactIds)} "
-        # f"{mpc.basisRef[0]:.03} "
-        f"{mpc.solver.iter:4d} "
-        f"reg={mpc.solver.x_reg:.3} "
-        f"a={mpc.solver.stepLength:.3} "
-        f"solveTime={solve_time:.3}"
+        "{:4d} {} {:4d} reg={:.3} a={:.3} solveTime={:.3}".format(
+            s,
+            miscdisp.dispocp(mpc.problem, robot.contactIds),
+            mpc.solver.iter,
+            mpc.solver.x_reg,
+            mpc.solver.stepLength,
+            solve_time,
+        )
     )
     if not s % 10:
         viz.display(simu.getState()[: robot.model.nq])

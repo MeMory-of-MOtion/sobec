@@ -7,7 +7,7 @@ import numpy as np
 
 # Local imports
 import sobec
-from sobec.walk.weight_share import computeReferenceForces
+from .weight_share import computeReferenceForces
 
 
 # workaround python 2
@@ -367,6 +367,9 @@ def buildInitialGuess(problem, walkParams):
         except (FileNotFoundError, KeyError):
             x0s = []
             u0s = []
+    else:
+        x0s = []
+        # us0 = []
 
     if len(x0s) != problem.T + 1 or len(u0s) != problem.T:
         print("No valid solution file, build quasistatic initial guess!")
