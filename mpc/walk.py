@@ -9,8 +9,8 @@ from save_traj import loadProblemConfig, save_traj
 from params import WalkParams
 import walk_plotter
 import talos_low
-from robot_wrapper import RobotWrapper
-import walk_ocp as walk
+from sobec.walk.robot_wrapper import RobotWrapper
+from sobec.walk import ocp
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
@@ -84,9 +84,9 @@ print(
 # ### DDP #############################################################################
 # #####################################################################################
 
-ddp = walk.buildSolver(robot, contactPattern, walkParams)
+ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
 ddp.solve(x0s, u0s, 200)
@@ -95,7 +95,7 @@ ddp.solve(x0s, u0s, 200)
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
 
-sol = walk.Solution(robot, ddp)
+sol = ocp.Solution(robot, ddp)
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, sol.xs, sol.us, sol.fs0)
@@ -132,40 +132,4 @@ if walkParams.saveFile is not None:
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 
-t = 60
-fid = 48
-t = 119
-fid = 34
-t = 90
-cid = 48  # impact
-t = 251
-cid = 48
-fid = 34
-try:
-    # Load solution from Casadi
-    guess = np.load("/tmp/sol.npy", allow_pickle=True)[()]
-    xs = guess["xs"]
-    us = guess["us"]
-    fs0 = guess["fs"]
-    acs = guess["acs"]
-except (KeyError, FileNotFoundError):
-    xs = sol.xs
-    us = sol.us
-    fs0 = sol.fs0
-    acs = sol.acs
-dadata = problem.runningDatas[t].differential
-damodel = problem.runningModels[t].differential
-damodel.calc(dadata, xs[t], us[t])
-damodel.calcDiff(dadata, xs[t], us[t])
-cosname = "left_sole_link_cone"
-cosname = "right_sole_link_cone"
-cosname = "altitudeImpact"
-cosname = "right_sole_link_vfoot_vel"  # t = 60
-cosname = "right_sole_link_flyhigh"
-# cosname = f"{robot.model.frames[fid].name}_flyhigh"
-# cosname = f"{robot.model.frames[fid].name}_groundcol"
-# cosname = f"{robot.model.frames[cid].name}_velimpact"
-cosname = "impactRefJoint"
-# cosname = f"feetcol_{robot.model.frames[cid].name}_VS_{robot.model.frames[fid].name}"
-cosdata = dadata.costs.costs[cosname]
-cosmodel = damodel.costs.costs[cosname].cost
+viz.play(np.array(ddp.xs)[:,:robot.model.nq].T,walkParams.DT)
