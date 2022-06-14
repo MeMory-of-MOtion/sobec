@@ -207,7 +207,7 @@ def getForcesFromProblemDatas(problem, cid):
     for t, (m, d) in enumerate(zip(problem.runningModels, problem.runningDatas)):
         dm = m.differential
         model = dm.pinocchio
-        cname = f"{model.frames[cid].name}_contact"
+        cname = "%s_contact" % model.frames[cid].name
         if cname not in dm.contacts.contacts:
             fs.append(np.zeros(6))
         else:
@@ -222,7 +222,7 @@ def getReferenceForcesFromProblemModels(problem, cid):
     for t, (m, d) in enumerate(zip(problem.runningModels, problem.runningDatas)):
         dm = m.differential
         model = dm.pinocchio
-        cname = f"{model.frames[cid].name}_forceref"
+        cname = "%s_forceref" % model.frames[cid].name
         if cname not in dm.costs.costs:
             fs.append(np.zeros(6))
         else:
@@ -290,5 +290,5 @@ class WalkRecedingPlotter:
             for iax, ax in enumerate(axs[:, 0]):
                 ax.set_xlim([0, len(p.foottraj) + len(self.plotters)])
                 ax.set_ylim(feetMin[iax], feetMax[iax])
-                print(f"set {iax} {feetMin[iax]}:{feetMax[iax]}")
+                print("set %s %s:%s" % (iax, feetMin[iax], feetMax[iax]))
             break

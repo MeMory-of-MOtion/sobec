@@ -11,7 +11,7 @@ def save_traj(xs, us=None, fs=None, acs=None, filename="/tmp/ddp.npy"):
         data["fs"] = fs
     with open(filename, "wb") as f:
         np.save(f, data)
-    print(f'Save "{filename}"!')
+    print('Save "%s"!' % filename)
 
 
 def getContactActivationFromAModel(contactIds, action):
@@ -20,7 +20,8 @@ def getContactActivationFromAModel(contactIds, action):
     model = action.differential.pinocchio
     return [
         int(
-            f"{model.frames[cid].name}_contact" in action.differential.contacts.contacts
+            "%s_contact" % model.frames[cid].name
+            in action.differential.contacts.contacts
         )
         for cid in contactIds
     ]
@@ -39,11 +40,11 @@ def saveProblemConfig(contactIds, problem, filename="/tmp/ddp.config"):
     }
     with open(filename, "wb") as f:
         np.save(f, data)
-    print(f'Save OCP config in "{filename}"!')
+    print('Save OCP config in "%s"!' % filename)
 
 
 def loadProblemConfig(filename="/tmp/ddp.config"):
     data = np.load(filename, allow_pickle=True)[()]
-    print(f'Load OCP config from "{filename}"!')
+    print('Load OCP config from "%s"!' % filename)
 
     return data

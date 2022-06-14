@@ -58,13 +58,13 @@ class RobotWrapper:
 
         addChildrenFrames(self.model, self.contactIds, "tow", xtranslation=0.1)
         self.towIds = {
-            idf: model.getFrameId(f"{model.frames[idf].name}_tow")
+            idf: model.getFrameId("%s_tow" % model.frames[idf].name)
             for idf in self.contactIds
         }
 
         addChildrenFrames(self.model, self.contactIds, "heel", xtranslation=-0.1)
         self.heelIds = {
-            idf: model.getFrameId(f"{model.frames[idf].name}_heel")
+            idf: model.getFrameId("%s_heel" % model.frames[idf].name)
             for idf in self.contactIds
         }
 

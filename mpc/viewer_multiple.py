@@ -18,7 +18,7 @@ class GepettoMultipleVisualizers:
         for n in range(nghosts):
             viz = Viz(model, collision_model, visual_model)
             if n > 0:
-                viz.initViewer(sceneName=f"ghost{n}")
+                viz.initViewer(sceneName="ghost%s" % n)
             else:
                 viz.initViewer()
             viz.loadViewerModel()

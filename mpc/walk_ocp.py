@@ -17,7 +17,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
 
     # #################################################################################
     for t, pattern in enumerate(contactPattern[:-1]):
-        # print(f'time t={t} {pattern}')
+        # print("time t=%s %s" % (t, pattern))
 
         # Basics
         state = croc.StateMultibody(robot.model)
@@ -76,7 +76,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 np.array([1 / p.FOOT_SIZE**2] * 2)
             )
             copCost = croc.CostModelResidual(state, copAct, copResidual)
-            costs.addCost(f"{robot.model.frames[cid].name}_cop", copCost, p.copWeight)
+            costs.addCost("%s_cop" % robot.model.frames[cid].name, copCost, p.copWeight)
 
             # Cone with enormous friction (Assuming the robot will barely ever slide).
             # p.FOOT_SIZE is the allowed area size, while cone expects the corner
@@ -96,7 +96,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             )
             coneCost = croc.CostModelResidual(state, coneAct, coneCost)
             costs.addCost(
-                f"{robot.model.frames[cid].name}_cone", coneCost, p.conePenaltyWeight
+                "%s_cone" % robot.model.frames[cid].name, coneCost, p.conePenaltyWeight
             )
 
             # Penalize the distance to the central axis of the cone ...
@@ -110,7 +110,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             coneAxisAct = croc.ActivationModelWeightedQuad(w)
             coneAxisCost = croc.CostModelResidual(state, coneAxisAct, coneAxisResidual)
             costs.addCost(
-                f"{robot.model.frames[cid].name}_coneaxis",
+                "%s_coneaxis" % robot.model.frames[cid].name,
                 coneAxisCost,
                 p.coneAxisWeight,
             )
@@ -121,7 +121,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             )
             forceRefCost = croc.CostModelResidual(state, forceRefResidual)
             costs.addCost(
-                f"{robot.model.frames[cid].name}_forceref",
+                "%s_forceref" % robot.model.frames[cid].name,
                 forceRefCost,
                 p.refForceWeight / robot.gravForce**2,
             )
@@ -133,14 +133,14 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 # of the node duration (at least, that s how weights are tuned in
                 # casadi).
 
-                print(f"Impact {cid} at time {t}")
+                print("Impact %s at time %s" % (cid, t))
                 impactResidual = croc.ResidualModelFrameTranslation(
                     state, cid, np.zeros(3), actuation.nu
                 )
                 impactAct = croc.ActivationModelWeightedQuad(np.array([0, 0, 1]))
                 impactCost = croc.CostModelResidual(state, impactAct, impactResidual)
                 costs.addCost(
-                    f"{robot.model.frames[cid].name}_altitudeimpact",
+                    "%s_altitudeimpact" % robot.model.frames[cid].name,
                     impactCost,
                     p.impactAltitudeWeight / p.DT,
                 )
@@ -154,7 +154,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 )
                 impactVelCost = croc.CostModelResidual(state, impactVelResidual)
                 costs.addCost(
-                    f"{robot.model.frames[cid].name}_velimpact",
+                    "%s_velimpact" % robot.model.frames[cid].name,
                     impactVelCost,
                     p.impactVelocityWeight / p.DT,
                 )
@@ -167,7 +167,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                     state, impactRotAct, impactRotResidual
                 )
                 costs.addCost(
-                    f"{robot.model.frames[cid].name}_rotimpact",
+                    "%s_rotimpact" % robot.model.frames[cid].name,
                     impactRotCost,
                     p.impactRotationWeight / p.DT,
                 )
@@ -210,7 +210,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 state, verticalFootVelAct, verticalFootVelResidual
             )
             costs.addCost(
-                f"{robot.model.frames[fid].name}_vfoot_vel",
+                "%s_vfoot_vel" % robot.model.frames[fid].name,
                 verticalFootVelCost,
                 p.verticalFootVelWeight,
             )
@@ -221,7 +221,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             )
             flyHighCost = croc.CostModelResidual(state, flyHighResidual)
             costs.addCost(
-                f"{robot.model.frames[fid].name}_flyhigh", flyHighCost, p.flyWeight
+                "%s_flyhigh" % robot.model.frames[fid].name, flyHighCost, p.flyWeight
             )
 
             groundColRes = croc.ResidualModelFrameTranslation(
@@ -238,7 +238,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             groundColAct = croc.ActivationModelQuadraticBarrier(groundColBounds)
             groundColCost = croc.CostModelResidual(state, groundColAct, groundColRes)
             costs.addCost(
-                f"{robot.model.frames[fid].name}_groundcol",
+                "%s_groundcol" % robot.model.frames[fid].name,
                 groundColCost,
                 p.groundColWeight,
             )
@@ -247,7 +247,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 if not pattern[kc]:
                     continue
                 assert fid != cid
-                # print(f'At t={t} add collision between {cid} and {fid}')
+                # print("At t=%s add collision between %s and %s" % (t, cid, fid))
 
                 for id1, id2 in [
                     (i, j)
@@ -266,8 +266,11 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                     )
                     costs.addCost(
                         (
-                            f"feetcol_{robot.model.frames[id1].name}_"
-                            f"VS_{robot.model.frames[id2].name}"
+                            "feetcol_%s_VS_%s"
+                            % (
+                                robot.model.frames[id1].name,
+                                robot.model.frames[id2].name,
+                            )
                         ),
                         feetColCost,
                         p.feetCollisionWeight,
@@ -347,7 +350,7 @@ def buildInitialGuess(problem, walkParams):
     if walkParams.guessFile is not None:
         try:
             guess = np.load(walkParams.guessFile, allow_pickle=True)[()]
-            print(f'Load "{walkParams.guessFile}"!')
+            print('Load "%s"!' % walkParams.guessFile)
             x0s = [x for x in guess["xs"]]
             u0s = [u for u in guess["us"]]
         except (FileNotFoundError, KeyError):
@@ -386,13 +389,13 @@ class Solution:
                 [
                     (
                         d.differential.multibody.contacts.contacts[
-                            f"{robotWrapper.model.frames[cid].name}_contact"
+                            "%s_contact" % robotWrapper.model.frames[cid].name
                         ].jMf.inverse()
                         * d.differential.multibody.contacts.contacts[
-                            f"{robotWrapper.model.frames[cid].name}_contact"
+                            "%s_contact" % robotWrapper.model.frames[cid].name
                         ].f
                     ).vector
-                    if f"{robotWrapper.model.frames[cid].name}_contact"
+                    if "%s_contact" % robotWrapper.model.frames[cid].name
                     in d.differential.multibody.contacts.contacts
                     else np.zeros(6)
                     for cid in robotWrapper.contactIds
