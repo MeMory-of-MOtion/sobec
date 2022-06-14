@@ -1,3 +1,5 @@
+import sys
+
 import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
@@ -11,6 +13,12 @@ import walk_plotter
 import talos_low
 from robot_wrapper import RobotWrapper
 import walk_ocp as walk
+
+
+# workaround python 2
+if sys.version_info.major < 3:
+    FileNotFoundError = IOError
+
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
