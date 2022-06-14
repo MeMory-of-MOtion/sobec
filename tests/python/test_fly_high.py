@@ -50,7 +50,7 @@ class TestFlyHigh(unittest.TestCase):
 
         for cid in contactIds:
             flyHighResidual = sobec.ResidualModelFlyHigh(
-                state, cid, 1. / 2, actuation.nu
+                state, cid, 1.0 / 2, actuation.nu
             )
             flyHighCost = croc.CostModelResidual(state, flyHighResidual)
             costs.addCost("fly", flyHighCost, 1)
