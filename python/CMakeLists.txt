@@ -45,6 +45,7 @@ set(${PY_WALK_NAME}_PYTHON
   robot_wrapper.py
   config_mpc.py
   miscdisp.py
+  params.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})

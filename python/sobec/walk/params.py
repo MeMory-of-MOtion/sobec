@@ -1,38 +1,64 @@
+'''
+This file define the class WalkParam, containing all the weights needed for the
+OCP.
+'''
+
 import numpy as np
 
+class StateRelatedParams:
+    '''These params are only acceptable for some robots'''
+    def __init__(self,stateImportance,stateTerminalImportance,controlImportance):
+        self.stateImportance = stateImportance
+        self.stateTerminalImportance = stateTerminalImportance
+        self.controlImportance = controlImportance
+        
+# ### TALOS INFO ##################################################
+# ### TALOS INFO ##################################################
+# ### TALOS INFO ##################################################
+
+class TalosInfo:
+    '''Store here the main info we need for Talos,
+    to be use in the robot_2_state map for convenience.'''
+    
+    basisQWeights = [0, 0, 0, 50, 50, 0]
+    legQWeights = [5, 5, 1, 2, 1, 1]
+    torsoQWeights = [10, 10]
+    armQWeight = 3
+    basisVWeights = [0, 0, 0, 3, 3, 1]  # ## was 003331
+    legVWeights = [1] * 6
+    torsoVWeights = [20] * 2
+    armVWeight = 2
+
+# ### STATE FOR EACH ROBOT ##################################################
+# ### STATE FOR EACH ROBOT ##################################################
+# ### STATE FOR EACH ROBOT ##################################################
+
+Robot_2_StateMap = {
+    "talos_14": StateRelatedParams(
+        stateImportance = np.array( TalosInfo.basisQWeights
+                                    + TalosInfo.legQWeights *2
+                                    + [TalosInfo.armQWeight]*2
+                                    + TalosInfo.basisVWeights
+                                    + TalosInfo.legVWeights *2
+                                    + [TalosInfo.armVWeight]*2),
+        stateTerminalImportance = np.array( [3,3,0,0,0,30 ]
+                                        + [0]*14 + [1]*20 ),
+        controlImportance = np.array([ 1 ]*14)
+    )
+    
+}
+
+# ### MAIN PARAM CLASS ##################################################
+# ### MAIN PARAM CLASS ##################################################
+# ### MAIN PARAM CLASS ##################################################
 
 class WalkParams:
-    DT = 0.010
 
-    basisQWeight = [0, 0, 0, 50, 50, 0]
-    legQWeight = [5, 5, 1, 2, 1, 1]
-    torsoQWeight = [10, 10]
-    armQWeight = [3, 3]
-    basisVWeight = [0, 0, 0, 3, 3, 1]  # ## was 003331
-    legVWeight = [1] * 6
-    torsoVWeight = [20] * 2
-    armVWeight = [2] * 2
-
-    stateImportance = np.array(
-        basisQWeight
-        + legQWeight
-        + legQWeight
-        + armQWeight
-        + basisVWeight
-        + legVWeight
-        + legVWeight
-        + armVWeight
-    )
-
-    stateTerminalImportance = np.array([3, 3, 0, 0, 0, 30] + [0] * 14 + [1] * 20)
-
-    legUWeight = [1, 1, 1, 1, 10, 10]
-    torsoUWeight = [1, 1]
-    armUWeight = [10, 10]
-    controlImportance = np.array(legUWeight * 2 + armUWeight)
-
-    # ## Gains for force continuity: wfref for tracking the reference, wfcont for time
-    # difference
+    # ### WEIGHTS
+    # Weights for the importance of cost functions.  Weights are multiply to
+    # the residual squared Importance terms are multiplied during the
+    # activation (hence are not squared).
+    
     refTorqueWeight = 0
     refStateWeight = 1e-1
     flatBaseWeight = 0  # 20
@@ -46,9 +72,9 @@ class WalkParams:
     verticalFootVelWeight = 20
     footVelWeight = 0  # 20
     footAccWeight = 0  # 2
-    flyWeight = 20
+    flyWeight = 200
     groundColWeight = 200
-    conePenaltyWeight = 20
+    conePenaltyWeight = 0
     feetCollisionWeight = 1000
 
     lowbandwidthweight = 0  # 2e-1
@@ -58,7 +84,7 @@ class WalkParams:
     contiForceWeight = 0
 
     impactAltitudeWeight = 20000
-    impactVelocityWeight = 200
+    impactVelocityWeight = 10000
     impactRotationWeight = 200
     refMainJointsAtImpactWeight = 0  # 2e2 # For avoinding crossing legs
 
@@ -66,27 +92,60 @@ class WalkParams:
     terminalNoVelocityWeight = 2000
     terminalXTargetWeight = 0  # ##DDP## 2000
 
+    ### Other terms related to the cost functions
     enforceMinimalFootDistance = False
 
-    refFootFlyingAltitude = 3e-2
-    flyHighSlope = 5 / refFootFlyingAltitude
+    refFootFlyingAltitude = 7e-2
+    flyHighSlope = 3 / refFootFlyingAltitude
     footMinimalDistance = 0.2  # (.17 is the max value wrt initial config)
     soleCollision = True
     towCollision = False
     heelCollision = False
-    MAIN_JOINTS = [
+    mainJointIds = [
         "leg_%s_%s_joint" % (side, idx)
         for side in ["left", "right"]
         for idx in [1, 2, 4]
     ]
+    vcomRef = np.array([0.05, 0, 0])
 
-    vcomRef = np.array([0.1, 0, 0])
-    vcomSelection = [0, 1, 2]
-    vcomImportance = np.array([0.0, 0, 1])
-    FOOT_SIZE = 0.05
+    footSize = 0.05
 
+    ### Contact parameters for the kkt dynamics    
     kktDamping = 0  # 1e-6
-    baumgartGains = np.array([0, 50])
+    baumgartGains = np.array([0, 100])
+
+    ### Parameters related to the solver
     solver_th_stop = 1e-3
-    guessFile = "/tmp/ddp.npy"
-    saveFile = "/tmp/ddp.npy"
+    solver_maxiter = 2
+    solver_reg_min = 1e-6
+
+    ### Parameter related to the time lines
+    DT = 0.010
+    Tstart = int(0.3/DT)
+    Tsingle = int(0.8/DT) #60
+    Tdouble = int(0.11/DT) #11
+    Tend = int(0.3/DT)
+    Tmpc = int(1.6/DT) #120
+
+    ### Parameters related to the IO file (load and save)
+    guessFile = None
+    saveFile = '/tmp/sobec.npy'
+    showPreview = False
+
+    ### Parameters related to the control environment
+    # max magnitude of the multiplicative joint torque noise, expressed as a percentage
+    # (i.e. 1=100%)
+    torque_noise = 0.0
+
+    
+    def __init__(self,robotName):
+        '''
+        Init from the robot name used as a key to 
+        selec the info related to the state dimension.
+        '''
+        w = Robot_2_StateMap[robotName]
+        self.stateImportance = w.stateImportance
+        self.stateTerminalImportance = w.stateTerminalImportance
+        self.controlImportance = w.controlImportance
+        
+

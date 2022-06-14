@@ -51,6 +51,7 @@ class RobotWrapper:
         - robotGravForce
         """
         self.model = model
+        self.name = model.name + '_' + str(model.nv-6)
         self.contactIds = [
             i for i, f in enumerate(self.model.frames) if contactKey in f.name
         ]

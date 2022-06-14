@@ -1,8 +1,26 @@
+import sobec.walk.params as swparams
 import numpy as np
+
+class WalkParamsNew(swparams.WalkParams):
+    def __init__(self,name='talos_14'):
+        swparams.WalkParams.__init__(self,name)
+
+# ### KEPT FOR REFERENCES ##################################################
+# ### KEPT FOR REFERENCES ##################################################
+# ### KEPT FOR REFERENCES ##################################################
+
 import params
 
+basisQWeight = [0, 0, 0, 50, 50, 0]
+legQWeight = [5, 5, 1, 2, 1, 1]
+torsoQWeight = [10, 10]
+armQWeight = [3, 3]
+basisVWeight = [0, 0, 0, 3, 3, 1]  # ## was 003331
+legVWeight = [1] * 6
+torsoVWeight = [20] * 2
+armVWeight = [2] * 2
 
-class WalkParams(params.WalkParams):
+class WalkParamsOld(params.WalkParamsOld):
     DT = 0.010
 
     # Inherited from params.WalkParams
@@ -10,14 +28,6 @@ class WalkParams(params.WalkParams):
     #    saveFile = '/tmp/mpc.npy'
     saveFile = None
 
-    basisQWeight = [0, 0, 0, 50, 50, 0]
-    legQWeight = [5, 5, 1, 2, 1, 1]
-    torsoQWeight = [10, 10]
-    armQWeight = [3, 3]
-    basisVWeight = [0, 0, 0, 3, 3, 1]  # ## was 003331
-    legVWeight = [1] * 6
-    torsoVWeight = [20] * 2
-    armVWeight = [2] * 2
 
     stateImportance = np.array(
         basisQWeight
@@ -67,3 +77,6 @@ class WalkParams(params.WalkParams):
 
     # DEBUG
     showPreview = False
+
+
+WalkParams = WalkParamsNew
