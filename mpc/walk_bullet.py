@@ -6,14 +6,16 @@ import time
 import numpy.random
 
 # Local imports
+import sobec
 from save_traj import save_traj
 from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
 import talos_low
-from walk_mpc import WalkMPC
+from walk_mpc import configureMPCWalk
 from pinbullet import SimuProxy
 import viewer_multiple
+import miscdisp
 
 q_init = np.array([ 
         0.00000e+00,  0.00000e+00,  1.01927e+00,  
@@ -78,7 +80,11 @@ x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 
-mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
+#mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
+mpc = sobec.MPCWalk(ddp.problem)
+configureMPCWalk(mpc,walkParams)
+mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
+#mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -136,13 +142,24 @@ for s in range(int(20.0/walkParams.DT)):
         hu.append(torques.copy())
 
     # ###############################################################################
-    # mpc.run(mpc.solver.xs[1],s)
-    mpc.run(simu.getState(), s)
+
+    start_time = time.time()
+    mpc.calc(simu.getState(), s)
+    solve_time = time.time() - start_time
     if mpc.solver.iter == 0:
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
-    viz.display(simu.getState()[: robot.model.nq])
+    print(
+        f"{s:4d} {miscdisp.dispocp(mpc.problem,robot.contactIds)} "
+        # f"{mpc.basisRef[0]:.03} "
+        f"{mpc.solver.iter:4d} "
+        f"reg={mpc.solver.x_reg:.3} "
+        f"a={mpc.solver.stepLength:.3} "
+        f"solveTime={solve_time:.3}"
+    )
+    if not s % 10:
+        viz.display(simu.getState()[: robot.model.nq])
 
     # Before each takeoff, the robot display the previewed movement (3 times)
     if (walkParams.showPreview and

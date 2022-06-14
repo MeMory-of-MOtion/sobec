@@ -1,10 +1,12 @@
 import crocoddyl as croc
 import numpy as np
 import time
+import warnings
 
 import walk_ocp
 import miscdisp
 import sobec
+
 
 class WalkMPC:
     def updateTerminalStateTarget(self, t):
@@ -19,6 +21,7 @@ class WalkMPC:
         costmodel.residual.reference = stateTarget
 
     def __init__(self, robotWrapper, storage, walkParams, xs_init=None, us_init=None):
+        warnings.warn("Class WalkMPC is deprecated. Now use sobec.MPCWalk.")
 
         robot = self.robotWrapper = robotWrapper
         p = self.walkParams = walkParams
@@ -31,7 +34,7 @@ class WalkMPC:
         self.problem = croc.ShootingProblem(robot.x0, runmodels[:Tmpc], termmodel)
         self.solver = croc.SolverFDDP(self.problem)
         self.solver.th_stop = p.solver_th_stop
-        self.solver.setCallbacks([croc.CallbackVerbose()])
+        #self.solver.setCallbacks([croc.CallbackVerbose()])
 
         self.updateTerminalStateTarget(0)
 
