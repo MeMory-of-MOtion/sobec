@@ -131,7 +131,8 @@ class SimuProxy:
 
     def setTalosDefaultFriction(self):
         self.changeFriction(["leg_left_6_joint", "leg_right_6_joint"], 100, 30)
-#        self.changeFriction(["leg_left_5_joint", "leg_right_5_joint"], 100, 30)
+
+    #        self.changeFriction(["leg_left_5_joint", "leg_right_5_joint"], 100, 30)
 
     def changeFriction(self, names, lateralFriction=100, spinningFriction=30):
         for n in names:

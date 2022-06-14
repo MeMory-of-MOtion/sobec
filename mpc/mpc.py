@@ -13,7 +13,7 @@ from robot_wrapper import RobotWrapper
 import walk_ocp as walk
 from mpcparams import WalkParams
 import talos_low
-from walk_mpc import WalkMPC,configureMPCWalk
+from walk_mpc import WalkMPC, configureMPCWalk
 import viewer_multiple
 import miscdisp
 
@@ -79,12 +79,12 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 
 mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc,walkParams)
-mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
-mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+configureMPCWalk(mpc, walkParams)
+mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
+mpc.solver.setCallbacks([croc.CallbackVerbose()])
 x = robot.x0
 
-hx = [ x.copy() ]
+hx = [x.copy()]
 for t in range(1, 150):
     x = mpc.solver.xs[1]
     mpc.calc(x, t)
@@ -97,10 +97,10 @@ for t in range(1, 150):
     )
 
     hx.append(mpc.solver.xs[1].copy())
-    
+
     if not t % 10:
         viz.display(x[: robot.model.nq])
-        #time.sleep(walkParams.DT)
+        # time.sleep(walkParams.DT)
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
