@@ -8,11 +8,12 @@ from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 import sobec
 from save_traj import save_traj
 import walk_plotter
-from robot_wrapper import RobotWrapper
-import walk_ocp as walk
+from sobec.walk.robot_wrapper import RobotWrapper
+from sobec.walk import ocp
 from mpcparams import WalkParams
 import talos_low
-from walk_mpc import configureMPCWalk
+from sobec.walk.config_mpc import configureMPCWalk
+import viewer_multiple
 import miscdisp
 
 # import viewer_multiple
@@ -68,9 +69,9 @@ contactPattern = (
 # ### DDP #############################################################################
 # #####################################################################################
 
-ddp = walk.buildSolver(robot, contactPattern, walkParams)
+ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
 ddp.solve(x0s, u0s, 200)
@@ -80,6 +81,7 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 
 mpc = sobec.MPCWalk(ddp.problem)
+<<<<<<< HEAD
 configureMPCWalk(mpc, walkParams)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 mpc.solver.setCallbacks([croc.CallbackVerbose()])
@@ -87,6 +89,15 @@ x = robot.x0
 
 hx = [x.copy()]
 for t in range(1, 150):
+=======
+configureMPCWalk(mpc,walkParams)
+mpc.initialize(ddp.xs[:walkParams.Tmpc+1],ddp.us[:walkParams.Tmpc])
+#mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
+x = robot.x0
+
+hx = [ x.copy() ]
+for t in range(1, 1500):
+>>>>>>> Take into account repackagin in sobec.walk.
     x = mpc.solver.xs[1]
     mpc.calc(x, t)
 

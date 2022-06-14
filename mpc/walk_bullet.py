@@ -8,11 +8,11 @@ import numpy.random
 # Local imports
 import sobec
 from save_traj import save_traj
-from robot_wrapper import RobotWrapper
-import walk_ocp as walk
+from sobec.walk.robot_wrapper import RobotWrapper
+from sobec.walk import ocp
 from mpcparams import WalkParams
 import talos_low
-from walk_mpc import configureMPCWalk
+from sobec.walk.config_mpc import configureMPCWalk
 from pinbullet import SimuProxy
 import viewer_multiple
 import miscdisp
@@ -108,9 +108,9 @@ contactPattern = (
 )
 
 # DDP for a full walk cycle, use as a standard pattern for the MPC.
-ddp = walk.buildSolver(robot, contactPattern, walkParams)
+ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 
