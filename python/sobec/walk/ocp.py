@@ -84,16 +84,16 @@ def buildRunningModels(robotWrapper, contactPattern, params):
 
             copResidual = sobec.ResidualModelCenterOfPressure(state, cid, actuation.nu)
             copAct = croc.ActivationModelWeightedQuad(
-                np.array([1.0 / p.FOOT_SIZE**2] * 2)
+                np.array([1.0 / p.footSize**2] * 2)
             )
             copCost = croc.CostModelResidual(state, copAct, copResidual)
             costs.addCost("%s_cop" % robot.model.frames[cid].name, copCost, p.copWeight)
 
             # Cone with enormous friction (Assuming the robot will barely ever slide).
-            # p.FOOT_SIZE is the allowed area size, while cone expects the corner
+            # p.footSize is the allowed area size, while cone expects the corner
             # coordinates => x2
             cone = croc.WrenchCone(
-                np.eye(3), 1000, np.array([p.FOOT_SIZE * 2] * 2), 4, True, 1, 10000
+                np.eye(3), 1000, np.array([p.footSize * 2] * 2), 4, True, 1, 10000
             )
             coneCost = croc.ResidualModelContactWrenchCone(
                 state, cid, cone, actuation.nu
@@ -190,7 +190,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 jselec[
                     [
                         robot.model.joints[robot.model.getJointId(name)].idx_v
-                        for name in p.MAIN_JOINTS
+                        for name in p.mainJointIds
                     ]
                 ] = 1
                 impactRefJointsAct = croc.ActivationModelWeightedQuad(jselec)
