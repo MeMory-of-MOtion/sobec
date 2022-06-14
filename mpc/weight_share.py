@@ -32,7 +32,7 @@ def weightShareSmoothProfile(
                     + contactImportance[t, k] * trans
                 )
                 if verbose and contactImportance[t - 1, k] == 0:
-                    print(f"Create {t}:{cid}")
+                    print("Create %s:%s" % (t, cid))
     for t in reversed(range(1, T)):
         if np.any(
             np.logical_and(np.logical_not(contactPattern[t]), contactPattern[t - 1])
@@ -42,7 +42,7 @@ def weightShareSmoothProfile(
                     trans
                 ) + contactImportance[t - 1, k] * (1 - trans)
                 if verbose and contactImportance[t, k] == 0:
-                    print(f"Break {t}:{cid}")
+                    print("Break %s:%s" % (t, cid))
 
     return contactImportance
 

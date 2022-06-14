@@ -54,7 +54,7 @@ for cid in contactIds:
     copResidual = sobec.ResidualModelCenterOfPressure(state, cid, actuation.nu)
     copAct = croc.ActivationModelWeightedQuad(np.array([1.1, 0.9]))
     copCost = croc.CostModelResidual(state, copAct, copResidual)
-    costs.addCost(f"{model.frames[cid].name}_cop", copCost, 1.5)
+    costs.addCost("%s_cop" % model.frames[cid].name, copCost, 1.5)
 
     transResidual = croc.ResidualModelFrameTranslation(
         state, cid, np.array([1, 2, 3]), actuation.nu
@@ -79,9 +79,9 @@ damodel.calcDiff(dadata, x0, u0)
 
 try:
     fname = "left_sole_link"
-    conname = f"{fname}_contact"
+    conname = "%s_contact" % fname
     condata = dadata.multibody.contacts.contacts[conname]
-    cosname = f"{fname}_cop"
+    cosname = "%s_cop" % fname
     cosdata = dadata.costs.costs[cosname]
     cosmodel = damodel.costs.costs[cosname].cost
 except KeyError:

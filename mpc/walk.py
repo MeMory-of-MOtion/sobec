@@ -52,7 +52,7 @@ for cid in contactIds:
     f = robot.model.frames[cid]
     robot.model.addFrame(
         pin.Frame(
-            f"{f.name}_tow",
+            "%s_tow" % f.name,
             f.parent,
             f.previousFrame,
             f.placement * pin.SE3(np.eye(3), np.array([ankleToTow, 0, 0])),
@@ -61,7 +61,7 @@ for cid in contactIds:
     )
     robot.model.addFrame(
         pin.Frame(
-            f"{f.name}_heel",
+            "%s_heel" % f.name,
             f.parent,
             f.previousFrame,
             f.placement * pin.SE3(np.eye(3), np.array([ankleToHeel, 0, 0])),
@@ -88,9 +88,11 @@ data = model.createData()
 x0 = np.concatenate([model.q0, np.zeros(model.nv)])
 
 # Some key elements of the model
-towIds = {idf: model.getFrameId(f"{model.frames[idf].name}_tow") for idf in contactIds}
+towIds = {
+    idf: model.getFrameId("%s_tow" % model.frames[idf].name) for idf in contactIds
+}
 heelIds = {
-    idf: model.getFrameId(f"{model.frames[idf].name}_heel") for idf in contactIds
+    idf: model.getFrameId("%s_heel" % model.frames[idf].name) for idf in contactIds
 }
 baseId = model.getFrameId("root_joint")
 robotweight = -sum(Y.mass for Y in model.inertias) * model.gravity.linear[2]
@@ -167,7 +169,7 @@ models = []
 
 # #####################################################################################
 for t, pattern in enumerate(contactPattern[:-1]):
-    # print(f'time t={t}')
+    # print("time t=%s" % t)
 
     # Basics
     state = croc.StateMultibody(model)
@@ -206,7 +208,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
         copResidual = sobec.ResidualModelCenterOfPressure(state, cid, actuation.nu)
         copAct = croc.ActivationModelWeightedQuad(np.array([1 / FOOT_SIZE**2] * 2))
         copCost = croc.CostModelResidual(state, copAct, copResidual)
-        costs.addCost(f"{model.frames[cid].name}_cop", copCost, copWeight)
+        costs.addCost("%s_cop" % model.frames[cid].name, copCost, copWeight)
 
         # Cone with enormous friction (Assuming the robot will barely ever slide).
         # FOOT_SIZE is the allowed area size, while cone expects the corner coordinates
@@ -223,7 +225,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
             croc.ActivationBounds(cone.lb, ub)
         )
         coneCost = croc.CostModelResidual(state, coneAct, coneCost)
-        costs.addCost(f"{model.frames[cid].name}_cone", coneCost, conePenaltyWeight)
+        costs.addCost("%s_cone" % model.frames[cid].name, coneCost, conePenaltyWeight)
 
         # Penalize the distance to the central axis of the cone ...
         #  ... using normalization weights depending on the axis.
@@ -236,7 +238,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
         coneAxisAct = croc.ActivationModelWeightedQuad(w)
         coneAxisCost = croc.CostModelResidual(state, coneAxisAct, coneAxisResidual)
         costs.addCost(
-            f"{model.frames[cid].name}_coneaxis", coneAxisCost, coneAxisWeight
+            "%s_coneaxis" % model.frames[cid].name, coneAxisCost, coneAxisWeight
         )
 
     # for k,cid in enumerate(contactIds):
@@ -244,7 +246,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
     for k, cid in enumerate(contactIds):
 
         if t > 0 and not contactPattern[t - 1][k] and pattern[k]:
-            print(f"Impact {cid} at time {t}")
+            print("Impact %s at time %s" % (cid, t))
             impactResidual = croc.ResidualModelFrameTranslation(
                 state, cid, np.zeros(3), actuation.nu
             )
@@ -270,7 +272,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
             state, verticalFootVelAct, verticalFootVelResidual
         )
         costs.addCost(
-            f"{model.frames[cid].name}_vfoot_vel",
+            "%s_vfoot_vel" % model.frames[cid].name,
             verticalFootVelCost,
             verticalFootVelWeight,
         )
@@ -280,7 +282,7 @@ for t, pattern in enumerate(contactPattern[:-1]):
             state, cid, flyHighSlope / 2, actuation.nu
         )
         flyHighCost = croc.CostModelResidual(state, flyHighResidual)
-        costs.addCost(f"{model.frames[cid].name}_flyhigh", flyHighCost, flyWeight)
+        costs.addCost("%s_flyhigh" % model.frames[cid].name, flyHighCost, flyWeight)
 
     # Action
     damodel = croc.DifferentialActionModelContactFwdDynamics(
@@ -324,7 +326,7 @@ termmodel = croc.IntegratedActionModelEuler(damodel, DT)
 # #####################################################################################
 GUESS_FILE = "/tmp/sol.npy"
 guess = np.load(GUESS_FILE, allow_pickle=True)[()]
-print(f'Load "{GUESS_FILE}"!')
+print('Load "%s"!' % GUESS_FILE)
 # #####################################################################################
 
 problem = croc.ShootingProblem(x0, models, termmodel)
@@ -378,13 +380,13 @@ fs_sol0 = [
         [
             (
                 d.differential.multibody.contacts.contacts[
-                    f"{model.frames[cid].name}_contact"
+                    "%s_contact" % model.frames[cid].name
                 ].jMf.inverse()
                 * d.differential.multibody.contacts.contacts[
-                    f"{model.frames[cid].name}_contact"
+                    "%s_contact" % model.frames[cid].name
                 ].f
             ).vector
-            if f"{model.frames[cid].name}_contact"
+            if "%s_contact" % model.frames[cid].name
             in d.differential.multibody.contacts.contacts
             else np.zeros(6)
             for cid in contactIds
@@ -548,7 +550,7 @@ def save():
             "fs": np.array(fs_sol0),
         },
     )
-    print(f'Save "{SOLU_FILE}"!')
+    print('Save "%s"!' % SOLU_FILE)
 
 
 """
