@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def switch_tanh(x):
     return 0 if x <= 0 else 1 if x >= 1 else (np.tanh(-1 / x + 1 / (1 - x)) + 1) / 2
 

@@ -4,7 +4,7 @@ import numpy as np
 
 # Local imports
 import sobec
-from weight_share import computeReferenceForces
+from sobec.walk.weight_share import computeReferenceForces
 
 
 def buildRunningModels(robotWrapper, contactPattern, params):
@@ -313,9 +313,9 @@ def buildTerminalModel(robotWrapper, contactPattern, params):
     # Costs
     costs = croc.CostModelSum(state, actuation.nu)
 
-    if "stateTerminalTarget" not in locals():
-        stateTerminalTarget = robot.x0.copy()
-        stateTerminalTarget[:3] += p.vcomRef * T * p.DT
+    #if "stateTerminalTarget" not in locals():
+    stateTerminalTarget = robot.x0.copy()
+    stateTerminalTarget[:3] += p.vcomRef * T * p.DT
     stateTerminalResidual = croc.ResidualModelState(
         state, stateTerminalTarget, actuation.nu
     )
