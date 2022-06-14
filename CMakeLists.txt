@@ -84,7 +84,9 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
   include/${PROJECT_NAME}/residual-fly-high.hxx
-)
+  include/${PROJECT_NAME}/mpc-walk.hpp
+  include/${PROJECT_NAME}/mpc-walk.hxx
+ )
 
 set(${PROJECT_NAME}_SOURCES
   src/designer.cpp

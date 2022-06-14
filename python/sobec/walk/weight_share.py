@@ -2,7 +2,13 @@ import numpy as np
 
 
 def switch_tanh(x):
-    return 0 if x <= 0 else 1 if x >= 1 else (np.tanh(-1 / x + 1 / (1 - x)) + 1) / 2
+    return (
+        0
+        if x <= 0
+        else 1
+        if x >= 1
+        else (np.tanh(-1.0 / x + 1.0 / (1.0 - x)) + 1.0) / 2.0
+    )
 
 
 def switch_linear(x):
@@ -20,7 +26,7 @@ def weightShareSmoothProfile(
 
     T = len(contactPattern) - 1
     Ttrans = duration
-    trans = np.array([switch(x) for x in np.arange(1, Ttrans + 1) / (Ttrans + 1)])
+    trans = np.array([switch(x) for x in np.arange(1, Ttrans + 1.0) / (Ttrans + 1.0)])
 
     for t in range(1, T):
         if np.any(

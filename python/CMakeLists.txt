@@ -16,6 +16,7 @@ set(${PY_NAME}_SOURCES
   contact-fwddyn.cpp
   contact-force.cpp
   wbc.cpp
+  mpc-walk.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
@@ -35,4 +36,16 @@ set(${PY_NAME}_PYTHON
 
 foreach(python ${${PY_NAME}_PYTHON})
   PYTHON_INSTALL_ON_SITE(${PY_NAME} ${python})
+endforeach()
+
+set(${PY_WALK_NAME}_PYTHON
+  __init__.py
+  ocp.py
+  params.py
+  weight_share.py
+  robot_wrapper.py
+  )
+
+foreach(python ${${PY_WALK_NAME}_PYTHON})
+  PYTHON_INSTALL_ON_SITE(${PY_NAME}/walk ${python})
 endforeach()

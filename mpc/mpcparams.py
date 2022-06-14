@@ -3,10 +3,12 @@ import params
 
 
 class WalkParams(params.WalkParams):
+    DT = 0.010
 
     # Inherited from params.WalkParams
     stateTerminalWeight = 20
-    saveFile = "/tmp/mpc.npy"
+    #    saveFile = '/tmp/mpc.npy'
+    saveFile = None
 
     basisQWeight = [0, 0, 0, 50, 50, 0]
     legQWeight = [5, 5, 1, 2, 1, 1]
@@ -29,7 +31,7 @@ class WalkParams(params.WalkParams):
     )
 
     # impactAltitudeWeight = 1000  #100
-    impactVelocityWeight = 1000  # 10
+    impactVelocityWeight = 10 * 1000  # 10
     # impactRotationWeight = 50    #5
 
     # groundColWeight = 0
@@ -40,20 +42,28 @@ class WalkParams(params.WalkParams):
     # copWeight = .5
 
     # New parameters
-    T_START = 30
-    T_SINGLE = 60
-    T_DOUBLE = 11
-    T_END = 30
-    Tmpc = 120
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.8 / DT)  # 60
+    Tdouble = int(0.11 / DT)  # 11
+    Tend = int(0.3 / DT)
+    Tmpc = int(1.6 / DT)  # 120
 
     refFootFlyingAltitude = 7e-2
     flyHighSlope = 3 / refFootFlyingAltitude
-    baumgartGains = np.array([0, 50])
+    flyWeight = 10 * 20
+    baumgartGains = np.array([0, 100])
 
-    VCOM_TARGET = np.array([0.05, 0, 0])
+    vcomRef = np.array([0.05, 0, 0])
     # vcomWeight = 2
     # comWeight = 1000  # 20
     vcomImportance = np.array([0.0, 0, 1])
 
-    maxiter = 1
+    maxiter = 2
     solver_reg_min = 1e-6
+
+    # max magnitude of the multiplicative joint torque noise, expressed as a percentage
+    # (i.e. 1=100%)
+    torque_noise = 0.0
+
+    # DEBUG
+    showPreview = False

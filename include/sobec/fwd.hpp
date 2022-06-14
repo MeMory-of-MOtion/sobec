@@ -166,6 +166,9 @@ enum ContactType {
   Contact6D
 };
 
+// MPC
+class MPCWalk;
+
 }  // namespace sobec
 
 #endif  // SOBEC_FWD_HPP_
