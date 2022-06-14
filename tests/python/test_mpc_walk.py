@@ -13,9 +13,7 @@ Tmpc = 20
 
 robot = robex.load("talos_legs")
 model = robot.model
-contactIds = [
-    i for i, f in enumerate(model.frames) if "sole_link" in f.name
-]
+contactIds = [i for i, f in enumerate(model.frames) if "sole_link" in f.name]
 
 runmodels = []
 
@@ -25,8 +23,10 @@ actuation = croc.ActuationModelFloatingBase(state)
 # Contact
 contacts = croc.ContactModelMultiple(state, actuation.nu)
 for cid in contactIds:
-    contact = croc.ContactModel6D(state, cid, pin.SE3.Identity(), actuation.nu,np.zeros(2))
-    contacts.addContact('contact'+str(cid),contact)
+    contact = croc.ContactModel6D(
+        state, cid, pin.SE3.Identity(), actuation.nu, np.zeros(2)
+    )
+    contacts.addContact("contact" + str(cid), contact)
 
 # Costs
 costs = croc.CostModelSum(state, actuation.nu)
@@ -49,7 +49,7 @@ u0s = [
     m.quasiStatic(d, x)
     for m, d, x in zip(problem.runningModels, problem.runningDatas, x0s)
 ]
-ddp.solve(x0s,u0s)
+ddp.solve(x0s, u0s)
 
 mpc = sobec.MPCWalk(problem)
 mpc.Tmpc = Tmpc
@@ -60,6 +60,6 @@ mpc.Tend = Tend
 mpc.vcomRef = np.array([0.33, 0.1, 0.0])
 mpc.initialize([x for x in ddp.xs[: Tmpc + 1]], [u for u in ddp.us[:Tmpc]])
 
-mpc.calc(model.x0,10)
-mpc.solver.setCallbacks([croc.CallbackVerbose() ])
-mpc.calc(model.x0,10)
+mpc.calc(model.x0, 10)
+mpc.solver.setCallbacks([croc.CallbackVerbose()])
+mpc.calc(model.x0, 10)
