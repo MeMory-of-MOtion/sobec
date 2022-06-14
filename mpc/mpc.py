@@ -13,7 +13,6 @@ from sobec.walk import ocp
 from mpcparams import WalkParams
 import talos_low
 from sobec.walk.config_mpc import configureMPCWalk
-import viewer_multiple
 import miscdisp
 
 # import viewer_multiple

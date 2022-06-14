@@ -1,9 +1,7 @@
 import pinocchio as pin
-import crocoddyl as croc
 import numpy as np
 import matplotlib.pylab as plt  # noqa: F401
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
-import time
 
 # Local imports
 import sobec
@@ -14,8 +12,9 @@ from sobec.walk import ocp
 from mpcparams import WalkParams
 import utils.talos_low as talos_low
 from sobec.walk.config_mpc import configureMPCWalk
-import utils.viewer_multiple as viewer_multiple
 import sobec.walk.miscdisp as miscdisp
+
+# import utils.viewer_multiple as viewer_multiple
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################

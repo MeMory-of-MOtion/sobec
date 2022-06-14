@@ -1,4 +1,3 @@
-import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
