@@ -214,6 +214,11 @@ void ModelMaker::defineCoMVelocity(Cost &costCollector) {
                                true);
 }
 
+void defineCoPTask(Cost &costCollector) {
+    // IMPLEMENTING
+
+}
+
 AMA ModelMaker::formulateStepTracker(const Support &support) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
       state_, actuation_->get_nu());

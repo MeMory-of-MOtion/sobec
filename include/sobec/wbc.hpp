@@ -108,6 +108,8 @@ class WBC {
   void recedeWithCycle(HorizonManager &cycle);
 
   // getters and setters
+  WBCSettings &get_settings(){ return settings_;}
+
   const Eigen::VectorXd &get_x0() const { return x0_; }
   void set_x0(const Eigen::VectorXd &x0) { x0_ = x0; }
 

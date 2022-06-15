@@ -63,7 +63,6 @@ class ModelMaker {
   bool initialized_ = false;
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
-  // AMA formulate_flat_walker(const Support &support = Support::DOUBLE);
   AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
 
   std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
@@ -80,6 +79,7 @@ class ModelMaker {
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
+  void defineCoPTask(Cost &costCollector);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {
