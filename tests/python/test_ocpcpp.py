@@ -8,18 +8,24 @@ import sobec.walk.ocp as pyOCPWalk
 from sobec.walk.miscdisp import reprProblem
 
 # --- ROBOT WRAPPER
+print("*** Py robot")
+pyurdf = robex.load("talos_legs")
+pyurdf.model.name = "talos"
+pyrobot = pyRobotWrapper(pyurdf.model, contactKey="sole_link")
+
+print("*** C++ robot")
 urdf = robex.load("talos_legs")
 urdf.model.name = "talos"
-pyrobot = pyRobotWrapper(urdf.model, contactKey="sole_link")
-
-robot = sobec.OCPRobotWrapper(urdf.model, "sole_line", "half_sitting")
+robot = sobec.OCPRobotWrapper(urdf.model, "sole_link", "half_sitting")
 robot.model
 assert norm(pyrobot.com0 - robot.com0) < 1e-9
 assert norm(pyrobot.x0 - robot.x0) < 1e-9
 
 # --- PARAMS
+print("*** Py params")
 pyparams = pyWalkParams(pyrobot.name)
 
+print("*** C++ params")
 params = sobec.OCPWalkParams()
 params.DT
 
@@ -45,27 +51,22 @@ for k,v in pyparams.__class__.__dict__.items():
 
 
 # --- CONTACT PATTERN
+print("*** Contacts")
 pycontactPattern = (
     []
-    + [[1, 1]] * 40
-    + [[1, 0]] * 50
+    + [[1, 1]] * 10
+    + [[1, 0]] * 20
     + [[1, 1]] * 11
-    + [[0, 1]] * 50
-    + [[1, 1]] * 11
-    + [[1, 0]] * 50
-    + [[1, 1]] * 11
-    + [[0, 1]] * 50
-    + [[1, 1]] * 11
-    + [[1, 1]] * 40
     + [[1, 1]]
 )
 contactPattern = np.array(pycontactPattern).T
 
 
 # --- OCP
-
+print("*** Py OCP")
 pyddp = pyOCPWalk.buildSolver(pyrobot,pycontactPattern,pyparams)
 
+print("*** C++ OCP")
 ocp = sobec.OCPWalk(robot, params, contactPattern)
 ocp.buildSolver()
 
