@@ -56,17 +56,17 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
 
   // timming
-  t_takeoff_RF_ = Eigen::ArrayXi::LinSpaced(
+  t_takeoff_RF_.setLinSpaced(
       settings_.horizonSteps, 0, 2 * settings_.horizonSteps * settings_.Tstep);
-  t_takeoff_RF_ += (int)settings_.T;
-  t_takeoff_LF_ = t_takeoff_RF_ + settings_.Tstep;
-  t_land_RF_ = t_takeoff_RF_ + settings_.TsingleSupport;
-  t_land_LF_ = t_takeoff_LF_ + settings_.TsingleSupport;
+  t_takeoff_RF_.array() += (int)settings_.T;
+  t_takeoff_LF_ = t_takeoff_RF_.array() + settings_.Tstep;
+  t_land_RF_ = t_takeoff_RF_.array() + settings_.TsingleSupport;
+  t_land_LF_ = t_takeoff_LF_.array() + settings_.TsingleSupport;
 
   initialized_ = true;
 }
 
-void WBC::generateWalkigCycle(ModelMaker &mm) {
+void WBC::generateWalkingCycle(ModelMaker &mm) {
   std::vector<Support> cycle;
   int takeoff_RF, land_RF, takeoff_LF, land_LF;
   takeoff_RF = 0;
@@ -102,19 +102,24 @@ void WBC::generateStandingCycle(ModelMaker &mm) {
 }
 
 void WBC::updateStepCycleTiming() {
-  t_takeoff_RF_ -= 1;
-  t_takeoff_LF_ -= 1;
-  t_land_RF_ -= 1;
-  t_land_LF_ -= 1;
+  t_takeoff_RF_.array() -= 1;
+  t_takeoff_LF_.array() -= 1;
+  t_land_RF_.array() -= 1;
+  t_land_LF_.array() -= 1;
 
-  if (t_land_LF_(0) < 0) t_land_LF_ += 2 * settings_.Tstep;
-  if (t_land_RF_(0) < 0) t_land_RF_ += 2 * settings_.Tstep;
-  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_ += 2 * settings_.Tstep;
-  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_ += 2 * settings_.Tstep;
+  if (t_land_LF_(0) < 0) t_land_LF_.array() += 2 * settings_.Tstep;
+  if (t_land_RF_(0) < 0) t_land_RF_.array() += 2 * settings_.Tstep;
+  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
+  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
 }
 
 bool WBC::timeToSolveDDP(const int &iteration) {
   return !(iteration % settings_.Nc);
+}
+
+void WBC::setDesiredFeetPoses(const int &/*iteration*/, const int &/*time*/)
+{
+  throw std::runtime_error("void WBC::setDesiredFeetPoses(const int &iteration, const int &time) is not implemented!!!");
 }
 
 Eigen::VectorXd WBC::iterate(const int &iteration,
@@ -185,7 +190,8 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
   return;
 }
 
-Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v) {
+Eigen::VectorXd WBC::shapeState(const Eigen::VectorXd& q, const Eigen::VectorXd& v) {
+
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
