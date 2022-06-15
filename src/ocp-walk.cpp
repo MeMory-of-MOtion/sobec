@@ -10,11 +10,18 @@
 
 namespace sobec {
 
-boost::shared_ptr<SolverFDDP> OCPWalk::buildSolver(
-    const Eigen::Ref<const Eigen::MatrixX2d>& contact_pattern,
-    const std::vector<std::vector<pinocchio::Force>>& reference_forces) {
-  auto models = buildRunningModels(contact_pattern, reference_forces);
-  auto termmodel = buildTerminalModel(contact_pattern);
+OCPWalk::OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot,
+                 boost::shared_ptr<OCPWalkParams> params,
+                 const Eigen::Ref<const Eigen::MatrixXd> contact_pattern)
+  :  contact_pattern(contact_pattern), params(params), robot(robot)
+{
+  computeReferenceForces();
+}
+
+boost::shared_ptr<SolverFDDP> OCPWalk::buildSolver()
+{
+  auto models = buildRunningModels();
+  auto termmodel = buildTerminalModel();
   auto problem =
       boost::make_shared<ShootingProblem>(robot->x0, models, termmodel);
   auto ddp = boost::make_shared<SolverFDDP>(problem);

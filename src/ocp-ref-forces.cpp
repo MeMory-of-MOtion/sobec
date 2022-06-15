@@ -6,10 +6,9 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
+
 #include "sobec/fwd.hpp"
 #include "sobec/ocp-walk.hpp"
-
-#include "pinocchio/spatial/force.hpp"
 
 namespace sobec {
 
@@ -77,17 +76,17 @@ namespace sobec {
   }
 
   
-  void computeReferenceForces(const Eigen::Ref<const Eigen::MatrixXd> contact_pattern,
-                              int duration, double robotGravityForce)
+  void OCPWalk::computeReferenceForces()
   {
+    double duration = params->transitionDuration;
+    double robotGravityForce = robot->robotGravityForce;
+    
     Eigen::MatrixXd contactImportance = computeWeightShareSmoothProfile(contact_pattern,duration);
       
-    // Eigen::Ref<const MatrixX2d> contact_pattern;
     Eigen::Index T = contact_pattern.cols(); // time horizon length
     Eigen::Index nc = contact_pattern.rows(); // number of contact
 
-    // std::vector< std::vector<pinocchio::Force> > referenceForces;
-    // referenceForces.resize(T);
+    referenceForces.resize(T);
 
     pinocchio::Force grav = pinocchio::Force::Zero();
     grav.linear()[2] = robotGravityForce;
@@ -96,38 +95,8 @@ namespace sobec {
     for(Eigen::Index t=0;t<T;++t)
       for(Eigen::Index k=0;k<nc;++k)
         {
-          
+          referenceForces[t].push_back(grav*contactImportance(t,k));
         }
-
- 
-
-      //       for( int t=1; t<T; ++t )
-      // {
-      //   for( int k=0; k<nc; ++k )
-      //     {
-      //       if((!contact_pattern[k,t-1] ) && contact_pattern[k,t] )
-      //         {
-      //           // Contact creation for k at t
-      //           for(int s=0;s<duration;++s)
-      //             {
-                    
-
-                    
-      //             }
-                
-                
-      //         }
-
-            
-      //     }
-
-
-        
-      // }
-
-
-
-    
   }
   
 

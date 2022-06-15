@@ -83,7 +83,49 @@ void exposeOCPParams() {
       //               "maxiter param to configure the solver.")
       .add_property("DT", bp::make_getter(&OCPWalkParams::DT),
                     bp::make_setter(&OCPWalkParams::DT),
-                    "time step duration of the shooting nodes.");
+                    "time step duration of the shooting nodes.")
+
+
+  // std::vector<pinocchio::FrameIndex> contactIds;
+  // std::vector<std::string> mainJointIds;
+  // Eigen::Vector2d baumgartGains;
+  // Eigen::VectorXd stateImportance;
+  // Eigen::VectorXd stateTerminalImportance;
+  // Eigen::VectorXd controlImportance;
+  // Eigen::VectorXd vcomImportance;
+  // Eigen::VectorXd forceImportance;
+
+  // Eigen::Vector3d vcomRef;
+    /*
+  footSize;
+
+  refStateWeight;
+  refTorqueWeight;
+  comWeight;
+  vcomWeight;
+  copWeight;
+  conePenaltyWeight;
+  coneAxisWeight;
+  refForceWeight;
+  impactAltitudeWeight;
+  impactVelocityWeight;
+  impactRotationWeight;
+  refMainJointsAtImpactWeight;
+  verticalFootVelWeight;
+  flyHighSlope;
+  flyHighWeight;
+  groundColWeight;
+  footMinimalDistance;
+  feetCollisionWeight;
+  kktDamping;
+  stateTerminalWeight;
+  solver_th_stop;
+  transitionDuration;
+
+
+    */
+
+    ;
 }
 
   void exposeRefForce() {
@@ -100,8 +142,9 @@ void exposeOCPWalkclass() {
   bp::class_<OCPWalk>(
       "OCPWalk",
       bp::init<boost::shared_ptr<OCPRobotWrapper>,
-               boost::shared_ptr<OCPWalkParams> >(
-          bp::args("self"), "Initialize the OCP from robot and params"))
+      boost::shared_ptr<OCPWalkParams>,Eigen::MatrixXd >
+      (bp::args("self","robot","params","contact_patter"),
+       "Initialize the OCP from robot, params and contact pattern"))
       // .add_property(
       //     "vcomRef",
       //     bp::make_getter(&OCPWalk::vcomRef,

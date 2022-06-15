@@ -15,8 +15,8 @@
 
 namespace sobec {
 
-AMA OCPWalk::buildTerminalModel(
-    const Eigen::Ref<const MatrixX2d>& contact_pattern) {
+  AMA OCPWalk::buildTerminalModel()
+  {
   // Horizon length
   int T = contact_pattern.rows() - 1;
 

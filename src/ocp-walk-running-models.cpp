@@ -11,9 +11,7 @@
 
 namespace sobec {
 
-std::vector<AMA> OCPWalk::buildRunningModels(
-    const Eigen::Ref<const Eigen::MatrixX2d>& contact_pattern,
-    const std::vector<std::vector<pinocchio::Force> >& referenceForces) {
+std::vector<AMA> OCPWalk::buildRunningModels() {
   state = boost::make_shared<StateMultibody>(robot->model);
   actuation = boost::make_shared<ActuationModelFloatingBase>(state);
 
