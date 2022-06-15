@@ -147,7 +147,56 @@ OCPWalk::buildRunningModel(
                          (robot->robotGravityForce * robot->robotGravityForce));
     }
 
-    // Contact costs
+    // IMPACT
+
+    for (int k = 0; k < robot->contactIds.size(); ++k) {
+      auto cid = robot->contactIds[k];
+
+      if (i > 0 && !contact_pattern(k, i - 1) && contact_pattern(k, i) == 0.) {
+        // REMEMBER TO divide the weight by p.DT, as impact should be
+        // independant of the node duration (at least, that s how weights are
+        // tuned in casadi)
+        auto impactResidual = boost::make_shared<ResidualModelFrameTranslation>(
+            state, cid, Eigen::Vector3d::Zero(), actuation->get_nu());
+        Eigen::Vector3d impactActVec;
+        impactActVec << 0., 0., 1.;
+        auto impactAct =
+            boost::make_shared<ActivationModelWeightedQuad>(impactActVec);
+        auto impactCost = boost::make_shared<CostModelResidual>(
+            state, impactAct, impactResidual);
+        costs->addCost(robot->model->frames[cid].name + "_altitudeimpact",
+                       impactCost, params->impactAltitudeWeight / params->DT);
+
+        auto impactVelResidual = boost::make_shared<ResidualModelFrameVelocity>(
+            state, cid, pinocchio::Motion::Zero(), pinocchio::LOCAL,
+            actuation->get_nu());
+        auto impactVelCost =
+            boost::make_shared<CostModelResidual>(state, impactVelResidual);
+        costs->addCost(robot->model->frames[cid].name + "_velimpact",
+                       impactVelCost,
+                       params->impactVelocityWeight / params->DT);
+
+        auto impactRotResidual = boost::make_shared<ResidualModelFrameRotation>(
+            state, cid, Eigen::Matrix3d::Identity(), actuation->get_nu());
+        Eigen::Vector3d impactRotVec;
+        impactRotVec << 1., 1., 0.;
+        auto impactRotAct =
+            boost::make_shared<ActivationModelWeightedQuad>(impactRotVec);
+        auto impactRotCost = boost::make_shared<CostModelResidual>(
+            state, impactRotAct, impactRotResidual);
+        costs->addCost(robot->model->frames[cid].name + "_rotimpact",
+                       impactRotCost,
+                       params->impactRotationWeight / params->DT);
+
+        auto impactRefJointsResidual = boost::make_shared<ResidualModelState>(
+            state, robot->x0, actuation->get_nu());
+        Eigen::VectorXd jselec(robot->model->nv * 2);
+        for (auto& joint : params->mainJointIds) {
+          pinocchio::JointIndex j = robot->model->getJointId(joint);
+          jselec[robot->model->joints[j].idx_v()] = 1;
+        }
+      }
+    }
 
     // Flying foot
 

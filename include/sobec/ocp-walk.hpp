@@ -26,6 +26,7 @@ using namespace crocoddyl;
 struct OCPWalkParams {
   double DT;
   std::vector<pinocchio::FrameIndex> contactIds;
+  std::vector<std::string> mainJointIds;
   Eigen::Vector2d baumgartGains;
   Eigen::VectorXd stateImportance;
   Eigen::VectorXd controlImportance;
@@ -44,6 +45,9 @@ struct OCPWalkParams {
   double conePenaltyWeight;
   double coneAxisWeight;
   double refForceWeight;
+  double impactAltitudeWeight;
+  double impactVelocityWeight;
+  double impactRotationWeight;
 };
 
 struct OCPRobotWrapper {
