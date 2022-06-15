@@ -21,7 +21,7 @@ struct ModelMakerSettings {
   eVector3 gravity = eVector3(0, 0, -9.81);
 
   // geometry
-  double footSize = 0.05; //[m]
+  double footSize = 0.05;  //[m]
 
   double mu = 0.3;
   eVector2 coneBox = eVector2(0.1, 0.05);  // half lenght and width
