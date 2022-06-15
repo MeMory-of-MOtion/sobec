@@ -18,6 +18,7 @@
 #include <pinocchio/multibody/data.hpp>
 #include <pinocchio/spatial/motion.hpp>
 
+#include "sobec/contact/fwd.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
