@@ -6,32 +6,26 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-// #include <pinocchio/bindings/python/utils/list.hpp>
-// #include <pinocchio/multibody/fwd.hpp>
+// Must be included first!
+#include <pinocchio/fwd.hpp>
+#include <pinocchio/multibody/fwd.hpp>
+#include <pinocchio/bindings/python/utils/std-vector.hpp>
+#include <eigenpy/eigenpy.hpp>
 
-// // Must be included first!
-// #include <boost/python.hpp>
-// #include <boost/python/enum.hpp>
-// #include <eigenpy/eigenpy.hpp>
-
-// #include "sobec/fwd.hpp"
-// #include "sobec/ocp-walk.hpp"
-
-#include "sobec/ocp-walk.hpp"
+#include <crocoddyl/core/solvers/fddp.hpp>
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
-#include <crocoddyl/core/solvers/fddp.hpp>
-#include <eigenpy/eigenpy.hpp>
-#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 
 #include "sobec/fwd.hpp"
+#include "sobec/ocp-walk.hpp"
 
 namespace sobec {
 namespace python {
 
 using namespace crocoddyl;
 namespace bp = boost::python;
+namespace pp = pinocchio::python;
 
 void exposeOCPRobotWrapper() {
   bp::register_ptr_to_python<boost::shared_ptr<OCPRobotWrapper> >();
@@ -70,6 +64,9 @@ void exposeOCPRobotWrapper() {
 void exposeOCPParams() {
   bp::register_ptr_to_python<boost::shared_ptr<OCPWalkParams> >();
 
+  pp::StdVectorPythonVisitor<pinocchio::FrameIndex>::expose("StdVectorPinocchioFrameIndex_");
+  pp::StdVectorPythonVisitor<std::string>::expose("StdVectorStdStringIndex_");
+
   bp::class_<OCPWalkParams>(
       "OCPWalkParams",
       bp::init<>(bp::args("self"), "Empty initialization of the OCP params"))
@@ -85,10 +82,12 @@ void exposeOCPParams() {
                     bp::make_setter(&OCPWalkParams::DT),
                     "time step duration of the shooting nodes.")
 
-
-  // std::vector<pinocchio::FrameIndex> contactIds;
-  // std::vector<std::string> mainJointIds;
-   
+    .add_property("contactIds", bp::make_getter(&OCPWalkParams::contactIds),
+                    bp::make_setter(&OCPWalkParams::contactIds),
+                    "List of the end-effectors potentially in contact.")
+    .add_property("mainJointIds", bp::make_getter(&OCPWalkParams::mainJointIds),
+                    bp::make_setter(&OCPWalkParams::mainJointIds),
+                    "Most important (big weight) joints at impact.")
     .add_property("baumgartGains",
                   bp::make_getter(&OCPWalkParams::baumgartGains,
                                   bp::return_internal_reference<>()),
