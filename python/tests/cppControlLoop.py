@@ -16,6 +16,48 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyModelMaker import modeller
 
 from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker
+import numpy as np
+
+#Functions to generate steps:
+def foot_trajectory2(self, time, time_to_land, pose, trajectory="sine"):
+    tmax = self.conf.T1contact
+    t = time_to_land - 4  # minus landing_advance
+
+    if trajectory == "sine":
+        # SINE
+        z = 0 if t < 0 or t > tmax - 8 else (np.sin(t * np.pi / (tmax - 8))) * 0.04
+    else:
+        # SMOTHER
+        z = (
+            0
+            if t < 0 or t > tmax - 8
+            else (1 - np.cos(2 * t * np.pi / (tmax - 8))) * 0.02
+        )
+
+    Dx = 0 * ((time) // self.conf.Tstep)
+
+    result = np.array([pose.translation[0] + Dx, pose.translation[1], z])
+    return result
+
+def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
+    tmax = conf.T1contact
+    landing_advance = 20
+    z = []
+    if trajectory == "sine":
+        for t in range(time_to_land-landing_advance, time_to_land-landing_advance - T, -1):
+            z.append(0 if t < 0 or t > tmax - 20 else (np.sin(t * np.pi / (tmax - 20))) * 0.04)
+            
+    else:
+        for t in range(time_to_land-landing_advance, time_to_land-2*landing_advance - T, -1):
+            z.append(
+                        0 if t < 0 or t > tmax - 8
+                        else (1 - np.cos(2 * t * np.pi / (tmax - 8))) * 0.02
+                    )
+    
+    return [np.array([translation[0], translation[1], move_z]) for move_z in z]
+    
+    
+
 
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
