@@ -94,6 +94,9 @@ class HorizonManager {
                         const std::string &nameContactLF,
                         const std::string &nameContactRF);
 
+  eVector3 getFootForce(const unsigned long &time, const std::string &nameFootForceCost);
+  eVector3 getFootTorque(const unsigned long &time, const std::string &nameFootForceCost);
+
   void recede(const AMA &new_model, const ADA &new_data);
   void recede(const AMA &new_model);
   void recede();
