@@ -23,8 +23,10 @@ void exposeMultipleContacts();
 void exposeDAMContactFwdDyn();
 void exposeResidualContactForce();
 void exposeWBC();
+void exposeOCPWalk();
 void exposeMPCWalk();
 
+  
 }  // namespace python
 }  // namespace sobec
 

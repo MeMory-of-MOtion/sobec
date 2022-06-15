@@ -12,11 +12,12 @@
 namespace sobec {
 
   OCPRobotWrapper::
-  OCPRobotWrapper( boost::shared_ptr<pinocchio::Model> model,
+  OCPRobotWrapper( boost::shared_ptr<pinocchio::Model> model_,
                    const std::string & contactKey,
                    const std::string & referencePosture)
   {
-        
+    this->model = model_;
+      
     // Search contact Ids using key name (eg all frames containing "sole_link")
     for( pinocchio::FrameIndex idx = 0; idx<model->frames.size(); ++idx )
       {
@@ -39,6 +40,11 @@ namespace sobec {
 
     // Get ref config
     Eigen::VectorXd q0 = model->referenceConfigurations[referencePosture];
+
+    // eval x0
+    x0.resize(model->nq+model->nv);
+    x0.head(model->nq) = q0;
+    x0.tail(model->nv).fill(0);
     
     // eval COM
     com0 = pinocchio::centerOfMass(*model,*data,q0,false);
@@ -50,7 +56,11 @@ namespace sobec {
 
 
   
-  boost::shared_ptr<IntegratedActionModelEuler> buildRunningModel()
+  boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildRunningModel()
+  {
+    return NULL;
+  }
+  boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel()
   {
     return NULL;
   }

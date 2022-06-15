@@ -16,6 +16,7 @@ set(${PY_NAME}_SOURCES
   contact-fwddyn.cpp
   contact-force.cpp
   wbc.cpp
+  ocp-walk.cpp
   mpc-walk.cpp
   )
 

@@ -22,7 +22,7 @@ using namespace crocoddyl;
  * @brief OCP builder.
  */
 
-struct OCPWalkParam
+struct OCPWalkParams
 {
   double DT;
   std::vector<pinocchio::FrameIndex> contactIds;
@@ -58,7 +58,7 @@ class OCPWalk {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   explicit OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot,
-                   boost::shared_ptr<OCPWalkParam> params)
+                   boost::shared_ptr<OCPWalkParams> params)
     : params(params),robot(robot) {}
 
   virtual ~OCPWalk() {}
@@ -75,7 +75,7 @@ class OCPWalk {
   boost::shared_ptr<StateMultibody> state;
 
  protected:
-  boost::shared_ptr<OCPWalkParam> params;
+  boost::shared_ptr<OCPWalkParams> params;
   boost::shared_ptr<OCPRobotWrapper> robot;
 };
 
