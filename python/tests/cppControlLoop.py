@@ -4,7 +4,7 @@ Created on Sat Jun 11 17:42:39 2022
 
 @author: nvilla
 """
-
+import matplotlib.pyplot as plt
 
 import configuration as conf
 
@@ -38,6 +38,12 @@ def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
     
     return [np.array([translation[0], translation[1], move_z]) for move_z in z]
     
+def print_trajectory(ref):
+    u = [y.translation for y in ref]
+    t = np.array([z[2] for z in u])
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.plot(t)
     
 
 
@@ -159,12 +165,16 @@ elif conf.simulator == "pinocchio":
 for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
-        LF_refs = foot_trajectory(len(mpc.ref_LF_poses), mpc.t_land_LF[0], mpc.ref_LF_poses[0].translation, "cosine")
-        RF_refs = foot_trajectory(len(mpc.ref_RF_poses), mpc.t_land_RF[0], mpc.ref_RF_poses[0].translation, "cosine")
+        LF_refs = foot_trajectory(len(mpc.ref_LF_poses), mpc.t_land_LF[0], mpc.ref_LF_poses[0].translation, "cosine")[len(mpc.ref_LF_poses) - 1]
+        RF_refs = foot_trajectory(len(mpc.ref_RF_poses), mpc.t_land_RF[0], mpc.ref_RF_poses[0].translation, "cosine")[len(mpc.ref_LF_poses) - 1]
         
-        for t in range(len(mpc.ref_LF_poses)):
-            mpc.ref_LF_poses[t] = pin.SE3(np.eye(3), LF_refs[t])
-            mpc.ref_RF_poses[t] = pin.SE3(np.eye(3), RF_refs[t])
+#        for t in range(len(mpc.ref_LF_poses)):
+#            mpc.ref_LF_poses[t] = pin.SE3(np.eye(3), LF_refs[t])
+#            mpc.ref_RF_poses[t] = pin.SE3(np.eye(3), RF_refs[t])
+        mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
+        mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
+        
+        print_trajectory(mpc.ref_LF_poses)
         
     torques = mpc.iterate(s, q_current, v_current)
     
@@ -181,7 +191,8 @@ for s in range(conf.T_total * conf.Nc):
         real_state, _ = device.execute(command, correct_contacts, s)
         esti_state = real_state  # wbc.joint_estimation(real_state, command)
         q_current, v_current = esti_state["q"], esti_state["dq"]
-
+    
+    
 #    if s == 0:stop
 
 

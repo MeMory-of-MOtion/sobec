@@ -62,6 +62,7 @@ class WBC {
 
   // INTERNAL UPDATING functions
   void updateStepTrackerReferences();
+  void updateStepTrackerLastReference();
   void updateNonThinkingReferences();
   // References for costs:
   std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
