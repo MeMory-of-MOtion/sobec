@@ -18,15 +18,14 @@ OCPWalk::OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot,
   computeReferenceForces();
 }
 
-boost::shared_ptr<SolverFDDP> OCPWalk::buildSolver()
+void OCPWalk::buildSolver()
 {
   auto models = buildRunningModels();
   auto termmodel = buildTerminalModel();
-  auto problem =
+  problem =
       boost::make_shared<ShootingProblem>(robot->x0, models, termmodel);
-  auto ddp = boost::make_shared<SolverFDDP>(problem);
-  ddp->set_th_stop(params->solver_th_stop);
-  return ddp;
+  solver = boost::make_shared<SolverFDDP>(problem);
+  solver->set_th_stop(params->solver_th_stop);
 }
 
 std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>

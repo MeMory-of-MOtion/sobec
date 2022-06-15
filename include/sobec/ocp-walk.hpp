@@ -102,7 +102,7 @@ struct OCPRobotWrapper {
     
   std::vector<AMA> buildRunningModels();
   AMA buildTerminalModel();
-  boost::shared_ptr<SolverFDDP> buildSolver();
+  void buildSolver();
   std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
   buildInitialGuess();
 
@@ -111,6 +111,9 @@ struct OCPRobotWrapper {
  public:
   /// @brief the OCP problem used for solving.
   boost::shared_ptr<ShootingProblem> problem;
+
+  /// @brief the OCP solver.
+  boost::shared_ptr<SolverFDDP> solver;
 
   /// @brief Keep a direct reference to the terminal state
   boost::shared_ptr<StateMultibody> state;

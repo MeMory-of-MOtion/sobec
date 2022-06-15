@@ -238,11 +238,18 @@ void exposeOCPWalkclass() {
                           bp::return_value_policy<bp::return_by_value>()),
           "Shooting problem used for OCP solver")
       .add_property(
+          "solver",
+          bp::make_getter(&OCPWalk::solver,
+                          bp::return_value_policy<bp::return_by_value>()),
+          "Shooting solver")
+      .add_property(
           "state",
           bp::make_getter(&OCPWalk::state,
                           bp::return_value_policy<bp::return_by_value>()),
           "State model of the terminal node")
 
+
+    .def("buildSolver",&OCPWalk::buildSolver,bp::return_value_policy<bp::return_by_value>())
       ;
 }
 
