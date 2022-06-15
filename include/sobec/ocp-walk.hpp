@@ -29,6 +29,7 @@ struct OCPWalkParams {
   std::vector<std::string> mainJointIds;
   Eigen::Vector2d baumgartGains;
   Eigen::VectorXd stateImportance;
+  Eigen::VectorXd stateTerminalImportance;
   Eigen::VectorXd controlImportance;
   Eigen::VectorXd vcomImportance;
   Eigen::VectorXd forceImportance;
@@ -48,6 +49,9 @@ struct OCPWalkParams {
   double impactAltitudeWeight;
   double impactVelocityWeight;
   double impactRotationWeight;
+  double stateTerminalWeight;
+
+  double kktDamping;
 };
 
 struct OCPRobotWrapper {
@@ -87,7 +91,7 @@ class OCPWalk {
   std::vector<boost::shared_ptr<IntegratedActionModelEuler> > buildRunningModel(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
       const std::vector<std::vector<pinocchio::Force> >& reference_forces);
-  boost::shared_ptr<IntegratedActionModelEuler> buildTerminalModel();
+  boost::shared_ptr<IntegratedActionModelEuler> buildTerminalModel(const Eigen::Ref<const MatrixX2d>& contact_pattern);
 
  public:
   /// @brief the OCP problem used for solving.

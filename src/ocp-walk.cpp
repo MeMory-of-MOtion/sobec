@@ -14,9 +14,9 @@
 
 namespace sobec {
 
-boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel() {
-  return NULL;
-}
+// boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel() {
+//   return NULL;
+// }
 
 std::vector<boost::shared_ptr<IntegratedActionModelEuler> >
 OCPWalk::buildRunningModel(
