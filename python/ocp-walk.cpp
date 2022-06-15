@@ -54,6 +54,9 @@ void exposeOCPRobotWrapper() {
                     bp::make_getter(&OCPRobotWrapper::data,
                                     bp::return_internal_reference<>()),
                     "pinocchio data")
+    .add_property("contactIds", bp::make_getter(&OCPRobotWrapper::contactIds),
+                    bp::make_setter(&OCPRobotWrapper::contactIds),
+                    "List of the end-effectors potentially in contact.")
       // .add_property("data",
       //               bp::make_getter(&OCPRobotWrapper::data,
       //                               bp::return_value_policy<bp::return_by_value>()),
@@ -82,9 +85,6 @@ void exposeOCPParams() {
                     bp::make_setter(&OCPWalkParams::DT),
                     "time step duration of the shooting nodes.")
 
-    .add_property("contactIds", bp::make_getter(&OCPWalkParams::contactIds),
-                    bp::make_setter(&OCPWalkParams::contactIds),
-                    "List of the end-effectors potentially in contact.")
     .add_property("mainJointIds", bp::make_getter(&OCPWalkParams::mainJointIds),
                     bp::make_setter(&OCPWalkParams::mainJointIds),
                     "Most important (big weight) joints at impact.")

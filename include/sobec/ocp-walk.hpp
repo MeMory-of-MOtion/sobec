@@ -27,7 +27,6 @@ using namespace crocoddyl;
 
 struct OCPWalkParams {
   double DT;
-  std::vector<pinocchio::FrameIndex> contactIds;
   std::vector<std::string> mainJointIds;
   Eigen::Vector2d baumgartGains;
   Eigen::VectorXd stateImportance;
