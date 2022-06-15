@@ -6,16 +6,17 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/ocp-walk.hpp"
-#include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
+#include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
 #include "pinocchio/spatial/se3.hpp"
+#include "sobec/ocp-walk.hpp"
 // #include "sobec/contact/contact-force.hpp"
 // #include "sobec/contact/multiple-contacts.hpp"
 
 namespace sobec {
 
-boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel(const Eigen::Ref<const MatrixX2d>& contact_pattern) {
+boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel(
+    const Eigen::Ref<const MatrixX2d>& contact_pattern) {
   // Horizon length
   int T = contact_pattern.rows() - 1;
 
@@ -24,17 +25,16 @@ boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel(const 
   // actuation = croc.ActuationModelFloatingBase(state)
 
   // Contacts
-  auto contacts =
-        boost::make_shared<crocoddyl::ContactModelMultiple>(state, actuation->get_nu());
+  auto contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
+      state, actuation->get_nu());
   for (int k = 0; k < robot->contactIds.size();
-        ++k) {  // k, cid in enumerate(robot.contactIds):
+       ++k) {  // k, cid in enumerate(robot.contactIds):
     if (contact_pattern(T, k) == 0.0) continue;
     int cid = robot->contactIds[k];
     auto contact = boost::make_shared<ContactModel6D>(
         state, cid, pinocchio::SE3::Identity(), actuation->get_nu(),
         params->baumgartGains);
-    contacts->addContact(robot->model->frames[cid].name + "_contact",
-                          contact);
+    contacts->addContact(robot->model->frames[cid].name + "_contact", contact);
   }
 
   // Costs
@@ -43,19 +43,21 @@ boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel(const 
   auto stateTerminalTarget = robot->x0;
   stateTerminalTarget.head<3>() += params->vcomRef * (T * params->DT);
   auto stateTerminalResidual = boost::make_shared<ResidualModelState>(
-        state, stateTerminalTarget, actuation->get_nu());
+      state, stateTerminalTarget, actuation->get_nu());
   auto activation_state = boost::make_shared<ActivationModelWeightedQuad>(
-        params->stateTerminalImportance.cwiseProduct(params->stateTerminalImportance));
+      params->stateTerminalImportance.cwiseProduct(
+          params->stateTerminalImportance));
   auto stateTerminalCost = boost::make_shared<CostModelResidual>(
-        state, activation_state, stateTerminalResidual);
+      state, activation_state, stateTerminalResidual);
   costs->addCost("stateReg", stateTerminalCost, params->stateTerminalWeight);
 
-  auto damodel = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
-      state, actuation, contacts, costs, params->kktDamping, true
-  );
-  auto termmodel = boost::make_shared<IntegratedActionModelEuler>(damodel, params->DT);
+  auto damodel =
+      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
+          state, actuation, contacts, costs, params->kktDamping, true);
+  auto termmodel =
+      boost::make_shared<IntegratedActionModelEuler>(damodel, params->DT);
 
   return termmodel;
 }
 
-} // namespace sobec
+}  // namespace sobec
