@@ -203,6 +203,20 @@ void HorizonManager::setDoubleSupport(const unsigned long &time,
   activateContactRF(time, nameContactRF);
 }
 
+eVector3 HorizonManager::getFootForce(const unsigned long &time, const std::string &nameFootForceCost){
+  return boost::static_pointer_cast<crocoddyl::ResidualDataContactWrenchCone>(
+         boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(
+         iad(time)->differential)->costs->costs.find(nameFootForceCost)
+         ->second->residual)->contact->f.linear();
+}
+
+eVector3 HorizonManager::getFootTorque(const unsigned long &time, const std::string &nameFootForceCost){
+  return boost::static_pointer_cast<crocoddyl::ResidualDataContactWrenchCone>(
+         boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(
+         iad(time)->differential)->costs->costs.find(nameFootForceCost)
+         ->second->residual)->contact->f.angular();
+}
+
 void HorizonManager::recede(const AMA &new_model, const ADA &new_data) {
   ddp_->get_problem()->circularAppend(new_model, new_data);
 }
