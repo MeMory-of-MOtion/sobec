@@ -23,6 +23,7 @@
 #include "sobec/fwd.hpp"
 
 namespace sobec {
+namespace newcontacts{
 
 /**
  * @brief Differential action model for contact forward dynamics in multibody
@@ -147,9 +148,10 @@ class DifferentialActionModelContactFwdDynamicsTpl
 
  private:
   bool enable_force_;
-  boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts_;
+  boost::shared_ptr<ContactModelMultipleTpl<Scalar>> sobec_contacts_;
 };
 
+}  // namespace newcontacts
 }  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */

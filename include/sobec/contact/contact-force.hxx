@@ -9,6 +9,7 @@
 #include "contact-force.hpp"
 
 namespace sobec {
+namespace newcontacts {
 
 template <typename Scalar>
 ResidualModelContactForceTpl<Scalar>::ResidualModelContactForceTpl(
@@ -34,8 +35,8 @@ void ResidualModelContactForceTpl<Scalar>::calc(
   // We transform the force to the contact frame
   switch (d->contact_type) {
     case Contact1D: {
-      sobec::ContactData1DTpl<Scalar>* d1d =
-          static_cast<sobec::ContactData1DTpl<Scalar>*>(d->contact.get());
+      ContactData1DTpl<Scalar>* d1d =
+          static_cast<ContactData1DTpl<Scalar>*>(d->contact.get());
       if (d1d->type == pinocchio::LOCAL) {
         data->r = d->contact->jMf.rotation().transpose().row(d1d->mask) *
                       d->contact->f.linear() -
@@ -50,8 +51,8 @@ void ResidualModelContactForceTpl<Scalar>::calc(
       break;
     }
     case Contact3D: {
-      sobec::ContactData3DTpl<Scalar>* d3d =
-          static_cast<sobec::ContactData3DTpl<Scalar>*>(d->contact.get());
+      ContactData3DTpl<Scalar>* d3d =
+          static_cast<ContactData3DTpl<Scalar>*>(d->contact.get());
       if (d3d->type == pinocchio::LOCAL) {
         data->r =
             (d->contact->jMf.rotation().transpose() * d->contact->f.linear() -
@@ -102,4 +103,5 @@ void ResidualModelContactForceTpl<Scalar>::calcDiff(
   }
 }
 
+} // namespace newcontacts
 }  // namespace sobec

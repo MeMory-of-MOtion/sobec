@@ -218,10 +218,10 @@ void test_partial_derivatives_against_numdiff(
   double tol = sqrt(model_num_diff.get_disturbance());
   // if(model_type==PinocchioModelTypes::TalosArm &&
   // mask_type==ContactModelMaskTypes::X){
-  //   boost::shared_ptr<sobec::ContactModel1D> md =
-  //   boost::static_pointer_cast<sobec::ContactModel1D>(model);
-  //   boost::shared_ptr<sobec::ContactData1D> dd =
-  //   boost::static_pointer_cast<sobec::ContactData1D>(data); std::cout << "
+  //   boost::shared_ptr<sobec::newcontacts::ContactModel1D> md =
+  //   boost::static_pointer_cast<sobec::newcontacts::ContactModel1D>(model);
+  //   boost::shared_ptr<sobec::newcontacts::ContactData1D> dd =
+  //   boost::static_pointer_cast<sobec::newcontacts::ContactData1D>(data); std::cout << "
   //   xref : " << std::endl; std::cout << md->get_reference() << std::endl;
   //   std::cout << " type : " << std::endl;
   //   std::cout << md->get_type() << std::endl;

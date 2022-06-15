@@ -14,11 +14,12 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeHorizonManager();
   sobec::python::exposeModelFactory();
   sobec::python::exposeIntegratedActionLPF();
-  sobec::python::exposeContact3D();
-  sobec::python::exposeContact1D();
-  sobec::python::exposeMultipleContacts();
-  sobec::python::exposeDAMContactFwdDyn();
-  sobec::python::exposeResidualContactForce();
   sobec::python::exposeWBC();
   sobec::python::exposeMPCWalk();
+
+  sobec::newcontacts::python::exposeContact3D();
+  sobec::newcontacts::python::exposeContact1D();
+  sobec::newcontacts::python::exposeMultipleContacts();
+  sobec::newcontacts::python::exposeDAMContactFwdDyn();
+  sobec::newcontacts::python::exposeResidualContactForce();
 }

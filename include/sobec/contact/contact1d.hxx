@@ -9,6 +9,7 @@
 #include "contact1d.hpp"
 
 namespace sobec {
+namespace newcontacts {
 
 template <typename Scalar>
 ContactModel1DTpl<Scalar>::ContactModel1DTpl(
@@ -218,4 +219,5 @@ const Vector3MaskType ContactModel1DTpl<Scalar>::get_mask() const {
   return mask_;
 }
 
+}  // namespace newcontacts
 }  // namespace sobec

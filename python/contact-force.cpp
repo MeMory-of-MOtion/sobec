@@ -13,15 +13,15 @@
 #include <eigenpy/eigenpy.hpp>
 
 namespace sobec {
+namespace newcontacts{
 namespace python {
-using namespace crocoddyl;
 namespace bp = boost::python;
 
 void exposeResidualContactForce() {
   bp::register_ptr_to_python<
-      boost::shared_ptr<sobec::ResidualModelContactForce> >();
+      boost::shared_ptr<sobec::newcontacts::ResidualModelContactForce> >();
 
-  bp::class_<sobec::ResidualModelContactForce,
+  bp::class_<sobec::newcontacts::ResidualModelContactForce,
              bp::bases<crocoddyl::ResidualModelContactForce> >(
       "ResidualModelContactForce",
       "This residual function is defined as r = f-fref, where f,fref describe "
@@ -41,4 +41,5 @@ void exposeResidualContactForce() {
 }
 
 }  // namespace python
+}  // newcontacts
 }  // namespace sobec

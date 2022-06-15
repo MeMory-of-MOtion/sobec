@@ -13,15 +13,15 @@
 #include <eigenpy/eigenpy.hpp>
 
 namespace sobec {
+namespace newcontacts{
 namespace python {
-using namespace crocoddyl;
 namespace bp = boost::python;
 
 void exposeDAMContactFwdDyn() {
   bp::register_ptr_to_python<
-      boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> >();
+      boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics> >();
 
-  bp::class_<sobec::DifferentialActionModelContactFwdDynamics,
+  bp::class_<newcontacts::DifferentialActionModelContactFwdDynamics,
              bp::bases<crocoddyl::DifferentialActionModelContactFwdDynamics> >(
       "DifferentialActionModelContactFwdDynamics",
       "Differential action model for contact forward dynamics in multibody "
@@ -58,4 +58,5 @@ void exposeDAMContactFwdDyn() {
 }
 
 }  // namespace python
+}  // newcontacts
 }  // namespace sobec

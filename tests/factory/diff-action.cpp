@@ -153,11 +153,11 @@ DifferentialActionModelFactory::create_freeFwdDynamics(
   return action;
 }
 
-boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics>
+boost::shared_ptr<sobec::newcontacts::DifferentialActionModelContactFwdDynamics>
 DifferentialActionModelFactory::create_contact3DFwdDynamics(
     StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
     PinocchioReferenceTypes::Type ref_type) const {
-  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> action;
+  boost::shared_ptr<sobec::newcontacts::DifferentialActionModelContactFwdDynamics> action;
   boost::shared_ptr<crocoddyl::StateMultibody> state;
   boost::shared_ptr<crocoddyl::ActuationModelAbstract> actuation;
   boost::shared_ptr<crocoddyl::ContactModelMultiple> contact;
@@ -182,7 +182,7 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(
       cost->addCost(
           "lf",
           boost::make_shared<crocoddyl::CostModelResidual>(
-              state, boost::make_shared<sobec::ResidualModelContactForce>(
+              state, boost::make_shared<sobec::newcontacts::ResidualModelContactForce>(
                          state,
                          state->get_pinocchio()->getFrameId(
                              "gripper_left_fingertip_1_link"),
@@ -233,17 +233,17 @@ DifferentialActionModelFactory::create_contact3DFwdDynamics(
           CostModelTypes::CostModelResidualControl, state_type,
           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
       0.1);
-  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(
+  action = boost::make_shared<sobec::newcontacts::DifferentialActionModelContactFwdDynamics>(
       state, actuation, contact, cost, 0., true);
   return action;
 }
 
-boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics>
+boost::shared_ptr<sobec::newcontacts::DifferentialActionModelContactFwdDynamics>
 DifferentialActionModelFactory::create_contact1DFwdDynamics(
     StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
     PinocchioReferenceTypes::Type ref_type,
     ContactModelMaskTypes::Type mask_type) const {
-  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> action;
+  boost::shared_ptr<sobec::newcontacts::DifferentialActionModelContactFwdDynamics> action;
   boost::shared_ptr<crocoddyl::StateMultibody> state;
   boost::shared_ptr<crocoddyl::ActuationModelAbstract> actuation;
   boost::shared_ptr<crocoddyl::ContactModelMultiple> contact;
@@ -269,7 +269,7 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(
       cost->addCost(
           "lf",
           boost::make_shared<crocoddyl::CostModelResidual>(
-              state, boost::make_shared<sobec::ResidualModelContactForce>(
+              state, boost::make_shared<sobec::newcontacts::ResidualModelContactForce>(
                          state,
                          state->get_pinocchio()->getFrameId(
                              "gripper_left_fingertip_1_link"),
@@ -320,7 +320,7 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(
           CostModelTypes::CostModelResidualControl, state_type,
           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
       0.1);
-  action = boost::make_shared<sobec::DifferentialActionModelContactFwdDynamics>(
+  action = boost::make_shared<sobec::newcontacts::DifferentialActionModelContactFwdDynamics>(
       state, actuation, contact, cost, 0., true);
   return action;
 }

@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace sobec {
+namespace newcontacts{
 
 template <typename Scalar>
 ContactModelMultipleTpl<Scalar>::ContactModelMultipleTpl(
@@ -151,4 +152,5 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(
 //   return Jout
 // }
 
+}  // namespace newcontacts
 }  // namespace sobec
