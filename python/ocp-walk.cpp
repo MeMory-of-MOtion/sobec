@@ -9,7 +9,6 @@
 // Must be included first!
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/multibody/fwd.hpp>
-#include <pinocchio/bindings/python/utils/std-vector.hpp>
 #include <eigenpy/eigenpy.hpp>
 
 #include <crocoddyl/core/solvers/fddp.hpp>
@@ -25,7 +24,6 @@ namespace python {
 
 using namespace crocoddyl;
 namespace bp = boost::python;
-namespace pp = pinocchio::python;
 
 void exposeOCPRobotWrapper() {
   bp::register_ptr_to_python<boost::shared_ptr<OCPRobotWrapper> >();
@@ -54,21 +52,25 @@ void exposeOCPRobotWrapper() {
                     bp::make_getter(&OCPRobotWrapper::data,
                                     bp::return_internal_reference<>()),
                     "pinocchio data")
-    .add_property("contactIds", bp::make_getter(&OCPRobotWrapper::contactIds),
+      .add_property("contactIds",
+                    bp::make_getter(&OCPRobotWrapper::contactIds,
+                                    bp::return_internal_reference<>()),
                     bp::make_setter(&OCPRobotWrapper::contactIds),
-                    "List of the end-effectors potentially in contact.")
-      // .add_property("data",
-      //               bp::make_getter(&OCPRobotWrapper::data,
-      //                               bp::return_value_policy<bp::return_by_value>()),
-      //               //bp::return_internal_reference<>()),
-      //               "Pinocchio data")
+                    "List of the end-effector frame Id that can be in contact.")
+      .add_property("towIds",
+                    bp::make_getter(&OCPRobotWrapper::towIds,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPRobotWrapper::towIds),
+                    "TODO?")
+      .add_property("heelIds",
+                    bp::make_getter(&OCPRobotWrapper::heelIds,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPRobotWrapper::heelIds),
+                    "TODO?")
       ;
 }
 void exposeOCPParams() {
   bp::register_ptr_to_python<boost::shared_ptr<OCPWalkParams> >();
-
-  pp::StdVectorPythonVisitor<pinocchio::FrameIndex>::expose("StdVectorPinocchioFrameIndex_");
-  pp::StdVectorPythonVisitor<std::string>::expose("StdVectorStdStringIndex_");
 
   bp::class_<OCPWalkParams>(
       "OCPWalkParams",
@@ -230,7 +232,11 @@ void exposeOCPWalkclass() {
       // bp::make_getter(&OCPWalk::solver_th_stop),
       //               bp::make_setter(&OCPWalk::solver_th_stop),
       //               "Stop threshold to configure the solver.")
+      
       .def("buildRunningModels", &OCPWalk::buildRunningModels)
+
+      .def("buildSolver",&OCPWalk::buildSolver)
+      .def("buildInitialGuess", &OCPWalk::buildInitialGuess)
       .add_property(
           "problem",
           bp::make_getter(&OCPWalk::problem,
@@ -246,9 +252,6 @@ void exposeOCPWalkclass() {
           bp::make_getter(&OCPWalk::state,
                           bp::return_value_policy<bp::return_by_value>()),
           "State model of the terminal node")
-
-
-    .def("buildSolver",&OCPWalk::buildSolver,bp::return_value_policy<bp::return_by_value>())
       ;
 }
 
