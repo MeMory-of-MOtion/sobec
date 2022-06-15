@@ -15,6 +15,7 @@
 #include <crocoddyl/multibody/states/multibody.hpp>
 
 #include "sobec/fwd.hpp"
+#include "sobec/residual-cop.hpp"
 
 namespace sobec {
 using namespace crocoddyl;
@@ -29,6 +30,7 @@ struct OCPWalkParams {
   Eigen::VectorXd stateImportance;
   Eigen::VectorXd controlImportance;
   Eigen::VectorXd vcomImportance;
+  Eigen::VectorXd forceImportance;
 
   Eigen::Vector3d vcomRef;
 
@@ -40,6 +42,7 @@ struct OCPWalkParams {
   double vcomWeight;
   double copWeight;
   double conePenaltyWeight;
+  double coneAxisWeight;
   double refForceWeight;
 };
 
