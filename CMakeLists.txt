@@ -99,7 +99,7 @@ set(${PROJECT_NAME}_SOURCES
 
   src/ocp-walk.cpp
   src/ocp-walk-running-models.cpp
-  #src/ocp-walk-terminal.cpp
+  src/ocp-walk-terminal.cpp
   src/ocp-walk-param.cpp
   src/ocp-walk-robot.cpp
   )

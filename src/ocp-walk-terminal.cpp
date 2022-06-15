@@ -15,6 +15,7 @@
 
 namespace sobec {
 
+OCPWalk::ActionPtr OCPWalk::buildTerminalModel(
 boost::shared_ptr<IntegratedActionModelEuler> OCPWalk::buildTerminalModel(
     const Eigen::Ref<const MatrixX2d>& contact_pattern) {
   // Horizon length

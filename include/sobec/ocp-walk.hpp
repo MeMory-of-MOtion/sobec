@@ -99,8 +99,7 @@ class OCPWalk {
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
       const std::vector<std::vector<pinocchio::Force>>& reference_forces);
   ActionPtr buildTerminalModel(
-      const Eigen::Ref<const MatrixX2d>& contact_pattern,
-      const std::vector<std::vector<pinocchio::Force>>& reference_forces);
+      const Eigen::Ref<const MatrixX2d>& contact_pattern);
   boost::shared_ptr<SolverFDDP> buildSolver(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
       const std::vector<std::vector<pinocchio::Force>>& reference_forces);
