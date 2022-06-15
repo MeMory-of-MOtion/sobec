@@ -10,8 +10,8 @@
 #define SOBEC_OCP_WALK_HPP_
 
 #include <crocoddyl/core/fwd.hpp>
-#include <crocoddyl/multibody/fwd.hpp>
 #include <crocoddyl/core/solvers/fddp.hpp>
+#include <crocoddyl/multibody/fwd.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 
 #include "sobec/fwd.hpp"
@@ -22,8 +22,7 @@ using namespace crocoddyl;
  * @brief OCP builder.
  */
 
-struct OCPWalkParams
-{
+struct OCPWalkParams {
   double DT;
   std::vector<pinocchio::FrameIndex> contactIds;
   Eigen::Vector2d baumgartGains;
@@ -34,9 +33,9 @@ struct OCPWalkParams
   Eigen::Vector3d vcomRef;
 
   double footSize;
-  
+
   double refStateWeight;
-  double refTorqueWeight;  
+  double refTorqueWeight;
   double comWeight;
   double vcomWeight;
   double copWeight;
@@ -44,23 +43,20 @@ struct OCPWalkParams
   double refForceWeight;
 };
 
-struct OCPRobotWrapper
-{
+struct OCPRobotWrapper {
   boost::shared_ptr<pinocchio::Model> model;
   boost::shared_ptr<pinocchio::Data> data;
   std::vector<pinocchio::FrameIndex> contactIds;
-  std::map<pinocchio::FrameIndex,pinocchio::FrameIndex> towIds,heelIds;
+  std::map<pinocchio::FrameIndex, pinocchio::FrameIndex> towIds, heelIds;
   Eigen::VectorXd x0;
   Eigen::Vector3d com0;
   double robotGravityForce;
 
-  OCPRobotWrapper( boost::shared_ptr<pinocchio::Model> model,
-                   const std::string & contactKey,
-                   const std::string & referencePosture = "half_sitting");
-   
-  
+  OCPRobotWrapper(boost::shared_ptr<pinocchio::Model> model,
+                  const std::string& contactKey,
+                  const std::string& referencePosture = "half_sitting");
 };
-  
+
 class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
@@ -68,23 +64,25 @@ class OCPWalk {
   typedef typename Eigen::Matrix<double, Eigen::Dynamic, 6> MatrixX6d;
   typedef boost::shared_ptr<ActionModelAbstract> ActionPtr;
   typedef std::vector<ActionPtr> ActionList;
-  typedef typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double> DAM;
+  typedef
+      typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double>
+          DAM;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   explicit OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot,
                    boost::shared_ptr<OCPWalkParams> params)
-    : params(params),robot(robot) {}
+      : params(params), robot(robot) {}
 
   virtual ~OCPWalk() {}
 
-  std::vector<boost::shared_ptr<IntegratedActionModelEuler> > buildRunningModel(const Eigen::Ref<const MatrixX2d>& contact_pattern,
-                                                                  const Eigen::Ref<const MatrixX6d>& reference_forces);
+  std::vector<boost::shared_ptr<IntegratedActionModelEuler> > buildRunningModel(
+      const Eigen::Ref<const MatrixX2d>& contact_pattern,
+      const Eigen::Ref<const MatrixX6d>& reference_forces);
   boost::shared_ptr<IntegratedActionModelEuler> buildTerminalModel();
-  
- public:
 
+ public:
   /// @brief the OCP problem used for solving.
   boost::shared_ptr<ShootingProblem> problem;
 

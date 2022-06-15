@@ -171,7 +171,7 @@ class OCPWalkParam;
 class OCPWalk;
 // MPC
 class MPCWalk;
-  
+
 }  // namespace sobec
 
 #endif  // SOBEC_FWD_HPP_
