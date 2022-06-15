@@ -86,6 +86,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/residual-fly-high.hxx
   include/${PROJECT_NAME}/mpc-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hxx
+  include/${PROJECT_NAME}/flexibility_compensation.hpp
  )
 
 set(${PROJECT_NAME}_SOURCES
@@ -95,6 +96,7 @@ set(${PROJECT_NAME}_SOURCES
   # src/ocp.cpp
   src/wbc.cpp
   src/foot_trajectory.cpp
+  src/flexibility_compensation.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
