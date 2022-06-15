@@ -52,7 +52,7 @@ OCPWalk::buildRunningModel(
     auto xRegResidual = boost::make_shared<ResidualModelState>(
         state, robot->x0, actuation->get_nu());
     auto activation_state = boost::make_shared<ActivationModelWeightedQuad>(
-        params->stateImportance * params->stateImportance);
+        params->stateImportance.cwiseProduct(params->stateImportance));
     auto xRegCost = boost::make_shared<CostModelResidual>(
         state, activation_state, xRegResidual);
     costs->addCost("stateReg", xRegCost, params->refStateWeight);
@@ -60,7 +60,7 @@ OCPWalk::buildRunningModel(
     auto uResidual =
         boost::make_shared<ResidualModelControl>(state, actuation->get_nu());
     auto activation_ctrl = boost::make_shared<ActivationModelWeightedQuad>(
-        params->controlImportance * params->controlImportance);
+        params->controlImportance.cwiseProduct(params->controlImportance));
     auto uRegCost = boost::make_shared<CostModelResidual>(
         state, activation_ctrl, uResidual);
     if (params->refTorqueWeight > 0.)
@@ -132,7 +132,8 @@ OCPWalk::buildRunningModel(
       // formulation.
       auto coneAxisResidual = boost::make_shared<ResidualModelContactForce>(
           state, cid, pinocchio::Force::Zero(), 6, actuation->get_nu());
-      Eigen::VectorXd w = params->forceImportance * params->forceImportance;
+      Eigen::VectorXd w =
+          params->forceImportance.cwiseProduct(params->forceImportance);
       w[2] = 0.0;
       auto coneAxisAct = boost::make_shared<ActivationModelWeightedQuad>(w);
       auto coneAxisCost = boost::make_shared<CostModelResidual>(
