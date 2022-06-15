@@ -5,6 +5,7 @@
 BOOST_PYTHON_MODULE(sobec_pywrap) {
   boost::python::import("pinocchio");
   boost::python::import("crocoddyl");
+  sobec::python::exposeStdContainers();
   sobec::python::exposeResidualVelCollision();
   sobec::python::exposeResidualCoMVelocity();
   sobec::python::exposeResidualCenterOfPressure();
