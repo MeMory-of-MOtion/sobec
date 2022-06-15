@@ -89,53 +89,47 @@ void exposeOCPParams() {
   // std::vector<pinocchio::FrameIndex> contactIds;
   // std::vector<std::string> mainJointIds;
    
-    .add_property("com0",
-                  bp::make_getter(&OCPRobotWrapper::com0,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::com0),
-                  "Reference com value (computed at x0)")
-  
     .add_property("baumgartGains",
-                  bp::make_getter(&OCPRobotWrapper::baumgartGains,
+                  bp::make_getter(&OCPWalkParams::baumgartGains,
                                   bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::baumgartGains),
+                  bp::make_setter(&OCPWalkParams::baumgartGains),
                   ".")
   
     .add_property("stateImportance",
-                  bp::make_getter(&OCPRobotWrapper::stateImportance,
+                  bp::make_getter(&OCPWalkParams::stateImportance,
                                   bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::stateImportance),
+                  bp::make_setter(&OCPWalkParams::stateImportance),
                   ".")
   
     .add_property("stateTerminalImportance",
-                  bp::make_getter(&OCPRobotWrapper::stateTerminalImportance,
+                  bp::make_getter(&OCPWalkParams::stateTerminalImportance,
                                   bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::stateTerminalImportance),
+                  bp::make_setter(&OCPWalkParams::stateTerminalImportance),
                   ".")
   
     .add_property("controlImportance",
-                  bp::make_getter(&OCPRobotWrapper::controlImportance,
+                  bp::make_getter(&OCPWalkParams::controlImportance,
                                   bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::controlImportance),
+                  bp::make_setter(&OCPWalkParams::controlImportance),
                   ".")
   
     .add_property("vcomImportance",
-                  bp::make_getter(&OCPRobotWrapper::vcomImportance,
+                  bp::make_getter(&OCPWalkParams::vcomImportance,
                                   bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::vcomImportance),
+                  bp::make_setter(&OCPWalkParams::vcomImportance),
                   ".")
   
     .add_property("forceImportance",
-                  bp::make_getter(&OCPRobotWrapper::forceImportance,
+                  bp::make_getter(&OCPWalkParams::forceImportance,
                                   bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::forceImportance),
+                  bp::make_setter(&OCPWalkParams::forceImportance),
                   ".")
   
 
     .add_property("vcomRef",
-                  bp::make_getter(&OCPRobotWrapper::vcomRef,
+                  bp::make_getter(&OCPWalkParams::vcomRef,
                                   bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPRobotWrapper::vcomRef),
+                  bp::make_setter(&OCPWalkParams::vcomRef),
                   ".")
   
     .add_property("footSize", bp::make_getter(&OCPWalkParams::footSize),
