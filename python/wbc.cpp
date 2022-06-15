@@ -1,3 +1,4 @@
+#include <sstream>
 #include "sobec/fwd.hpp"
 // keep this line on top
 #include <boost/python.hpp>
@@ -34,14 +35,39 @@ void initialize(WBC &self, const bp::dict &settings,
   self.initialize(conf, designer, horizon, q0, v0, actuationCostName);
 }
 
+template<typename T> 
+boost::shared_ptr<std::vector<T>> constructVectorFromList(const bp::list& in){
+  boost::shared_ptr<std::vector<T>> ptr = boost::make_shared<std::vector<T>>();
+  ptr->resize(bp::len(in));
+  for (int i = 0; i < bp::len(in); ++i)
+  {
+    (*ptr)[i] = boost::python::extract<T>(in[i]);
+  }
+  return ptr;
+}
 
+template<typename T> 
+std::string displayVector(std::vector<T>& self){
+  std::ostringstream oss;
+  oss << "[";
+  for (std::size_t i = 0; i < self.size(); ++i)
+  {
+    oss << self[i] << ", ";
+  }
+  oss << std::endl;
+  return oss.str();
+}
 
 void exposeWBC() {
   bp::class_<std::vector<pinocchio::SE3> >("vector_pinocchio_se3_")
    .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3> >())
+   .def("__init__", make_constructor(constructVectorFromList<pinocchio::SE3>))
+   .def("__repr__", &displayVector<pinocchio::SE3>)
   ;
   bp::class_<std::vector<eVector3> >("vector_eigen_vector3_")
    .def(bp::vector_indexing_suite<std::vector<eVector3> >())
+   .def("__init__", make_constructor(constructVectorFromList<eVector3>))
+   .def("__repr__", &displayVector<eVector3>)
   ;
 
   bp::class_<WBC>("WBC", bp::init<>())
