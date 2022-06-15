@@ -4,7 +4,7 @@ Created on Sat Jun 11 17:42:39 2022
 
 @author: nvilla
 """
-
+import matplotlib.pyplot as plt
 
 import configuration as conf
 
@@ -14,8 +14,38 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
-
+import pinocchio as pin
 from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker
+import numpy as np
+
+#Functions to generate steps:
+def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
+    tmax = conf.T1contact
+    landing_advance = 3
+    takeoff_delay = 3
+    z = []
+    if trajectory == "sine":
+        for t in range(time_to_land-landing_advance, time_to_land-landing_advance - T, -1):
+            z.append(0 if t < 0 or t > tmax - landing_advance - takeoff_delay
+                     else (np.sin(t * np.pi / (tmax - landing_advance-takeoff_delay))) * 0.05)
+            
+    else:
+        for t in range(time_to_land-landing_advance, time_to_land-2*landing_advance - T, -1):
+            z.append(
+                        0 if t < 0 or t > tmax - landing_advance - takeoff_delay
+                        else (1 - np.cos(2 * t * np.pi / (tmax - landing_advance - takeoff_delay))) * 0.025
+                    )
+    
+    return [np.array([translation[0], translation[1], move_z]) for move_z in z]
+    
+def print_trajectory(ref):
+    u = [y.translation for y in ref]
+    t = np.array([z[2] for z in u])
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.plot(t)
+    
+
 
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
@@ -118,7 +148,7 @@ mpc.generateWalkigCycle(formuler)
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
     device.initializeJoints(design.get_q0Complete().copy())
-    #    device.showTargetToTrack(mpc.LF_sample, mpc.RF_sample)
+    device.showTargetToTrack(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
     q_current, v_current = device.measureState()
 
 elif conf.simulator == "pinocchio":
@@ -134,13 +164,25 @@ elif conf.simulator == "pinocchio":
 
 for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
+    if mpc.timeToSolveDDP(s):
+        LF_refs = foot_trajectory(len(mpc.ref_LF_poses), mpc.t_land_LF[0], mpc.ref_LF_poses[0].translation, "cosine")[len(mpc.ref_LF_poses) - 1]
+        RF_refs = foot_trajectory(len(mpc.ref_RF_poses), mpc.t_land_RF[0], mpc.ref_RF_poses[0].translation, "cosine")[len(mpc.ref_LF_poses) - 1]
+        
+#        for t in range(len(mpc.ref_LF_poses)):
+#            mpc.ref_LF_poses[t] = pin.SE3(np.eye(3), LF_refs[t])
+#            mpc.ref_RF_poses[t] = pin.SE3(np.eye(3), RF_refs[t])
+        mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
+        mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
+        
+        print_trajectory(mpc.ref_LF_poses)
+        
     torques = mpc.iterate(s, q_current, v_current)
-
+    
     if conf.simulator == "bullet":
         device.execute(torques)
         q_current, v_current = device.measureState()
-    #        device.moveMarkers(mpc.LF_sample,
-    #                           mpc.RF_sample)
+        device.moveMarkers(mpc.ref_LF_poses[0],
+                           mpc.ref_RF_poses[0])
 
     elif conf.simulator == "pinocchio":
 
@@ -149,7 +191,8 @@ for s in range(conf.T_total * conf.Nc):
         real_state, _ = device.execute(command, correct_contacts, s)
         esti_state = real_state  # wbc.joint_estimation(real_state, command)
         q_current, v_current = esti_state["q"], esti_state["dq"]
-
+    
+    
 #    if s == 0:stop
 
 
