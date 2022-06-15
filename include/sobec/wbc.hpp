@@ -99,7 +99,7 @@ class WBC {
 
   void setDesiredFeetPoses(const int &iteration, const int &time);
 
-  Eigen::VectorXd iterate(const int &iteration,
+  void iterate(const int &iteration,
                           const Eigen::VectorXd &q_current,
                           const Eigen::VectorXd &v_current,
                           const bool &is_feasible);
@@ -121,10 +121,10 @@ class WBC {
     standingCycle_ = standingCycle;
   }
 
-  const HorizonManager &get_horizon() const { return horizon_; }
+  HorizonManager &get_horizon() { return horizon_; }
   void set_horizon(const HorizonManager &horizon) { horizon_ = horizon; }
 
-  const RobotDesigner &get_designer() const { return designer_; }
+  RobotDesigner &get_designer() { return designer_; }
   void set_designer(const RobotDesigner &designer) { designer_ = designer; }
 
   const Eigen::VectorXi &get_LF_land() const { return t_land_LF_; }

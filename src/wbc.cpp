@@ -123,7 +123,7 @@ void WBC::setDesiredFeetPoses(const int & /*iteration*/, const int & /*time*/) {
       "not implemented!!!");
 }
 
-Eigen::VectorXd WBC::iterate(const int &iteration,
+void WBC::iterate(const int &iteration,
                              const Eigen::VectorXd &q_current,
                              const Eigen::VectorXd &v_current,
                              const bool &is_feasible) {
@@ -149,7 +149,6 @@ Eigen::VectorXd WBC::iterate(const int &iteration,
     // ~~SOLVER~~ //
     horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
   }
-  return horizon_.currentTorques(x0_);
 }
 
 void WBC::updateStepTrackerReferences() {
