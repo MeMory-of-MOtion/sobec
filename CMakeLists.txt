@@ -84,6 +84,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
   include/${PROJECT_NAME}/residual-fly-high.hxx
+  include/${PROJECT_NAME}/ocp-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hxx
  )
@@ -95,6 +96,8 @@ set(${PROJECT_NAME}_SOURCES
   # src/ocp.cpp
   src/wbc.cpp
   src/foot_trajectory.cpp
+
+  src/ocp-walk.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
