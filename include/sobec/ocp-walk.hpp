@@ -79,7 +79,7 @@ class OCPWalk {
 
   std::vector<boost::shared_ptr<IntegratedActionModelEuler> > buildRunningModel(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
-      const Eigen::Ref<const MatrixX6d>& reference_forces);
+      const std::vector<std::vector<pinocchio::Force> >& reference_forces);
   boost::shared_ptr<IntegratedActionModelEuler> buildTerminalModel();
 
  public:
