@@ -4,6 +4,11 @@
 
 BOOST_PYTHON_MODULE(sobec_pywrap) {
   boost::python::import("crocoddyl");
+  boost::python::import("pinocchio");
+  // Enabling eigenpy support, i.e. numpy/eigen compatibility.
+  eigenpy::enableEigenPy();
+  ENABLE_SPECIFIC_MATRIX_TYPE(Eigen::VectorXi);
+
   sobec::python::exposeResidualVelCollision();
   sobec::python::exposeResidualCoMVelocity();
   sobec::python::exposeResidualCenterOfPressure();
