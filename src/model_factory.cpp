@@ -1,8 +1,8 @@
-#include "sobec/model_factory.hpp"
-
 #include <crocoddyl/multibody/fwd.hpp>
-
+#include "sobec/residual-cop.hpp"
 #include "sobec/designer.hpp"
+
+#include "sobec/model_factory.hpp"
 
 namespace sobec {
 
@@ -214,20 +214,18 @@ void ModelMaker::defineCoMVelocity(Cost &costCollector) {
                                true);
 }
 
-// void ModelMaker::defineCoPTask(Cost &costCollector) {
-//     Eigen::Vector2d w_cop;
-//     double value = 1.0 / (settings_.footSize * settings_.footSize);
-//     w_cop << value, value;
-//     auto copResidual = boost::make_shared<ResidualModelCenterOfPressure>(
-//         state_, designer_.get_LF_id(), actuation_->get_nu());
-//     auto copAct =
-//     boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop); auto
-//     copCost =
-//         boost::make_shared<crocoddyl::CostModelResidual>(state_, copAct,
-//         boost::static_pointer_cast<ResidualModelAbstract>(copResidual));
-//     costCollector->addCost(designer_.get_LF_name() + "_cop", copCost,
-//                     settings_.wCoP);
-// }
+void ModelMaker::defineCoPTask(Cost &costCollector) {
+    Eigen::Vector2d w_cop;
+    double value = 1.0 / (settings_.footSize * settings_.footSize);
+    w_cop << value, value;
+    auto copResidual = boost::make_shared<ResidualModelCenterOfPressure>(state_, designer_.get_LF_id(), actuation_->get_nu());
+    auto copAct = boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop);
+    auto copCost =
+        boost::make_shared<crocoddyl::CostModelResidual>(state_, copAct, copResidual);
+
+    costCollector->addCost(designer_.get_LF_name() + "_cop", copCost,
+                     settings_.wCoP);
+}
 
 AMA ModelMaker::formulateStepTracker(const Support &support) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
