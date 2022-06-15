@@ -69,6 +69,13 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 void WBC::generateWalkingCycle(ModelMaker &mm) {
   std::vector<Support> cycle;
   int takeoff_RF, land_RF, takeoff_LF, land_LF;
+
+  land_LF = 0;
+  takeoff_LF = land_RF + settings_.TdoubleSupport;
+  land_RF = land_LF + settings_.Tstep;
+  takeoff_RF = 
+
+
   takeoff_RF = 0;
   land_RF = takeoff_RF + settings_.TsingleSupport;
   takeoff_LF = takeoff_RF + settings_.Tstep;
