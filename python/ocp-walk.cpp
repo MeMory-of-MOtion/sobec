@@ -104,7 +104,7 @@ void exposeOCPWalkclass() {
       // bp::make_getter(&OCPWalk::solver_th_stop),
       //               bp::make_setter(&OCPWalk::solver_th_stop),
       //               "Stop threshold to configure the solver.")
-      .def("buildRunningModel", &OCPWalk::buildRunningModel)
+      .def("buildRunningModels", &OCPWalk::buildRunningModels)
       .add_property(
           "problem",
           bp::make_getter(&OCPWalk::problem,

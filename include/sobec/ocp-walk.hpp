@@ -94,7 +94,8 @@ class OCPWalk {
 
   virtual ~OCPWalk() {}
 
-  std::vector<boost::shared_ptr<IntegratedActionModelEuler> > buildRunningModel(
+  std::vector<boost::shared_ptr<IntegratedActionModelEuler> >
+  buildRunningModels(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
       const std::vector<std::vector<pinocchio::Force> >& reference_forces);
   boost::shared_ptr<IntegratedActionModelEuler> buildTerminalModel(

@@ -24,7 +24,7 @@ namespace sobec {
 // }
 
 std::vector<boost::shared_ptr<IntegratedActionModelEuler> >
-OCPWalk::buildRunningModel(
+OCPWalk::buildRunningModels(
     const Eigen::Ref<const MatrixX2d>& contact_pattern,
     const std::vector<std::vector<pinocchio::Force> >& referenceForces) {
   state = boost::make_shared<StateMultibody>(robot->model);
