@@ -182,10 +182,6 @@ class WBC {
   void switchToWalk() { now_ = WALKING; }
   void switchToStand() { now_ = STANDING; }
   const LocomotionType &currentLocomotion() { return now_; }
-
-  void switchToWalk() { now_ = WALKING; }
-  void switchToStand() { now_ = STANDING; }
-  const LocomotionType &currentLocomotion() { return now_; }
 };
 }  // namespace sobec
 
