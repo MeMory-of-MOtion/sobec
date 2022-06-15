@@ -98,6 +98,8 @@ set(${PROJECT_NAME}_SOURCES
   src/foot_trajectory.cpp
 
   src/ocp-walk.cpp
+  src/ocp-walk-param.cpp
+  src/ocp-walk-robot.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
