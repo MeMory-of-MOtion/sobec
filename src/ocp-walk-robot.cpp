@@ -9,6 +9,9 @@
 #include "sobec/ocp-walk.hpp"
 namespace sobec {
 
+
+                         
+  
 OCPRobotWrapper::OCPRobotWrapper(boost::shared_ptr<pinocchio::Model> model_,
                                  const std::string& contactKey,
                                  const std::string& referencePosture) {
@@ -24,8 +27,25 @@ OCPRobotWrapper::OCPRobotWrapper(boost::shared_ptr<pinocchio::Model> model_,
 
   // Add tow and heel frames ... TODO
   for (pinocchio::FrameIndex cid : contactIds) {
-    towIds[cid] = cid;
-    heelIds[cid] = cid;
+
+    pinocchio::SE3 towPlacement = pinocchio::SE3::Identity();
+    towPlacement.translation()[0] = 0.1;
+    auto cframe = model->frames[cid];
+    pinocchio::Frame towFrame(cframe.name+"_"+"tow",
+                              cframe.parent,
+                              cframe.previousFrame,
+                              cframe.placement*towPlacement,
+                              pinocchio::OP_FRAME);
+    towIds[cid] = model->addFrame(towFrame);
+
+    pinocchio::SE3 heelPlacement = pinocchio::SE3::Identity();
+    heelPlacement.translation()[0] = -0.1;
+    pinocchio::Frame heelFrame(cframe.name+"_"+"heel",
+                              cframe.parent,
+                               cframe.previousFrame,
+                              cframe.placement*heelPlacement,
+                              pinocchio::OP_FRAME);
+    heelIds[cid] = model->addFrame(heelFrame);
   }
 
   //   boost::shared_ptr<pinocchio::Data> data;
@@ -44,7 +64,7 @@ OCPRobotWrapper::OCPRobotWrapper(boost::shared_ptr<pinocchio::Model> model_,
 
   // eval mass
   robotGravityForce =
-      pinocchio::computeTotalMass(*model) * model->gravity.linear()[2];
+    -pinocchio::computeTotalMass(*model) * model->gravity.linear()[2];
 }
 
 }  // namespace sobec
