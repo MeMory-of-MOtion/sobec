@@ -252,6 +252,10 @@ void exposeOCPWalkclass() {
           bp::make_getter(&OCPWalk::state,
                           bp::return_value_policy<bp::return_by_value>()),
           "State model of the terminal node")
+      .add_property("referenceForces",
+                    bp::make_getter(&OCPWalk::referenceForces),
+                    bp::make_setter(&OCPWalk::referenceForces),
+                    ".")
       ;
 }
 
