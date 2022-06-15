@@ -26,8 +26,22 @@ struct OCPWalkParams
 {
   double DT;
   std::vector<pinocchio::FrameIndex> contactIds;
+  Eigen::Vector2d baumgartGains;
+  Eigen::VectorXd stateImportance;
+  Eigen::VectorXd controlImportance;
+  Eigen::VectorXd vcomImportance;
+
+  Eigen::Vector3d vcomRef;
+
+  double footSize;
   
-  
+  double refStateWeight;
+  double refTorqueWeight;  
+  double comWeight;
+  double vcomWeight;
+  double copWeight;
+  double conePenaltyWeight;
+  double refForceWeight;
 };
 
 struct OCPRobotWrapper
@@ -50,6 +64,8 @@ struct OCPRobotWrapper
 class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
+  typedef typename Eigen::Matrix<double, Eigen::Dynamic, 2> MatrixX2d;
+  typedef typename Eigen::Matrix<double, Eigen::Dynamic, 6> MatrixX6d;
   typedef boost::shared_ptr<ActionModelAbstract> ActionPtr;
   typedef std::vector<ActionPtr> ActionList;
   typedef typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double> DAM;
@@ -63,7 +79,8 @@ class OCPWalk {
 
   virtual ~OCPWalk() {}
 
-  boost::shared_ptr<IntegratedActionModelEuler> buildRunningModel();
+  std::vector<boost::shared_ptr<IntegratedActionModelEuler> > buildRunningModel(const Eigen::Ref<const MatrixX2d>& contact_pattern,
+                                                                  const Eigen::Ref<const MatrixX6d>& reference_forces);
   boost::shared_ptr<IntegratedActionModelEuler> buildTerminalModel();
   
  public:
@@ -73,6 +90,8 @@ class OCPWalk {
 
   /// @brief Keep a direct reference to the terminal state
   boost::shared_ptr<StateMultibody> state;
+
+  boost::shared_ptr<ActuationModelFloatingBase> actuation;
 
  protected:
   boost::shared_ptr<OCPWalkParams> params;
