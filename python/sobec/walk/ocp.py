@@ -179,7 +179,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 impactRotCost = croc.CostModelResidual(
                     state, impactRotAct, impactRotResidual
                 )
-                if impactRotationWeight>0:
+                if p.impactRotationWeight>0:
                     costs.addCost(
                         "%s_rotimpact" % robot.model.frames[cid].name,
                         impactRotCost,
