@@ -39,6 +39,7 @@ project(${PROJECT_NAME} ${PROJECT_ARGS})
 ADD_COMPILE_OPTIONS(-Wno-error)
 
 # Project dependencies
+ADD_PROJECT_DEPENDENCY(ndcurves REQUIRED)
 ADD_PROJECT_DEPENDENCY(crocoddyl REQUIRED)
 
 if(BUILD_PYTHON_INTERFACE)
@@ -54,9 +55,14 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
   include/${PROJECT_NAME}/residual-cop.hpp
+  include/${PROJECT_NAME}/residual-feet-collision.hpp
   include/${PROJECT_NAME}/residual-vel-collision.hpp
   include/${PROJECT_NAME}/residual-fly-high.hpp
   include/${PROJECT_NAME}/activation-quad-ref.hpp
+  include/${PROJECT_NAME}/designer.hpp
+  include/${PROJECT_NAME}/model_factory.hpp
+  include/${PROJECT_NAME}/horizon_manager.hpp
+  # include/${PROJECT_NAME}/ocp.hpp
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
   include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
   include/${PROJECT_NAME}/contact/contact3d.hpp
@@ -64,8 +70,11 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/multiple-contacts.hpp
   include/${PROJECT_NAME}/contact/contact-fwddyn.hpp
   include/${PROJECT_NAME}/contact/contact-force.hpp
+  include/${PROJECT_NAME}/wbc.hpp
+  include/${PROJECT_NAME}/foot_trajectory.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hxx
   include/${PROJECT_NAME}/residual-cop.hxx
+  include/${PROJECT_NAME}/residual-feet-collision.hxx
   include/${PROJECT_NAME}/residual-vel-collision.hxx
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hxx
   include/${PROJECT_NAME}/lowpassfilter/lpf.hxx
@@ -75,11 +84,22 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
   include/${PROJECT_NAME}/residual-fly-high.hxx
+  include/${PROJECT_NAME}/mpc-walk.hpp
+  include/${PROJECT_NAME}/mpc-walk.hxx
  )
 
-add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_HEADERS})
+set(${PROJECT_NAME}_SOURCES
+  src/designer.cpp
+  src/model_factory.cpp
+  src/horizon_manager.cpp
+  # src/ocp.cpp
+  src/wbc.cpp
+  src/foot_trajectory.cpp
+  )
+
+add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl)
+target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl ndcurves::ndcurves)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 if(SUFFIX_SO_VERSION)
@@ -88,6 +108,12 @@ endif()
 
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
+  add_library(${PROJECT_NAME}_py2cpp SHARED src/py2cpp.cpp include/${PROJECT_NAME}/py2cpp.hpp)
+  target_link_libraries(${PROJECT_NAME}_py2cpp PUBLIC crocoddyl::crocoddyl)
+  target_link_libraries(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_LIBRARIES})
+  target_include_directories(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_INCLUDE_DIRS})
+  TARGET_LINK_BOOST_PYTHON(${PROJECT_NAME}_py2cpp PRIVATE)
+
   add_subdirectory(python)
 endif()
 
@@ -96,6 +122,9 @@ if(BUILD_TESTING)
   find_package(Boost REQUIRED COMPONENTS unit_test_framework)
   add_subdirectory(tests)
 endif()
+
+# Benchmark
+add_subdirectory(benchmark)
 
 # Installation
 install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
