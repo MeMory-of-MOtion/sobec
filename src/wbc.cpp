@@ -56,8 +56,8 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
 
   // timming
-  t_takeoff_RF_.setLinSpaced(
-      settings_.horizonSteps, 0, 2 * settings_.horizonSteps * settings_.Tstep);
+  t_takeoff_RF_.setLinSpaced(settings_.horizonSteps, 0,
+                             2 * settings_.horizonSteps * settings_.Tstep);
   t_takeoff_RF_.array() += (int)settings_.T;
   t_takeoff_LF_ = t_takeoff_RF_.array() + settings_.Tstep;
   t_land_RF_ = t_takeoff_RF_.array() + settings_.TsingleSupport;
@@ -117,9 +117,10 @@ bool WBC::timeToSolveDDP(const int &iteration) {
   return !(iteration % settings_.Nc);
 }
 
-void WBC::setDesiredFeetPoses(const int &/*iteration*/, const int &/*time*/)
-{
-  throw std::runtime_error("void WBC::setDesiredFeetPoses(const int &iteration, const int &time) is not implemented!!!");
+void WBC::setDesiredFeetPoses(const int & /*iteration*/, const int & /*time*/) {
+  throw std::runtime_error(
+      "void WBC::setDesiredFeetPoses(const int &iteration, const int &time) is "
+      "not implemented!!!");
 }
 
 Eigen::VectorXd WBC::iterate(const int &iteration,
@@ -190,8 +191,8 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
   return;
 }
 
-Eigen::VectorXd WBC::shapeState(const Eigen::VectorXd& q, const Eigen::VectorXd& v) {
-
+Eigen::VectorXd WBC::shapeState(const Eigen::VectorXd &q,
+                                const Eigen::VectorXd &v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
