@@ -7,7 +7,6 @@ Created on Thu May 19 18:47:13 2022
 
 import crocoddyl
 
-crocoddyl.switchToNumpyArray()
 import numpy as np
 import pinocchio as pin
 
@@ -101,10 +100,11 @@ class CrocoWBC:
             # ~~ decide ~~ #
             self.decide_actions(x0, OL_MPC)
 
-        # ~~ funtion to obtain x_ref by integrating xs[0] with us[0] during one tracking period.
-        torques = self.horizon.ddp.us[0] + self.horizon.ddp.K[
-            0
-        ] @ self.horizon.state.diff(x0, self.horizon.ddp.xs[0])
+        # ~~ funtion to obtain x_ref by integrating xs[0] with us[0] during one tracking
+        # period.
+        torques = self.horizon.ddp.us[0] + np.dot(
+            self.horizon.ddp.K[0], self.horizon.state.diff(x0, self.horizon.ddp.xs[0])
+        )
 
         return torques
 
@@ -239,20 +239,20 @@ class CrocoWBC:
         t = time_to_land - 4  # minus landing_advance
 
         if trajectory == "sine":
-            z = (
-                0 if t < 0 or t > tmax - 8 else (np.sin(t * np.pi / (tmax - 8))) * 0.04
-            )  ### SINE
+            # SINE
+            z = 0 if t < 0 or t > tmax - 8 else (np.sin(t * np.pi / (tmax - 8))) * 0.04
         else:
+            # SMOTHER
             z = (
                 0
                 if t < 0 or t > tmax - 8
                 else (1 - np.cos(2 * t * np.pi / (tmax - 8))) * 0.02
-            )  ### SMOTHER
+            )
 
         result = np.array([pose.translation[0], pose.translation[1], z])
         return result
 
-    ##### FLEXIBILITY
+    # ##### FLEXIBILITY
     def estimate_deflection(self, command, hip_yawls=[0, 0]):
         flexing_idx = [2, 1, 8, 7]
         L_yawl = pin.utils.rotate("z", hip_yawls[0])[0:2, 0:2].T
@@ -260,8 +260,8 @@ class CrocoWBC:
 
         self.flex_torque = np.hstack(
             [
-                L_yawl @ command["tau"][flexing_idx[0:2]],
-                R_yawl @ command["tau"][flexing_idx[2:4]],
+                np.dot(L_yawl, command["tau"][flexing_idx[0:2]]),
+                np.dot(R_yawl, command["tau"][flexing_idx[2:4]]),
             ]
         )
         tau = self.flex_torque
@@ -315,27 +315,27 @@ def translate_hips(q, dq, delta, delta_dot):
     left_Y = pin.utils.rotate("y", q[9])
 
     Rla = left_flex_Y
-    Rlb = Rla @ left_flex_X
-    Rlc = Rlb @ left_Z
-    Rld = Rlc @ left_X
-    Rle = Rld @ left_Y
+    Rlb = np.dot(Rla, left_flex_X)
+    Rlc = np.dot(Rlb, left_Z)
+    Rld = np.dot(Rlc, left_X)
+    Rle = np.dot(Rld, left_Y)
 
     rigid_q[[7, 8, 9]] = solve_hip_joints(Rle)
 
     # velocity
     w_l = [0, delta_dot[0], 0]
-    w_l += Rla @ [delta_dot[1], 0, 0]
-    w_l += Rlb @ [0, 0, dq[6]]
-    w_l += Rlc @ [dq[7], 0, 0]
-    w_l += Rld @ [0, dq[8], 0]
+    w_l += np.dot(Rla, [delta_dot[1], 0, 0])
+    w_l += np.dot(Rlb, [0, 0, dq[6]])
+    w_l += np.dot(Rlc, [dq[7], 0, 0])
+    w_l += np.dot(Rld, [0, dq[8], 0])
 
     Rela = pin.utils.rotate("z", rigid_q[7])
-    Relb = Rela @ pin.utils.rotate("x", rigid_q[8])
+    Relb = np.dot(Rela, pin.utils.rotate("x", rigid_q[8]))
 
     M_l = np.hstack(
         [np.array([0, 0, 1])[:, None], Rela[:, 0][:, None], Relb[:, 1][:, None]]
     )
-    rigid_dq[[6, 7, 8]] = np.linalg.inv(M_l) @ w_l
+    rigid_dq[[6, 7, 8]] = np.dot(np.linalg.inv(M_l), w_l)
 
     # Right hip
     right_flex_Y = pin.utils.rotate("y", delta[2])
@@ -346,27 +346,27 @@ def translate_hips(q, dq, delta, delta_dot):
     right_Y = pin.utils.rotate("y", q[15])
 
     Rra = right_flex_Y
-    Rrb = Rra @ right_flex_X
-    Rrc = Rrb @ right_Z
-    Rrd = Rrc @ right_X
-    Rre = Rrd @ right_Y
+    Rrb = np.dot(Rra, right_flex_X)
+    Rrc = np.dot(Rrb, right_Z)
+    Rrd = np.dot(Rrc, right_X)
+    Rre = np.dot(Rrd, right_Y)
 
     rigid_q[[13, 14, 15]] = solve_hip_joints(Rre)
 
     # velocity
     w_r = [0, delta_dot[2], 0]
-    w_r += Rra @ [delta_dot[3], 0, 0]
-    w_r += Rrb @ [0, 0, dq[12]]
-    w_r += Rrc @ [dq[13], 0, 0]
-    w_r += Rrd @ [0, dq[14], 0]
+    w_r += np.dot(Rra, [delta_dot[3], 0, 0])
+    w_r += np.dot(Rrb, [0, 0, dq[12]])
+    w_r += np.dot(Rrc, [dq[13], 0, 0])
+    w_r += np.dot(Rrd, [0, dq[14], 0])
 
     Rera = pin.utils.rotate("z", rigid_q[13])
-    Rerb = Rera @ pin.utils.rotate("x", rigid_q[14])
+    Rerb = np.dot(Rera, pin.utils.rotate("x", rigid_q[14]))
 
     M_r = np.hstack(
         [np.array([0, 0, 1])[:, None], Rera[:, 0][:, None], Rerb[:, 1][:, None]]
     )
-    rigid_dq[[12, 13, 14]] = np.linalg.inv(M_r) @ w_r
+    rigid_dq[[12, 13, 14]] = np.dot(np.linalg.inv(M_r), w_r)
 
     return rigid_q, rigid_dq
 
@@ -384,7 +384,8 @@ def solve_hip_joints(equivalence):
     q4 = np.arctan2(-equivalence[2, 0], equivalence[2, 2])
     return q2, q3, q4
 
-    ########### END FLEXIBILITY ##########
+
+# ########### END FLEXIBILITY ##########
 
 
 if __name__ == "__main__":

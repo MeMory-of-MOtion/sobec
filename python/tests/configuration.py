@@ -7,7 +7,7 @@ Created on Mon May  9 17:15:22 2022
 import example_robot_data
 import numpy as np
 
-## PATHS
+# PATHS
 
 URDF_FILENAME = "talos_reduced_corrected.urdf"
 SRDF_FILENAME = "talos.srdf"
@@ -15,7 +15,7 @@ SRDF_SUBPATH = "/talos_data/srdf/" + SRDF_FILENAME
 URDF_SUBPATH = "/talos_data/robots/" + URDF_FILENAME
 modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
-### Joint settings
+# Joint settings
 
 blocked_joints = [
     "universe",
@@ -39,7 +39,7 @@ blocked_joints = [
     "head_2_joint",
 ]
 
-#### TIMING #####
+# #### TIMING #####
 preview_steps = 2
 total_steps = 8
 T_total = 2000  # Total number of nodes of the simulation
@@ -57,19 +57,20 @@ ddpIteration = 1  # Number of DDP iterations
 
 Tstep = T2contact + T1contact
 
-#### PHYSICS #####
+# #### PHYSICS #####
 
 simulator = (
-        "bullet"
-#        "pinocchio"
-        )
-                    
+    #        "bullet"
+    "pinocchio"
+)
+
+
 gravity = np.array([0, 0, -9.81])
 
 mu = 0.3
 cone_box = np.array([0.1, 0.05])
 minNforce = 200
-maxNforce = 1200  ## This may be still too low
+maxNforce = 1200  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
@@ -99,7 +100,7 @@ flex_esti_delay = 0.0  # [s]
 flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 
-###### WALKING GEOMETRY #########
+# ###### WALKING GEOMETRY #########
 xForward = 0.15 * 0  # step size
 foot_height = 0.03  # foot height
 TFootDepth = 220  # Foot depth in ground (#TODO: what is this?)
@@ -109,7 +110,7 @@ normal_height = 0.87
 omega = np.sqrt(-gravity[2] / normal_height)
 
 
-##### CROCO - CONFIGURATION ########
+# ##### CROCO - CONFIGURATION ########
 
 # relevant frame names
 

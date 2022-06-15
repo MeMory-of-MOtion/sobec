@@ -19,17 +19,17 @@ def modeller(conf, design, state, actuation, **form):
     contacts = crocoddyl.ContactModelMultiple(state, actuation.nu)
     costs = crocoddyl.CostModelSum(state, actuation.nu)
 
-    ### CONTACTS ###
+    # ### CONTACTS ###
     define_support_contact(conf, design, state, actuation, support, contacts)
 
-    ### COSTS ###
+    # ### COSTS ###
     wrench_cone(conf, design, state, actuation, support, costs)
     joint_limits(conf, design, state, actuation, costs)
     control_n_state_regularization(conf, design, state, actuation, costs)
     feet_tracking(conf, design, state, actuation, costs)
     com_velocity_tracking(conf, design, state, actuation, costs)
 
-    ### MODEL ###
+    # ### MODEL ###
     diff_model = crocoddyl.DifferentialActionModelContactFwdDynamics(
         state, actuation, contacts, costs, 0, True
     )
@@ -78,7 +78,7 @@ def wrench_cone(conf, design, state, actuation, support, costs):
         )
 
         lf_wrench_ref = np.array([0, 0, fz_ref, 0, 0, 0])
-        ds_wrenchRef_lf = wrenchConeFrameLeft.A @ lf_wrench_ref
+        ds_wrenchRef_lf = np.dot(wrenchConeFrameLeft.A, lf_wrench_ref)
         wrenchConeResidualLeft = crocoddyl.ResidualModelContactWrenchCone(
             state, design.leftFootId, wrenchConeFrameLeft, actuation.nu
         )
@@ -102,7 +102,7 @@ def wrench_cone(conf, design, state, actuation, support, costs):
         )
 
         rf_wrench_ref = np.array([0, 0, fz_ref, 0, 0, 0])
-        ds_wrenchRef_rf = wrenchConeFrameRight.A @ rf_wrench_ref
+        ds_wrenchRef_rf = np.dot(wrenchConeFrameRight.A, rf_wrench_ref)
         wrenchConeResidualRight = crocoddyl.ResidualModelContactWrenchCone(
             state, design.rightFootId, wrenchConeFrameRight, actuation.nu
         )
@@ -113,8 +113,12 @@ def wrench_cone(conf, design, state, actuation, support, costs):
         )
         costs.addCost("right_wrench_cone", wrenchConeCostRight, conf.wWrenchCone)
 
-    # boundsFrictionLeft = crocoddyl.ActivationBounds(wrenchConeFrameLeft.lb,wrenchConeFrameLeft.ub,1.)
-    # boundsFrictionRight = crocoddyl.ActivationBounds(wrenchConeFrameRight.lb,wrenchConeFrameRight.ub,1.)
+    # boundsFrictionLeft = crocoddyl.ActivationBounds(
+    # wrenchConeFrameLeft.lb, wrenchConeFrameLeft.ub, 1.0
+    # )
+    # boundsFrictionRight = crocoddyl.ActivationBounds(
+    # wrenchConeFrameRight.lb, wrenchConeFrameRight.ub, 1.0
+    # )
 
 
 def joint_limits(conf, design, state, actuation, costs):

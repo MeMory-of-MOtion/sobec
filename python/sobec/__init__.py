@@ -1,11 +1,5 @@
 # flake8: noqa
 
-import crocoddyl
-from importlib_metadata import install
-from numpy import insert
-import pinocchio
-
-
 from .sobec_pywrap import (
     ResidualModelCoMVelocity,
     ResidualModelVelCollision,
@@ -15,6 +9,7 @@ from .sobec_pywrap import (
     ModelMaker,
     Support,
     ResidualModelCenterOfPressure,
+    ResidualModelFeetCollision,
     ResidualModelFlyHigh,
     IntegratedActionModelLPF,
     ContactModel3D,
@@ -23,5 +18,5 @@ from .sobec_pywrap import (
     DifferentialActionModelContactFwdDynamics,
     ResidualModelContactForce,
     WBC,
-    OCP
+    MPCWalk
 )
