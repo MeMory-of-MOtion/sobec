@@ -59,8 +59,6 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
   double Fz_ref;
   support == Support::DOUBLE ? Fz_ref = Mg / 2 : Fz_ref = Mg;
 
-  std::cout << "Fz ref " << Fz_ref << std::endl;
-
   Eigen::Matrix3d coneRotationLeft =
       designer_.get_LF_frame().rotation().transpose();
   Eigen::Matrix3d coneRotationRight =
