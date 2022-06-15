@@ -75,7 +75,12 @@ struct OCPRobotWrapper {
                   const std::string& referencePosture = "half_sitting");
 };
 
-class OCPWalk {
+  Eigen::MatrixXd computeWeightShareSmoothProfile(const Eigen::Ref<const Eigen::MatrixX2d> contact_pattern,
+                                                  int duration,
+                                                  double robotGravityForce);
+  void computeReferenceForces(int duration, double robotGravityForce);
+ 
+  class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
   typedef typename Eigen::Matrix<double, Eigen::Dynamic, 2> MatrixX2d;

@@ -86,6 +86,14 @@ void exposeOCPParams() {
                     "time step duration of the shooting nodes.");
 }
 
+  void exposeRefForce() {
+        bp::def("computeWeightShareSmoothProfile",
+                &computeWeightShareSmoothProfile,
+                bp::args("contact_pattern","duration","robotGravityForce"),
+                "Compute the smooth weight transfer between contact points");
+                //bp::return_value_policy<bp::return_by_value>());
+  }
+
 void exposeOCPWalkclass() {
   bp::register_ptr_to_python<boost::shared_ptr<OCPWalk> >();
 
@@ -123,6 +131,7 @@ void exposeOCPWalk() {
   exposeOCPRobotWrapper();
   exposeOCPParams();
   exposeOCPWalkclass();
+  exposeRefForce();
 }
 
 }  // namespace python
