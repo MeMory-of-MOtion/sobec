@@ -97,13 +97,15 @@ class OCPWalk {
 
   std::vector<ActionPtr> buildRunningModels(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
-      const std::vector<std::vector<pinocchio::Force> >& reference_forces);
+      const std::vector<std::vector<pinocchio::Force>>& reference_forces);
   ActionPtr buildTerminalModel(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
-      const std::vector<std::vector<pinocchio::Force> >& reference_forces);
+      const std::vector<std::vector<pinocchio::Force>>& reference_forces);
   boost::shared_ptr<SolverFDDP> buildSolver(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
-      const std::vector<std::vector<pinocchio::Force> >& reference_forces);
+      const std::vector<std::vector<pinocchio::Force>>& reference_forces);
+  std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
+  buildInitialGuess();
 
  public:
   /// @brief the OCP problem used for solving.
