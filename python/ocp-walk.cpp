@@ -89,7 +89,7 @@ void exposeOCPParams() {
   void exposeRefForce() {
         bp::def("computeWeightShareSmoothProfile",
                 &computeWeightShareSmoothProfile,
-                bp::args("contact_pattern","duration","robotGravityForce"),
+                bp::args("contact_pattern","duration"), //,"robotGravityForce"),
                 "Compute the smooth weight transfer between contact points");
                 //bp::return_value_policy<bp::return_by_value>());
   }

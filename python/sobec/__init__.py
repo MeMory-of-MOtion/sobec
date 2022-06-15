@@ -22,4 +22,7 @@ from .sobec_pywrap import (
     OCPWalkParams,
     OCPWalk,
     MPCWalk,
+
+    computeWeightShareSmoothProfile,
+    
 )

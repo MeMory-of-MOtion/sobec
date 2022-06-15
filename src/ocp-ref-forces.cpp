@@ -13,25 +13,28 @@
 
 namespace sobec {
 
-  Eigen::MatrixXd computeWeightShareSmoothProfile(const Eigen::Ref<const Eigen::MatrixX2d> contact_pattern,
-                                       int duration,
-                                       double robotGravityForce)
-  {
+  // contact_pattern(k,t)
+
+  
+  Eigen::MatrixXd computeWeightShareSmoothProfile(const Eigen::Ref<const Eigen::MatrixXd> contact_pattern,
+                                                  int duration
+                                                  )
+  { 
+    double robotGravityForce=1;//todo
     Eigen::Index T = contact_pattern.cols(); // time horizon length
     Eigen::Index nc = contact_pattern.rows(); // number of contact
-    
+    //    std::cout << T << " x " << nc << std::endl;
     Eigen::MatrixXd contactImportance(nc,T);
 
     // Contact importance is set at a fair discontinuous share between all the active contacts.
-    for( Eigen::Index t=0; t<T; ++T )
+    for( Eigen::Index t=0; t<T; ++t )
       {
         double nbactiv = contact_pattern.col(t).sum();
-        contactImportance.col(t) = contact_pattern.col(t)*robotGravityForce/nbactiv;
+        contactImportance.col(t) = contact_pattern.col(t)*(robotGravityForce/nbactiv);
       }
 
 
-
-    for( Eigen::Index t=1; t<T; ++T )
+    for( Eigen::Index t=1; t<T; ++t )
       {
         bool landing = false;
         for( Eigen::Index k=0; k<nc; ++k )
@@ -39,42 +42,66 @@ namespace sobec {
             if((!contact_pattern(k,t-1))&&contact_pattern(k,t)) landing=true;
           }
         if(landing)
-          for( Eigen::Index k=0; k<nc; ++k )
+          for(Eigen::Index s=duration-1;s>=0;--s)
             {
-              for(Eigen::Index s=0;s<duration;++s)
-                contactImportance(t+s,k) = contactImportance(t-1,k)*(1-s/double(duration))
-                  + contactImportance(t,k)*(s/double(duration));
+              double ratio = (double(s+1)/double(duration+1));
+              for( Eigen::Index k=0; k<nc; ++k )
+                {
+                  std::cout<<k<<" " <<s << " " <<contactImportance(k,t-1)<<ratio<<std::endl;
+                  contactImportance(k,t+s) = contactImportance(k,t-1)*(1-ratio)
+                    + contactImportance(k,t)*ratio;
+                }
             }
       }
-    for( Eigen::Index t=1; t<T; ++T )
+    for( Eigen::Index t=T-1; t>=1; --t )
       {
+        bool takingoff = false;
         for( Eigen::Index k=0; k<nc; ++k )
           {
+            if((!contact_pattern(k,t))&&contact_pattern(k,t-1)) takingoff=true;
           }
+        if(takingoff)
+          for(Eigen::Index s=duration-1;s>=0;--s)
+            {
+              double ratio = (double(s+1)/double(duration+1));
+              for( Eigen::Index k=0; k<nc; ++k )
+                {
+                  contactImportance(k,t-s-1) = contactImportance(k,t)*(1-ratio)
+                    + contactImportance(k,t-1)*ratio;
+                }
+            }
       }
     
     return contactImportance;
+    
   }
 
   
-  void computeReferenceForces(int duration, double robotGravityForce)
+  void computeReferenceForces(const Eigen::Ref<const Eigen::MatrixXd> contact_pattern,
+                              int duration, double robotGravityForce)
   {
+    Eigen::MatrixXd contactImportance = computeWeightShareSmoothProfile(contact_pattern,duration);
+      
     // Eigen::Ref<const MatrixX2d> contact_pattern;
-    // int T = contact_pattern.cols(); // time horizon length
-    // int nc = contact_pattern.rows(); // number of contact
+    Eigen::Index T = contact_pattern.cols(); // time horizon length
+    Eigen::Index nc = contact_pattern.rows(); // number of contact
 
     // std::vector< std::vector<pinocchio::Force> > referenceForces;
     // referenceForces.resize(T);
 
-    // const pinocchio::Force & grav = pinocchio::Force::Zero();
-    // grav.linear()[2] = robotGravityForce;
+    pinocchio::Force grav = pinocchio::Force::Zero();
+    grav.linear()[2] = robotGravityForce;
 
     // contact importance = 1/nb_active_contact
-
+    for(Eigen::Index t=0;t<T;++t)
+      for(Eigen::Index k=0;k<nc;++k)
+        {
+          
+        }
 
  
 
-      //       for( int t=1; t<T; ++T )
+      //       for( int t=1; t<T; ++t )
       // {
       //   for( int k=0; k<nc; ++k )
       //     {
