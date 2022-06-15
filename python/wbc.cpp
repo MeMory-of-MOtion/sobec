@@ -63,7 +63,7 @@ void exposeWBC() {
       .def("__init__",
            make_constructor(constructVectorFromList<pinocchio::SE3>))
       .def("__repr__", &displayVector<pinocchio::SE3>);
-      
+
   bp::class_<std::vector<eVector3>>("vector_eigen_vector3_")
       .def(bp::vector_indexing_suite<std::vector<eVector3>>())
       .def("__init__", make_constructor(constructVectorFromList<eVector3>))

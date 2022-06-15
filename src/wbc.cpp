@@ -74,7 +74,7 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
   takeoff_RF = land_LF + settings_.TdoubleSupport;
   land_RF = land_LF + settings_.Tstep;
   takeoff_LF = takeoff_RF + settings_.Tstep;
-  
+
   for (int i = 0; i < 2 * settings_.Tstep; i++) {
     if (i < takeoff_RF)
       cycle.push_back(DOUBLE);
@@ -161,15 +161,16 @@ void WBC::updateStepTrackerReferences() {
   }
 }
 
-void WBC::updateStepTrackerLastReference(){
-  horizon_.setPoseReferenceLF(horizon_.size()-1, "placement_LF", getPoseRef_LF(horizon_.size()-1));
-  horizon_.setPoseReferenceRF(horizon_.size()-1, "placement_RF", getPoseRef_RF(horizon_.size()-1));
+void WBC::updateStepTrackerLastReference() {
+  horizon_.setPoseReferenceLF(horizon_.size() - 1, "placement_LF",
+                              getPoseRef_LF(horizon_.size() - 1));
+  horizon_.setPoseReferenceRF(horizon_.size() - 1, "placement_RF",
+                              getPoseRef_RF(horizon_.size() - 1));
   ref_LF_poses_.erase(ref_LF_poses_.begin());
-  ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size()-1]);
+  ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size() - 1]);
   ref_RF_poses_.erase(ref_RF_poses_.begin());
-  ref_RF_poses_.push_back(ref_RF_poses_[horizon_.size()-1]);
+  ref_RF_poses_.push_back(ref_RF_poses_[horizon_.size() - 1]);
 }
-
 
 void WBC::updateNonThinkingReferences() {
   for (unsigned long time = 0; time < horizon_.size(); time++) {

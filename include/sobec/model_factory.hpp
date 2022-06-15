@@ -18,8 +18,8 @@ struct ModelMakerSettings {
   double timeStep = 0.01;
 
   // physics
-  eVector3 gravity = eVector3(0, 0, -9.81); 
-  
+  eVector3 gravity = eVector3(0, 0, -9.81);
+
   // geometry
   // double footSize = 0.05; //[m]
 
@@ -83,7 +83,8 @@ class ModelMaker {
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
-  // void defineCoPTask(Cost &costCollector);//, const Support &support = Support::DOUBLE);
+  // void defineCoPTask(Cost &costCollector);//, const Support &support =
+  // Support::DOUBLE);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {

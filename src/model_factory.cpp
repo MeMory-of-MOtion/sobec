@@ -220,9 +220,10 @@ void ModelMaker::defineCoMVelocity(Cost &costCollector) {
 //     w_cop << value, value;
 //     auto copResidual = boost::make_shared<ResidualModelCenterOfPressure>(
 //         state_, designer_.get_LF_id(), actuation_->get_nu());
-//     auto copAct = boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop);
-//     auto copCost =
-//         boost::make_shared<crocoddyl::CostModelResidual>(state_, copAct, 
+//     auto copAct =
+//     boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop); auto
+//     copCost =
+//         boost::make_shared<crocoddyl::CostModelResidual>(state_, copAct,
 //         boost::static_pointer_cast<ResidualModelAbstract>(copResidual));
 //     costCollector->addCost(designer_.get_LF_name() + "_cop", copCost,
 //                     settings_.wCoP);
