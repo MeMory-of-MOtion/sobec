@@ -13,12 +13,12 @@ from cricket.virtual_talos import VirtualPhysics
 
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
-from pyModelMaker import modeller
+# from pyModelMaker import modeller
 
 from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker
 
-######## CONFIGURATION  ############
-#### RobotWrapper
+# ####### CONFIGURATION  ############
+# ### RobotWrapper
 design_conf = dict(
     urdfPath=conf.modelPath + conf.URDF_SUBPATH,
     srdfPath=conf.modelPath + conf.SRDF_SUBPATH,
@@ -54,7 +54,7 @@ design_conf = dict(
 design = RobotDesigner()
 design.initialize(design_conf)
 
-## Vector of Formulations
+# Vector of Formulations
 MM_conf = dict(
     timeStep=conf.DT,
     gravity=conf.gravity,
@@ -84,14 +84,13 @@ formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
 all_models = formuler.formulateHorizon(lenght=conf.T)
 
-## Horizon
+# Horizon
 
-H_conf = dict(leftFootName = conf.lf_frame_name, 
-              rightFootName = conf.rf_frame_name)
+H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
 horizon = HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), all_models, all_models[-1])
 
-## MPC
+# MPC
 wbc_conf = dict(
     horizonSteps=conf.preview_steps,
     totalSteps=conf.total_steps,
@@ -114,7 +113,7 @@ mpc.initialize(
     design.get_v0Complete(),
     "actuationTask",
 )
-mpc.generateFullCycle(formuler)
+mpc.generateWalkigCycle(formuler)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
@@ -131,7 +130,7 @@ elif conf.simulator == "pinocchio":
     device.initialize(design.rmodelComplete)
     q_current, v_current = device.Cq0, device.Cv0
 
-### SIMULATION LOOP ###
+# ### SIMULATION LOOP ###
 
 for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
@@ -151,7 +150,7 @@ for s in range(conf.T_total * conf.Nc):
         esti_state = real_state  # wbc.joint_estimation(real_state, command)
         q_current, v_current = esti_state["q"], esti_state["dq"]
 
-#    if s == 900:stop
+#    if s == 0:stop
 
 
 if conf.simulator == "bullet":

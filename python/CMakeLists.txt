@@ -3,6 +3,7 @@ set(${PY_NAME}_SOURCES
   residual-com-velocity.cpp
   residual-vel-collision.cpp
   residual-cop.cpp
+  residual-feet-collision.cpp
   residual-fly-high.cpp
   activation-quad-ref.cpp
   designer.cpp
@@ -15,7 +16,7 @@ set(${PY_NAME}_SOURCES
   contact-fwddyn.cpp
   contact-force.cpp
   wbc.cpp
-  ocp.cpp
+  mpc-walk.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
@@ -35,4 +36,18 @@ set(${PY_NAME}_PYTHON
 
 foreach(python ${${PY_NAME}_PYTHON})
   PYTHON_INSTALL_ON_SITE(${PY_NAME} ${python})
+endforeach()
+
+set(${PY_WALK_NAME}_PYTHON
+  __init__.py
+  ocp.py
+  weight_share.py
+  robot_wrapper.py
+  config_mpc.py
+  miscdisp.py
+  params.py
+  )
+
+foreach(python ${${PY_WALK_NAME}_PYTHON})
+  PYTHON_INSTALL_ON_SITE(${PY_NAME}/walk ${python})
 endforeach()

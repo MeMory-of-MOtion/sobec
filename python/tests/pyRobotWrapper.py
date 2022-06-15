@@ -7,7 +7,6 @@ Created on Tue May 10 15:44:50 2022
 
 import pinocchio as pin
 
-pin.switchToNumpyArray()
 import numpy as np
 import hppfcl
 
@@ -15,7 +14,7 @@ import hppfcl
 class PinTalos:
     def __init__(self, conf):
 
-        ## COMPLETE MODEL ##
+        # ## COMPLETE MODEL ##
 
         rmodelComplete = pin.buildModelsFromUrdf(
             conf.modelPath + conf.URDF_SUBPATH,
@@ -42,14 +41,15 @@ class PinTalos:
         q0Complete = rmodelComplete.referenceConfigurations["half_sitting"]
         rdataComplete = rmodelComplete.createData()
 
-        ## REDUCED MODEL ##
+        # ## REDUCED MODEL ##
 
         pinocchioControlledJoints = [
             i
             for (i, n) in enumerate(rmodelComplete.names)
             if n not in conf.blocked_joints
         ]
-        # 1-6 leg_left, 7-12 leg_right, 13-14 torso, 15-21 arm_left, 22 gripper_left, 23-29 arm_right, 30 gripper_right, 31-32 head if using talos_reduced
+        # 1-6 leg_left, 7-12 leg_right, 13-14 torso, 15-21 arm_left, 22 gripper_left,
+        # 23-29 arm_right, 30 gripper_right, 31-32 head if using talos_reduced
         JointsToLockId = [
             i
             for i in range(1, rmodelComplete.njoints)
@@ -65,12 +65,12 @@ class PinTalos:
         )
 
         # Load reference configuration
-        #        pin.loadReferenceConfigurations(rmodel, conf.modelPath + conf.SRDF_SUBPATH)
+        # pin.loadReferenceConfigurations(rmodel, conf.modelPath + conf.SRDF_SUBPATH)
         q0 = rmodel.referenceConfigurations["half_sitting"]
 
         rmodel.defaultState = np.hstack(
             [q0, np.zeros(rmodel.nv)]
-        )  ## TODO: remove this default state and use a varing state.
+        )  # TODO: remove this default state and use a varing state.
 
         self.pinocchioControlledJoints = pinocchioControlledJoints
         self.rightFootId = rmodel.getFrameId(conf.rightFoot)
@@ -90,7 +90,7 @@ class PinTalos:
         self.rmodelComplete.v0 = np.zeros(rmodelComplete.nv)
         self.rmodelComplete.q0 = q0Complete
 
-        ## some pinochio attributes:
+        # some pinochio attributes:
         self.WORLD = pin.WORLD
         self.LOCAL = pin.LOCAL
 
@@ -100,7 +100,7 @@ class PinTalos:
         se3ObsPose = pin.SE3.Identity()
         se3ObsPose.translation = np.array([0, 0, -0.05])  # [0,0,-0.05]
 
-        ## Defining ground
+        # Defining ground
         ig_obs_ground = self.geomModel.addGeometryObject(
             pin.GeometryObject(
                 "ground",
@@ -112,7 +112,7 @@ class PinTalos:
             self.rmodel,
         )
 
-        ## Defining feet
+        # Defining feet
         ig_foot_left = self.geomModel.addGeometryObject(
             pin.GeometryObject(
                 "left_foot",
@@ -155,7 +155,7 @@ class PinTalos:
         pin.updateFramePlacements(self.rmodelComplete, self.rdataComplete)
 
     def get_robot_mass(self):
-        M = sum(I.mass for I in self.rmodel.inertias.tolist())
+        M = sum(iner.mass for iner in self.rmodel.inertias.tolist())
         return M
 
 

@@ -13,7 +13,14 @@
 
 namespace sobec {
 
+/// @todo: in order to switch between locomotions safely, incorporate a terminal
+/// constraint
+/// @todo: bind these enumerations
+enum ControlForm { StepTracker, NonThinking, StairClimber };
+enum LocomotionType { WALKING, STANDING };
+
 struct WBCSettings {
+  ///@todo: add the cost names as setting parameters.
  public:
   // timing
   int horizonSteps = 2;
@@ -28,45 +35,41 @@ struct WBCSettings {
   double simu_step = 1e-3;
 
   int Nc = (int)round(Dt / simu_step);
-  // double stepSize = 0.1;
-  // double stepHeight = 0.03;
-  // double stepDepth = 0.0;
+  ControlForm typeOfCommand = StepTracker;
 };
 
 class WBC {
+  /**
+   * Form to use this class:
+   * 1) The function iterate produces the torques to command.
+   * 2) All cost references must be updated separtely in the control loop.
+   *
+   */
+
  private:
   WBCSettings settings_;
   RobotDesigner designer_;
   HorizonManager horizon_;
-  HorizonManager fullCycle_;
+  HorizonManager walkingCycle_;
+  HorizonManager standingCycle_;
 
   Eigen::VectorXd x0_;
+
+  LocomotionType now_ = WALKING;
 
   // timings
   Eigen::ArrayXi t_takeoff_RF_, t_takeoff_LF_, t_land_RF_, t_land_LF_;
 
+  // INTERNAL UPDATING functions
+  void updateStepTrackerReferences();
+  void updateNonThinkingReferences();
+  // References for costs:
+  std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
+  std::vector<eVector3> ref_com_vel_;
+
   // Memory preallocations:
   std::vector<unsigned long> controlled_joints_id_;
   Eigen::VectorXd x_internal_;
-
-  // eVector6 wrench_reference_double_;
-  // eVector6 wrench_reference_simple_;
-  // ndcurves::piecewise_SE3_t transBezierRight_;
-  // ndcurves::piecewise_SE3_t transBezierLeft_;
-  // std::vector<unsigned long> contacts_sequence_;
-
-  // unsigned long TswitchPhase_;
-  // unsigned long TswitchTraj_;
-  // bool swingRightPhase_;
-  // bool swingRightTraj_;
-  // std::size_t steps_;
-
-  // pinocchio::SE3 starting_position_left_;
-  // pinocchio::SE3 starting_position_right_;
-  // pinocchio::SE3 final_position_left_;
-  // pinocchio::SE3 final_position_right_;
-  // pinocchio::SE3 frame_placement_next_;
-  // ndcurves::point3_t point_now_;
 
  public:
   WBC();
@@ -82,7 +85,9 @@ class WBC {
 
   Eigen::VectorXd shapeState(Eigen::VectorXd q, Eigen::VectorXd v);
 
-  void generateFullCycle(ModelMaker &mm);
+  void generateWalkigCycle(ModelMaker &mm);
+
+  void generateStandingCycle(ModelMaker &mm);
 
   void updateStepCycleTiming();
 
@@ -95,15 +100,21 @@ class WBC {
                           const Eigen::VectorXd &v_current,
                           const bool &is_feasible);
 
-  void recedeWithFullCycle();
+  void recedeWithCycle();
+  void recedeWithCycle(HorizonManager &cycle);
 
   // getters and setters
   Eigen::VectorXd get_x0() { return x0_; }
   void set_x0(Eigen::VectorXd x0) { x0_ = x0; }
 
-  HorizonManager get_walkingCycle() { return fullCycle_; }
+  HorizonManager get_walkingCycle() { return walkingCycle_; }
   void set_walkingCycle(HorizonManager walkingCycle) {
-    fullCycle_ = walkingCycle;
+    walkingCycle_ = walkingCycle;
+  }
+
+  HorizonManager get_standingCycle() { return standingCycle_; }
+  void set_standingCycle(HorizonManager standingCycle) {
+    standingCycle_ = standingCycle;
   }
 
   HorizonManager get_horizon() { return horizon_; }
@@ -128,17 +139,46 @@ class WBC {
   }
   void set_RF_takeoff(Eigen::VectorXi t) { t_takeoff_RF_ = t.array(); }
 
-  // void solveControlCycle(const Eigen::VectorXd &measured_x);
+  // REFERENCE SETTERS AND GETTERS
 
-  // ndcurves::piecewise_SE3_t defineBezier(const double &height,
-  //                                             const double &time_init,
-  //                                             const double &time_final,
-  //                                             const pinocchio::SE3
-  //                                             &placement_init, const
-  //                                             pinocchio::SE3
-  //                                             &placement_final);
-  // void updateEndPhase();
-  // void updateOCP(const Eigen::VectorXd &measured_x);
+  const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
+  const pinocchio::SE3 &getPoseRef_LF(const unsigned long &time) {
+    return ref_LF_poses_[time];
+  }
+  void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) {
+    ref_LF_poses_ = ref_LF_poses;
+  }
+  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose,
+                     const unsigned long &time) {
+    ref_LF_poses_[time] = ref_LF_pose;
+  }
+
+  const std::vector<pinocchio::SE3> &getPoseRef_RF() { return ref_RF_poses_; }
+  const pinocchio::SE3 &getPoseRef_RF(const unsigned long &time) {
+    return ref_RF_poses_[time];
+  }
+  void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses) {
+    ref_RF_poses_ = ref_RF_poses;
+  }
+  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose,
+                     const unsigned long &time) {
+    ref_RF_poses_[time] = ref_RF_pose;
+  }
+
+  const std::vector<eVector3> &getVelRef_COM() { return ref_com_vel_; }
+  const eVector3 &getVelRef_COM(const unsigned long &time) {
+    return ref_com_vel_[time];
+  }
+  void setVelRef_COM(const std::vector<eVector3> &ref_com_vel) {
+    ref_com_vel_ = ref_com_vel;
+  }
+  void setVelRef_COM(const eVector3 &ref_com_vel, const unsigned long &time) {
+    ref_com_vel_[time] = ref_com_vel;
+  }
+
+  void switchToWalk() { now_ = WALKING; }
+  void switchToStand() { now_ = STANDING; }
+  const LocomotionType &currentLocomotion() { return now_; }
 };
 }  // namespace sobec
 

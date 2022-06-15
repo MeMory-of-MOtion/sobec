@@ -5,16 +5,14 @@
 // Copyright note valid unless otherwise stated in individual files.
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
-#include <string.h>
-
+#include "sobec/fwd.hpp"
+// keep this line on top
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <sobec/horizon_manager.hpp>
-
-#include "sobec/fwd.hpp"
 
 namespace sobec {
 namespace python {
@@ -106,7 +104,7 @@ void exposeHorizonManager() {
                                     const Eigen::VectorXd &)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time", "x"))
-      .def("size", &HorizonManager::get_size, (bp::arg("self")))
+      .def("size", &HorizonManager::size, (bp::arg("self")))
       .def("setActuationReference", &HorizonManager::setActuationReference,
            bp::args("self", "time", "actuationCostName"))
       .def("get_contacts", &get_contacts, bp::args("self", "time"));

@@ -36,7 +36,8 @@ class BulletTalos:
             3
         ]  # of the base link
 
-        # leg_left (45-50), leg_right (52-57), torso (0-1), arm_left (11-17), gripper_left (21), arm_right (28-34), gripper_right (38), head (3,4)
+        # leg_left (45-50), leg_right (52-57), torso (0-1), arm_left (11-17),
+        # gripper_left (21), arm_right (28-34), gripper_right (38), head (3,4).
         bulletJointNames = [
             p.getJointInfo(self.robotId, i)[1].decode()
             for i in range(p.getNumJoints(self.robotId))
