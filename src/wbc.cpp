@@ -129,27 +129,24 @@ void WBC::iterate(const int &iteration,
                              const Eigen::VectorXd &v_current,
                              const bool &is_feasible) {
   x0_ = shapeState(q_current, v_current);
-  if (timeToSolveDDP(iteration)) {
-    // ~~TIMING~~ //
-    updateStepCycleTiming();
-    recedeWithCycle();
+  // ~~TIMING~~ //
+  updateStepCycleTiming();
+  recedeWithCycle();
 
-    // ~~REFERENCES~~ //
-    designer_.updateReducedModel(x0_);
-    switch (settings_.typeOfCommand) {
-      case StepTracker:
-        updateStepTrackerLastReference();
-        break;
-      case NonThinking:
-        updateNonThinkingReferences();
-        break;
-      default:
-        break;
-    }
-
-    // ~~SOLVER~~ //
-    horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+  // ~~REFERENCES~~ //
+  designer_.updateReducedModel(x0_);
+  switch (settings_.typeOfCommand) {
+    case StepTracker:
+      updateStepTrackerLastReference();
+      break;
+    case NonThinking:
+      updateNonThinkingReferences();
+      break;
+    default:
+      break;
   }
+  // ~~SOLVER~~ //
+  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
 void WBC::updateStepTrackerReferences() {

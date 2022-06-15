@@ -132,6 +132,20 @@ void HorizonManager::setPoseReferenceRF(const unsigned long &time,
       ->set_reference(ref_placement);
 }
 
+pinocchio::SE3 HorizonManager::getPoseReferenceLF(const unsigned long &time,
+                                                  const std::string &nameCostLF) {
+  return boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
+      costs(time)->get_costs().at(nameCostLF)->cost->get_residual())
+      ->get_reference();
+}
+
+pinocchio::SE3 HorizonManager::getPoseReferenceRF(const unsigned long &time,
+                                                  const std::string &nameCostRF) {
+  return boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
+      costs(time)->get_costs().at(nameCostRF)->cost->get_residual())
+      ->get_reference();
+}
+
 void HorizonManager::setVelocityRefCOM(const unsigned long &time,
                                        const std::string &nameCost,
                                        const eVector3 &ref_velocity) {
