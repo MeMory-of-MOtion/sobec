@@ -18,8 +18,9 @@ import pinocchio as pin
 from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker
 import numpy as np
 
-# Functions to generate steps:
+
 def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
+    """Functions to generate steps."""
     tmax = conf.T1contact
     landing_advance = 3
     takeoff_delay = 9
