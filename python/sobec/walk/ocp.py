@@ -236,9 +236,9 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 state, fid, p.flyHighSlope / 2.0, actuation.nu
             )
             flyHighCost = croc.CostModelResidual(state, flyHighResidual)
-            if p.flyWeight>0:
+            if p.flyHighWeight>0:
                 costs.addCost(
-                    "%s_flyhigh" % robot.model.frames[fid].name, flyHighCost, p.flyWeight
+                    "%s_flyhigh" % robot.model.frames[fid].name, flyHighCost, p.flyHighWeight
                 )
 
             groundColRes = croc.ResidualModelFrameTranslation(

@@ -4,7 +4,7 @@ import numpy as np
 
 class WalkParams(params.WalkParams):
     conePenaltyWeight = 20
-    flyWeight = 20
+    flyHighWeight = 20
     impactVelocityWeight = 200
     refFootFlyingAltitude = 0.03
     flyHighSlope = 5 / refFootFlyingAltitude
@@ -65,7 +65,7 @@ class WalkParamsOld:
     verticalFootVelWeight = 20
     footVelWeight = 0  # 20
     footAccWeight = 0  # 2
-    flyWeight = 20
+    flyHighWeight = 20
     groundColWeight = 200
     conePenaltyWeight = 20
     feetCollisionWeight = 1000

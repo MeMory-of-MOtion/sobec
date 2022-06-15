@@ -62,7 +62,7 @@ class WalkParamsOld(params.WalkParamsOld):
 
     refFootFlyingAltitude = 7e-2
     flyHighSlope = 3 / refFootFlyingAltitude
-    flyWeight = 10 * 20
+    flyHighWeight = 10 * 20
     baumgartGains = np.array([0, 100])
 
     vcomRef = np.array([0.05, 0, 0])

@@ -88,7 +88,7 @@ class WalkParams:
     verticalFootVelWeight = 20
     footVelWeight = 0  # 20
     footAccWeight = 0  # 2
-    flyWeight = 200
+    flyHighWeight = 200
     groundColWeight = 200
     conePenaltyWeight = 0
     feetCollisionWeight = 1000
