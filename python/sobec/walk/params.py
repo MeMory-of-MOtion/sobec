@@ -77,27 +77,27 @@ class WalkParams:
 
     refTorqueWeight = 0
     refStateWeight = 1e-1
-    flatBaseWeight = 0  # 20
+    # [DEPREC] flatBaseWeight = 0  # 20
     forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
     coneAxisWeight = 2e-4
     comWeight = 0  # 20
     vcomImportance = np.array([0.0, 0, 1])
     vcomWeight = 1
-    acomWeight = 0  # 16*DT
+    # [DEPREC] acomWeight = 0  # 16*DT
     copWeight = 2
     verticalFootVelWeight = 20
-    footVelWeight = 0  # 20
-    footAccWeight = 0  # 2
+    # [DEPREC] footVelWeight = 0  # 20
+    # [DEPREC] footAccWeight = 0  # 2
     flyHighWeight = 200
     groundColWeight = 200
     conePenaltyWeight = 0
     feetCollisionWeight = 1000
 
-    lowbandwidthweight = 0  # 2e-1
-    minTorqueDiffWeight = 0  # 2e-2
+    # [DEPREC] lowbandwidthweight = 0  # 2e-1
+    # [DEPREC] minTorqueDiffWeight = 0  # 2e-2
 
     refForceWeight = 10
-    contiForceWeight = 0
+    # [DEPREC] contiForceWeight = 0
 
     impactAltitudeWeight = 20000
     impactVelocityWeight = 10000
@@ -105,18 +105,18 @@ class WalkParams:
     refMainJointsAtImpactWeight = 0  # 2e2 # For avoinding crossing legs
 
     stateTerminalWeight = 20  # 2000
-    terminalNoVelocityWeight = 2000
-    terminalXTargetWeight = 0  # ##DDP## 2000
+    # [DEPREC] terminalNoVelocityWeight = 2000
+    # [DEPREC] terminalXTargetWeight = 0  # ##DDP## 2000
 
     # ## Other terms related to the cost functions
-    enforceMinimalFootDistance = False
+    # [DEPREC] enforceMinimalFootDistance = False
 
     refFootFlyingAltitude = 7e-2
     flyHighSlope = 3 / refFootFlyingAltitude
     footMinimalDistance = 0.2  # (.17 is the max value wrt initial config)
-    soleCollision = True
-    towCollision = False
-    heelCollision = False
+    # [DEPREC] soleCollision = True
+    # [DEPREC] towCollision = False
+    # [DEPREC] heelCollision = False
     mainJointIds = [
         "leg_%s_%s_joint" % (side, idx)
         for side in ["left", "right"]
