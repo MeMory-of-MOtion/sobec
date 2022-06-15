@@ -11,7 +11,7 @@
 
 namespace sobec {
 
-std::vector<OCPWalk::ActionPtr> OCPWalk::buildRunningModels(
+std::vector<AMA> OCPWalk::buildRunningModels(
     const Eigen::Ref<const Eigen::MatrixX2d>& contact_pattern,
     const std::vector<std::vector<pinocchio::Force> >& referenceForces) {
   state = boost::make_shared<StateMultibody>(robot->model);
@@ -21,13 +21,13 @@ std::vector<OCPWalk::ActionPtr> OCPWalk::buildRunningModels(
   std::vector<AMA> models;
   for (int i = 0; i < N; ++i) {
     // Contacts
-    auto contacts =
-        boost::make_shared<ContactModelMultiple>(state, actuation->get_nu());
+    auto contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
+        state, actuation->get_nu());
     for (int k = 0; k < robot->contactIds.size();
          ++k) {  // k, cid in enumerate(robot.contactIds):
       if (contact_pattern(k, i) == 0.0) continue;
       int cid = robot->contactIds[k];
-      auto contact = boost::make_shared<ContactModel6D>(
+      auto contact = boost::make_shared<crocoddyl::ContactModel6D>(
           state, cid, pinocchio::SE3::Identity(), actuation->get_nu(),
           params->baumgartGains);
       contacts->addContact(robot->model->frames[cid].name + "_contact",

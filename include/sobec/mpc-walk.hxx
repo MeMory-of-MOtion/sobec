@@ -44,7 +44,7 @@ void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
     // std::endl;
     runmodels.push_back(storage->get_runningModels()[t]);
   }
-  ActionPtr termmodel = storage->get_terminalModel();
+  AMA termmodel = storage->get_terminalModel();
   problem = boost::make_shared<ShootingProblem>(x0, runmodels, termmodel);
 
   findTerminalStateResidualModel();

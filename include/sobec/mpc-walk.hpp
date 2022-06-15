@@ -26,8 +26,7 @@ using namespace crocoddyl;
 class MPCWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
-  typedef boost::shared_ptr<ActionModelAbstract> ActionPtr;
-  typedef std::vector<ActionPtr> ActionList;
+  typedef std::vector<AMA> ActionList;
   // typedef typename
   // crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double> DAM;
 

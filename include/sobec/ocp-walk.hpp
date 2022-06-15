@@ -80,8 +80,7 @@ class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
   typedef typename Eigen::Matrix<double, Eigen::Dynamic, 2> MatrixX2d;
   typedef typename Eigen::Matrix<double, Eigen::Dynamic, 6> MatrixX6d;
-  typedef boost::shared_ptr<ActionModelAbstract> ActionPtr;
-  typedef std::vector<ActionPtr> ActionList;
+  typedef std::vector<AMA> ActionList;
   typedef
       typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double>
           DAM;
@@ -95,11 +94,10 @@ class OCPWalk {
 
   virtual ~OCPWalk() {}
 
-  std::vector<ActionPtr> buildRunningModels(
+  std::vector<AMA> buildRunningModels(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
       const std::vector<std::vector<pinocchio::Force>>& reference_forces);
-  ActionPtr buildTerminalModel(
-      const Eigen::Ref<const MatrixX2d>& contact_pattern);
+  AMA buildTerminalModel(const Eigen::Ref<const MatrixX2d>& contact_pattern);
   boost::shared_ptr<SolverFDDP> buildSolver(
       const Eigen::Ref<const MatrixX2d>& contact_pattern,
       const std::vector<std::vector<pinocchio::Force>>& reference_forces);
