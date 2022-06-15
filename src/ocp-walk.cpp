@@ -8,11 +8,12 @@
 
 #include "sobec/ocp-walk.hpp"
 
+#include <crocoddyl/core/costs/residual.hpp>
 #include <crocoddyl/multibody/actions/contact-fwddyn.hpp>
-// #include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
+#include <crocoddyl/multibody/residuals/contact-force.hpp>
+
+#include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "sobec/contact/contact-force.hpp"
-#include "sobec/contact/multiple-contacts.hpp"
 #include "sobec/residual-feet-collision.hpp"
 #include "sobec/residual-fly-high.hpp"
 
@@ -130,8 +131,9 @@ OCPWalk::buildRunningModel(
       // #  ... using normalization weights depending on the axis.
       // # The weights are squared to match the tuning of the CASADI
       // formulation.
-      auto coneAxisResidual = boost::make_shared<ResidualModelContactForce>(
-          state, cid, pinocchio::Force::Zero(), 6, actuation->get_nu());
+      auto coneAxisResidual =
+          boost::make_shared<crocoddyl::ResidualModelContactForce>(
+              state, cid, pinocchio::Force::Zero(), 6, actuation->get_nu());
       Eigen::VectorXd w =
           params->forceImportance.cwiseProduct(params->forceImportance);
       w[2] = 0.0;
@@ -142,9 +144,10 @@ OCPWalk::buildRunningModel(
                      params->coneAxisWeight);
 
       // # Follow reference (smooth) contact forces
-      auto forceRefResidual = boost::make_shared<ResidualModelContactForce>(
-          state, cid, pinocchio::Force(referenceForces[i][k]), 6,
-          actuation->get_nu());
+      auto forceRefResidual =
+          boost::make_shared<crocoddyl::ResidualModelContactForce>(
+              state, cid, pinocchio::Force(referenceForces[i][k]), 6,
+              actuation->get_nu());
       auto forceRefCost =
           boost::make_shared<CostModelResidual>(state, forceRefResidual);
       costs->addCost(robot->model->frames[cid].name + "_forceref", forceRefCost,
