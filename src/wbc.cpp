@@ -76,14 +76,14 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
   takeoff_LF = takeoff_RF + settings_.Tstep;
   
   for (int i = 0; i < 2 * settings_.Tstep; i++) {
-    if (i < land_RF)
+    if (i < takeoff_RF)
+      cycle.push_back(DOUBLE);
+    else if (i < land_RF)
       cycle.push_back(LEFT);
     else if (i < takeoff_LF)
       cycle.push_back(DOUBLE);
-    else if (i < land_LF)
-      cycle.push_back(RIGHT);
     else
-      cycle.push_back(DOUBLE);
+      cycle.push_back(RIGHT);
   }
   std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),

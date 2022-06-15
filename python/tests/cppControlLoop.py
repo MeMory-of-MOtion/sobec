@@ -22,7 +22,7 @@ import numpy as np
 def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
     tmax = conf.T1contact
     landing_advance = 3
-    takeoff_delay = 3
+    takeoff_delay = 9
     z = []
     if trajectory == "sine":
         for t in range(time_to_land-landing_advance, time_to_land-landing_advance - T, -1):

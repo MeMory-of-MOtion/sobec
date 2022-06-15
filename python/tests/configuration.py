@@ -74,7 +74,7 @@ maxNforce = 1200  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
-model_name = "talos_flex"  # 
+model_name = "talos"  # _flex
 
 # Flexibility Parameters
 compensate_deflections = True
