@@ -95,7 +95,7 @@ namespace sobec {
     for(Eigen::Index t=0;t<T;++t)
       for(Eigen::Index k=0;k<nc;++k)
         {
-          referenceForces[t].push_back(grav*contactImportance(t,k));
+          referenceForces[t].push_back(grav*contactImportance(k,t));
         }
   }
   

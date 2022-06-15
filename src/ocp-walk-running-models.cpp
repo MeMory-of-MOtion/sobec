@@ -15,7 +15,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
   state = boost::make_shared<StateMultibody>(robot->model);
   actuation = boost::make_shared<ActuationModelFloatingBase>(state);
 
-  int N = contact_pattern.cols();
+  int N = contact_pattern.cols()-1;
   std::vector<AMA> models;
   for (int i = 0; i < N; ++i) {
     // Contacts
@@ -151,7 +151,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
     for (int k = 0; k < robot->contactIds.size(); ++k) {
       auto cid = robot->contactIds[k];
 
-      if (i > 0 && !contact_pattern(k, i - 1) && contact_pattern(k, i) == 0.) {
+      if (i > 0 && (contact_pattern(k, i - 1) == 0.) && (contact_pattern(k, i) == 1.)) {
         // REMEMBER TO divide the weight by p.DT, as impact should be
         // independant of the node duration (at least, that s how weights are
         // tuned in casadi)

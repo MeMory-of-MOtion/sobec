@@ -60,7 +60,7 @@ struct OCPWalkParams {
   double kktDamping;
   double stateTerminalWeight;
   double solver_th_stop;
-  double transitionDuration;
+  int transitionDuration;
 };
 
 struct OCPRobotWrapper {

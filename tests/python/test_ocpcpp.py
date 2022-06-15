@@ -2,10 +2,12 @@ import numpy as np
 from numpy.linalg import norm
 import example_robot_data as robex
 import sobec
+import sobec.walk
 from sobec.walk.robot_wrapper import RobotWrapper as pyRobotWrapper
 from sobec.walk.params import WalkParams as pyWalkParams
 import sobec.walk.ocp as pyOCPWalk
 from sobec.walk.miscdisp import reprProblem
+from sobec.walk.weight_share import computeBestTransitionDuration
 
 # --- ROBOT WRAPPER
 print("*** Py robot")
@@ -49,7 +51,6 @@ for k,v in pyparams.__class__.__dict__.items():
         print(k,' is not a field of params')
 
 
-
 # --- CONTACT PATTERN
 print("*** Contacts")
 pycontactPattern = (
@@ -60,6 +61,7 @@ pycontactPattern = (
     + [[1, 1]]
 )
 contactPattern = np.array(pycontactPattern).T
+params.transitionDuration = computeBestTransitionDuration(pycontactPattern,50)
 
 
 # --- OCP
@@ -74,3 +76,25 @@ with open('/tmp/py.txt', 'w') as f: f.write(reprProblem(pyddp.problem))
 with open('/tmp/cpp.txt', 'w') as f: f.write(reprProblem(ocp.problem))
 
 print('*** You can now run: \n\t\tdiff /tmp/py.txt /tmp/cpp.txt')
+
+
+
+
+def getReferenceForcesFromProblemModels(problem, cid):
+    fs = []
+    for t, (m, d) in enumerate(zip(problem.runningModels, problem.runningDatas)):
+        dm = m.differential
+        model = dm.pinocchio
+        cname = "%s_forceref" % model.frames[cid].name
+        if cname not in dm.costs.costs:
+            fs.append(np.zeros(6))
+        else:
+            cm = dm.costs.costs[cname].cost
+            fs.append(cm.residual.reference.vector)
+    fs = np.array(fs)
+    return fs
+
+f0 = getReferenceForcesFromProblemModels(ocp.problem,robot.contactIds[0])
+f1 = getReferenceForcesFromProblemModels(ocp.problem,robot.contactIds[1])
+
+import matplotlib.pylab as plt; plt.ion()

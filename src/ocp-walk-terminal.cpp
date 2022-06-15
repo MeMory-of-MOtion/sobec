@@ -18,7 +18,7 @@ namespace sobec {
   AMA OCPWalk::buildTerminalModel()
   {
   // Horizon length
-  int T = contact_pattern.rows() - 1;
+  int T = contact_pattern.cols() - 1;
 
   // assume state and actuation have already been created
   // state = croc.StateMultibody(robot.model)
@@ -29,7 +29,7 @@ namespace sobec {
       state, actuation->get_nu());
   for (int k = 0; k < robot->contactIds.size();
        ++k) {  // k, cid in enumerate(robot.contactIds):
-    if (contact_pattern(T, k) == 0.0) continue;
+    if (contact_pattern(k, T) == 0.0) continue;
     int cid = robot->contactIds[k];
     auto contact = boost::make_shared<ContactModel6D>(
         state, cid, pinocchio::SE3::Identity(), actuation->get_nu(),
