@@ -126,6 +126,17 @@ template <typename Scalar>
 class IntegratedActionDataLPFTpl;
 typedef IntegratedActionDataLPFTpl<double> IntegratedActionDataLPF;
 
+// OCP
+class OCPWalkParam;
+class OCPWalk;
+// MPC
+class MPCWalk;
+
+}  // namespace sobec
+
+namespace sobec {
+namespace newcontacts {
+
 // contact 3D
 template <typename Scalar>
 class ContactModel3DTpl;
@@ -166,12 +177,7 @@ enum ContactType {
   Contact6D
 };
 
-// OCP
-class OCPWalkParam;
-class OCPWalk;
-// MPC
-class MPCWalk;
-
+}  // namespace newcontacts
 }  // namespace sobec
 
 #endif  // SOBEC_FWD_HPP_

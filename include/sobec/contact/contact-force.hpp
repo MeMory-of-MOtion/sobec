@@ -22,6 +22,7 @@
 #include "sobec/fwd.hpp"
 
 namespace sobec {
+namespace newcontacts {
 
 /**
  * @brief Define a contact force residual function
@@ -129,6 +130,7 @@ class ResidualModelContactForceTpl
                         const Eigen::Ref<const VectorXs>& u);
 };
 
+}  // namespace newcontacts
 }  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */
