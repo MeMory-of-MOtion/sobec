@@ -23,8 +23,7 @@ using namespace crocoddyl;
  * @brief MPC manager, calling iterative subpart of a larger OCP.
  */
 
-struct MPCWalkParams
-{
+struct MPCWalkParams {
   /// @brief reference COM velocity
   Eigen::Vector3d vcomRef;
   /// @brief reference 0 state
@@ -54,7 +53,7 @@ struct MPCWalkParams
   MPCWalkParams();
   virtual ~MPCWalkParams() {}
 };
-  
+
 class MPCWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
@@ -83,10 +82,9 @@ class MPCWalk {
   void findStateModel();
 
  public:
-
   /// @brief Parameters to tune the algorithm, given at init.
   boost::shared_ptr<MPCWalkParams> params;
-  
+
   /// @brief The reference shooting problem storing all shooting nodes
   boost::shared_ptr<ShootingProblem> storage;
 
