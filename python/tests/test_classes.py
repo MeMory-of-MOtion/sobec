@@ -205,6 +205,7 @@ class ClasesTestCase(unittest.TestCase):
         self.assertEqual(self.horizon.iam(0).nr, self.py_horizon.IAM(0).nr)
         self.assertEqual(self.horizon.iam(0).nu, self.py_horizon.IAM(0).nu)
         self.assertEqual(self.horizon.ddp.problem.T, self.py_horizon.ddp.problem.T)
+        self.assertEqual(self.horizon.size(), self.py_horizon.ddp.problem.T)
 
         model0_0 = self.horizon.ama(0)
         model0_1 = self.horizon.ama(1)

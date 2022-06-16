@@ -126,7 +126,7 @@ void HorizonManager::setPoseReferenceLF(const unsigned long &time,
       costs(time)->get_costs().at(nameCostLF)->cost->get_residual())
       ->set_reference(ref_placement);
 }
-
+///@todo:fuse these two functions and any other redundant funtion.
 void HorizonManager::setPoseReferenceRF(const unsigned long &time,
                                         const std::string &nameCostRF,
                                         const pinocchio::SE3 &ref_placement) {
@@ -136,6 +136,14 @@ void HorizonManager::setPoseReferenceRF(const unsigned long &time,
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
       costs(time)->get_costs().at(nameCostRF)->cost->get_residual())
       ->set_reference(ref_placement);
+}
+
+void HorizonManager::setVelocityRefCOM(const unsigned long &time,
+                                       const std::string &nameCost,
+                                       const eVector3 &ref_velocity) {
+  boost::static_pointer_cast<sobec::ResidualModelCoMVelocity>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_velocity);
 }
 
 void HorizonManager::setForceReferenceLF(const unsigned long &time,
@@ -207,31 +215,23 @@ void HorizonManager::recede() {
   ddp_->get_problem()->circularAppend(ama(0), ada(0));
 }
 
-unsigned long HorizonManager::get_size() {
-  return ddp_->get_problem()->get_T();
-}
+unsigned long HorizonManager::size() { return ddp_->get_problem()->get_T(); }
 
 void HorizonManager::solve(const Eigen::VectorXd &measured_x,
                            const std::size_t &ddpIteration,
                            const bool &is_feasible) {
-  std::cout << "Enters in the function solve" << std::endl;
   warm_xs_ = ddp_->get_xs();
   warm_xs_.erase(warm_xs_.begin());
   warm_xs_[0] = measured_x;
   warm_xs_.push_back(warm_xs_[warm_xs_.size() - 1]);
 
-  std::cout << "It also arrive here." << std::endl;
-
   warm_us_ = ddp_->get_us();
   warm_us_.erase(warm_us_.begin());
   warm_us_.push_back(warm_us_[warm_us_.size() - 1]);
 
-  std::cout << "It even arrives here." << std::endl;
-
   // Update initial state
   ddp_->get_problem()->set_x0(measured_x);
   ddp_->allocateData();
-  std::cout << "It breaks after this point." << std::endl;
 
   ddp_->solve(warm_xs_, warm_us_, ddpIteration, is_feasible);
 }

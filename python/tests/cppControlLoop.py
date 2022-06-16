@@ -113,7 +113,7 @@ mpc.initialize(
     design.get_v0Complete(),
     "actuationTask",
 )
-mpc.generateFullCycle(formuler)
+mpc.generateWalkigCycle(formuler)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
@@ -150,7 +150,7 @@ for s in range(conf.T_total * conf.Nc):
         esti_state = real_state  # wbc.joint_estimation(real_state, command)
         q_current, v_current = esti_state["q"], esti_state["dq"]
 
-#    if s == 900:stop
+#    if s == 0:stop
 
 
 if conf.simulator == "bullet":
