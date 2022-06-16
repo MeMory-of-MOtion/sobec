@@ -99,16 +99,20 @@ class WBC {
 
   void setDesiredFeetPoses(const int &iteration, const int &time);
 
+  void iterate(const Eigen::VectorXd &q_current,
+               const Eigen::VectorXd &v_current,
+               const bool &is_feasible);
+  
   void iterate(const int &iteration,
-                          const Eigen::VectorXd &q_current,
-                          const Eigen::VectorXd &v_current,
-                          const bool &is_feasible);
+               const Eigen::VectorXd &q_current,
+               const Eigen::VectorXd &v_current,
+               const bool &is_feasible);
 
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
 
   // getters and setters
-  WBCSettings &get_settings(){ return settings_;}
+  WBCSettings &get_settings() { return settings_; }
 
   const Eigen::VectorXd &get_x0() const { return x0_; }
   void set_x0(const Eigen::VectorXd &x0) { x0_ = x0; }
