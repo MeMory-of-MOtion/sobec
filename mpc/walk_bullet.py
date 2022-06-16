@@ -15,7 +15,8 @@ from sobec.walk.config_mpc import configureMPCWalk
 from utils.pinbullet import SimuProxy
 from utils import viewer_multiple
 from sobec.walk import miscdisp
-from sobec.walk.talos_collections import jointToLockCollection
+
+# from sobec.walk.talos_collections import jointToLockCollection
 
 q_init = np.array(
     [

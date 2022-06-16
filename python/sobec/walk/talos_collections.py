@@ -1,7 +1,8 @@
 import example_robot_data as robex
 import pinocchio as pin
 
-# Collection of list of joint names, to be locked when loading the full talos urdf model.
+# Collection of list of joint names, to be locked when loading the full talos urdf
+# model.
 # See talos_low for an example of use.
 jointToLockCollection = {
     "talos_low": [

@@ -279,8 +279,6 @@ bool checkAutomaticallyGeneratedCodeCompatibility(
 
 
 if __name__ == "__main__":
-    import example_robot_data as robex
-
     params = WalkParams("talos_14")
     robot = robex.load("talos_legs")
     print(generateParamFileForTheRobot(params, robot))

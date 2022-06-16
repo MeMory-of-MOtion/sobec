@@ -11,7 +11,8 @@ import utils.walk_plotter as walk_plotter
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
 from mpcparams import WalkParams
-import utils.talos_low as talos_low
+
+# import utils.talos_low as talos_low
 from sobec.walk.config_mpc import configureMPCWalk
 import sobec.walk.miscdisp as miscdisp
 from sobec.walk.talos_collections import robexLoadAndReduce
