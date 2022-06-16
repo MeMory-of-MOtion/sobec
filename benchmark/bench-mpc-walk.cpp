@@ -8,7 +8,8 @@
 #include <sobec/py2cpp.hpp>
 
 #include "crocoddyl/core/utils/callbacks.hpp"
-#include "mpc-walk-automaticallygeneratedinit.hpp"
+#include "automaticallygeneratedinit/mpc-walk-default.hpp"
+
 
 int main() {
   using namespace sobec;
@@ -27,13 +28,7 @@ int main() {
                               *fullmodel);
 
   // -- REDUCED MODEL
-  // Choose to lock the upper body
-  std::vector<pinocchio::JointIndex> jointToLock_ids =
-      // talos 14
-      {14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33};
-  // talos 12
-  //{14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
-  // 33};
+  std::vector<pinocchio::JointIndex> jointToLock_ids = getAutomaticallyGeneratedJointIdsToLock();
   std::cout << "I am going to lock the following joints: " << std::endl;
   for (pinocchio::JointIndex i : jointToLock_ids) {
     std::cout << i << " => " << fullmodel->names[i] << std::endl;
