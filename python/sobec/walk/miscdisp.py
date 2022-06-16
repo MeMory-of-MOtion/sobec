@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 Some simple methods to display an OCP problem as string.
 """
+
+from __future__ import print_function
 
 import crocoddyl as croc
 
@@ -85,3 +88,10 @@ class CallbackMPCWalk(croc.CallbackAbstract):
 
     def __call__(self, solver):
         print(dispocp(solver.problem, self.contactIds))
+
+
+def printReprProblem(problem, out="/tmp/disp-pb-from-cpp.txt"):
+    ret = reprProblem(problem)
+    print(ret)
+    with open(out, "w") as f:
+        print(ret, file=f)

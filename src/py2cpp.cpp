@@ -31,4 +31,23 @@ MPCWalkPtr initMPCWalk(const char* fileName) {
     throw_pretty(__FILE__ ": python error")
   }
 }
+
+bool reprProblem(ShootingProblemPtr problem) {
+  bool ret = true;
+  Py_Initialize();
+  bp::object main_module = bp::import("__main__");
+  bp::object main_namespace = main_module.attr("__dict__");
+
+  try {
+    bp::import("sobec");
+    bp::object pyproblem(problem);
+    main_module.attr("problem_from_cpp") = pyproblem;
+    bp::exec("from sobec.walk.miscdisp import printReprProblem; "
+        "printReprProblem(problem_from_cpp)", main_namespace);
+  } catch (bp::error_already_set&) {
+    PyErr_Print();
+    ret = false;
+  }
+  return ret;
+}
 }  // namespace sobec
