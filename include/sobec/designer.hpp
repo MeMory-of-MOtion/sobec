@@ -71,7 +71,9 @@ class RobotDesigner {
   pinocchio::FrameIndex get_LF_id() { return leftFootId_; }
   pinocchio::FrameIndex get_RF_id() { return rightFootId_; }
   RobotDesignerSettings &get_settings() { return settings_; }
-  std::vector<unsigned long> get_controlledJointsIDs() { return controlled_joints_id_; }
+  std::vector<unsigned long> get_controlledJointsIDs() {
+    return controlled_joints_id_;
+  }
 
   Eigen::Vector3d get_LF_position() { return LF_position_; }
   Eigen::Vector3d get_RF_position() { return RF_position_; }

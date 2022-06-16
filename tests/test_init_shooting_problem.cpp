@@ -16,7 +16,8 @@
 #include "sobec/py2cpp.hpp"
 
 BOOST_AUTO_TEST_CASE(test_init_shooting_problem) {
-  auto problem = sobec::initShootingProblem(PROJECT_SOURCE_DIR "/tests/python/test_walk.py");
+  auto problem = sobec::initShootingProblem(PROJECT_SOURCE_DIR
+                                            "/tests/python/test_walk.py");
 
   std::cout << "got problem: " << problem << std::endl;
   auto n_models = problem->get_runningModels().size();

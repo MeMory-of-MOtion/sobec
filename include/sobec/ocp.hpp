@@ -55,11 +55,14 @@ class OCP {
 
  public:
   OCP();
-  OCP(const OCPSettings &settings, const ModelMakerSettings &model_settings, const RobotDesignerSettings &design,
-      const Eigen::VectorXd &q0, const Eigen::VectorXd &v0);
+  OCP(const OCPSettings &settings, const ModelMakerSettings &model_settings,
+      const RobotDesignerSettings &design, const Eigen::VectorXd &q0,
+      const Eigen::VectorXd &v0);
 
-  void initialize(const OCPSettings &settings, const ModelMakerSettings &model_settings,
-                  const RobotDesignerSettings &design, const Eigen::VectorXd &q0, const Eigen::VectorXd &v0);
+  void initialize(const OCPSettings &settings,
+                  const ModelMakerSettings &model_settings,
+                  const RobotDesignerSettings &design,
+                  const Eigen::VectorXd &q0, const Eigen::VectorXd &v0);
 
   void updateEndPhase();
   void updateOCP(const Eigen::VectorXd &qc, const Eigen::VectorXd &vc);

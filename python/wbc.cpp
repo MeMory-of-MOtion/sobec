@@ -10,8 +10,10 @@ namespace sobec {
 namespace python {
 namespace bp = boost::python;
 
-void initialize(WBC &self, const bp::dict &settings, const RobotDesigner &designer, const HorizonManager &horizon,
-                const Eigen::VectorXd &q0, const Eigen::VectorXd &v0, const std::string &actuationCostName) {
+void initialize(WBC &self, const bp::dict &settings,
+                const RobotDesigner &designer, const HorizonManager &horizon,
+                const Eigen::VectorXd &q0, const Eigen::VectorXd &v0,
+                const std::string &actuationCostName) {
   WBCSettings conf;
 
   conf.horizonSteps = bp::extract<int>(settings["horizonSteps"]);
@@ -34,21 +36,29 @@ void initialize(WBC &self, const bp::dict &settings, const RobotDesigner &design
 void exposeWBC() {
   bp::class_<WBC>("WBC", bp::init<>())
       .def("initialize", &initialize,
-           bp::args("self", "settings", "design", "horizon", "q0", "v0", "actuationCostName"),
+           bp::args("self", "settings", "design", "horizon", "q0", "v0",
+                    "actuationCostName"),
            "The posture required here is the full robot posture in the order "
            "of pinicchio")
       .def("shapeState", &WBC::shapeState, bp::args("self", "q", "v"))
-      .def("generateWalkigCycle", &WBC::generateWalkigCycle, bp::args("self", "modelMaker"))
+      .def("generateWalkigCycle", &WBC::generateWalkigCycle,
+           bp::args("self", "modelMaker"))
       .def("iterate", &WBC::iterate,
-           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"), bp::arg("v_current"),
-            bp::arg("is_feasible") = false))
-      .def("updateStepCycleTiming", &WBC::updateStepCycleTiming, bp::args("self"))
-      .def("timeToSolveDDP", &WBC::timeToSolveDDP, bp::args("self", "iteration"))
-      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self"))
-      .def<void (WBC::*)(HorizonManager &)>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
+           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
+            bp::arg("v_current"), bp::arg("is_feasible") = false))
+      .def("updateStepCycleTiming", &WBC::updateStepCycleTiming,
+           bp::args("self"))
+      .def("timeToSolveDDP", &WBC::timeToSolveDDP,
+           bp::args("self", "iteration"))
+      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle,
+                            bp::args("self"))
+      .def<void (WBC::*)(HorizonManager &)>(
+          "recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
       .add_property("x0", &WBC::get_x0, &WBC::set_x0)
-      .add_property("walkingCycle", &WBC::get_walkingCycle, &WBC::set_walkingCycle)
-      .add_property("standingCycle", &WBC::get_standingCycle, &WBC::set_standingCycle)
+      .add_property("walkingCycle", &WBC::get_walkingCycle,
+                    &WBC::set_walkingCycle)
+      .add_property("standingCycle", &WBC::get_standingCycle,
+                    &WBC::set_standingCycle)
       .add_property("horizon", &WBC::get_horizon, &WBC::set_horizon)
       .add_property("design", &WBC::get_designer, &WBC::set_designer)
       .add_property("landing_LF", &WBC::get_LF_land, &WBC::set_LF_land)

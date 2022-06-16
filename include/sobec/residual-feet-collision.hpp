@@ -48,8 +48,10 @@ class ResidualModelFeetCollisionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * and velocity
    * @param[in] nu     Dimension of the control vector
    */
-  ResidualModelFeetCollisionTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex frame_id1,
-                                const pinocchio::FrameIndex frame_id2, const std::size_t nu);
+  ResidualModelFeetCollisionTpl(boost::shared_ptr<StateMultibody> state,
+                                const pinocchio::FrameIndex frame_id1,
+                                const pinocchio::FrameIndex frame_id2,
+                                const std::size_t nu);
 
   /**
    * @brief Initialize the residual model
@@ -60,7 +62,8 @@ class ResidualModelFeetCollisionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] frame_id1 ID of the first frame in the collision pair
    * @param[in] frame_id2 ID of the second frame in the collision pair
    */
-  ResidualModelFeetCollisionTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex frame_id1,
+  ResidualModelFeetCollisionTpl(boost::shared_ptr<StateMultibody> state,
+                                const pinocchio::FrameIndex frame_id1,
                                 const pinocchio::FrameIndex frame_id2);
   virtual ~ResidualModelFeetCollisionTpl();
 
@@ -71,7 +74,8 @@ class ResidualModelFeetCollisionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
+  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data,
+                    const Eigen::Ref<const VectorXs>& x,
                     const Eigen::Ref<const VectorXs>& u);
 
   /**
@@ -81,9 +85,11 @@ class ResidualModelFeetCollisionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
+  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
+                        const Eigen::Ref<const VectorXs>& x,
                         const Eigen::Ref<const VectorXs>& u);
-  virtual boost::shared_ptr<ResidualDataAbstract> createData(DataCollectorAbstract* const data);
+  virtual boost::shared_ptr<ResidualDataAbstract> createData(
+      DataCollectorAbstract* const data);
 
   /** @brief Return the first frame index in the collision pair. */
   const pinocchio::FrameIndex& get_frame_id1() const;
@@ -105,7 +111,8 @@ class ResidualModelFeetCollisionTpl : public ResidualModelAbstractTpl<_Scalar> {
  private:
   pinocchio::FrameIndex frame_id1;
   pinocchio::FrameIndex frame_id2;
-  typename StateMultibody::PinocchioModel pin_model_;  //!< Pinocchio model used for internal computations
+  typename StateMultibody::PinocchioModel
+      pin_model_;  //!< Pinocchio model used for internal computations
 };
 
 template <typename _Scalar>
@@ -122,14 +129,16 @@ struct ResidualDataFeetCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
   typedef typename MathBase::VectorXs VectorXs;
 
   template <template <typename Scalar> class Model>
-  ResidualDataFeetCollisionTpl(Model<Scalar>* const model, DataCollectorAbstract* const data)
+  ResidualDataFeetCollisionTpl(Model<Scalar>* const model,
+                               DataCollectorAbstract* const data)
       : Base(model, data),
         J1(6, model->get_state()->get_nv()),
         J2(6, model->get_state()->get_nv()),
         dJ(2, model->get_state()->get_nv()),
         p1p2(3) {
     //  Check that proper shared data has been passed
-    DataCollectorMultibodyTpl<Scalar>* d = dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
+    DataCollectorMultibodyTpl<Scalar>* d =
+        dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
     if (d == NULL) {
       throw_pretty(
           "Invalid argument: the shared data should be derived from "

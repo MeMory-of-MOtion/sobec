@@ -58,7 +58,8 @@ class ModelMaker {
  public:
   ModelMaker();
   ModelMaker(const ModelMakerSettings &settings, const RobotDesigner &design);
-  void initialize(const ModelMakerSettings &settings, const RobotDesigner &design);
+  void initialize(const ModelMakerSettings &settings,
+                  const RobotDesigner &design);
   bool initialized_ = false;
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
@@ -70,8 +71,10 @@ class ModelMaker {
   ModelMakerSettings &get_settings() { return settings_; }
 
   // formulation parts:
-  void defineFeetContact(Contact &contactCollector, const Support &support = Support::DOUBLE);
-  void defineFeetWrenchCost(Cost &costCollector, const Support &support = Support::DOUBLE);
+  void defineFeetContact(Contact &contactCollector,
+                         const Support &support = Support::DOUBLE);
+  void defineFeetWrenchCost(Cost &costCollector,
+                            const Support &support = Support::DOUBLE);
   void defineFeetTracking(Cost &costCollector);
   void definePostureTask(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
@@ -79,9 +82,15 @@ class ModelMaker {
   void defineCoMVelocity(Cost &costCollector);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
-  void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) { state_ = new_state; }
-  boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> getActuation() { return actuation_; }
-  void setActuation(const boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> &new_actuation) {
+  void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {
+    state_ = new_state;
+  }
+  boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> getActuation() {
+    return actuation_;
+  }
+  void setActuation(
+      const boost::shared_ptr<crocoddyl::ActuationModelFloatingBase>
+          &new_actuation) {
     actuation_ = new_actuation;
   }
 };

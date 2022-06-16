@@ -4,13 +4,16 @@ namespace sobec {
 
 WBC::WBC() {}
 
-WBC::WBC(const WBCSettings &settings, const RobotDesigner &design, const HorizonManager &horizon,
-         const Eigen::VectorXd &q0, const Eigen::VectorXd &v0, const std::string &actuationCostName) {
+WBC::WBC(const WBCSettings &settings, const RobotDesigner &design,
+         const HorizonManager &horizon, const Eigen::VectorXd &q0,
+         const Eigen::VectorXd &v0, const std::string &actuationCostName) {
   initialize(settings, design, horizon, q0, v0, actuationCostName);
 }
 
-void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design, const HorizonManager &horizon,
-                     const Eigen::VectorXd &q0, const Eigen::VectorXd &v0, const std::string &actuationCostName) {
+void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
+                     const HorizonManager &horizon, const Eigen::VectorXd &q0,
+                     const Eigen::VectorXd &v0,
+                     const std::string &actuationCostName) {
   /** The posture required here is the full robot posture in the order of
    * pinicchio*/
   if (!design.initialized_ || !horizon.initialized_) {
@@ -53,7 +56,8 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design, c
   horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
 
   // timming
-  t_takeoff_RF_ = Eigen::ArrayXi::LinSpaced(settings_.horizonSteps, 0, 2 * settings_.horizonSteps * settings_.Tstep);
+  t_takeoff_RF_ = Eigen::ArrayXi::LinSpaced(
+      settings_.horizonSteps, 0, 2 * settings_.horizonSteps * settings_.Tstep);
   t_takeoff_RF_ += (int)settings_.T;
   t_takeoff_LF_ = t_takeoff_RF_ + settings_.Tstep;
   t_land_RF_ = t_takeoff_RF_ + settings_.TsingleSupport;
@@ -81,16 +85,20 @@ void WBC::generateWalkigCycle(ModelMaker &mm) {
       cycle.push_back(DOUBLE);
   }
   std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
-  HorizonManagerSettings names = {designer_.get_LF_name(), designer_.get_RF_name()};
-  walkingCycle_ = HorizonManager(names, x0_, cyclicModels, cyclicModels[2 * settings_.Tstep - 1]);
+  HorizonManagerSettings names = {designer_.get_LF_name(),
+                                  designer_.get_RF_name()};
+  walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
+                                 cyclicModels[2 * settings_.Tstep - 1]);
 }
 
 void WBC::generateStandingCycle(ModelMaker &mm) {
   ///@todo: bind it
   std::vector<Support> cycle(2 * settings_.Tstep, DOUBLE);
   std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
-  HorizonManagerSettings names = {designer_.get_LF_name(), designer_.get_RF_name()};
-  standingCycle_ = HorizonManager(names, x0_, cyclicModels, cyclicModels[2 * settings_.Tstep - 1]);
+  HorizonManagerSettings names = {designer_.get_LF_name(),
+                                  designer_.get_RF_name()};
+  standingCycle_ = HorizonManager(names, x0_, cyclicModels,
+                                  cyclicModels[2 * settings_.Tstep - 1]);
 }
 
 void WBC::updateStepCycleTiming() {
@@ -105,9 +113,13 @@ void WBC::updateStepCycleTiming() {
   if (t_takeoff_LF_(0) < 0) t_takeoff_LF_ += 2 * settings_.Tstep;
 }
 
-bool WBC::timeToSolveDDP(const int &iteration) { return !(iteration % settings_.Nc); }
+bool WBC::timeToSolveDDP(const int &iteration) {
+  return !(iteration % settings_.Nc);
+}
 
-Eigen::VectorXd WBC::iterate(const int &iteration, const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current,
+Eigen::VectorXd WBC::iterate(const int &iteration,
+                             const Eigen::VectorXd &q_current,
+                             const Eigen::VectorXd &v_current,
                              const bool &is_feasible) {
   x0_ = shapeState(q_current, v_current);
   if (timeToSolveDDP(iteration)) {
@@ -157,7 +169,9 @@ void WBC::recedeWithCycle() {
   /// to walking.
   if (now_ == WALKING) {
     recedeWithCycle(walkingCycle_);
-  } else if (now_ == STANDING && horizon_.contacts(horizon_.size() - 1)->get_active_set().size() == 2) {
+  } else if (now_ == STANDING &&
+             horizon_.contacts(horizon_.size() - 1)->get_active_set().size() ==
+                 2) {
     recedeWithCycle(standingCycle_);
   } else {
     recedeWithCycle(walkingCycle_);
@@ -172,7 +186,8 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
 }
 
 Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v) {
-  if (q.size() == designer_.get_rModelComplete().nq && v.size() == designer_.get_rModelComplete().nv) {
+  if (q.size() == designer_.get_rModelComplete().nq &&
+      v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
     x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
 
@@ -184,10 +199,12 @@ Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v) {
         i++;
       }
     return x_internal_;
-  } else if (q.size() == designer_.get_rModel().nq && v.size() == designer_.get_rModel().nv) {
+  } else if (q.size() == designer_.get_rModel().nq &&
+             v.size() == designer_.get_rModel().nv) {
     x_internal_ << q, v;
     return x_internal_;
   } else
-    throw std::runtime_error("q and v must have the dimentions of the reduced or complete model.");
+    throw std::runtime_error(
+        "q and v must have the dimentions of the reduced or complete model.");
 }
 }  // namespace sobec

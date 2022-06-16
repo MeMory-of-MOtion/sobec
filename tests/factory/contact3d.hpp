@@ -12,11 +12,10 @@
 #include <iostream>
 #include <limits>
 
+#include "contact1d.hpp"
 #include "crocoddyl/multibody/contact-base.hpp"
 #include "crocoddyl/multibody/numdiff/contact.hpp"
 #include "state.hpp"
-
-#include "contact1d.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -29,8 +28,10 @@ class ContactModel3DFactory {
   ~ContactModel3DFactory();
 
   boost::shared_ptr<crocoddyl::ContactModelAbstract> create(
-      PinocchioModelTypes::Type model_type, PinocchioReferenceTypes::Type reference_type,
-      Eigen::Vector2d gains = Eigen::Vector2d::Zero(), const std::string frame_name = std::string(""),
+      PinocchioModelTypes::Type model_type,
+      PinocchioReferenceTypes::Type reference_type,
+      Eigen::Vector2d gains = Eigen::Vector2d::Zero(),
+      const std::string frame_name = std::string(""),
       const std::size_t nu = std::numeric_limits<std::size_t>::max()) const;
 };
 

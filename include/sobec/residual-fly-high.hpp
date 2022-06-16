@@ -54,7 +54,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] slope  Slope value, ie altitude multiplier.
    * @param[in] nu     Dimension of the control vector
    */
-  ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex frame_id,
+  ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
+                          const pinocchio::FrameIndex frame_id,
                           const Scalar slope, const std::size_t nu);
 
   /**
@@ -67,7 +68,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * and velocity
    * @param[in] slope  Slope value, ie altitude multiplier.
    */
-  ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex frame_id,
+  ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
+                          const pinocchio::FrameIndex frame_id,
                           const Scalar slope);
   virtual ~ResidualModelFlyHighTpl();
 
@@ -78,7 +80,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
+  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data,
+                    const Eigen::Ref<const VectorXs>& x,
                     const Eigen::Ref<const VectorXs>& u);
 
   /**
@@ -88,9 +91,11 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
+  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
+                        const Eigen::Ref<const VectorXs>& x,
                         const Eigen::Ref<const VectorXs>& u);
-  virtual boost::shared_ptr<ResidualDataAbstract> createData(DataCollectorAbstract* const data);
+  virtual boost::shared_ptr<ResidualDataAbstract> createData(
+      DataCollectorAbstract* const data);
 
   /**
    * @brief Return the frame index.
@@ -114,8 +119,9 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
 
  private:
   pinocchio::FrameIndex frame_id;
-  Scalar slope;                                        // multiplication in front of the altitude in the cost
-  typename StateMultibody::PinocchioModel pin_model_;  //!< Pinocchio model used for internal computations
+  Scalar slope;  // multiplication in front of the altitude in the cost
+  typename StateMultibody::PinocchioModel
+      pin_model_;  //!< Pinocchio model used for internal computations
 };
 
 template <typename _Scalar>
@@ -131,7 +137,8 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
   typedef typename MathBase::VectorXs VectorXs;
 
   template <template <typename Scalar> class Model>
-  ResidualDataFlyHighTpl(Model<Scalar>* const model, DataCollectorAbstract* const data)
+  ResidualDataFlyHighTpl(Model<Scalar>* const model,
+                         DataCollectorAbstract* const data)
       : Base(model, data),
         d_dq(6, model->get_state()->get_nv()),
         d_dv(6, model->get_state()->get_nv()),
@@ -143,7 +150,8 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
         vxJ(3, model->get_state()->get_nv()) {
     // dvcom_dq.setZero();
     //  Check that proper shared data has been passed
-    DataCollectorMultibodyTpl<Scalar>* d = dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
+    DataCollectorMultibodyTpl<Scalar>* d =
+        dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
     if (d == NULL) {
       throw_pretty(
           "Invalid argument: the shared data should be derived from "

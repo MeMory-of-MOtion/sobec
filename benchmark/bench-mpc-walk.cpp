@@ -7,7 +7,8 @@ int main() {
   using namespace sobec;
   using namespace crocoddyl;
   std::cout << "*** Benchmark start ***" << std::endl;
-  boost::shared_ptr<sobec::MPCWalk> mpc = sobec::initMPCWalk(PROJECT_SOURCE_DIR "/benchmark/mpc_description.py");
+  boost::shared_ptr<sobec::MPCWalk> mpc =
+      sobec::initMPCWalk(PROJECT_SOURCE_DIR "/benchmark/mpc_description.py");
 
   Eigen::VectorXd x = mpc->problem->get_x0();
   for (int t = 1; t <= 100; t++) {
