@@ -30,8 +30,12 @@ int main() {
   //                   ModelTpl<Scalar,Options,JointCollectionTpl> &
   //                   reduced_model);
 
-  std::vector<pinocchio::JointIndex> jointToLock_ids = {
-      14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33};
+  std::vector<pinocchio::JointIndex> jointToLock_ids
+    =
+  // talos 14
+  // { 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33 };
+  // talos 12
+    {14,  15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33};
 
   std::cout << "I am going to lock the following joints: " << std::endl;
   for (pinocchio::JointIndex i : jointToLock_ids) {
@@ -61,27 +65,16 @@ int main() {
                                                           "half_sitting");
   auto params = boost::make_shared<sobec::OCPWalkParams>();
 
-  std::cout << "Initializing params ..." << std::endl;
+  std::cout << "Initializing params for nv = " << model->nv << " ..." << std::endl;
   params->DT = 0.01;
-  // params->mainJointIds = [];
-  params->baumgartGains.resize(2);
-  params->baumgartGains << 0., 100.;
-  params->stateImportance.resize(model->nv);
-  params->stateImportance << 0., 0., 0., 50., 50., 0., 5., 5., 1., 2., 1., 1.,
-      5., 5., 1., 2., 1., 1., 0., 0., 0., 3., 3., 1., 1., 1., 1., 1., 1., 1.,
-      1., 1., 1., 1., 1., 1.;
-  params->stateTerminalImportance.resize(model->nv);
-  params->stateTerminalImportance << 3., 3., 0., 0., 0., 30., 0., 0., 0., 0.,
-      0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
-      1., 1., 1., 1., 1., 1., 1., 1.;
-  params->controlImportance.resize(model->nv - 6);
-  params->controlImportance << 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
-  params->vcomImportance.resize(3);
-  params->vcomImportance << 0., 0., 1.;
-  params->forceImportance.resize(6);
-  params->forceImportance << 1., 1., 0.1, 10., 10., 2.;
-  params->vcomRef.resize(3);
-  params->vcomRef << 0.05, 0., 0.;
+  //params->mainJointIds = [];
+  params->baumgartGains.resize(2); params->baumgartGains <<  0., 100.;
+  params->stateImportance.resize(model->nv*2); params->stateImportance << 0. ,  0. ,  0. , 50. , 50. ,  0. ,  5. ,  5. ,  1. ,  2. ,  1. ,  1. ,  5. ,  5. ,  1. ,  2. ,  1. ,  1.,  0. ,  0. ,  0. ,  3. ,  3. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1.;
+  params->stateTerminalImportance.resize(model->nv*2); params->stateTerminalImportance << 3. ,  3. ,  0. ,  0. ,  0. , 30. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0.,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1.;
+  params->controlImportance.resize(model->nv-6); params->controlImportance <<1. , 1. , 1. , 1. , 1. , 1. , 1. , 1. , 1. , 1. , 1. , 1.;
+  params->vcomImportance.resize(3); params->vcomImportance <<0. , 0. , 1.;
+  params->forceImportance.resize(6); params->forceImportance << 1. ,   1. ,   0.1,  10. ,  10. ,   2.  ;
+  params->vcomRef.resize(3); params->vcomRef <<0.05, 0. ,   0.   ;
   params->footSize = 0.05;
   params->refStateWeight = 0.1;
   params->refTorqueWeight = 0.0;
