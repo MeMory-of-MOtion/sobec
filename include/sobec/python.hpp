@@ -23,9 +23,8 @@ void exposeMPCWalk();
 }  // namespace python
 }  // namespace sobec
 
-
 namespace sobec {
-namespace newcontacts{
+namespace newcontacts {
 namespace python {
 
 void exposeResidualContactForce();

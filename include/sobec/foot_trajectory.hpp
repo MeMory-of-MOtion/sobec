@@ -29,9 +29,7 @@ typedef Eigen::AngleAxisd eAngleAxis;
 namespace ndcurves {
 typedef Eigen::Matrix<double, 1, 1> point1_t;
 
-typedef piecewise_curve<double, double, true, matrix3_t, point3_t,
-                        curve_rotation_t>
-    piecewise_SO3_t;
+typedef piecewise_curve<double, double, true, matrix3_t, point3_t, curve_rotation_t> piecewise_SO3_t;
 typedef polynomial<double, double, true, point1_t> polynomial1_t;
 typedef bezier_curve<double, double, true, point1_t> bezier1_t;
 typedef piecewise_curve<double, double, true, point1_t> piecewise1_t;
@@ -59,22 +57,14 @@ const double EPSILON_TIME = 1e-9;
 
 // helper geometry struct
 struct Spatial {
-  static inline double extractYaw(eMatrixRot const& matrix) {
-    return atan2(matrix.data()[1], matrix.data()[0]);
-  }
+  static inline double extractYaw(eMatrixRot const& matrix) { return atan2(matrix.data()[1], matrix.data()[0]); }
 
-  static inline double extractYaw(eQuaternion const& q) {
-    return extractYaw(q.toRotationMatrix());
-  }
+  static inline double extractYaw(eQuaternion const& q) { return extractYaw(q.toRotationMatrix()); }
 
-  static inline double extractYaw(pinocchio::SE3 const& matrix) {
-    return extractYaw(matrix.rotation());
-  }
+  static inline double extractYaw(pinocchio::SE3 const& matrix) { return extractYaw(matrix.rotation()); }
 
   /// see http://planning.cs.uiuc.edu/node102.html
-  static inline eMatrixRot matrixRollPitchYaw(const double& roll,
-                                              const double& pitch,
-                                              const double& yaw) {
+  static inline eMatrixRot matrixRollPitchYaw(const double& roll, const double& pitch, const double& yaw) {
     double ca(cos(yaw));
     double sa(sin(yaw));
 
@@ -85,8 +75,8 @@ struct Spatial {
     double sc(sin(roll));
 
     eMatrixRot temp;
-    temp << ca * cb, ca * sb * sc - sa * cc, ca * sb * cc + sa * sc, sa * cb,
-        sa * sb * sc + ca * cc, sa * sb * cc - ca * sc, -sb, cb * sc, cb * cc;
+    temp << ca * cb, ca * sb * sc - sa * cc, ca * sb * cc + sa * sc, sa * cb, sa * sb * sc + ca * cc,
+        sa * sb * cc - ca * sc, -sb, cb * sc, cb * cc;
     return temp;
   }
 
@@ -94,14 +84,11 @@ struct Spatial {
     return eQuaternion(matrixRollPitchYaw(rpy[0], rpy[1], rpy[2]));
   }
 
-  static inline eQuaternion quaternionRollPitchYaw(const double& roll,
-                                                   const double& pitch,
-                                                   const double& yaw) {
+  static inline eQuaternion quaternionRollPitchYaw(const double& roll, const double& pitch, const double& yaw) {
     return eQuaternion(matrixRollPitchYaw(roll, pitch, yaw));
   }
 
-  static inline pinocchio::SE3 createMatrix(eQuaternion const& quat,
-                                            eVector3 const& trans) {
+  static inline pinocchio::SE3 createMatrix(eQuaternion const& quat, eVector3 const& trans) {
     pinocchio::SE3 temp;
     temp.setIdentity();
     temp.rotation(quat.matrix());
@@ -125,12 +112,10 @@ class FootTrajectory {
    * @param landing_advance duration before the final time where the feet pose
    * should be reached
    */
-  FootTrajectory(const double& swing_leg_height,
-                 const double swing_pose_penetration = 0.,
+  FootTrajectory(const double& swing_leg_height, const double swing_pose_penetration = 0.,
                  const double landing_advance = 0.);
-  void generate(const double& t_init, const double& t_end,
-                const pinocchio::SE3& pose_init, const pinocchio::SE3& pose_end,
-                const bool& constant = false);
+  void generate(const double& t_init, const double& t_end, const pinocchio::SE3& pose_init,
+                const pinocchio::SE3& pose_end, const bool& constant = false);
   void update(const double time, const pinocchio::SE3& pose_end);
 
   double min();
@@ -149,56 +134,40 @@ class FootTrajectory {
  private:
   pinocchio::SE3 average(const pinocchio::SE3& a, const pinocchio::SE3& b);
 
-  ndcurves::polynomial1_t build_height_predef_trajectory(const double p,
-                                                         const double t_init,
-                                                         const double t_end,
-                                                         const double offset,
-                                                         const bool up);
+  ndcurves::polynomial1_t build_height_predef_trajectory(const double p, const double t_init, const double t_end,
+                                                         const double offset, const bool up);
 
-  ndcurves::bezier1_t build_height_predef_lift(const double p,
-                                               const double t_init,
-                                               const double t_end);
+  ndcurves::bezier1_t build_height_predef_lift(const double p, const double t_init, const double t_end);
 
-  ndcurves::bezier1_t build_height_predef_landing(const double p,
-                                                  const double t_init,
-                                                  const double t_end);
+  ndcurves::bezier1_t build_height_predef_landing(const double p, const double t_init, const double t_end);
 
-  void build_height_trajectory(const double& t_init, const double& t_end,
-                               const double& z_init, const double& z_end,
-                               const double& v_init = 0.,
-                               const double& a_init = 0.,
-                               const double& j_init = 0.);
+  void build_height_trajectory(const double& t_init, const double& t_end, const double& z_init, const double& z_end,
+                               const double& v_init = 0., const double& a_init = 0., const double& j_init = 0.);
 
-  void build_height_trajectory_minjerk(
-      const double& t_init, const double& t_end, const double& z_init,
-      const double& z_end, const double& v_init = 0., const double& a_init = 0.,
-      const double& j_init = 0.);
+  void build_height_trajectory_minjerk(const double& t_init, const double& t_end, const double& z_init,
+                                       const double& z_end, const double& v_init = 0., const double& a_init = 0.,
+                                       const double& j_init = 0.);
 
-  void build_translation_trajectory(const double& t_init, const double& t_end,
-                                    const eVector2& p_init,
-                                    const eVector2& p_end,
-                                    const eVector2& v_init = eVector2::Zero(),
+  void build_translation_trajectory(const double& t_init, const double& t_end, const eVector2& p_init,
+                                    const eVector2& p_end, const eVector2& v_init = eVector2::Zero(),
                                     const eVector2& a_init = eVector2::Zero());
 
-  void build_yaw_trajectory(const double& t_init, const double& t_end,
-                            const double& yaw_init, const double& yaw_end,
-                            const double& delta_yaw_init = 0.,
-                            const double& v_init = 0.,
-                            const double& a_init = 0.);
+  void build_yaw_trajectory(const double& t_init, const double& t_end, const double& yaw_init, const double& yaw_end,
+                            const double& delta_yaw_init = 0., const double& v_init = 0., const double& a_init = 0.);
 
-  ndcurves::bezier1_t build_height_middle_trajectory(
-      const double& t_init, const double& t_end, const double p0,
-      const double v0, const double a0, const double j0, const double p1,
-      const double v1, const double a1, const double j1);
+  ndcurves::bezier1_t build_height_middle_trajectory(const double& t_init, const double& t_end, const double p0,
+                                                     const double v0, const double a0, const double j0,
+                                                     const double p1, const double v1, const double a1,
+                                                     const double j1);
 
-  ndcurves::polynomial2_t build_translation_middle_trajectory(
-      const double& t_init, const double& t_end, const eVector2& p_init,
-      const eVector2& p_end, const eVector2& v_init, const eVector2& a_init);
+  ndcurves::polynomial2_t build_translation_middle_trajectory(const double& t_init, const double& t_end,
+                                                              const eVector2& p_init, const eVector2& p_end,
+                                                              const eVector2& v_init, const eVector2& a_init);
 
-  ndcurves::polynomial1_t build_yaw_middle_trajectory(
-      const double& t_init, const double& t_end, const double& yaw_init,
-      const double& yaw_end, const double& delta_yaw_init, const double& v_init,
-      const double& a_init);
+  ndcurves::polynomial1_t build_yaw_middle_trajectory(const double& t_init, const double& t_end,
+                                                      const double& yaw_init, const double& yaw_end,
+                                                      const double& delta_yaw_init, const double& v_init,
+                                                      const double& a_init);
 
  private:
   // Original paramters before end position update.

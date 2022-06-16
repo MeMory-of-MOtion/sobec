@@ -102,16 +102,13 @@ typedef boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> IAM;
 typedef boost::shared_ptr<crocoddyl::IntegratedActionDataEuler> IAD;
 typedef boost::shared_ptr<crocoddyl::ActionModelAbstract> AMA;
 typedef boost::shared_ptr<crocoddyl::ActionDataAbstract> ADA;
-typedef boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics>
-    DAM;
+typedef boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> DAM;
 typedef boost::shared_ptr<crocoddyl::CostModelSum> Cost;
 typedef boost::shared_ptr<crocoddyl::ContactModelMultiple> Contact;
 typedef boost::shared_ptr<crocoddyl::SolverFDDP> DDP;
 
-typedef boost::shared_ptr<crocoddyl::ResidualModelFramePlacement>
-    ResidualModelFramePlacementPtr;
-typedef boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone>
-    ResidualModelContactWrenchConePtr;
+typedef boost::shared_ptr<crocoddyl::ResidualModelFramePlacement> ResidualModelFramePlacementPtr;
+typedef boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> ResidualModelContactWrenchConePtr;
 
 // State LPF
 template <typename Scalar>
@@ -131,10 +128,8 @@ class MPCWalk;
 
 }  // namespace sobec
 
-
-
 namespace sobec {
-namespace newcontacts{
+namespace newcontacts {
 
 // contact 3D
 template <typename Scalar>
@@ -160,25 +155,16 @@ typedef ContactModelMultipleTpl<double> ContactModelMultiple;
 // DAM contact fwd dynamics
 template <typename Scalar>
 class DifferentialActionModelContactFwdDynamicsTpl;
-typedef DifferentialActionModelContactFwdDynamicsTpl<double>
-    DifferentialActionModelContactFwdDynamics;
+typedef DifferentialActionModelContactFwdDynamicsTpl<double> DifferentialActionModelContactFwdDynamics;
 
 // Residual contact force
 template <typename Scalar>
 class ResidualModelContactForceTpl;
 typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
 
-enum ContactType {
-    ContactUndefined,
-    Contact1D,
-    Contact2D,
-    Contact3D,
-    Contact6D
-};
+enum ContactType { ContactUndefined, Contact1D, Contact2D, Contact3D, Contact6D };
 
 }  // namespace newcontacts
 }  // namespace sobec
-
-
 
 #endif  // SOBEC_FWD_HPP_

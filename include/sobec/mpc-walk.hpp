@@ -39,8 +39,7 @@ class MPCWalk {
   virtual ~MPCWalk() {}
 
   /// @brief once all fields are set, init the mpc manager with guess traj
-  void initialize(const std::vector<Eigen::VectorXd>& xs,
-                  const std::vector<Eigen::VectorXd>& us);
+  void initialize(const std::vector<Eigen::VectorXd>& xs, const std::vector<Eigen::VectorXd>& us);
 
   /// @brief calc the OCP solution. Init must be called first.
   void calc(const Eigen::Ref<const VectorXd>& x, const int t);

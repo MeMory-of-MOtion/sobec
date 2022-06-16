@@ -30,8 +30,7 @@ MPCWalk::MPCWalk(boost::shared_ptr<ShootingProblem> problem)
   // std::cout << "Constructor" << std::endl;
 }
 
-void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
-                         const std::vector<Eigen::VectorXd>& us) {
+void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs, const std::vector<Eigen::VectorXd>& us) {
   assert(Tmpc > 0);
   assert(Tstart + Tend + 2 * (Tdouble + Tsingle) <= storage->get_T());
 
@@ -63,21 +62,17 @@ void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
 }
 
 void MPCWalk::findStateModel() {
-  state = boost::dynamic_pointer_cast<StateMultibody>(
-      problem->get_terminalModel()->get_state());
+  state = boost::dynamic_pointer_cast<StateMultibody>(problem->get_terminalModel()->get_state());
 }
 
 void MPCWalk::findTerminalStateResidualModel() {
   boost::shared_ptr<IntegratedActionModelEuler> iam =
-      boost::dynamic_pointer_cast<IntegratedActionModelEuler>(
-          problem->get_terminalModel());
+      boost::dynamic_pointer_cast<IntegratedActionModelEuler>(problem->get_terminalModel());
   assert(iam != 0);
   // std::cout << "IAM" << std::endl;
 
   boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> dam =
-      boost::dynamic_pointer_cast<
-          crocoddyl::DifferentialActionModelContactFwdDynamics>(
-          iam->get_differential());
+      boost::dynamic_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(iam->get_differential());
   assert(dam != 0);
   // std::cout<<"DAM0" << *dam << std::endl;
 
@@ -89,12 +84,10 @@ void MPCWalk::findTerminalStateResidualModel() {
   assert(costs.find(stateRegCostName) != costs.end());
 
   boost::shared_ptr<CostModelAbstract> costa =
-      boost::const_pointer_cast<CostModelAbstract>(
-          costs.at(stateRegCostName)->cost);
+      boost::const_pointer_cast<CostModelAbstract>(costs.at(stateRegCostName)->cost);
   // std::cout << "IAM" << std::endl;
 
-  boost::shared_ptr<CostModelResidual> cost =
-      boost::dynamic_pointer_cast<CostModelResidual>(costa);
+  boost::shared_ptr<CostModelResidual> cost = boost::dynamic_pointer_cast<CostModelResidual>(costa);
   assert(cost != 0);
   // std::cout << "Cost" << std::endl;
 
@@ -124,17 +117,14 @@ void MPCWalk::calc(const Eigen::Ref<const VectorXd>& x, const int t) {
   int Tcycle = 2 * (Tsingle + Tdouble);
   int tlast = Tstart + 1 + ((t + Tmpc - Tstart - 1) % Tcycle);
   // std::cout << "tlast = " << tlast << std::endl;
-  problem->circularAppend(storage->get_runningModels()[tlast],
-                          storage->get_runningDatas()[tlast]);
+  problem->circularAppend(storage->get_runningModels()[tlast], storage->get_runningDatas()[tlast]);
 
   /// Change Warm start
-  std::vector<Eigen::VectorXd>& xs_opt =
-      const_cast<std::vector<Eigen::VectorXd>&>(solver->get_xs());
+  std::vector<Eigen::VectorXd>& xs_opt = const_cast<std::vector<Eigen::VectorXd>&>(solver->get_xs());
   std::vector<Eigen::VectorXd> xs_guess(xs_opt.begin() + 1, xs_opt.end());
   xs_guess.push_back(xs_guess.back());
 
-  std::vector<Eigen::VectorXd>& us_opt =
-      const_cast<std::vector<Eigen::VectorXd>&>(solver->get_us());
+  std::vector<Eigen::VectorXd>& us_opt = const_cast<std::vector<Eigen::VectorXd>&>(solver->get_us());
   std::vector<Eigen::VectorXd> us_guess(us_opt.begin() + 1, us_opt.end());
   us_guess.push_back(us_guess.back());
 

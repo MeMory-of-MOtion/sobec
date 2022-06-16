@@ -15,39 +15,29 @@
 namespace sobec {
 using namespace crocoddyl;
 template <typename Scalar>
-ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
-    boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, const Scalar slope,
-    const std::size_t nu)
-    : Base(state, 2, nu, true, true, false),
-      frame_id(frame_id),
-      slope(slope),
-      pin_model_(*state->get_pinocchio()) {}
+ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
+                                                         const pinocchio::FrameIndex frame_id, const Scalar slope,
+                                                         const std::size_t nu)
+    : Base(state, 2, nu, true, true, false), frame_id(frame_id), slope(slope), pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
-ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
-    boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, const Scalar slope)
-    : Base(state, 2, true, true, false),
-      frame_id(frame_id),
-      slope(slope),
-      pin_model_(*state->get_pinocchio()) {}
+ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
+                                                         const pinocchio::FrameIndex frame_id, const Scalar slope)
+    : Base(state, 2, true, true, false), frame_id(frame_id), slope(slope), pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelFlyHighTpl<Scalar>::~ResidualModelFlyHighTpl() {}
 
 template <typename Scalar>
-void ResidualModelFlyHighTpl<Scalar>::calc(
-    const boost::shared_ptr<ResidualDataAbstract>& data,
-    const Eigen::Ref<const VectorXs>& /*x*/,
-    const Eigen::Ref<const VectorXs>&) {
+void ResidualModelFlyHighTpl<Scalar>::calc(const boost::shared_ptr<ResidualDataAbstract>& data,
+                                           const Eigen::Ref<const VectorXs>& /*x*/,
+                                           const Eigen::Ref<const VectorXs>&) {
   // Compute the residual residual give the reference CoM velocity
 
   Data* d = static_cast<Data*>(data.get());
 
   pinocchio::updateFramePlacement(pin_model_, *d->pinocchio, frame_id);
-  data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id,
-                                        pinocchio::LOCAL_WORLD_ALIGNED)
+  data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED)
                 .linear()
                 .head(2);
   d->ez = exp(-d->pinocchio->oMf[frame_id].translation()[2] * slope);
@@ -55,10 +45,9 @@ void ResidualModelFlyHighTpl<Scalar>::calc(
 }
 
 template <typename Scalar>
-void ResidualModelFlyHighTpl<Scalar>::calcDiff(
-    const boost::shared_ptr<ResidualDataAbstract>& data,
-    const Eigen::Ref<const VectorXs>& /*x*/,
-    const Eigen::Ref<const VectorXs>&) {
+void ResidualModelFlyHighTpl<Scalar>::calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
+                                               const Eigen::Ref<const VectorXs>& /*x*/,
+                                               const Eigen::Ref<const VectorXs>&) {
   Data* d = static_cast<Data*>(data.get());
   const std::size_t nv = state_->get_nv();
 
@@ -72,12 +61,9 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
    * Then r' = v'/e - r/2 z' = R l_v'/e - l_v x Jr/e - r/2 z'
    */
 
-  pinocchio::getFrameVelocityDerivatives(pin_model_, *d->pinocchio, frame_id,
-                                         pinocchio::LOCAL, d->l_dnu_dq,
+  pinocchio::getFrameVelocityDerivatives(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL, d->l_dnu_dq,
                                          d->l_dnu_dv);
-  const Vector3s& v = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio,
-                                                  frame_id, pinocchio::LOCAL)
-                          .linear();
+  const Vector3s& v = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL).linear();
   const Matrix3s& R = d->pinocchio->oMf[frame_id].rotation();
 
   // First compute LWA derivatives of the velocity
@@ -97,21 +83,18 @@ void ResidualModelFlyHighTpl<Scalar>::calcDiff(
 }
 
 template <typename Scalar>
-boost::shared_ptr<ResidualDataAbstractTpl<Scalar> >
-ResidualModelFlyHighTpl<Scalar>::createData(DataCollectorAbstract* const data) {
-  return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this,
-                                      data);
+boost::shared_ptr<ResidualDataAbstractTpl<Scalar> > ResidualModelFlyHighTpl<Scalar>::createData(
+    DataCollectorAbstract* const data) {
+  return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this, data);
 }
 
 template <typename Scalar>
-const typename pinocchio::FrameIndex&
-ResidualModelFlyHighTpl<Scalar>::get_frame_id() const {
+const typename pinocchio::FrameIndex& ResidualModelFlyHighTpl<Scalar>::get_frame_id() const {
   return frame_id;
 }
 
 template <typename Scalar>
-void ResidualModelFlyHighTpl<Scalar>::set_frame_id(
-    const pinocchio::FrameIndex& fid) {
+void ResidualModelFlyHighTpl<Scalar>::set_frame_id(const pinocchio::FrameIndex& fid) {
   frame_id = fid;
 }
 
