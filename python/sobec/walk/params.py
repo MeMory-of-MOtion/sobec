@@ -130,9 +130,8 @@ class WalkParams:
     # ## Contact parameters for the kkt dynamics
     kktDamping = 0  # 1e-6
     baumgartGains = np.array([0, 100])
-    transitionDuration = (
-        4  ### Beware, this is not used by the Py ocp, only by the c++ ocp
-    )
+    # Beware, this is not used by the Py ocp, only by the c++ ocp
+    transitionDuration = 4
 
     # ## Parameters related to the solver
     solver_th_stop = 1e-3
@@ -222,12 +221,12 @@ def generateParamFileForTheRobot(params, robot=None):
 #include <sobec/ocp-walk.hpp>
 #include <sobec/mpc-walk.hpp>
 
-void initParamsFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::OCPWalkParams> params)
-{
+void initParamsFromAutomaticallyGeneratedCode(
+    boost::shared_ptr<sobec::OCPWalkParams> params) {
 %s
 }
-void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalkParams> mpcparams)
-{
+void initMPCFromAutomaticallyGeneratedCode(
+    boost::shared_ptr<sobec::MPCWalkParams> mpcparams) {
 %s
 }
 """ % (
@@ -237,8 +236,8 @@ void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalkParam
 
     if robot is not None:
         res += """
-bool checkAutomaticallyGeneratedCodeCompatibility(boost::shared_ptr<sobec::OCPRobotWrapper> robot)
-{
+bool checkAutomaticallyGeneratedCodeCompatibility(
+    boost::shared_ptr<sobec::OCPRobotWrapper> robot) {
   bool res = true;
   res &= (robot->model->nq == %d);
   res &= (robot->model->nv == %d);
