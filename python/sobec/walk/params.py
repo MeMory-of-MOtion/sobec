@@ -6,6 +6,7 @@ OCP.
 import numpy as np
 import sobec
 
+
 class StateRelatedParams:
     """These params are only acceptable for some robots"""
 
@@ -129,8 +130,9 @@ class WalkParams:
     # ## Contact parameters for the kkt dynamics
     kktDamping = 0  # 1e-6
     baumgartGains = np.array([0, 100])
-    transitionDuration = 4 ### Beware, this is not used by the Py ocp, only by the c++ ocp
-    
+    # Beware, this is not used by the Py ocp, only by the c++ ocp
+    transitionDuration = 4
+
     # ## Parameters related to the solver
     solver_th_stop = 1e-3
     solver_maxiter = 2
@@ -166,90 +168,92 @@ class WalkParams:
         self.controlImportance = w.controlImportance
 
 
-
 # ### AD HOC CODE GENERATION ############################################
 # The method to call is generateParamFileForTheRobot. See main for an example.
 def nparrayToCpp(v):
-    res = ' '
-    first = ''
+    res = " "
+    first = ""
     for vi in v:
-        res += '%s %.10f' % (first,vi)
-        first = ','
+        res += "%s %.10f" % (first, vi)
+        first = ","
     return res
 
-def keyValueToCpp(objName,k,v):
-    if isinstance(v,int):
-        res ='  %s->%s = %d; ' % ( objName, k, v )
-    elif isinstance(v,float):
-        res ='  %s->%s = %.10f; ' % ( objName,k, v )
-    elif isinstance(v,np.ndarray):
-        res ='  %s->%s.resize(%d);' % ( objName,k,len(v) )
-        res += '%s->%s << %s;' % ( objName,k, nparrayToCpp(v))
-    elif isinstance(v,list) and isinstance(v[0],str):
-        res = ' %s->%s = { "%s" ' % (objName,k,v[0])
+
+def keyValueToCpp(objName, k, v):
+    if isinstance(v, int):
+        res = "  %s->%s = %d; " % (objName, k, v)
+    elif isinstance(v, float):
+        res = "  %s->%s = %.10f; " % (objName, k, v)
+    elif isinstance(v, np.ndarray):
+        res = "  %s->%s.resize(%d);" % (objName, k, len(v))
+        res += "%s->%s << %s;" % (objName, k, nparrayToCpp(v))
+    elif isinstance(v, list) and isinstance(v[0], str):
+        res = ' %s->%s = { "%s" ' % (objName, k, v[0])
         for vi in v[1:]:
             res += ', "%s"' % vi
-        res += ' };'
+        res += " };"
     else:
-        print(' *** Error, the type of <%s> is not implemented (v=%s) ' %(k,str(v)))
-        #raise TypeError
+        print(" *** Error, the type of <%s> is not implemented (v=%s) " % (k, str(v)))
+        # raise TypeError
     return res
 
-def generateParamsFromCppClass(pyobj,cppName,cppClass,verbose=True):
-    res = ''
+
+def generateParamsFromCppClass(pyobj, cppName, cppClass, verbose=True):
+    res = ""
     for k in cppClass.__dict__.keys():
-        if k[:2] == '__': continue
-        if not hasattr(pyobj,k):
+        if k[:2] == "__":
+            continue
+        if not hasattr(pyobj, k):
             if verbose:
-                res += '  // *** Cannot find field <%s> in python params object.\n' % k
+                res += "  // *** Cannot find field <%s> in python params object.\n" % k
             continue
         v = pyobj.__getattribute__(k)
-        res += keyValueToCpp(cppName,k,v) + '\n'
+        res += keyValueToCpp(cppName, k, v) + "\n"
     return res
 
 
-def generateParamFileForTheRobot(params,robot = None):
-    '''
+def generateParamFileForTheRobot(params, robot=None):
+    """
     From a param object, generate the c++ code for initializing the c++ ocp/mpc
 
-    '''
-    res = '''
+    """
+    res = """
 #include <sobec/ocp-walk.hpp>
 #include <sobec/mpc-walk.hpp>
 
-void initParamsFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::OCPWalkParams> params)
-{
+void initParamsFromAutomaticallyGeneratedCode(
+    boost::shared_ptr<sobec::OCPWalkParams> params) {
 %s
 }
-void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalkParams> mpcparams)
-{
+void initMPCFromAutomaticallyGeneratedCode(
+    boost::shared_ptr<sobec::MPCWalkParams> mpcparams) {
 %s
 }
-''' % (
-   
-    generateParamsFromCppClass(params,'params',sobec.OCPWalkParams),
-    generateParamsFromCppClass(params,'mpcparams',sobec.MPCWalkParams),
+""" % (
+        generateParamsFromCppClass(params, "params", sobec.OCPWalkParams),
+        generateParamsFromCppClass(params, "mpcparams", sobec.MPCWalkParams),
     )
 
     if robot is not None:
-        res += '''
-bool checkAutomaticallyGeneratedCodeCompatibility(boost::shared_ptr<sobec::OCPRobotWrapper> robot)
-{
+        res += """
+bool checkAutomaticallyGeneratedCodeCompatibility(
+    boost::shared_ptr<sobec::OCPRobotWrapper> robot) {
   bool res = true;
   res &= (robot->model->nq == %d);
   res &= (robot->model->nv == %d);
   return res;
 }
-''' % (robot.model.nq, robot.model.nv)
-    
+""" % (
+            robot.model.nq,
+            robot.model.nv,
+        )
+
     return res
 
 
 if __name__ == "__main__":
     import example_robot_data as robex
-    
-    params = WalkParams('talos_14')
-    robot = robex.load('talos_legs')
-    print(generateParamFileForTheRobot(params,robot))
 
-    
+    params = WalkParams("talos_14")
+    robot = robex.load("talos_legs")
+    print(generateParamFileForTheRobot(params, robot))

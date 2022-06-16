@@ -19,11 +19,10 @@
 #include <pinocchio/multibody/data.hpp>
 #include <pinocchio/spatial/motion.hpp>
 
-#include "sobec/contact/fwd.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
-// using namespace crocoddyl;
+namespace newcontacts {
 
 template <typename _Scalar>
 class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
@@ -234,6 +233,8 @@ struct ContactData3DTpl : public crocoddyl::ContactData3DTpl<_Scalar> {
   Vector3s a0_temp_;
   MatrixXs drnea_skew_term_;
 };
+
+}  // namespace newcontacts
 }  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */

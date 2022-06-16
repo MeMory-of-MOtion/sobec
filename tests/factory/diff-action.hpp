@@ -62,12 +62,12 @@ class DifferentialActionModelFactory {
   create_freeFwdDynamics(StateModelTypes::Type state_type,
                          ActuationModelTypes::Type actuation_type) const;
 
-  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics>
+  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
   create_contact3DFwdDynamics(StateModelTypes::Type state_type,
                               ActuationModelTypes::Type actuation_type,
                               PinocchioReferenceTypes::Type ref_type) const;
 
-  boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics>
+  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
   create_contact1DFwdDynamics(StateModelTypes::Type state_type,
                               ActuationModelTypes::Type actuation_type,
                               PinocchioReferenceTypes::Type ref_type,

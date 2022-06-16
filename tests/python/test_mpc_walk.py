@@ -59,7 +59,7 @@ mpcparams.Tsingle = Tsingle
 mpcparams.Tend = Tend
 mpcparams.vcomRef = np.array([0.33, 0.1, 0.0])
 
-mpc = sobec.MPCWalk(mpcparams,problem)
+mpc = sobec.MPCWalk(mpcparams, problem)
 mpc.initialize([x for x in ddp.xs[: Tmpc + 1]], [u for u in ddp.us[:Tmpc]])
 
 mpc.calc(model.x0, 10)

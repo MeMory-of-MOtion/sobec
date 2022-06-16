@@ -181,7 +181,7 @@ ocp.buildSolver()
 
 # --- MPC
 
-mpc = sobec.MPCWalk(mpcparams,ocp.problem)
+mpc = sobec.MPCWalk(mpcparams, ocp.problem)
 
 mpc.initialize(ocp.solver.xs[: mpcparams.Tmpc + 1], ocp.solver.us[: mpcparams.Tmpc])
 mpc.solver.setCallbacks(

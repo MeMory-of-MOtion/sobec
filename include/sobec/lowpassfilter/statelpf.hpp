@@ -11,7 +11,6 @@
 #include <pinocchio/multibody/model.hpp>
 
 #include "crocoddyl/core/state-base.hpp"
-#include "sobec/contact/fwd.hpp"
 #include "sobec/fwd.hpp"
 namespace sobec {
 using namespace crocoddyl;

@@ -19,11 +19,11 @@
 #include "crocoddyl/multibody/states/multibody.hpp"
 // #include "crocoddyl/multibody/data/contacts.hpp"
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
-#include "sobec/contact/fwd.hpp"
 #include "sobec/contact/multiple-contacts.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
+namespace newcontacts {
 
 /**
  * @brief Differential action model for contact forward dynamics in multibody
@@ -148,9 +148,10 @@ class DifferentialActionModelContactFwdDynamicsTpl
 
  private:
   bool enable_force_;
-  boost::shared_ptr<sobec::ContactModelMultipleTpl<Scalar>> sobec_contacts_;
+  boost::shared_ptr<ContactModelMultipleTpl<Scalar>> sobec_contacts_;
 };
 
+}  // namespace newcontacts
 }  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */

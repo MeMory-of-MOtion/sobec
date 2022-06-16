@@ -13,7 +13,6 @@
 
 namespace sobec {
 namespace unittest {
-// using namespace crocoddyl;
 
 ContactModel3DFactory::ContactModel3DFactory() {}
 ContactModel3DFactory::~ContactModel3DFactory() {}
@@ -43,13 +42,13 @@ ContactModel3DFactory::create(PinocchioModelTypes::Type model_type,
   // Eigen::Vector2d gains = Eigen::Vector2d::Random();
   Eigen::Vector3d xref = Eigen::Vector3d::Zero();
   if (reference_type == PinocchioReferenceTypes::LOCAL) {
-    contact = boost::make_shared<sobec::ContactModel3D>(
+    contact = boost::make_shared<sobec::newcontacts::ContactModel3D>(
         state, frame_id, xref, nu, gains, pinocchio::LOCAL);
   } else if (reference_type == PinocchioReferenceTypes::WORLD) {
-    contact = boost::make_shared<sobec::ContactModel3D>(
+    contact = boost::make_shared<sobec::newcontacts::ContactModel3D>(
         state, frame_id, xref, nu, gains, pinocchio::WORLD);
   } else if (reference_type == PinocchioReferenceTypes::LOCAL_WORLD_ALIGNED) {
-    contact = boost::make_shared<sobec::ContactModel3D>(
+    contact = boost::make_shared<sobec::newcontacts::ContactModel3D>(
         state, frame_id, xref, nu, gains, pinocchio::LOCAL_WORLD_ALIGNED);
   }
   return contact;

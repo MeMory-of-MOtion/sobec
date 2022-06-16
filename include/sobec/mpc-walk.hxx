@@ -20,25 +20,18 @@
 namespace sobec {
 using namespace crocoddyl;
 
-
-  MPCWalkParams::
-  MPCWalkParams()
-    : vcomRef(3)
-    , solver_th_stop(1e-9)
-    , stateRegCostName("stateReg")
-  {}
+MPCWalkParams::MPCWalkParams()
+    : vcomRef(3), solver_th_stop(1e-9), stateRegCostName("stateReg") {}
 
 MPCWalk::MPCWalk(boost::shared_ptr<MPCWalkParams> params,
                  boost::shared_ptr<ShootingProblem> problem)
-    : 
-  params(params)
-  ,storage(problem) {
+    : params(params), storage(problem) {
   // std::cout << "Constructor" << std::endl;
 }
 
 void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
                          const std::vector<Eigen::VectorXd>& us) {
-  MPCWalkParams & p = *params;
+  MPCWalkParams& p = *params;
   assert(p.Tmpc > 0);
   assert(p.Tstart + p.Tend + 2 * (p.Tdouble + p.Tsingle) <= storage->get_T());
 
@@ -116,7 +109,7 @@ void MPCWalk::findTerminalStateResidualModel() {
 }
 
 void MPCWalk::updateTerminalCost(const int t) {
-  const MPCWalkParams & p = *params;
+  const MPCWalkParams& p = *params;
   VectorXd xref = p.x0;
   xref.head<3>() += p.vcomRef * (t + p.Tmpc) * p.DT;
   terminalStateResidual->set_reference(xref);
@@ -125,8 +118,8 @@ void MPCWalk::updateTerminalCost(const int t) {
 void MPCWalk::calc(const Eigen::Ref<const VectorXd>& x, const int t) {
   // std::cout << "calc Tmpc=" << Tmpc << std::endl;
 
-  const MPCWalkParams & p = *params;
-  
+  const MPCWalkParams& p = *params;
+
   /// Change the value of the reference cost
   updateTerminalCost(t);
 

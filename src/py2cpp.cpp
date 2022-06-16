@@ -42,8 +42,10 @@ bool reprProblem(ShootingProblemPtr problem) {
     bp::import("sobec");
     bp::object pyproblem(problem);
     main_module.attr("problem_from_cpp") = pyproblem;
-    bp::exec("from sobec.walk.miscdisp import printReprProblem; "
-        "printReprProblem(problem_from_cpp)", main_namespace);
+    bp::exec(
+        "from sobec.walk.miscdisp import printReprProblem; "
+        "printReprProblem(problem_from_cpp)",
+        main_namespace);
   } catch (bp::error_already_set&) {
     PyErr_Print();
     ret = false;

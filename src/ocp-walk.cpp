@@ -40,7 +40,8 @@ OCPWalk::buildInitialGuess() {
       x0s.push_back(problem->get_x0());
       u0s.push_back(models[i]->quasiStatic_x(datas[i], problem->get_x0()));
     }
-    x0s.push_back(problem->get_x0()); // Final state for the terminal node (no U)
+    x0s.push_back(
+        problem->get_x0());  // Final state for the terminal node (no U)
   }
   return std::make_pair(x0s, u0s);
 }

@@ -85,7 +85,7 @@ ddp.solve(x0s, u0s, 200)
 
 mpcparams = sobec.MPCWalkParams()
 configureMPCWalk(mpcparams, walkParams)
-mpc = sobec.MPCWalk(mpcparams,ddp.problem)
+mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
 x = robot.x0

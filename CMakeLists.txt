@@ -53,7 +53,6 @@ endif()
 set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/python.hpp
   include/${PROJECT_NAME}/fwd.hpp
-  include/${PROJECT_NAME}/contact/fwd.hpp
   include/${PROJECT_NAME}/residual-com-velocity.hpp
   include/${PROJECT_NAME}/residual-cop.hpp
   include/${PROJECT_NAME}/residual-feet-collision.hpp
