@@ -23,6 +23,7 @@
 #include "sobec/fwd.hpp"
 
 namespace sobec {
+namespace newcontacts {
 
 /**
  * @brief Define a stack of contact models
@@ -108,6 +109,7 @@ class ContactModelMultipleTpl
   //   MatrixXs rotateJacobians(const boost::shared_ptr<MatrixXs> Jin);
 };
 
+}  // namespace newcontacts
 }  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */

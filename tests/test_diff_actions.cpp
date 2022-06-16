@@ -151,9 +151,11 @@ void test_quasi_static(DifferentialActionModelTypes::Type action_type,
                          DifferentialActionModelContact1DFwdDynamics_HyQ ||
       action_type == DifferentialActionModelTypes::
                          DifferentialActionModelContact3DFwdDynamics_HyQ) {
-    boost::shared_ptr<sobec::DifferentialActionModelContactFwdDynamics> m =
-        boost::static_pointer_cast<
-            sobec::DifferentialActionModelContactFwdDynamics>(model);
+    boost::shared_ptr<
+        sobec::newcontacts::DifferentialActionModelContactFwdDynamics>
+        m = boost::static_pointer_cast<
+            sobec::newcontacts::DifferentialActionModelContactFwdDynamics>(
+            model);
     m->get_contacts()->changeContactStatus("lf", false);
 
     model->quasiStatic(data, u, x);
