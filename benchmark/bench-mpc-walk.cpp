@@ -73,60 +73,51 @@ int main() {
       std::cout << "Exit!" << std::endl;
       std::exit(-1);
     }
+
+  // --- PARAMS
+  std::cout << "Initializing params for nv = " << model->nv << std::endl;
   auto params = boost::make_shared<sobec::OCPWalkParams>();
-
-  std::cout << "Initializing params for nv = " << model->nv << " ..."
-            << std::endl;
   initParamsFromAutomaticallyGeneratedCode(params);
+  auto mpcparams = boost::make_shared<MPCWalkParams>();
+  initMPCFromAutomaticallyGeneratedCode(mpcparams);
 
+  // --- CONTACT PATTERN
   std::cout << "Create contact pattern" << std::endl;
-  //int Tstart = 20, Tsingle = 40, Tdouble = 15, Tend = 20, Tmpc = 120;
-  int Tstart = 30, Tsingle = 80, Tdouble = 11, Tend = 30, Tmpc = 160;
-
-  Eigen::MatrixXd patternStart(2, Tstart);
+  Eigen::MatrixXd patternStart(2, mpcparams->Tstart);
   patternStart.fill(1);
-  Eigen::MatrixXd patternDouble(2, Tdouble);
+  Eigen::MatrixXd patternDouble(2, mpcparams->Tdouble);
   patternDouble.fill(1);
-  Eigen::MatrixXd patternEnd(2, Tend);
+  Eigen::MatrixXd patternEnd(2, mpcparams->Tend);
   patternEnd.fill(1);
-  Eigen::MatrixXd patternLeft(2, Tsingle);
+  Eigen::MatrixXd patternLeft(2, mpcparams->Tsingle);
   patternLeft.topRows<1>().fill(0);
   patternLeft.bottomRows<1>().fill(1);
-  Eigen::MatrixXd patternRight(2, Tsingle);
+  Eigen::MatrixXd patternRight(2, mpcparams->Tsingle);
   patternRight.topRows<1>().fill(1);
   patternRight.bottomRows<1>().fill(0);
 
-  Eigen::MatrixXd contactPattern(2, Tstart + Tdouble * 3 + Tsingle * 2 + Tend);
+  int T = mpcparams->Tstart + mpcparams->Tdouble * 3 + mpcparams->Tsingle * 2 + mpcparams->Tend;
+  Eigen::MatrixXd contactPattern(2, T);
   contactPattern << patternStart, patternDouble, patternLeft, patternDouble,
-      patternRight, patternDouble, patternEnd;
-
+    patternRight, patternDouble, patternEnd;
   std::cout << "Contact pattern = \n"
             << contactPattern.transpose() << std::endl;
 
-  // OCP
+  // --- OCP
+  std::cout << "Init OCP" << std::endl;
   auto ocp = boost::make_shared<OCPWalk>(robot, params, contactPattern);
   ocp->buildSolver();
 
-  // MPC
-  auto mpc = boost::make_shared<MPCWalk>(ocp->problem);
-  mpc->Tmpc = Tmpc;
-  mpc->Tstart = Tstart;
-  mpc->Tdouble = Tdouble;
-  mpc->Tsingle = Tsingle;
-  mpc->Tend = Tend;
-  mpc->DT = params->DT;
-  mpc->solver_th_stop = 1e-3;
-  mpc->vcomRef = params->vcomRef;
-  mpc->solver_reg_min = 1e-6;
-  mpc->solver_maxiter = 2;
+  // --- MPC
+  auto mpc = boost::make_shared<MPCWalk>(mpcparams,ocp->problem);
 
   std::cout << "Init warm start" << std::endl;
   std::vector<Eigen::VectorXd> xs, us;
-  for (int t = 0; t < Tmpc; ++t) {
+  for (int t = 0; t < mpcparams->Tmpc; ++t) {
     xs.push_back(ocp->solver->get_xs()[t]);
     us.push_back(ocp->solver->get_us()[t]);
   }
-  xs.push_back(ocp->solver->get_xs()[Tmpc]);
+  xs.push_back(ocp->solver->get_xs()[mpcparams->Tmpc]);
   mpc->initialize(xs, us);
 
   std::cout << "Start the mpc loop" << std::endl;

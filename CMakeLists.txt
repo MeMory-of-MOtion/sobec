@@ -133,7 +133,7 @@ if(BUILD_TESTING)
 endif()
 
 # Benchmark
-#add_subdirectory(benchmark)
+add_subdirectory(benchmark)
 
 # Installation
 install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)

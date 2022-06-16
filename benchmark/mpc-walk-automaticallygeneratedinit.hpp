@@ -37,25 +37,19 @@ void initParamsFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::OCPWalkPa
   params->transitionDuration = 4; 
 
 }
-void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalk> mpc)
+void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalkParams> mpcparams)
 {
-  // *** Cannot find field <calc> in python params object.
-  // *** Cannot find field <initialize> in python params object.
-  mpc->Tmpc = 160; 
-  mpc->Tstart = 30; 
-  mpc->Tdouble = 11; 
-  mpc->Tsingle = 80; 
-  mpc->Tend = 30; 
-  mpc->vcomRef.resize(3);mpc->vcomRef <<   0.1000000000, 0.0000000000, 0.0000000000;
-  mpc->solver_th_stop = 0.0010000000; 
-  mpc->solver_reg_min = 0.0000010000; 
-  mpc->solver_maxiter = 2; 
-  mpc->DT = 0.0100000000; 
+  mpcparams->DT = 0.0100000000; 
+  mpcparams->vcomRef.resize(3);mpcparams->vcomRef <<   0.0500000000, 0.0000000000, 0.0000000000;
+  mpcparams->Tmpc = 160; 
+  mpcparams->Tstart = 30; 
+  mpcparams->Tsingle = 80; 
+  mpcparams->Tdouble = 11; 
+  mpcparams->Tend = 30; 
+  mpcparams->solver_th_stop = 0.0010000000; 
+  mpcparams->solver_reg_min = 0.0000010000; 
+  mpcparams->solver_maxiter = 2; 
   // *** Cannot find field <x0> in python params object.
-  // *** Cannot find field <storage> in python params object.
-  // *** Cannot find field <problem> in python params object.
-  // *** Cannot find field <state> in python params object.
-  // *** Cannot find field <solver> in python params object.
 
 }
 

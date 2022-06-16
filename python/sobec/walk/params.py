@@ -221,14 +221,14 @@ void initParamsFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::OCPWalkPa
 {
 %s
 }
-void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalk> mpc)
+void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalkParams> mpcparams)
 {
 %s
 }
 ''' % (
    
     generateParamsFromCppClass(params,'params',sobec.OCPWalkParams),
-    generateParamsFromCppClass(params,'mpc',sobec.MPCWalk)
+    generateParamsFromCppClass(params,'mpcparams',sobec.MPCWalkParams),
     )
 
     if robot is not None:
