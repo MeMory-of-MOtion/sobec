@@ -18,6 +18,24 @@ class WalkParams(swparams.WalkParams):
         # super(swparams.WalkParams, self).__init__(self, name)
 
 
+class StandParams(swparams.WalkParams):
+    '''MPC Params with not single support, hence standing straight'''
+    DT = 0.01
+    Tstart = 50
+    Tsingle = 0 # int(0.8 / DT)
+    # I prefer an even number for Tdouble
+    Tdouble = 50 #2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
+    Tend = 50
+    Tmpc = 50
+    transitionDuration = 0
+
+    vcomRef = np.array([0 , 0, 0])
+
+    def __init__(self, name="talos_12"):
+        swparams.WalkParams.__init__(self, name)
+        # super(swparams.WalkParams, self).__init__(self, name)
+
+
 # ### KEPT FOR REFERENCES ##################################################
 # ### KEPT FOR REFERENCES ##################################################
 # ### KEPT FOR REFERENCES ##################################################
@@ -90,3 +108,4 @@ class WalkParamsOld(params.WalkParamsOld):
 
     # DEBUG
     showPreview = False
+

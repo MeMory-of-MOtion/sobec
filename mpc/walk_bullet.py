@@ -11,12 +11,11 @@ from utils.save_traj import save_traj
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
 from mpcparams import WalkParams
-import utils.talos_low as talos_low
 from sobec.walk.config_mpc import configureMPCWalk
 from utils.pinbullet import SimuProxy
 from utils import viewer_multiple
 from sobec.walk import miscdisp
-
+from sobec.walk.talos_collections import jointToLockCollection
 q_init = np.array(
     [
         0.00000e00,
@@ -61,6 +60,7 @@ q_init = np.array(
     ]
 )
 q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
+walkParams = WalkParams('talos_low')
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
@@ -68,7 +68,7 @@ simu = SimuProxy()
 simu.loadExampleRobot("talos")
 # simu.rmodel.q0 = q_init
 simu.loadBulletModel()  # pyb.GUI)
-simu.freeze(talos_low.jointToLockNames)
+simu.freeze(walkParams.jointNamesToLock)
 simu.setTorqueControlMode()
 simu.setTalosDefaultFriction()
 # ## OCP ########################################################################
@@ -76,7 +76,6 @@ simu.setTalosDefaultFriction()
 
 robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
 # robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
-walkParams = WalkParams(robot.name)
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 assert norm(robot.x0 - simu.getState()) < 1e-6

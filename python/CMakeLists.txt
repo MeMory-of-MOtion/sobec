@@ -48,6 +48,7 @@ set(${PY_WALK_NAME}_PYTHON
   config_mpc.py
   miscdisp.py
   params.py
+  talos_collections.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})

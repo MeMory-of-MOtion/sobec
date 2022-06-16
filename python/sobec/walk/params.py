@@ -5,7 +5,7 @@ OCP.
 
 import numpy as np
 import sobec
-
+from .talos_collections import jointNamesToIds,jointToLockCollection
 
 class StateRelatedParams:
     """These params are only acceptable for some robots"""
@@ -40,7 +40,7 @@ class TalosInfo:
 # ### STATE FOR EACH ROBOT ##################################################
 
 Robot_2_StateMap = {
-    "talos_14": StateRelatedParams(
+    "talos_low": StateRelatedParams(
         stateImportance=np.array(
             TalosInfo.basisQWeights
             + TalosInfo.legQWeights * 2
@@ -52,7 +52,7 @@ Robot_2_StateMap = {
         stateTerminalImportance=np.array([3, 3, 0, 0, 0, 30] + [0] * 14 + [1] * 20),
         controlImportance=np.array([1] * 14),
     ),
-    "talos_12": StateRelatedParams(
+    "talos_legs": StateRelatedParams(
         stateImportance=np.array(
             TalosInfo.basisQWeights
             + TalosInfo.legQWeights * 2
@@ -70,7 +70,7 @@ Robot_2_StateMap = {
 
 
 class WalkParams:
-
+    
     # ### WEIGHTS
     # Weights for the importance of cost functions.  Weights are multiply to
     # the residual squared Importance terms are multiplied during the
@@ -162,11 +162,12 @@ class WalkParams:
         Init from the robot name used as a key to
         selec the info related to the state dimension.
         """
+        self.robotName = robotName
         w = Robot_2_StateMap[robotName]
         self.stateImportance = w.stateImportance
         self.stateTerminalImportance = w.stateTerminalImportance
         self.controlImportance = w.controlImportance
-
+        self.jointNamesToLock = jointToLockCollection[robotName]
 
 # ### AD HOC CODE GENERATION ############################################
 # The method to call is generateParamFileForTheRobot. See main for an example.
@@ -248,6 +249,14 @@ bool checkAutomaticallyGeneratedCodeCompatibility(
             robot.model.nv,
         )
 
+        res += """
+
+std::vector<pinocchio::JointId> getAutomaticallyGeneratedJointIdsToLock()
+{
+  return { %s };
+} 
+""" % jointNamesToIds(jointToLockCollection[robot.name])
+        
     return res
 
 
