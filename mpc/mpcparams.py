@@ -13,7 +13,7 @@ class WalkParams(swparams.WalkParams):
 
     vcomRef = np.array([0 * 0.05, 0, 0])
 
-    def __init__(self, name="talos_14"):
+    def __init__(self, name="talos_low"):
         swparams.WalkParams.__init__(self, name)
         # super(swparams.WalkParams, self).__init__(self, name)
 
@@ -32,7 +32,7 @@ class StandParams(swparams.WalkParams):
 
     vcomRef = np.array([0, 0, 0])
 
-    def __init__(self, name="talos_12"):
+    def __init__(self, name="talos_legs"):
         swparams.WalkParams.__init__(self, name)
         # super(swparams.WalkParams, self).__init__(self, name)
 
