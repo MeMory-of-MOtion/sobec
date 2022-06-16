@@ -131,9 +131,24 @@ int main() {
   std::cout << "Start the mpc loop" << std::endl;
   Eigen::VectorXd x = robot->x0;
 
-  for (int t = 1; t <= 100; t++) {
-    std::cout << "=== " << t << " === " << std::endl;
-    mpc->calc(x, t);
-    x = mpc->solver->get_xs()[1];
-  }
+  for (int t = 1; t <= 100; t++)
+    {
+      mpc->calc(x, t);
+      x = mpc->solver->get_xs()[1];
+
+      // Recover contact activation
+      auto iam = boost::dynamic_pointer_cast<crocoddyl::IntegratedActionModelEuler>
+        (mpc->problem->get_runningModels()[0]);
+      auto dam = boost::dynamic_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>
+        (iam->get_differential());
+      auto contacts = dam->get_contacts();
+      auto contactMap = contacts->get_contacts();
+      std::string rightContactName = "right_sole_link_contact";
+      std::string leftContactName = "left_sole_link_contact";
+      
+      bool rightContactActive = (contactMap.find(rightContactName) != contactMap.end());
+      bool leftContactActive = (contactMap.find(leftContactName) != contactMap.end());
+
+      std::cout << "=== " << t << " === contact=[" << (int)rightContactActive << (int)leftContactActive << "]" << std::endl;
+    }
 }
