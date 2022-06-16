@@ -147,45 +147,43 @@ params.stateTerminalWeight = 20.0
 params.solver_th_stop = 0.001
 params.transitionDuration = 6
 
+mpcparams = sobec.MPCWalkParams()
+mpcparams.Tstart = 20
+mpcparams.Tsingle = 15
+mpcparams.Tdouble = 40
+mpcparams.Tend = 20
+mpcparams.Tmpc = 120
+mpcparams.DT = params.DT
+mpcparams.solver_th_stop = 1e-3
+mpcparams.vcomRef = params.vcomRef
+mpcparams.solver_reg_min = 1e-6
+mpcparams.solver_maxiter = 2
+
 # --- CONTACT PATTERN
-Tstart = 20
-Tsingle = 15
-Tdouble = 40
-Tend = 20
-Tmpc = 120
 
 contactPattern = np.array(
     []
-    + [[1, 1]] * Tstart
-    + [[1, 1]] * Tdouble
-    + [[1, 0]] * Tsingle
-    + [[1, 1]] * Tdouble
-    + [[0, 1]] * Tsingle
-    + [[1, 1]] * Tdouble
-    + [[1, 1]] * Tend
+    + [[1, 1]] * mpcparams.Tstart
+    + [[1, 1]] * mpcparams.Tdouble
+    + [[1, 0]] * mpcparams.Tsingle
+    + [[1, 1]] * mpcparams.Tdouble
+    + [[0, 1]] * mpcparams.Tsingle
+    + [[1, 1]] * mpcparams.Tdouble
+    + [[1, 1]] * mpcparams.Tend
     + [[1, 1]]
 ).T
 
-assert params.transitionDuration * 2 < Tdouble
+assert params.transitionDuration * 2 < mpcparams.Tdouble
 
 # --- OCP
 ocp = sobec.OCPWalk(robot, params, contactPattern)
 ocp.buildSolver()
 
 # --- MPC
-mpc = sobec.MPCWalk(ocp.problem)
-mpc.Tmpc = Tmpc
-mpc.Tstart = Tstart
-mpc.Tdouble = Tdouble
-mpc.Tsingle = Tsingle
-mpc.Tend = Tend
-mpc.DT = params.DT
-mpc.solver_th_stop = 1e-3
-mpc.vcomRef = params.vcomRef
-mpc.solver_reg_min = 1e-6
-mpc.solver_maxiter = 2
 
-mpc.initialize(ocp.solver.xs[: mpc.Tmpc + 1], ocp.solver.us[: mpc.Tmpc])
+mpc = sobec.MPCWalk(mpcparams,ocp.problem)
+
+mpc.initialize(ocp.solver.xs[: mpcparams.Tmpc + 1], ocp.solver.us[: mpcparams.Tmpc])
 mpc.solver.setCallbacks(
     [
         # croc.CallbackVerbose(),
@@ -194,7 +192,7 @@ mpc.solver.setCallbacks(
 )
 x = robot.x0
 
-for t in range(2 * mpc.Tmpc):
+for t in range(2 * mpcparams.Tmpc):
     mpc.calc(x, t)
     x = mpc.solver.xs[1]
 

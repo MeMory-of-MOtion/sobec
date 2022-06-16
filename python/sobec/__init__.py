@@ -21,6 +21,7 @@ from .sobec_pywrap import (
     OCPRobotWrapper,
     OCPWalkParams,
     OCPWalk,
+    MPCWalkParams,
     MPCWalk,
     computeWeightShareSmoothProfile,
 )

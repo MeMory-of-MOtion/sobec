@@ -20,32 +20,39 @@
 namespace sobec {
 using namespace crocoddyl;
 
-MPCWalk::MPCWalk(boost::shared_ptr<ShootingProblem> problem)
-    : vcomRef(3),
-      solver_th_stop(1e-9),
-      stateRegCostName("stateReg")
 
-      ,
-      storage(problem) {
+  MPCWalkParams::
+  MPCWalkParams()
+    : vcomRef(3)
+    , solver_th_stop(1e-9)
+    , stateRegCostName("stateReg")
+  {}
+
+MPCWalk::MPCWalk(boost::shared_ptr<MPCWalkParams> params,
+                 boost::shared_ptr<ShootingProblem> problem)
+    : 
+  params(params)
+  ,storage(problem) {
   // std::cout << "Constructor" << std::endl;
 }
 
 void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
                          const std::vector<Eigen::VectorXd>& us) {
-  assert(Tmpc > 0);
-  assert(Tstart + Tend + 2 * (Tdouble + Tsingle) <= storage->get_T());
+  MPCWalkParams & p = *params;
+  assert(p.Tmpc > 0);
+  assert(p.Tstart + p.Tend + 2 * (p.Tdouble + p.Tsingle) <= storage->get_T());
 
-  if (x0.size() == 0) x0 = storage->get_x0();
+  if (p.x0.size() == 0) p.x0 = storage->get_x0();
 
   // Init shooting problem for mpc solver
   ActionList runmodels;
-  for (int t = 0; t < Tmpc; ++t) {
+  for (int t = 0; t < p.Tmpc; ++t) {
     // std::cout << storage->get_runningModels().size() << " " << t <<
     // std::endl;
     runmodels.push_back(storage->get_runningModels()[t]);
   }
   AMA termmodel = storage->get_terminalModel();
-  problem = boost::make_shared<ShootingProblem>(x0, runmodels, termmodel);
+  problem = boost::make_shared<ShootingProblem>(p.x0, runmodels, termmodel);
 
   findTerminalStateResidualModel();
   findStateModel();
@@ -53,10 +60,10 @@ void MPCWalk::initialize(const std::vector<Eigen::VectorXd>& xs,
 
   // Init solverc
   solver = boost::make_shared<SolverFDDP>(problem);
-  solver->set_th_stop(solver_th_stop);
-  solver->set_reg_min(solver_reg_min);
+  solver->set_th_stop(p.solver_th_stop);
+  solver->set_reg_min(p.solver_reg_min);
 
-  reg = solver_reg_min;
+  reg = p.solver_reg_min;
 
   // Run first solve
   solver->solve(xs, us);
@@ -86,11 +93,11 @@ void MPCWalk::findTerminalStateResidualModel() {
 
   const CostModelSum::CostModelContainer& costs = costsum->get_costs();
   // std::cout << "Costs" << std::endl;
-  assert(costs.find(stateRegCostName) != costs.end());
+  assert(costs.find(params->stateRegCostName) != costs.end());
 
   boost::shared_ptr<CostModelAbstract> costa =
       boost::const_pointer_cast<CostModelAbstract>(
-          costs.at(stateRegCostName)->cost);
+          costs.at(params->stateRegCostName)->cost);
   // std::cout << "IAM" << std::endl;
 
   boost::shared_ptr<CostModelResidual> cost =
@@ -109,20 +116,23 @@ void MPCWalk::findTerminalStateResidualModel() {
 }
 
 void MPCWalk::updateTerminalCost(const int t) {
-  VectorXd xref = x0;
-  xref.head<3>() += vcomRef * (t + Tmpc) * DT;
+  const MPCWalkParams & p = *params;
+  VectorXd xref = p.x0;
+  xref.head<3>() += p.vcomRef * (t + p.Tmpc) * p.DT;
   terminalStateResidual->set_reference(xref);
 }
 
 void MPCWalk::calc(const Eigen::Ref<const VectorXd>& x, const int t) {
   // std::cout << "calc Tmpc=" << Tmpc << std::endl;
 
+  const MPCWalkParams & p = *params;
+  
   /// Change the value of the reference cost
   updateTerminalCost(t);
 
   /// Recede the horizon
-  int Tcycle = 2 * (Tsingle + Tdouble);
-  int tlast = Tstart + 1 + ((t + Tmpc - Tstart - 1) % Tcycle);
+  int Tcycle = 2 * (p.Tsingle + p.Tdouble);
+  int tlast = p.Tstart + 1 + ((t + p.Tmpc - p.Tstart - 1) % Tcycle);
   // std::cout << "tlast = " << tlast << std::endl;
   problem->circularAppend(storage->get_runningModels()[tlast],
                           storage->get_runningDatas()[tlast]);
@@ -144,7 +154,7 @@ void MPCWalk::calc(const Eigen::Ref<const VectorXd>& x, const int t) {
   problem->set_x0(x);
 
   /// Solve
-  solver->solve(xs_guess, us_guess, solver_maxiter, false, reg);
+  solver->solve(xs_guess, us_guess, p.solver_maxiter, false, reg);
   reg = solver->get_xreg();
 }
 
