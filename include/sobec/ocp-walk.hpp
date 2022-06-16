@@ -9,12 +9,11 @@
 #ifndef SOBEC_OCP_WALK_HPP_
 #define SOBEC_OCP_WALK_HPP_
 
-#include <pinocchio/spatial/force.hpp>
-
 #include <crocoddyl/core/fwd.hpp>
 #include <crocoddyl/core/solvers/fddp.hpp>
 #include <crocoddyl/multibody/fwd.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
+#include <pinocchio/spatial/force.hpp>
 
 #include "sobec/fwd.hpp"
 #include "sobec/residual-cop.hpp"
@@ -77,9 +76,9 @@ struct OCPRobotWrapper {
                   const std::string& referencePosture = "half_sitting");
 };
 
-  Eigen::MatrixXd computeWeightShareSmoothProfile(const Eigen::Ref<const Eigen::MatrixXd> contact_pattern,
-                                                  int duration);
- 
+Eigen::MatrixXd computeWeightShareSmoothProfile(
+    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration);
+
 class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
   typedef typename MathBaseTpl<double>::VectorXs Vector3d;
@@ -98,7 +97,7 @@ class OCPWalk {
                    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern);
 
   virtual ~OCPWalk() {}
-    
+
   std::vector<AMA> buildRunningModels();
   AMA buildTerminalModel();
   void buildSolver();
@@ -106,7 +105,7 @@ class OCPWalk {
   buildInitialGuess();
 
   void computeReferenceForces();
-    
+
  public:
   /// @brief the OCP problem used for solving.
   boost::shared_ptr<ShootingProblem> problem;
@@ -119,9 +118,9 @@ class OCPWalk {
 
   boost::shared_ptr<ActuationModelFloatingBase> actuation;
 
-  std::vector< std::vector<pinocchio::Force> > referenceForces;
+  std::vector<std::vector<pinocchio::Force>> referenceForces;
   Eigen::MatrixXd contact_pattern;
-    
+
  protected:
   boost::shared_ptr<OCPWalkParams> params;
   boost::shared_ptr<OCPRobotWrapper> robot;

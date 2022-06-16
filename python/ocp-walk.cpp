@@ -7,17 +7,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Must be included first!
-#include <pinocchio/fwd.hpp>
-#include <pinocchio/multibody/fwd.hpp>
-#include <eigenpy/eigenpy.hpp>
-
-#include <crocoddyl/core/solvers/fddp.hpp>
+#include "sobec/ocp-walk.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
+#include <crocoddyl/core/solvers/fddp.hpp>
+#include <eigenpy/eigenpy.hpp>
+#include <pinocchio/fwd.hpp>
+#include <pinocchio/multibody/fwd.hpp>
 
 #include "sobec/fwd.hpp"
-#include "sobec/ocp-walk.hpp"
 
 namespace sobec {
 namespace python {
@@ -60,14 +59,11 @@ void exposeOCPRobotWrapper() {
       .add_property("towIds",
                     bp::make_getter(&OCPRobotWrapper::towIds,
                                     bp::return_internal_reference<>()),
-                    bp::make_setter(&OCPRobotWrapper::towIds),
-                    "TODO?")
+                    bp::make_setter(&OCPRobotWrapper::towIds), "TODO?")
       .add_property("heelIds",
                     bp::make_getter(&OCPRobotWrapper::heelIds,
                                     bp::return_internal_reference<>()),
-                    bp::make_setter(&OCPRobotWrapper::heelIds),
-                    "TODO?")
-      ;
+                    bp::make_setter(&OCPRobotWrapper::heelIds), "TODO?");
 }
 void exposeOCPParams() {
   bp::register_ptr_to_python<boost::shared_ptr<OCPWalkParams> >();
@@ -87,131 +83,119 @@ void exposeOCPParams() {
                     bp::make_setter(&OCPWalkParams::DT),
                     "time step duration of the shooting nodes.")
 
-    .add_property("mainJointIds", bp::make_getter(&OCPWalkParams::mainJointIds),
+      .add_property("mainJointIds",
+                    bp::make_getter(&OCPWalkParams::mainJointIds),
                     bp::make_setter(&OCPWalkParams::mainJointIds),
                     "Most important (big weight) joints at impact.")
-    .add_property("baumgartGains",
-                  bp::make_getter(&OCPWalkParams::baumgartGains,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPWalkParams::baumgartGains),
-                  ".")
-  
-    .add_property("stateImportance",
-                  bp::make_getter(&OCPWalkParams::stateImportance,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPWalkParams::stateImportance),
-                  ".")
-  
-    .add_property("stateTerminalImportance",
-                  bp::make_getter(&OCPWalkParams::stateTerminalImportance,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPWalkParams::stateTerminalImportance),
-                  ".")
-  
-    .add_property("controlImportance",
-                  bp::make_getter(&OCPWalkParams::controlImportance,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPWalkParams::controlImportance),
-                  ".")
-  
-    .add_property("vcomImportance",
-                  bp::make_getter(&OCPWalkParams::vcomImportance,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPWalkParams::vcomImportance),
-                  ".")
-  
-    .add_property("forceImportance",
-                  bp::make_getter(&OCPWalkParams::forceImportance,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPWalkParams::forceImportance),
-                  ".")
-  
+      .add_property("baumgartGains",
+                    bp::make_getter(&OCPWalkParams::baumgartGains,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPWalkParams::baumgartGains), ".")
 
-    .add_property("vcomRef",
-                  bp::make_getter(&OCPWalkParams::vcomRef,
-                                  bp::return_internal_reference<>()),
-                  bp::make_setter(&OCPWalkParams::vcomRef),
-                  ".")
-  
-    .add_property("footSize", bp::make_getter(&OCPWalkParams::footSize),
-                  bp::make_setter(&OCPWalkParams::footSize),
-                  ".")
-    .add_property("refStateWeight", bp::make_getter(&OCPWalkParams::refStateWeight),
-                  bp::make_setter(&OCPWalkParams::refStateWeight),
-                  ".")
-    .add_property("refTorqueWeight", bp::make_getter(&OCPWalkParams::refTorqueWeight),
-                  bp::make_setter(&OCPWalkParams::refTorqueWeight),
-                  ".")
-    .add_property("comWeight", bp::make_getter(&OCPWalkParams::comWeight),
-                  bp::make_setter(&OCPWalkParams::comWeight),
-                  ".")
-    .add_property("vcomWeight", bp::make_getter(&OCPWalkParams::vcomWeight),
-                  bp::make_setter(&OCPWalkParams::vcomWeight),
-                  ".")
-    .add_property("copWeight", bp::make_getter(&OCPWalkParams::copWeight),
-                  bp::make_setter(&OCPWalkParams::copWeight),
-                  ".")
-    .add_property("conePenaltyWeight", bp::make_getter(&OCPWalkParams::conePenaltyWeight),
-                  bp::make_setter(&OCPWalkParams::conePenaltyWeight),
-                  ".")
-    .add_property("coneAxisWeight", bp::make_getter(&OCPWalkParams::coneAxisWeight),
-                  bp::make_setter(&OCPWalkParams::coneAxisWeight),
-                  ".")
-    .add_property("refForceWeight", bp::make_getter(&OCPWalkParams::refForceWeight),
-                  bp::make_setter(&OCPWalkParams::refForceWeight),
-                  ".")
-    .add_property("impactAltitudeWeight", bp::make_getter(&OCPWalkParams::impactAltitudeWeight),
-                  bp::make_setter(&OCPWalkParams::impactAltitudeWeight),
-                  ".")
-    .add_property("impactVelocityWeight", bp::make_getter(&OCPWalkParams::impactVelocityWeight),
-                  bp::make_setter(&OCPWalkParams::impactVelocityWeight),
-                  ".")
-    .add_property("impactRotationWeight", bp::make_getter(&OCPWalkParams::impactRotationWeight),
-                  bp::make_setter(&OCPWalkParams::impactRotationWeight),
-                  ".")
-    .add_property("refMainJointsAtImpactWeight", bp::make_getter(&OCPWalkParams::refMainJointsAtImpactWeight),
-                  bp::make_setter(&OCPWalkParams::refMainJointsAtImpactWeight),
-                  ".")
-    .add_property("verticalFootVelWeight", bp::make_getter(&OCPWalkParams::verticalFootVelWeight),
-                  bp::make_setter(&OCPWalkParams::verticalFootVelWeight),
-                  ".")
-    .add_property("flyHighSlope", bp::make_getter(&OCPWalkParams::flyHighSlope),
-                  bp::make_setter(&OCPWalkParams::flyHighSlope),
-                  ".")
-    .add_property("flyHighWeight", bp::make_getter(&OCPWalkParams::flyHighWeight),
-                  bp::make_setter(&OCPWalkParams::flyHighWeight),
-                  ".")
-    .add_property("groundColWeight", bp::make_getter(&OCPWalkParams::groundColWeight),
-                  bp::make_setter(&OCPWalkParams::groundColWeight),
-                  ".")
-    .add_property("footMinimalDistance", bp::make_getter(&OCPWalkParams::footMinimalDistance),
-                  bp::make_setter(&OCPWalkParams::footMinimalDistance),
-                  ".")
-    .add_property("feetCollisionWeight", bp::make_getter(&OCPWalkParams::feetCollisionWeight),
-                  bp::make_setter(&OCPWalkParams::feetCollisionWeight),
-                  ".")
-    .add_property("kktDamping", bp::make_getter(&OCPWalkParams::kktDamping),
-                  bp::make_setter(&OCPWalkParams::kktDamping),
-                  ".")
-    .add_property("stateTerminalWeight", bp::make_getter(&OCPWalkParams::stateTerminalWeight),
-                  bp::make_setter(&OCPWalkParams::stateTerminalWeight),
-                  ".")
-    .add_property("solver_th_stop", bp::make_getter(&OCPWalkParams::solver_th_stop),
-                  bp::make_setter(&OCPWalkParams::solver_th_stop),
-                  ".")
-    .add_property("transitionDuration", bp::make_getter(&OCPWalkParams::transitionDuration),
-                  bp::make_setter(&OCPWalkParams::transitionDuration),
-                  ".")
-    ;
+      .add_property("stateImportance",
+                    bp::make_getter(&OCPWalkParams::stateImportance,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPWalkParams::stateImportance), ".")
+
+      .add_property("stateTerminalImportance",
+                    bp::make_getter(&OCPWalkParams::stateTerminalImportance,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPWalkParams::stateTerminalImportance),
+                    ".")
+
+      .add_property("controlImportance",
+                    bp::make_getter(&OCPWalkParams::controlImportance,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPWalkParams::controlImportance), ".")
+
+      .add_property("vcomImportance",
+                    bp::make_getter(&OCPWalkParams::vcomImportance,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPWalkParams::vcomImportance), ".")
+
+      .add_property("forceImportance",
+                    bp::make_getter(&OCPWalkParams::forceImportance,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPWalkParams::forceImportance), ".")
+
+      .add_property("vcomRef",
+                    bp::make_getter(&OCPWalkParams::vcomRef,
+                                    bp::return_internal_reference<>()),
+                    bp::make_setter(&OCPWalkParams::vcomRef), ".")
+
+      .add_property("footSize", bp::make_getter(&OCPWalkParams::footSize),
+                    bp::make_setter(&OCPWalkParams::footSize), ".")
+      .add_property("refStateWeight",
+                    bp::make_getter(&OCPWalkParams::refStateWeight),
+                    bp::make_setter(&OCPWalkParams::refStateWeight), ".")
+      .add_property("refTorqueWeight",
+                    bp::make_getter(&OCPWalkParams::refTorqueWeight),
+                    bp::make_setter(&OCPWalkParams::refTorqueWeight), ".")
+      .add_property("comWeight", bp::make_getter(&OCPWalkParams::comWeight),
+                    bp::make_setter(&OCPWalkParams::comWeight), ".")
+      .add_property("vcomWeight", bp::make_getter(&OCPWalkParams::vcomWeight),
+                    bp::make_setter(&OCPWalkParams::vcomWeight), ".")
+      .add_property("copWeight", bp::make_getter(&OCPWalkParams::copWeight),
+                    bp::make_setter(&OCPWalkParams::copWeight), ".")
+      .add_property("conePenaltyWeight",
+                    bp::make_getter(&OCPWalkParams::conePenaltyWeight),
+                    bp::make_setter(&OCPWalkParams::conePenaltyWeight), ".")
+      .add_property("coneAxisWeight",
+                    bp::make_getter(&OCPWalkParams::coneAxisWeight),
+                    bp::make_setter(&OCPWalkParams::coneAxisWeight), ".")
+      .add_property("refForceWeight",
+                    bp::make_getter(&OCPWalkParams::refForceWeight),
+                    bp::make_setter(&OCPWalkParams::refForceWeight), ".")
+      .add_property("impactAltitudeWeight",
+                    bp::make_getter(&OCPWalkParams::impactAltitudeWeight),
+                    bp::make_setter(&OCPWalkParams::impactAltitudeWeight), ".")
+      .add_property("impactVelocityWeight",
+                    bp::make_getter(&OCPWalkParams::impactVelocityWeight),
+                    bp::make_setter(&OCPWalkParams::impactVelocityWeight), ".")
+      .add_property("impactRotationWeight",
+                    bp::make_getter(&OCPWalkParams::impactRotationWeight),
+                    bp::make_setter(&OCPWalkParams::impactRotationWeight), ".")
+      .add_property(
+          "refMainJointsAtImpactWeight",
+          bp::make_getter(&OCPWalkParams::refMainJointsAtImpactWeight),
+          bp::make_setter(&OCPWalkParams::refMainJointsAtImpactWeight), ".")
+      .add_property("verticalFootVelWeight",
+                    bp::make_getter(&OCPWalkParams::verticalFootVelWeight),
+                    bp::make_setter(&OCPWalkParams::verticalFootVelWeight), ".")
+      .add_property("flyHighSlope",
+                    bp::make_getter(&OCPWalkParams::flyHighSlope),
+                    bp::make_setter(&OCPWalkParams::flyHighSlope), ".")
+      .add_property("flyHighWeight",
+                    bp::make_getter(&OCPWalkParams::flyHighWeight),
+                    bp::make_setter(&OCPWalkParams::flyHighWeight), ".")
+      .add_property("groundColWeight",
+                    bp::make_getter(&OCPWalkParams::groundColWeight),
+                    bp::make_setter(&OCPWalkParams::groundColWeight), ".")
+      .add_property("footMinimalDistance",
+                    bp::make_getter(&OCPWalkParams::footMinimalDistance),
+                    bp::make_setter(&OCPWalkParams::footMinimalDistance), ".")
+      .add_property("feetCollisionWeight",
+                    bp::make_getter(&OCPWalkParams::feetCollisionWeight),
+                    bp::make_setter(&OCPWalkParams::feetCollisionWeight), ".")
+      .add_property("kktDamping", bp::make_getter(&OCPWalkParams::kktDamping),
+                    bp::make_setter(&OCPWalkParams::kktDamping), ".")
+      .add_property("stateTerminalWeight",
+                    bp::make_getter(&OCPWalkParams::stateTerminalWeight),
+                    bp::make_setter(&OCPWalkParams::stateTerminalWeight), ".")
+      .add_property("solver_th_stop",
+                    bp::make_getter(&OCPWalkParams::solver_th_stop),
+                    bp::make_setter(&OCPWalkParams::solver_th_stop), ".")
+      .add_property("transitionDuration",
+                    bp::make_getter(&OCPWalkParams::transitionDuration),
+                    bp::make_setter(&OCPWalkParams::transitionDuration), ".");
 }
 
-  void exposeRefForce() {
-        bp::def("computeWeightShareSmoothProfile",
-                &computeWeightShareSmoothProfile,
-                bp::args("contact_pattern","duration"), //,"robotGravityForce"),
-                "Compute the smooth weight transfer between contact points");
-                //bp::return_value_policy<bp::return_by_value>());
-  }
+void exposeRefForce() {
+  bp::def("computeWeightShareSmoothProfile", &computeWeightShareSmoothProfile,
+          bp::args("contact_pattern", "duration"),  //,"robotGravityForce"),
+          "Compute the smooth weight transfer between contact points");
+  // bp::return_value_policy<bp::return_by_value>());
+}
 
 void exposeOCPWalkclass() {
   bp::register_ptr_to_python<boost::shared_ptr<OCPWalk> >();
@@ -219,9 +203,9 @@ void exposeOCPWalkclass() {
   bp::class_<OCPWalk>(
       "OCPWalk",
       bp::init<boost::shared_ptr<OCPRobotWrapper>,
-      boost::shared_ptr<OCPWalkParams>,Eigen::MatrixXd >
-      (bp::args("self","robot","params","contact_patter"),
-       "Initialize the OCP from robot, params and contact pattern"))
+               boost::shared_ptr<OCPWalkParams>, Eigen::MatrixXd>(
+          bp::args("self", "robot", "params", "contact_patter"),
+          "Initialize the OCP from robot, params and contact pattern"))
       // .add_property(
       //     "vcomRef",
       //     bp::make_getter(&OCPWalk::vcomRef,
@@ -232,10 +216,10 @@ void exposeOCPWalkclass() {
       // bp::make_getter(&OCPWalk::solver_th_stop),
       //               bp::make_setter(&OCPWalk::solver_th_stop),
       //               "Stop threshold to configure the solver.")
-      
+
       .def("buildRunningModels", &OCPWalk::buildRunningModels)
 
-      .def("buildSolver",&OCPWalk::buildSolver)
+      .def("buildSolver", &OCPWalk::buildSolver)
       .def("buildInitialGuess", &OCPWalk::buildInitialGuess)
       .add_property(
           "problem",
@@ -254,9 +238,7 @@ void exposeOCPWalkclass() {
           "State model of the terminal node")
       .add_property("referenceForces",
                     bp::make_getter(&OCPWalk::referenceForces),
-                    bp::make_setter(&OCPWalk::referenceForces),
-                    ".")
-      ;
+                    bp::make_setter(&OCPWalk::referenceForces), ".");
 }
 
 void exposeOCPWalk() {

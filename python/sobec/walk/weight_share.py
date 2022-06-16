@@ -52,10 +52,11 @@ def weightShareSmoothProfile(
 
     return contactImportance
 
-def computeBestTransitionDuration(contactPattern,maxTransitionDuration):
-    '''
+
+def computeBestTransitionDuration(contactPattern, maxTransitionDuration):
+    """
     Compute the maximal transition duration to avoid bad effects in weightShareSmoothProfile().
-    '''
+    """
     contactState = []
     dur = mindur = len(contactPattern)
     for t, s in enumerate(contactPattern):
@@ -69,6 +70,7 @@ def computeBestTransitionDuration(contactPattern,maxTransitionDuration):
     transitionDuration = min((mindur - 1) // 2, maxTransitionDuration)
     return transitionDuration
 
+
 def computeReferenceForces(contactPattern, robotweight, maxTransitionDuration=50):
     """
     # The force costs are defined using a reference (smooth) force.
@@ -76,7 +78,9 @@ def computeReferenceForces(contactPattern, robotweight, maxTransitionDuration=50
     """
     T = len(contactPattern)
 
-    transitionDuration = computeBestTransitionDuration(contactPattern,maxTransitionDuration)
+    transitionDuration = computeBestTransitionDuration(
+        contactPattern, maxTransitionDuration
+    )
 
     # Compute contact importance, ie how much of the weight should be supported by each
     # foot at each time.

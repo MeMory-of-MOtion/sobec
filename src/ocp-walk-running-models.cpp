@@ -15,7 +15,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
   state = boost::make_shared<StateMultibody>(robot->model);
   actuation = boost::make_shared<ActuationModelFloatingBase>(state);
 
-  int N = contact_pattern.cols()-1;
+  int N = contact_pattern.cols() - 1;
   std::vector<AMA> models;
   for (int i = 0; i < N; ++i) {
     // Contacts
@@ -41,7 +41,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
         params->stateImportance.cwiseProduct(params->stateImportance));
     auto xRegCost = boost::make_shared<CostModelResidual>(
         state, activation_state, xRegResidual);
-    if (params->refStateWeight>0)
+    if (params->refStateWeight > 0)
       costs->addCost("stateReg", xRegCost, params->refStateWeight);
 
     auto uResidual =
@@ -70,7 +70,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
         boost::make_shared<ActivationModelWeightedQuad>(params->vcomImportance);
     auto comVelCost =
         boost::make_shared<CostModelResidual>(state, comVelAct, comVelResidual);
-    if(params->vcomWeight)
+    if (params->vcomWeight)
       costs->addCost("comVelCost", comVelCost, params->vcomWeight);
 
     // Contact costs
@@ -89,7 +89,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
       auto copAct = boost::make_shared<ActivationModelWeightedQuad>(w_cop);
       auto copCost =
           boost::make_shared<CostModelResidual>(state, copAct, copResidual);
-      if(params->copWeight>0)
+      if (params->copWeight > 0)
         costs->addCost(robot->model->frames[cid].name + "_cop", copCost,
                        params->copWeight);
 
@@ -112,7 +112,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
           ActivationBounds(cone.get_lb(), ub));
       auto coneCostRes =
           boost::make_shared<CostModelResidual>(state, coneAct, coneCost);
-      if(params->conePenaltyWeight>0)
+      if (params->conePenaltyWeight > 0)
         costs->addCost(robot->model->frames[cid].name + "_cone", coneCostRes,
                        params->conePenaltyWeight);
 
@@ -129,9 +129,9 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
       auto coneAxisAct = boost::make_shared<ActivationModelWeightedQuad>(w);
       auto coneAxisCost = boost::make_shared<CostModelResidual>(
           state, coneAxisAct, coneAxisResidual);
-      if(params->coneAxisWeight>0)
-        costs->addCost(robot->model->frames[cid].name + "_coneaxis", coneAxisCost,
-                       params->coneAxisWeight);
+      if (params->coneAxisWeight > 0)
+        costs->addCost(robot->model->frames[cid].name + "_coneaxis",
+                       coneAxisCost, params->coneAxisWeight);
 
       // # Follow reference (smooth) contact forces
       auto forceRefResidual =
@@ -140,10 +140,11 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
               actuation->get_nu());
       auto forceRefCost =
           boost::make_shared<CostModelResidual>(state, forceRefResidual);
-      if(params->refForceWeight>0)
-        costs->addCost(robot->model->frames[cid].name + "_forceref", forceRefCost,
-                       params->refForceWeight /
-                       (robot->robotGravityForce * robot->robotGravityForce));
+      if (params->refForceWeight > 0)
+        costs->addCost(
+            robot->model->frames[cid].name + "_forceref", forceRefCost,
+            params->refForceWeight /
+                (robot->robotGravityForce * robot->robotGravityForce));
     }
 
     // IMPACT
@@ -151,7 +152,8 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
     for (int k = 0; k < robot->contactIds.size(); ++k) {
       auto cid = robot->contactIds[k];
 
-      if (i > 0 && (contact_pattern(k, i - 1) == 0.) && (contact_pattern(k, i) == 1.)) {
+      if (i > 0 && (contact_pattern(k, i - 1) == 0.) &&
+          (contact_pattern(k, i) == 1.)) {
         // REMEMBER TO divide the weight by p.DT, as impact should be
         // independant of the node duration (at least, that s how weights are
         // tuned in casadi)
@@ -163,7 +165,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
             boost::make_shared<ActivationModelWeightedQuad>(impactActVec);
         auto impactCost = boost::make_shared<CostModelResidual>(
             state, impactAct, impactResidual);
-        if(params->impactAltitudeWeight>0)
+        if (params->impactAltitudeWeight > 0)
           costs->addCost(robot->model->frames[cid].name + "_altitudeimpact",
                          impactCost, params->impactAltitudeWeight / params->DT);
 
@@ -172,7 +174,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
             actuation->get_nu());
         auto impactVelCost =
             boost::make_shared<CostModelResidual>(state, impactVelResidual);
-        if(params->impactVelocityWeight>0)
+        if (params->impactVelocityWeight > 0)
           costs->addCost(robot->model->frames[cid].name + "_velimpact",
                          impactVelCost,
                          params->impactVelocityWeight / params->DT);
@@ -185,7 +187,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
             boost::make_shared<ActivationModelWeightedQuad>(impactRotVec);
         auto impactRotCost = boost::make_shared<CostModelResidual>(
             state, impactRotAct, impactRotResidual);
-        if(params->impactRotationWeight>0)
+        if (params->impactRotationWeight > 0)
           costs->addCost(robot->model->frames[cid].name + "_rotimpact",
                          impactRotCost,
                          params->impactRotationWeight / params->DT);
@@ -201,7 +203,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
             boost::make_shared<ActivationModelWeightedQuad>(jselec);
         auto impactRefJointCost = boost::make_shared<CostModelResidual>(
             state, impactRefJointsAct, impactRefJointsResidual);
-        if(params->refMainJointsAtImpactWeight>0)
+        if (params->refMainJointsAtImpactWeight > 0)
           costs->addCost("impactRefJoint", impactRefJointCost,
                          params->refMainJointsAtImpactWeight / params->DT);
       }
@@ -222,7 +224,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
           verticalFootVelActVec);
       auto verticalFootVelCost = boost::make_shared<CostModelResidual>(
           state, verticalFootVelAct, verticalFootVelResidual);
-      if(params->verticalFootVelWeight>0)
+      if (params->verticalFootVelWeight > 0)
         costs->addCost(robot->model->frames[fid].name + "_vfoot_vel",
                        verticalFootVelCost, params->verticalFootVelWeight);
 
@@ -231,7 +233,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
           state, fid, params->flyHighSlope / 2.0, actuation->get_nu());
       auto flyHighCost =
           boost::make_shared<CostModelResidual>(state, flyHighResidual);
-      if(params->flyHighWeight>0)
+      if (params->flyHighWeight > 0)
         costs->addCost(robot->model->frames[fid].name + "_flyhigh", flyHighCost,
                        params->flyHighWeight);
 
@@ -245,7 +247,7 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
           boost::make_shared<ActivationModelQuadraticBarrier>(groundColBounds);
       auto groundColCost = boost::make_shared<CostModelResidual>(
           state, groundColAct, groundColRes);
-      if(params->groundColWeight>0)
+      if (params->groundColWeight > 0)
         costs->addCost(robot->model->frames[fid].name + "_groundcol",
                        groundColCost, params->groundColWeight);
 
@@ -273,9 +275,9 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
                     feetColBounds);
             auto feetColCost = boost::make_shared<CostModelResidual>(
                 state, feetColAct, feetColResidual);
-            if(params->feetCollisionWeight>0)
+            if (params->feetCollisionWeight > 0)
               costs->addCost("feetcol_" + robot->model->frames[id1].name +
-                             "_VS_" + robot->model->frames[id2].name,
+                                 "_VS_" + robot->model->frames[id2].name,
                              feetColCost, params->feetCollisionWeight);
           }
       }

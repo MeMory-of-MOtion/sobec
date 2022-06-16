@@ -15,8 +15,7 @@
 
 namespace sobec {
 
-  AMA OCPWalk::buildTerminalModel()
-  {
+AMA OCPWalk::buildTerminalModel() {
   // Horizon length
   int T = contact_pattern.cols() - 1;
 

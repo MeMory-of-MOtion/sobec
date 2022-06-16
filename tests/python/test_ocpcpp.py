@@ -25,38 +25,32 @@ assert norm(pyrobot.x0 - robot.x0) < 1e-9
 pyparams = pyWalkParams(pyrobot.name)
 params = sobec.OCPWalkParams()
 
-for k,v in pyparams.__dict__.items():
-    if hasattr(params,k):
+for k, v in pyparams.__dict__.items():
+    if hasattr(params, k):
         try:
-            if k[:2]!='__':
-                params.__setattr__(k,v)
+            if k[:2] != "__":
+                params.__setattr__(k, v)
         except ArgumentError:
-            print('*** ', k,' cannot be allocated to ',v)
+            print("*** ", k, " cannot be allocated to ", v)
     else:
-        print(k,' is not a field of params')
-for k,v in pyparams.__class__.__dict__.items():
-    if hasattr(params,k):
+        print(k, " is not a field of params")
+for k, v in pyparams.__class__.__dict__.items():
+    if hasattr(params, k):
         try:
-            if k[:2]!='__':
-                params.__setattr__(k,v)
+            if k[:2] != "__":
+                params.__setattr__(k, v)
         except ArgumentError:
-            print('*** ', k,' cannot be allocated to ',v)
+            print("*** ", k, " cannot be allocated to ", v)
     else:
-        print(k,' is not a field of params')
+        print(k, " is not a field of params")
 
 # --- CONTACT PATTERN
-pycontactPattern = (
-    []
-    + [[1, 1]] * 10
-    + [[1, 0]] * 20
-    + [[1, 1]] * 11
-    + [[1, 1]]
-)
+pycontactPattern = [] + [[1, 1]] * 10 + [[1, 0]] * 20 + [[1, 1]] * 11 + [[1, 1]]
 contactPattern = np.array(pycontactPattern).T
-params.transitionDuration = computeBestTransitionDuration(pycontactPattern,50)
+params.transitionDuration = computeBestTransitionDuration(pycontactPattern, 50)
 
 # --- OCP
-pyocp = pyOCPWalk.buildSolver(pyrobot,pycontactPattern,pyparams)
+pyocp = pyOCPWalk.buildSolver(pyrobot, pycontactPattern, pyparams)
 ocp = sobec.OCPWalk(robot, params, contactPattern)
 ocp.buildSolver()
 
@@ -67,4 +61,4 @@ ocp.buildSolver()
 pyserial = reprProblem(pyocp.problem)
 cppserial = reprProblem(ocp.problem)
 
-assert(pyserial == cppserial)
+assert pyserial == cppserial

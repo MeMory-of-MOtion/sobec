@@ -13,17 +13,14 @@ namespace sobec {
 OCPWalk::OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot,
                  boost::shared_ptr<OCPWalkParams> params,
                  const Eigen::Ref<const Eigen::MatrixXd> contact_pattern)
-  :  contact_pattern(contact_pattern), params(params), robot(robot)
-{
+    : contact_pattern(contact_pattern), params(params), robot(robot) {
   computeReferenceForces();
 }
 
-void OCPWalk::buildSolver()
-{
+void OCPWalk::buildSolver() {
   auto models = buildRunningModels();
   auto termmodel = buildTerminalModel();
-  problem =
-      boost::make_shared<ShootingProblem>(robot->x0, models, termmodel);
+  problem = boost::make_shared<ShootingProblem>(robot->x0, models, termmodel);
   solver = boost::make_shared<SolverFDDP>(problem);
   solver->set_th_stop(params->solver_th_stop);
 }
