@@ -19,7 +19,6 @@
 #include "crocoddyl/multibody/states/multibody.hpp"
 #include "sobec/contact/contact1d.hpp"
 #include "sobec/contact/contact3d.hpp"
-#include "sobec/contact/fwd.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {

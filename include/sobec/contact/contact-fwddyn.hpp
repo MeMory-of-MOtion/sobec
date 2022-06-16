@@ -19,7 +19,6 @@
 #include "crocoddyl/multibody/states/multibody.hpp"
 // #include "crocoddyl/multibody/data/contacts.hpp"
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
-#include "sobec/contact/fwd.hpp"
 #include "sobec/contact/multiple-contacts.hpp"
 #include "sobec/fwd.hpp"
 

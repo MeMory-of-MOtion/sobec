@@ -113,6 +113,59 @@ typedef boost::shared_ptr<crocoddyl::ResidualModelFramePlacement>
 typedef boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone>
     ResidualModelContactWrenchConePtr;
 
+// State LPF
+template <typename Scalar>
+class StateLPFTpl;
+typedef StateLPFTpl<double> StateLPF;
+
+// IAM LPF
+template <typename Scalar>
+class IntegratedActionModelLPFTpl;
+typedef IntegratedActionModelLPFTpl<double> IntegratedActionModelLPF;
+template <typename Scalar>
+class IntegratedActionDataLPFTpl;
+typedef IntegratedActionDataLPFTpl<double> IntegratedActionDataLPF;
+
+// contact 3D
+template <typename Scalar>
+class ContactModel3DTpl;
+typedef ContactModel3DTpl<double> ContactModel3D;
+template <typename Scalar>
+class ContactData3DTpl;
+typedef ContactData3DTpl<double> ContactData3D;
+
+// contact 1D
+template <typename Scalar>
+class ContactModel1DTpl;
+typedef ContactModel1DTpl<double> ContactModel1D;
+template <typename Scalar>
+class ContactData1DTpl;
+typedef ContactData1DTpl<double> ContactData1D;
+
+// multiple contacts
+template <typename Scalar>
+class ContactModelMultipleTpl;
+typedef ContactModelMultipleTpl<double> ContactModelMultiple;
+
+// DAM contact fwd dynamics
+template <typename Scalar>
+class DifferentialActionModelContactFwdDynamicsTpl;
+typedef DifferentialActionModelContactFwdDynamicsTpl<double>
+    DifferentialActionModelContactFwdDynamics;
+
+// Residual contact force
+template <typename Scalar>
+class ResidualModelContactForceTpl;
+typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
+
+enum ContactType {
+  ContactUndefined,
+  Contact1D,
+  Contact2D,
+  Contact3D,
+  Contact6D
+};
+
 // OCP
 class OCPWalkParam;
 class OCPWalk;
