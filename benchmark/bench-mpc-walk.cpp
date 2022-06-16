@@ -33,7 +33,7 @@ int main() {
       {14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33};
   // talos 12
   //{14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
-  //33};
+  // 33};
   std::cout << "I am going to lock the following joints: " << std::endl;
   for (pinocchio::JointIndex i : jointToLock_ids) {
     std::cout << i << " => " << fullmodel->names[i] << std::endl;
