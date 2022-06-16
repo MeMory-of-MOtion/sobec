@@ -199,7 +199,8 @@ for s in range(conf.T_total * conf.Nc):
 
         print_trajectory(mpc.ref_LF_poses)
 
-    torques = mpc.iterate(s, q_current, v_current)
+    mpc.iterate(s, q_current, v_current)
+    torques = horizon.currentTorques(mpc.x0)
 
     if conf.simulator == "bullet":
         device.execute(torques)

@@ -86,9 +86,12 @@ void exposeWBC() {
            bp::args("self", "iteration"))
       .def("setDesiredFeetPoses", &WBC::setDesiredFeetPoses,
            bp::args("self", "iteration", "time"))
-      .def("iterate", &WBC::iterate,
+      .def("iterate", static_cast<void (WBC::*)(const int &, const Eigen::VectorXd &, const Eigen::VectorXd &, const bool &)>(&WBC::iterate),
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
             bp::arg("v_current"), bp::arg("is_feasible") = false))
+      .def("iterate", static_cast<void (WBC::*)(const Eigen::VectorXd &, const Eigen::VectorXd &, const bool &)>(&WBC::iterate),
+           (bp::arg("self"), bp::arg("q_current"),
+            bp::arg("v_current"), bp::arg("is_feasible") = false))        
       .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle,
                             bp::args("self"))
       .def<void (WBC::*)(HorizonManager &)>(
