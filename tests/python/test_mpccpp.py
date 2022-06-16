@@ -5,9 +5,11 @@ Test the complete implementation of the OCP+MPC in C++.
 
 
 import numpy as np
-from numpy.linalg import norm
+
+# from numpy.linalg import norm
 import example_robot_data as robex
-import crocoddyl as croc
+
+# import crocoddyl as croc
 import sobec
 from sobec.walk import miscdisp
 

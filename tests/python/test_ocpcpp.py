@@ -27,20 +27,21 @@ params = sobec.OCPWalkParams()
 
 for k, v in pyparams.__dict__.items():
     if hasattr(params, k):
-        try:
-            if k[:2] != "__":
-                params.__setattr__(k, v)
-        except ArgumentError:
-            print("*** ", k, " cannot be allocated to ", v)
+        # TODO: "ArgumentError" doesn't exist, does it ? In argparse maybe ?
+        # try:
+        if k[:2] != "__":
+            params.__setattr__(k, v)
+        # except ArgumentError:
+        # print("*** ", k, " cannot be allocated to ", v)
     else:
         print(k, " is not a field of params")
 for k, v in pyparams.__class__.__dict__.items():
     if hasattr(params, k):
-        try:
-            if k[:2] != "__":
-                params.__setattr__(k, v)
-        except ArgumentError:
-            print("*** ", k, " cannot be allocated to ", v)
+        # try:
+        if k[:2] != "__":
+            params.__setattr__(k, v)
+        # except ArgumentError:
+        # print("*** ", k, " cannot be allocated to ", v)
     else:
         print(k, " is not a field of params")
 

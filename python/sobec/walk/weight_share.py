@@ -55,7 +55,8 @@ def weightShareSmoothProfile(
 
 def computeBestTransitionDuration(contactPattern, maxTransitionDuration):
     """
-    Compute the maximal transition duration to avoid bad effects in weightShareSmoothProfile().
+    Compute the maximal transition duration to avoid bad effects in
+    weightShareSmoothProfile().
     """
     contactState = []
     dur = mindur = len(contactPattern)
