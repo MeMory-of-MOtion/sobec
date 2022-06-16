@@ -74,16 +74,16 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
   takeoff_RF = land_LF + settings_.TdoubleSupport;
   land_RF = land_LF + settings_.Tstep;
   takeoff_LF = takeoff_RF + settings_.Tstep;
-  
+
   for (int i = 0; i < 2 * settings_.Tstep; i++) {
-    if (i < land_RF)
+    if (i < takeoff_RF)
+      cycle.push_back(DOUBLE);
+    else if (i < land_RF)
       cycle.push_back(LEFT);
     else if (i < takeoff_LF)
       cycle.push_back(DOUBLE);
-    else if (i < land_LF)
-      cycle.push_back(RIGHT);
     else
-      cycle.push_back(DOUBLE);
+      cycle.push_back(RIGHT);
   }
   std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
@@ -124,10 +124,9 @@ void WBC::setDesiredFeetPoses(const int & /*iteration*/, const int & /*time*/) {
       "not implemented!!!");
 }
 
-void WBC::iterate(const int &iteration,
-                             const Eigen::VectorXd &q_current,
-                             const Eigen::VectorXd &v_current,
-                             const bool &is_feasible) {
+void WBC::iterate(const Eigen::VectorXd &q_current,
+                  const Eigen::VectorXd &v_current,
+                  const bool &is_feasible) {
   x0_ = shapeState(q_current, v_current);
   // ~~TIMING~~ //
   updateStepCycleTiming();
@@ -149,6 +148,17 @@ void WBC::iterate(const int &iteration,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
+void WBC::iterate(const int &iteration,
+                  const Eigen::VectorXd &q_current,
+                  const Eigen::VectorXd &v_current,
+                  const bool &is_feasible) {
+  if (timeToSolveDDP(iteration)) {
+    iterate(q_current, v_current, is_feasible);
+  }
+  else
+    x0_ = shapeState(q_current, v_current);
+}
+
 void WBC::updateStepTrackerReferences() {
   for (unsigned long time = 0; time < horizon_.size(); time++) {
     horizon_.setPoseReferenceLF(time, "placement_LF", getPoseRef_LF(time));
@@ -157,15 +167,16 @@ void WBC::updateStepTrackerReferences() {
   }
 }
 
-void WBC::updateStepTrackerLastReference(){
-  horizon_.setPoseReferenceLF(horizon_.size()-1, "placement_LF", getPoseRef_LF(horizon_.size()-1));
-  horizon_.setPoseReferenceRF(horizon_.size()-1, "placement_RF", getPoseRef_RF(horizon_.size()-1));
+void WBC::updateStepTrackerLastReference() {
+  horizon_.setPoseReferenceLF(horizon_.size() - 1, "placement_LF",
+                              getPoseRef_LF(horizon_.size() - 1));
+  horizon_.setPoseReferenceRF(horizon_.size() - 1, "placement_RF",
+                              getPoseRef_RF(horizon_.size() - 1));
   ref_LF_poses_.erase(ref_LF_poses_.begin());
-  ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size()-1]);
+  ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size() - 1]);
   ref_RF_poses_.erase(ref_RF_poses_.begin());
-  ref_RF_poses_.push_back(ref_RF_poses_[horizon_.size()-1]);
+  ref_RF_poses_.push_back(ref_RF_poses_[horizon_.size() - 1]);
 }
-
 
 void WBC::updateNonThinkingReferences() {
   for (unsigned long time = 0; time < horizon_.size(); time++) {

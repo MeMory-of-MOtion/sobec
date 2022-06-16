@@ -11,6 +11,7 @@ typedef boost::shared_ptr<sobec::MPCWalk> MPCWalkPtr;
 
 ShootingProblemPtr initShootingProblem(const char* fileName);
 MPCWalkPtr initMPCWalk(const char* fileName);
+bool reprProblem(ShootingProblemPtr problem);
 
 }  // namespace sobec
 

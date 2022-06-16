@@ -3,6 +3,7 @@
 #include <crocoddyl/multibody/fwd.hpp>
 
 #include "sobec/designer.hpp"
+#include "sobec/residual-cop.hpp"
 
 namespace sobec {
 
@@ -212,9 +213,34 @@ void ModelMaker::defineCoMVelocity(Cost &costCollector) {
                                true);
 }
 
-void defineCoPTask(Cost &costCollector) {
-    // IMPLEMENTING
+void ModelMaker::defineCoPTask(Cost &costCollector, const Support &support) {
+  Eigen::Vector2d w_cop;
+  double value = 1.0 / (settings_.footSize * settings_.footSize);
+  w_cop << value, value;
 
+    //LEFT
+  boost::shared_ptr<crocoddyl::CostModelResidual> copCostLF =
+  boost::make_shared<crocoddyl::CostModelResidual>( state_, 
+  boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop),
+  boost::make_shared<ResidualModelCenterOfPressure>(state_, 
+  designer_.get_LF_id(), actuation_->get_nu()));
+
+    // RIGHT 
+  boost::shared_ptr<crocoddyl::CostModelResidual> copCostRF =
+  boost::make_shared<crocoddyl::CostModelResidual>( state_, 
+  boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop),
+  boost::make_shared<ResidualModelCenterOfPressure>(state_, 
+  designer_.get_RF_id(), actuation_->get_nu()));
+
+  costCollector->addCost(designer_.get_LF_name() + "_cop", copCostLF,
+                            settings_.wCoP, false);
+  costCollector->addCost(designer_.get_RF_name() + "_cop", copCostRF,
+                            settings_.wCoP, false);
+  if (support == Support::LEFT || support == Support::DOUBLE)
+    costCollector->changeCostStatus(designer_.get_LF_name() + "_cop", true);
+
+  if (support == Support::RIGHT || support == Support::DOUBLE)
+    costCollector->changeCostStatus(designer_.get_RF_name() + "_cop", true);
 }
 
 AMA ModelMaker::formulateStepTracker(const Support &support) {
