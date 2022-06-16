@@ -3,6 +3,16 @@ import numpy as np
 
 
 class WalkParams(swparams.WalkParams):
+    DT = 0.015
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.8 / DT)  # 60
+    # I prefer an even number for Tdouble
+    Tdouble = 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
+    Tend = int(0.3 / DT)
+    Tmpc = int(1.4 / DT)  # 1.6 
+    
+    vcomRef = np.array([0*0.05, 0, 0])
+    
     def __init__(self, name="talos_14"):
         swparams.WalkParams.__init__(self, name)
         #super(swparams.WalkParams, self).__init__(self, name)

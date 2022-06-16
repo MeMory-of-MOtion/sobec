@@ -66,7 +66,7 @@ q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
 # ## Load urdf model in pinocchio and bullet
 simu = SimuProxy()
 simu.loadExampleRobot("talos")
-simu.rmodel.q0 = q_init
+#simu.rmodel.q0 = q_init
 simu.loadBulletModel()  # pyb.GUI)
 simu.freeze(talos_low.jointToLockNames)
 simu.setTorqueControlMode()
@@ -75,7 +75,7 @@ simu.setTalosDefaultFriction()
 # ## OCP ########################################################################
 
 robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
-robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
+#robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
 walkParams = WalkParams(robot.name)
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
@@ -158,6 +158,7 @@ def play():
         viz.display(hx[i][: robot.model.nq])
         time.sleep(1e-2)
 
+croc.enable_profiler()
 
 # FOR LOOP
 for s in range(int(20.0 / walkParams.DT)):
@@ -222,6 +223,8 @@ for s in range(int(20.0 / walkParams.DT)):
         time.sleep(1)
         viz0.play(np.array(mpc.solver.xs)[:, : robot.model.nq].T, walkParams.DT)
         time.sleep(1)
+
+croc.stop_watch_report(3)
 
 # #####################################################################################
 # #####################################################################################
