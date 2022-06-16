@@ -7,11 +7,13 @@
 #include <sobec/ocp-walk.hpp>
 #include <sobec/py2cpp.hpp>
 #include "mpc-walk-automaticallygeneratedinit.hpp"
+#include "crocoddyl/core/utils/callbacks.hpp"
 
 int main() {
   using namespace sobec;
   using namespace crocoddyl;
 
+  // --- LOAD FROM URDF+SRDF
   // Load full Talos model
   const std::string urdf =
       "/opt/openrobots/share/example-robot-data/robots/talos_data/robots/"
@@ -23,45 +25,25 @@ int main() {
   pinocchio::urdf::buildModel(urdf, pinocchio::JointModelFreeFlyer(),
                               *fullmodel);
 
-  // Reduce it
-  // buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> &
-  // model,
-  //                   std::vector<JointIndex> list_of_joints_to_lock,
-  //                   const Eigen::MatrixBase<ConfigVectorType> &
-  //                   reference_configuration,
-  //                   ModelTpl<Scalar,Options,JointCollectionTpl> &
-  //                   reduced_model);
-
+  // -- REDUCED MODEL
+  // Choose to lock the upper body
   std::vector<pinocchio::JointIndex> jointToLock_ids =
   // talos 14
     { 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33 };
   //talos 12
   //{14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33};
-
   std::cout << "I am going to lock the following joints: " << std::endl;
   for (pinocchio::JointIndex i : jointToLock_ids) {
     std::cout << i << " => " << fullmodel->names[i] << std::endl;
   }
-  // TODO: read q0 from SRDF
-  // Eigen::VectorXd q0(fullmodel->nq);
-  // q0 << 0, 0, 1.01927e+00, 0, 0
-  //   , 0, 1.00000e+00, 0, 0, -4.11354e-01
-  //   , 8.59395e-01, -4.48041e-01, -1.70800e-03, 0, 0
-  //   , -4.11354e-01, 8.59395e-01, -4.48041e-01, -1.70800e-03, 0
-  //   , 6.76100e-03, 2.58470e-01, 1.73046e-01, -2.00000e-04, -5.25366e-01
-  //   , 0, 0, 1.00000e-01, 0, -2.58470e-01
-  //   , -1.73046e-01, 2.00000e-04, -5.25366e-01, 0, 0
-  //   , 1.00000e-01, 0, 0, 0;
-
   pinocchio::srdf::loadReferenceConfigurations(*fullmodel, srdf);
   const Eigen::VectorXd q0 = fullmodel->referenceConfigurations["half_sitting"];
-  std::cout << "Config q0 = " << q0 << std::endl;
-
+  // Build new model by locking joints
   auto model = boost::make_shared<pinocchio::Model>();
   pinocchio::buildReducedModel(*fullmodel, jointToLock_ids, q0, *model);
   pinocchio::srdf::loadReferenceConfigurations(*model, srdf);
 
-  // Robot and Params
+  // --- ROBOT WRAPPER
   auto robot = boost::make_shared<sobec::OCPRobotWrapper>(model, "sole_link",
                                                           "half_sitting");
   if(!checkAutomaticallyGeneratedCodeCompatibility(robot))
@@ -87,7 +69,7 @@ int main() {
   patternStart.fill(1);
   Eigen::MatrixXd patternDouble(2, mpcparams->Tdouble);
   patternDouble.fill(1);
-  Eigen::MatrixXd patternEnd(2, mpcparams->Tend);
+  Eigen::MatrixXd patternEnd(2, mpcparams->Tend+1); // +1 for the terminal node
   patternEnd.fill(1);
   Eigen::MatrixXd patternLeft(2, mpcparams->Tsingle);
   patternLeft.topRows<1>().fill(0);
@@ -96,7 +78,7 @@ int main() {
   patternRight.topRows<1>().fill(1);
   patternRight.bottomRows<1>().fill(0);
 
-  int T = mpcparams->Tstart + mpcparams->Tdouble * 3 + mpcparams->Tsingle * 2 + mpcparams->Tend;
+  int T = mpcparams->Tstart + mpcparams->Tdouble * 3 + mpcparams->Tsingle * 2 + mpcparams->Tend + 1;
   Eigen::MatrixXd contactPattern(2, T);
   contactPattern << patternStart, patternDouble, patternLeft, patternDouble,
     patternRight, patternDouble, patternEnd;
@@ -107,7 +89,26 @@ int main() {
   std::cout << "Init OCP" << std::endl;
   auto ocp = boost::make_shared<OCPWalk>(robot, params, contactPattern);
   ocp->buildSolver();
+  std::cout << "Build guess" << std::endl;
 
+  // std::vector<Eigen::VectorXd> x0s, u0s;
+  // const auto models = ocp->problem->get_runningModels();
+  // const auto datas = ocp->problem->get_runningDatas();
+  // for (int i = 0; i < ocp->problem->get_T() ; i++) {
+  //   x0s.push_back(ocp->problem->get_x0());
+  //   u0s.push_back(models[i]->quasiStatic_x(datas[i], ocp->problem->get_x0()));
+  // }
+
+  auto guess = ocp->buildInitialGuess();
+  std::cout << "X ... " << std::endl;
+  auto x0s = guess.first;
+  for(auto x: x0s)    std::cout<<x.transpose()<<std::endl;
+  std::cout << "U ... " << std::endl;
+  auto u0s = guess.second;
+  for(auto u: u0s)    std::cout<<u.transpose()<<std::endl;
+  ocp->solver->setCallbacks( { boost::make_shared<crocoddyl::CallbackVerbose>() } );
+  ocp->solver->solve(guess.first,guess.second);
+  
   // --- MPC
   auto mpc = boost::make_shared<MPCWalk>(mpcparams,ocp->problem);
 
@@ -119,6 +120,7 @@ int main() {
   }
   xs.push_back(ocp->solver->get_xs()[mpcparams->Tmpc]);
   mpc->initialize(xs, us);
+  mpc->solver->setCallbacks( { boost::make_shared<crocoddyl::CallbackVerbose>() } );
 
   std::cout << "Start the mpc loop" << std::endl;
   Eigen::VectorXd x = robot->x0;
