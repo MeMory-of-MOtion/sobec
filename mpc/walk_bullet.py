@@ -114,9 +114,9 @@ x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 
-# mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
-mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc, walkParams)
+mpcparams = sobec.MPCWalkParams()
+configureMPCWalk(mpcparams, walkParams)
+mpc = sobec.MPCWalk(mpcparams,ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # mpc.solver.setCallbacks([
 # croc.CallbackVerbose(),
@@ -161,7 +161,7 @@ def play():
 croc.enable_profiler()
 
 # FOR LOOP
-for s in range(int(20.0 / walkParams.DT)):
+for s in range(15): #int(20.0 / walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -239,7 +239,7 @@ if walkParams.saveFile is not None:
 
 # The 2 next import must not be included **AFTER** pyBullet starts.
 import matplotlib.pylab as plt  # noqa: E402,F401
-import walk_plotter  # noqa: E402
+import utils.walk_plotter as walk_plotter # noqa: E402
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)
