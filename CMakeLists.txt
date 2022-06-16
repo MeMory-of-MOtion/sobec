@@ -62,7 +62,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/designer.hpp
   include/${PROJECT_NAME}/model_factory.hpp
   include/${PROJECT_NAME}/horizon_manager.hpp
-  # include/${PROJECT_NAME}/ocp.hpp
+  include/${PROJECT_NAME}/ocp.hpp
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
   include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
   include/${PROJECT_NAME}/contact/contact3d.hpp
@@ -93,7 +93,7 @@ set(${PROJECT_NAME}_SOURCES
   src/designer.cpp
   src/model_factory.cpp
   src/horizon_manager.cpp
-  # src/ocp.cpp
+  src/ocp.cpp
   src/wbc.cpp
   src/foot_trajectory.cpp
   src/flexibility_compensation.cpp
@@ -111,6 +111,11 @@ endif()
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
   add_library(${PROJECT_NAME}_py2cpp SHARED src/py2cpp.cpp include/${PROJECT_NAME}/py2cpp.hpp)
+  if(SUFFIX_SO_VERSION)
+    set_target_properties(${PROJECT_NAME}_py2cpp PROPERTIES SOVERSION ${PROJECT_VERSION})
+  endif()
+  install(FILES include/${PROJECT_NAME}/py2cpp.hpp DESTINATION include/${PROJECT_NAME})
+  install(TARGETS ${PROJECT_NAME}_py2cpp EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
   target_link_libraries(${PROJECT_NAME}_py2cpp PUBLIC crocoddyl::crocoddyl)
   target_link_libraries(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_LIBRARIES})
   target_include_directories(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_INCLUDE_DIRS})
