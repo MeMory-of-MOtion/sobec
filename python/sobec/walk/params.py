@@ -4,6 +4,7 @@ OCP.
 """
 
 import numpy as np
+import example_robot_data as robex
 import sobec
 from .talos_collections import jointNamesToIds,jointToLockCollection
 
@@ -212,6 +213,23 @@ def generateParamsFromCppClass(pyobj, cppName, cppClass, verbose=True):
         res += keyValueToCpp(cppName, k, v) + "\n"
     return res
 
+def generateJointLockVector(params):
+    name = params.robotName.split('_') [0]
+    print('// Load robex.load %s' % name)
+    urdf = robex.load(name)
+
+    jointIds = jointNamesToIds(params.jointNamesToLock,urdf.model)
+    jointIds_str = ", ".join([ str(i) for i in jointIds ])
+    res = """
+
+std::vector<pinocchio::JointIndex>> getAutomaticallyGeneratedJointIdsToLock()
+{
+  // Joint id list for model %s
+  return { %s };
+} 
+""" % (params.robotName,jointIds_str)
+
+    return res
 
 def generateParamFileForTheRobot(params, robot=None):
     """
@@ -249,14 +267,7 @@ bool checkAutomaticallyGeneratedCodeCompatibility(
             robot.model.nv,
         )
 
-        res += """
-
-std::vector<pinocchio::JointId> getAutomaticallyGeneratedJointIdsToLock()
-{
-  return { %s };
-} 
-""" % jointNamesToIds(jointToLockCollection[robot.name])
-        
+        res += generateJointLockVector(params)
     return res
 
 
