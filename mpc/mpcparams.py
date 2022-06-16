@@ -2,9 +2,10 @@ import sobec.walk.params as swparams
 import numpy as np
 
 
-class WalkParamsNew(swparams.WalkParams):
+class WalkParams(swparams.WalkParams):
     def __init__(self, name="talos_14"):
-        super(WalkParamsNew, self).__init__(self, name)
+        swparams.WalkParams.__init__(self, name)
+        #super(swparams.WalkParams, self).__init__(self, name)
 
 
 # ### KEPT FOR REFERENCES ##################################################
@@ -81,4 +82,3 @@ class WalkParamsOld(params.WalkParamsOld):
     showPreview = False
 
 
-WalkParams = WalkParamsNew

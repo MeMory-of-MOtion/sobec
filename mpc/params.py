@@ -1,8 +1,8 @@
-from sobec.walk import params
+import sobec.walk.params as swparams
 import numpy as np
 
 
-class WalkParams(params.WalkParams):
+class WalkParams(swparams.WalkParams):
     conePenaltyWeight = 20
     flyHighWeight = 20
     impactVelocityWeight = 200
@@ -12,7 +12,7 @@ class WalkParams(params.WalkParams):
     baumgartGains = np.array([0, 50])
 
     def __init__(self, name="talos_14"):
-        params.WalkParams.__init__(self, name)
+        swparams.WalkParams.__init__(self, name)
 
 
 # ### KEPT FOR REFERENCES ##################################################
