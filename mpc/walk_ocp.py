@@ -98,6 +98,7 @@ problem = ddp.problem
 x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
+croc.enable_profiler()
 ddp.solve(x0s, u0s, 200)
 
 # ### PLOT ######################################################################

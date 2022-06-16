@@ -7,6 +7,7 @@
 namespace sobec {
 namespace python {
 
+void exposeStdContainers();
 void exposeResidualCoMVelocity();
 void exposeResidualVelCollision();
 void exposeResidualCenterOfPressure();
@@ -17,7 +18,10 @@ void exposeDesigner();
 void exposeHorizonManager();
 void exposeModelFactory();
 void exposeIntegratedActionLPF();
+void exposeDAMContactFwdDyn();
+void exposeResidualContactForce();
 void exposeWBC();
+void exposeOCPWalk();
 void exposeMPCWalk();
 
 }  // namespace python

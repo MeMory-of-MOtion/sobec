@@ -51,13 +51,15 @@ u0s = [
 ]
 ddp.solve(x0s, u0s)
 
-mpc = sobec.MPCWalk(problem)
-mpc.Tmpc = Tmpc
-mpc.Tstart = Tstart
-mpc.Tdouble = Tdouble
-mpc.Tsingle = Tsingle
-mpc.Tend = Tend
-mpc.vcomRef = np.array([0.33, 0.1, 0.0])
+mpcparams = sobec.MPCWalkParams()
+mpcparams.Tmpc = Tmpc
+mpcparams.Tstart = Tstart
+mpcparams.Tdouble = Tdouble
+mpcparams.Tsingle = Tsingle
+mpcparams.Tend = Tend
+mpcparams.vcomRef = np.array([0.33, 0.1, 0.0])
+
+mpc = sobec.MPCWalk(mpcparams, problem)
 mpc.initialize([x for x in ddp.xs[: Tmpc + 1]], [u for u in ddp.us[:Tmpc]])
 
 mpc.calc(model.x0, 10)

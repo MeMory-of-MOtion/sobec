@@ -84,6 +84,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
   include/${PROJECT_NAME}/residual-fly-high.hxx
+  include/${PROJECT_NAME}/ocp-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hxx
  )
@@ -95,6 +96,13 @@ set(${PROJECT_NAME}_SOURCES
   # src/ocp.cpp
   src/wbc.cpp
   src/foot_trajectory.cpp
+
+  src/ocp-walk.cpp
+  src/ocp-walk-running-models.cpp
+  src/ocp-walk-terminal.cpp
+  src/ocp-walk-param.cpp
+  src/ocp-walk-robot.cpp
+  src/ocp-ref-forces.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
@@ -109,6 +117,11 @@ endif()
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
   add_library(${PROJECT_NAME}_py2cpp SHARED src/py2cpp.cpp include/${PROJECT_NAME}/py2cpp.hpp)
+  if(SUFFIX_SO_VERSION)
+    set_target_properties(${PROJECT_NAME}_py2cpp PROPERTIES SOVERSION ${PROJECT_VERSION})
+  endif()
+  install(FILES include/${PROJECT_NAME}/py2cpp.hpp DESTINATION include/${PROJECT_NAME})
+  install(TARGETS ${PROJECT_NAME}_py2cpp EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
   target_link_libraries(${PROJECT_NAME}_py2cpp PUBLIC crocoddyl::crocoddyl)
   target_link_libraries(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_LIBRARIES})
   target_include_directories(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_INCLUDE_DIRS})

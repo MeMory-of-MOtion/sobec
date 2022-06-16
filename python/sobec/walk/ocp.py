@@ -15,11 +15,6 @@ if sys.version_info.major < 3:
     FileNotFoundError = IOError
 
 
-# workaround python 2
-if sys.version_info.major < 3:
-    FileNotFoundError = IOError
-
-
 def buildRunningModels(robotWrapper, contactPattern, params):
 
     p = params
@@ -55,7 +50,8 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             croc.ActivationModelWeightedQuad(p.stateImportance**2),
             xRegResidual,
         )
-        costs.addCost("stateReg", xRegCost, p.refStateWeight)
+        if p.refStateWeight > 0:
+            costs.addCost("stateReg", xRegCost, p.refStateWeight)
 
         uResidual = croc.ResidualModelControl(state, actuation.nu)
         uRegCost = croc.CostModelResidual(
@@ -75,7 +71,8 @@ def buildRunningModels(robotWrapper, contactPattern, params):
         comVelResidual = sobec.ResidualModelCoMVelocity(state, p.vcomRef, actuation.nu)
         comVelAct = croc.ActivationModelWeightedQuad(p.vcomImportance)
         comVelCost = croc.CostModelResidual(state, comVelAct, comVelResidual)
-        costs.addCost("comVelCost", comVelCost, p.vcomWeight)
+        if p.vcomWeight > 0:
+            costs.addCost("comVelCost", comVelCost, p.vcomWeight)
 
         # Contact costs
         for k, cid in enumerate(robot.contactIds):
@@ -87,7 +84,10 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 np.array([1.0 / p.footSize**2] * 2)
             )
             copCost = croc.CostModelResidual(state, copAct, copResidual)
-            costs.addCost("%s_cop" % robot.model.frames[cid].name, copCost, p.copWeight)
+            if p.copWeight > 0:
+                costs.addCost(
+                    "%s_cop" % robot.model.frames[cid].name, copCost, p.copWeight
+                )
 
             # Cone with enormous friction (Assuming the robot will barely ever slide).
             # p.footSize is the allowed area size, while cone expects the corner
@@ -106,9 +106,12 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 croc.ActivationBounds(cone.lb, ub)
             )
             coneCost = croc.CostModelResidual(state, coneAct, coneCost)
-            costs.addCost(
-                "%s_cone" % robot.model.frames[cid].name, coneCost, p.conePenaltyWeight
-            )
+            if p.conePenaltyWeight:
+                costs.addCost(
+                    "%s_cone" % robot.model.frames[cid].name,
+                    coneCost,
+                    p.conePenaltyWeight,
+                )
 
             # Penalize the distance to the central axis of the cone ...
             #  ... using normalization weights depending on the axis.
@@ -120,22 +123,24 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             w[2] = 0
             coneAxisAct = croc.ActivationModelWeightedQuad(w)
             coneAxisCost = croc.CostModelResidual(state, coneAxisAct, coneAxisResidual)
-            costs.addCost(
-                "%s_coneaxis" % robot.model.frames[cid].name,
-                coneAxisCost,
-                p.coneAxisWeight,
-            )
+            if p.coneAxisWeight > 0:
+                costs.addCost(
+                    "%s_coneaxis" % robot.model.frames[cid].name,
+                    coneAxisCost,
+                    p.coneAxisWeight,
+                )
 
             # Follow reference (smooth) contact forces
             forceRefResidual = croc.ResidualModelContactForce(
                 state, cid, pin.Force(referenceForces[t][k]), 6, actuation.nu
             )
             forceRefCost = croc.CostModelResidual(state, forceRefResidual)
-            costs.addCost(
-                "%s_forceref" % robot.model.frames[cid].name,
-                forceRefCost,
-                p.refForceWeight / robot.gravForce**2,
-            )
+            if p.refForceWeight > 0:
+                costs.addCost(
+                    "%s_forceref" % robot.model.frames[cid].name,
+                    forceRefCost,
+                    p.refForceWeight / robot.gravForce**2,
+                )
 
         # IMPACT
         for k, cid in enumerate(robot.contactIds):
@@ -150,11 +155,12 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 )
                 impactAct = croc.ActivationModelWeightedQuad(np.array([0, 0, 1]))
                 impactCost = croc.CostModelResidual(state, impactAct, impactResidual)
-                costs.addCost(
-                    "%s_altitudeimpact" % robot.model.frames[cid].name,
-                    impactCost,
-                    p.impactAltitudeWeight / p.DT,
-                )
+                if p.impactAltitudeWeight > 0:
+                    costs.addCost(
+                        "%s_altitudeimpact" % robot.model.frames[cid].name,
+                        impactCost,
+                        p.impactAltitudeWeight / p.DT,
+                    )
 
                 impactVelResidual = croc.ResidualModelFrameVelocity(
                     state,
@@ -164,11 +170,12 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                     actuation.nu,
                 )
                 impactVelCost = croc.CostModelResidual(state, impactVelResidual)
-                costs.addCost(
-                    "%s_velimpact" % robot.model.frames[cid].name,
-                    impactVelCost,
-                    p.impactVelocityWeight / p.DT,
-                )
+                if p.impactVelocityWeight > 0:
+                    costs.addCost(
+                        "%s_velimpact" % robot.model.frames[cid].name,
+                        impactVelCost,
+                        p.impactVelocityWeight / p.DT,
+                    )
 
                 impactRotResidual = croc.ResidualModelFrameRotation(
                     state, cid, np.eye(3), actuation.nu
@@ -177,11 +184,12 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 impactRotCost = croc.CostModelResidual(
                     state, impactRotAct, impactRotResidual
                 )
-                costs.addCost(
-                    "%s_rotimpact" % robot.model.frames[cid].name,
-                    impactRotCost,
-                    p.impactRotationWeight / p.DT,
-                )
+                if p.impactRotationWeight > 0:
+                    costs.addCost(
+                        "%s_rotimpact" % robot.model.frames[cid].name,
+                        impactRotCost,
+                        p.impactRotationWeight / p.DT,
+                    )
 
                 impactRefJointsResidual = croc.ResidualModelState(
                     state, robot.x0, actuation.nu
@@ -197,11 +205,12 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                 impactRefJointCost = croc.CostModelResidual(
                     state, impactRefJointsAct, impactRefJointsResidual
                 )
-                costs.addCost(
-                    "impactRefJoint",
-                    impactRefJointCost,
-                    p.refMainJointsAtImpactWeight / p.DT,
-                )
+                if p.refMainJointsAtImpactWeight > 0:
+                    costs.addCost(
+                        "impactRefJoint",
+                        impactRefJointCost,
+                        p.refMainJointsAtImpactWeight / p.DT,
+                    )
 
         # Flying foot
         for k, fid in enumerate(robot.contactIds):
@@ -220,20 +229,24 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             verticalFootVelCost = croc.CostModelResidual(
                 state, verticalFootVelAct, verticalFootVelResidual
             )
-            costs.addCost(
-                "%s_vfoot_vel" % robot.model.frames[fid].name,
-                verticalFootVelCost,
-                p.verticalFootVelWeight,
-            )
+            if p.verticalFootVelWeight > 0:
+                costs.addCost(
+                    "%s_vfoot_vel" % robot.model.frames[fid].name,
+                    verticalFootVelCost,
+                    p.verticalFootVelWeight,
+                )
 
             # Slope is /2 since it is squared in casadi (je me comprends)
             flyHighResidual = sobec.ResidualModelFlyHigh(
                 state, fid, p.flyHighSlope / 2.0, actuation.nu
             )
             flyHighCost = croc.CostModelResidual(state, flyHighResidual)
-            costs.addCost(
-                "%s_flyhigh" % robot.model.frames[fid].name, flyHighCost, p.flyWeight
-            )
+            if p.flyHighWeight > 0:
+                costs.addCost(
+                    "%s_flyhigh" % robot.model.frames[fid].name,
+                    flyHighCost,
+                    p.flyHighWeight,
+                )
 
             groundColRes = croc.ResidualModelFrameTranslation(
                 state, fid, np.zeros(3), actuation.nu
@@ -248,11 +261,12 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             )
             groundColAct = croc.ActivationModelQuadraticBarrier(groundColBounds)
             groundColCost = croc.CostModelResidual(state, groundColAct, groundColRes)
-            costs.addCost(
-                "%s_groundcol" % robot.model.frames[fid].name,
-                groundColCost,
-                p.groundColWeight,
-            )
+            if p.groundColWeight > 0:
+                costs.addCost(
+                    "%s_groundcol" % robot.model.frames[fid].name,
+                    groundColCost,
+                    p.groundColWeight,
+                )
 
             for kc, cid in enumerate(robot.contactIds):
                 if not pattern[kc]:
@@ -275,17 +289,18 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                     feetColCost = croc.CostModelResidual(
                         state, feetColAct, feetColResidual
                     )
-                    costs.addCost(
-                        (
-                            "feetcol_%s_VS_%s"
-                            % (
-                                robot.model.frames[id1].name,
-                                robot.model.frames[id2].name,
-                            )
-                        ),
-                        feetColCost,
-                        p.feetCollisionWeight,
-                    )
+                    if p.feetCollisionWeight > 0:
+                        costs.addCost(
+                            (
+                                "feetcol_%s_VS_%s"
+                                % (
+                                    robot.model.frames[id1].name,
+                                    robot.model.frames[id2].name,
+                                )
+                            ),
+                            feetColCost,
+                            p.feetCollisionWeight,
+                        )
 
         # Action
         damodel = croc.DifferentialActionModelContactFwdDynamics(
@@ -334,7 +349,8 @@ def buildTerminalModel(robotWrapper, contactPattern, params):
     stateTerminalCost = croc.CostModelResidual(
         state, stateTerminalAct, stateTerminalResidual
     )
-    costs.addCost("stateReg", stateTerminalCost, p.stateTerminalWeight)
+    if p.stateTerminalWeight > 0:
+        costs.addCost("stateReg", stateTerminalCost, p.stateTerminalWeight)
 
     damodel = croc.DifferentialActionModelContactFwdDynamics(
         state, actuation, contacts, costs, p.kktDamping, True

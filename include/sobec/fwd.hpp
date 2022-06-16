@@ -126,6 +126,9 @@ template <typename Scalar>
 class IntegratedActionDataLPFTpl;
 typedef IntegratedActionDataLPFTpl<double> IntegratedActionDataLPF;
 
+// OCP
+class OCPWalkParam;
+class OCPWalk;
 // MPC
 class MPCWalk;
 
