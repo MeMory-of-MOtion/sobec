@@ -236,8 +236,8 @@ void initMPCFromAutomaticallyGeneratedCode(boost::shared_ptr<sobec::MPCWalkParam
 bool checkAutomaticallyGeneratedCodeCompatibility(boost::shared_ptr<sobec::OCPRobotWrapper> robot)
 {
   bool res = true;
-  res &= (robot->model->nv == %d);
   res &= (robot->model->nq == %d);
+  res &= (robot->model->nv == %d);
   return res;
 }
 ''' % (robot.model.nq, robot.model.nv)
