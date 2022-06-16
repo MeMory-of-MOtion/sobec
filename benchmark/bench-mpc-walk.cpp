@@ -124,12 +124,39 @@ int main() {
             << contactPattern.transpose() << std::endl;
 
   // OCP
-  auto ocp = boost::make_shared<OCPWalk>(robot, params, contactPattern);
+  auto ocp = boost::make_shared<OCPWalk>(robot,params,contactPattern);
+  ocp->buildSolver();
 
-  /*
-  Eigen::VectorXd x = mpc->problem->get_x0();
-  for (int t = 1; t <= 100; t++) {
-    mpc->calc(x, t);
-    x = mpc->solver->get_xs()[1];
-    }*/
+  // MPC
+  auto mpc = boost::make_shared<MPCWalk>(ocp->problem);
+  mpc->Tmpc = Tmpc;
+  mpc->Tstart = Tstart;
+  mpc->Tdouble = Tdouble;
+  mpc->Tsingle = Tsingle;
+  mpc->Tend = Tend;
+  mpc->DT = params->DT;
+  mpc->solver_th_stop = 1e-3;
+  mpc->vcomRef = params->vcomRef;
+  mpc->solver_reg_min = 1e-6;
+  mpc->solver_maxiter = 2;
+
+  std::cout << "Init warm start"<< std::endl;
+  std::vector<Eigen::VectorXd> xs,us;
+  for(int t=0;t<Tmpc;++t)
+    {
+      xs.push_back(ocp->solver->get_xs()[t]);
+      us.push_back(ocp->solver->get_us()[t]);
+    }
+  xs.push_back(ocp->solver->get_xs()[Tmpc]);
+  mpc->initialize(xs,us);
+
+  std::cout << "Start the mpc loop"<< std::endl;
+  Eigen::VectorXd x = robot->x0;
+
+  for (int t = 1; t <= 100; t++)
+    {
+      std::cout << "=== "<< t << " === " <<std::endl;
+      mpc->calc(x, t);
+      x = mpc->solver->get_xs()[1];
+    }
 }
