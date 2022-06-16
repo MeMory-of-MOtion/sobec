@@ -6,7 +6,8 @@ OCP.
 import numpy as np
 import example_robot_data as robex
 import sobec
-from .talos_collections import jointNamesToIds,jointToLockCollection
+from .talos_collections import jointNamesToIds, jointToLockCollection
+
 
 class StateRelatedParams:
     """These params are only acceptable for some robots"""
@@ -71,7 +72,7 @@ Robot_2_StateMap = {
 
 
 class WalkParams:
-    
+
     # ### WEIGHTS
     # Weights for the importance of cost functions.  Weights are multiply to
     # the residual squared Importance terms are multiplied during the
@@ -170,6 +171,7 @@ class WalkParams:
         self.controlImportance = w.controlImportance
         self.jointNamesToLock = jointToLockCollection[robotName]
 
+
 # ### AD HOC CODE GENERATION ############################################
 # The method to call is generateParamFileForTheRobot. See main for an example.
 def nparrayToCpp(v):
@@ -213,23 +215,28 @@ def generateParamsFromCppClass(pyobj, cppName, cppClass, verbose=True):
         res += keyValueToCpp(cppName, k, v) + "\n"
     return res
 
+
 def generateJointLockVector(params):
-    name = params.robotName.split('_') [0]
-    print('// Load robex.load %s' % name)
+    name = params.robotName.split("_")[0]
+    print("// Load robex.load %s" % name)
     urdf = robex.load(name)
 
-    jointIds = jointNamesToIds(params.jointNamesToLock,urdf.model)
-    jointIds_str = ", ".join([ str(i) for i in jointIds ])
+    jointIds = jointNamesToIds(params.jointNamesToLock, urdf.model)
+    jointIds_str = ", ".join([str(i) for i in jointIds])
     res = """
 
 std::vector<pinocchio::JointIndex>> getAutomaticallyGeneratedJointIdsToLock()
 {
   // Joint id list for model %s
   return { %s };
-} 
-""" % (params.robotName,jointIds_str)
+}
+""" % (
+        params.robotName,
+        jointIds_str,
+    )
 
     return res
+
 
 def generateParamFileForTheRobot(params, robot=None):
     """

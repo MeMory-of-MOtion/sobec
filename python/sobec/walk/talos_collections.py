@@ -4,12 +4,11 @@ import pinocchio as pin
 # Collection of list of joint names, to be locked when loading the full talos urdf model.
 # See talos_low for an example of use.
 jointToLockCollection = {
-
-    'talos_low': [
+    "talos_low": [
         # "universe",
         "arm_left_1_joint",
         "arm_left_2_joint",
-    "arm_left_3_joint",
+        "arm_left_3_joint",
         # "arm_left_4_joint",
         "arm_left_5_joint",
         "arm_left_6_joint",
@@ -28,8 +27,7 @@ jointToLockCollection = {
         "torso_1_joint",
         "torso_2_joint",
     ],
-
-    'talos_legs': [
+    "talos_legs": [
         # "universe",
         "arm_left_1_joint",
         "arm_left_2_joint",
@@ -52,20 +50,22 @@ jointToLockCollection = {
         "torso_1_joint",
         "torso_2_joint",
     ],
-    }
+}
 
-def jointNamesToIds(names,model):
-    return [  i for (i, n) in enumerate(model.names) if n in names ]    
-   
-def robexLoadAndReduce(urdfName,jointToLock_key):
-    '''Load a robot model from example robot data, using the urdfName
+
+def jointNamesToIds(names, model):
+    return [i for (i, n) in enumerate(model.names) if n in names]
+
+
+def robexLoadAndReduce(urdfName, jointToLock_key):
+    """Load a robot model from example robot data, using the urdfName
     (e.g 'talos') and reduce it by locking the joints, following the names
     chosend with jointToLock_key (e.g. 'talos_low').
-    '''
+    """
     robot = robex.load(urdfName)
 
     jointToLockNames = jointToLockCollection[jointToLock_key]
-    jointToLockIds = jointNamesToIds(jointToLockNames,robot.model)
+    jointToLockIds = jointNamesToIds(jointToLockNames, robot.model)
     robot.model, [robot.collision_model, robot.visual_model] = pin.buildReducedModel(
         robot.model,
         [robot.collision_model, robot.visual_model],
@@ -79,4 +79,4 @@ def robexLoadAndReduce(urdfName,jointToLock_key):
 
 
 if __name__ == "__main__":
-    robot = robexLoadAndReduce('talos','talos_low')
+    robot = robexLoadAndReduce("talos", "talos_low")

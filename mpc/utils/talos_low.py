@@ -2,7 +2,8 @@ import example_robot_data as robex
 import pinocchio as pin
 from sobec.walk.talos_collections import jointToLockCollection
 
-jointToLockNames = jointToLockCollection['talos_low']
+jointToLockNames = jointToLockCollection["talos_low"]
+
 
 def load():
     robot = robex.load("talos")

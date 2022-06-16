@@ -16,6 +16,7 @@ from utils.pinbullet import SimuProxy
 from utils import viewer_multiple
 from sobec.walk import miscdisp
 from sobec.walk.talos_collections import jointToLockCollection
+
 q_init = np.array(
     [
         0.00000e00,
@@ -60,7 +61,7 @@ q_init = np.array(
     ]
 )
 q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
-walkParams = WalkParams('talos_low')
+walkParams = WalkParams("talos_low")
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet

@@ -1,17 +1,46 @@
-#include <sobec/ocp-walk.hpp>
 #include <sobec/mpc-walk.hpp>
+#include <sobec/ocp-walk.hpp>
 
 void initParamsFromAutomaticallyGeneratedCode(
     boost::shared_ptr<sobec::OCPWalkParams> params) {
   params->DT = 0.0150000000;
- params->mainJointIds = { "leg_left_1_joint" , "leg_left_2_joint", "leg_left_4_joint", "leg_right_1_joint", "leg_right_2_joint", "leg_right_4_joint" };
-  params->baumgartGains.resize(2);params->baumgartGains <<   0.0000000000, 100.0000000000;
-  params->stateImportance.resize(40);params->stateImportance <<   0.0000000000, 0.0000000000, 0.0000000000, 50.0000000000, 50.0000000000, 0.0000000000, 5.0000000000, 5.0000000000, 1.0000000000, 2.0000000000, 1.0000000000, 1.0000000000, 5.0000000000, 5.0000000000, 1.0000000000, 2.0000000000, 1.0000000000, 1.0000000000, 3.0000000000, 3.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 3.0000000000, 3.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 2.0000000000, 2.0000000000;
-  params->stateTerminalImportance.resize(40);params->stateTerminalImportance <<   3.0000000000, 3.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 30.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000;
-  params->controlImportance.resize(14);params->controlImportance <<   1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000;
-  params->vcomImportance.resize(3);params->vcomImportance <<   0.0000000000, 0.0000000000, 1.0000000000;
-  params->forceImportance.resize(6);params->forceImportance <<   1.0000000000, 1.0000000000, 0.1000000000, 10.0000000000, 10.0000000000, 2.0000000000;
-  params->vcomRef.resize(3);params->vcomRef <<   0.0000000000, 0.0000000000, 0.0000000000;
+  params->mainJointIds = {"leg_left_1_joint",  "leg_left_2_joint",
+                          "leg_left_4_joint",  "leg_right_1_joint",
+                          "leg_right_2_joint", "leg_right_4_joint"};
+  params->baumgartGains.resize(2);
+  params->baumgartGains << 0.0000000000, 100.0000000000;
+  params->stateImportance.resize(40);
+  params->stateImportance << 0.0000000000, 0.0000000000, 0.0000000000,
+      50.0000000000, 50.0000000000, 0.0000000000, 5.0000000000, 5.0000000000,
+      1.0000000000, 2.0000000000, 1.0000000000, 1.0000000000, 5.0000000000,
+      5.0000000000, 1.0000000000, 2.0000000000, 1.0000000000, 1.0000000000,
+      3.0000000000, 3.0000000000, 0.0000000000, 0.0000000000, 0.0000000000,
+      3.0000000000, 3.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      2.0000000000, 2.0000000000;
+  params->stateTerminalImportance.resize(40);
+  params->stateTerminalImportance << 3.0000000000, 3.0000000000, 0.0000000000,
+      0.0000000000, 0.0000000000, 30.0000000000, 0.0000000000, 0.0000000000,
+      0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000,
+      0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000,
+      0.0000000000, 0.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000;
+  params->controlImportance.resize(14);
+  params->controlImportance << 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000,
+      1.0000000000;
+  params->vcomImportance.resize(3);
+  params->vcomImportance << 0.0000000000, 0.0000000000, 1.0000000000;
+  params->forceImportance.resize(6);
+  params->forceImportance << 1.0000000000, 1.0000000000, 0.1000000000,
+      10.0000000000, 10.0000000000, 2.0000000000;
+  params->vcomRef.resize(3);
+  params->vcomRef << 0.0000000000, 0.0000000000, 0.0000000000;
   params->footSize = 0.0500000000;
   params->refStateWeight = 0.1000000000;
   params->refTorqueWeight = 0;
@@ -35,12 +64,12 @@ void initParamsFromAutomaticallyGeneratedCode(
   params->stateTerminalWeight = 20;
   params->solver_th_stop = 0.0010000000;
   params->transitionDuration = 4;
-
 }
 void initMPCFromAutomaticallyGeneratedCode(
     boost::shared_ptr<sobec::MPCWalkParams> mpcparams) {
   mpcparams->DT = 0.0150000000;
-  mpcparams->vcomRef.resize(3);mpcparams->vcomRef <<   0.0000000000, 0.0000000000, 0.0000000000;
+  mpcparams->vcomRef.resize(3);
+  mpcparams->vcomRef << 0.0000000000, 0.0000000000, 0.0000000000;
   mpcparams->Tmpc = 93;
   mpcparams->Tstart = 20;
   mpcparams->Tsingle = 53;
@@ -50,7 +79,6 @@ void initMPCFromAutomaticallyGeneratedCode(
   mpcparams->solver_reg_min = 0.0000010000;
   mpcparams->solver_maxiter = 2;
   // *** Cannot find field <x0> in python params object.
-
 }
 
 bool checkAutomaticallyGeneratedCodeCompatibility(
@@ -61,10 +89,8 @@ bool checkAutomaticallyGeneratedCodeCompatibility(
   return res;
 }
 
-
-std::vector<pinocchio::JointIndex> getAutomaticallyGeneratedJointIdsToLock()
-{
+std::vector<pinocchio::JointIndex> getAutomaticallyGeneratedJointIdsToLock() {
   // Joint id list for model talos_low
-  return { 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33 };
+  return {14, 15, 16, 17, 18, 20, 21, 22, 23,
+          24, 25, 26, 28, 29, 30, 31, 32, 33};
 }
-

@@ -7,9 +7,8 @@
 #include <sobec/ocp-walk.hpp>
 #include <sobec/py2cpp.hpp>
 
-#include "crocoddyl/core/utils/callbacks.hpp"
 #include "automaticallygeneratedinit/mpc-walk-default.hpp"
-
+#include "crocoddyl/core/utils/callbacks.hpp"
 
 int main() {
   using namespace sobec;
@@ -28,7 +27,8 @@ int main() {
                               *fullmodel);
 
   // -- REDUCED MODEL
-  std::vector<pinocchio::JointIndex> jointToLock_ids = getAutomaticallyGeneratedJointIdsToLock();
+  std::vector<pinocchio::JointIndex> jointToLock_ids =
+      getAutomaticallyGeneratedJointIdsToLock();
   std::cout << "I am going to lock the following joints: " << std::endl;
   for (pinocchio::JointIndex i : jointToLock_ids) {
     std::cout << i << " => " << fullmodel->names[i] << std::endl;
@@ -126,24 +126,28 @@ int main() {
   std::cout << "Start the mpc loop" << std::endl;
   Eigen::VectorXd x = robot->x0;
 
-  for (int t = 1; t <= 100; t++)
-    {
-      mpc->calc(x, t);
-      x = mpc->solver->get_xs()[1];
+  for (int t = 1; t <= 100; t++) {
+    mpc->calc(x, t);
+    x = mpc->solver->get_xs()[1];
 
-      // Recover contact activation
-      auto iam = boost::dynamic_pointer_cast<crocoddyl::IntegratedActionModelEuler>
-        (mpc->problem->get_runningModels()[0]);
-      auto dam = boost::dynamic_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>
-        (iam->get_differential());
-      auto contacts = dam->get_contacts();
-      auto contactMap = contacts->get_contacts();
-      std::string rightContactName = "right_sole_link_contact";
-      std::string leftContactName = "left_sole_link_contact";
-      
-      bool rightContactActive = (contactMap.find(rightContactName) != contactMap.end());
-      bool leftContactActive = (contactMap.find(leftContactName) != contactMap.end());
+    // Recover contact activation
+    auto iam =
+        boost::dynamic_pointer_cast<crocoddyl::IntegratedActionModelEuler>(
+            mpc->problem->get_runningModels()[0]);
+    auto dam = boost::dynamic_pointer_cast<
+        crocoddyl::DifferentialActionModelContactFwdDynamics>(
+        iam->get_differential());
+    auto contacts = dam->get_contacts();
+    auto contactMap = contacts->get_contacts();
+    std::string rightContactName = "right_sole_link_contact";
+    std::string leftContactName = "left_sole_link_contact";
 
-      std::cout << "=== " << t << " === contact=[" << (int)rightContactActive << (int)leftContactActive << "]" << std::endl;
-    }
+    bool rightContactActive =
+        (contactMap.find(rightContactName) != contactMap.end());
+    bool leftContactActive =
+        (contactMap.find(leftContactName) != contactMap.end());
+
+    std::cout << "=== " << t << " === contact=[" << (int)rightContactActive
+              << (int)leftContactActive << "]" << std::endl;
+  }
 }

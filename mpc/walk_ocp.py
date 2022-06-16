@@ -27,7 +27,7 @@ if sys.version_info.major < 3:
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-walkParams = WalkParams('talos_low')
+walkParams = WalkParams("talos_low")
 
 try:
     # If possible, the initial state and contact pattern are taken from a file.
@@ -61,7 +61,7 @@ except (KeyError, FileNotFoundError):
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
 
-urdf = robexLoadAndReduce('talos',walkParams.robotName)
+urdf = robexLoadAndReduce("talos", walkParams.robotName)
 robot = RobotWrapper(urdf.model, contactKey="sole_link")
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
@@ -76,7 +76,6 @@ try:
     gv = viz.viewer.gui
 except (ImportError, AttributeError):
     print("No viewer")
-
 
 
 q0 = robot.x0[: robot.model.nq]

@@ -15,6 +15,7 @@ import utils.talos_low as talos_low
 from sobec.walk.config_mpc import configureMPCWalk
 import sobec.walk.miscdisp as miscdisp
 from sobec.walk.talos_collections import robexLoadAndReduce
+
 # import utils.viewer_multiple as viewer_multiple
 
 # #####################################################################################
@@ -26,7 +27,7 @@ from sobec.walk.talos_collections import robexLoadAndReduce
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-walkParams = WalkParams('talos_low')
+walkParams = WalkParams("talos_low")
 
 contactPattern = (
     []
@@ -46,7 +47,7 @@ contactPattern = (
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
-urdf = robexLoadAndReduce('talos',walkParams.robotName)
+urdf = robexLoadAndReduce("talos", walkParams.robotName)
 robot = RobotWrapper(urdf.model, contactKey="sole_link")
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
