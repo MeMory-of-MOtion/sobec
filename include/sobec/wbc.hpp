@@ -100,13 +100,10 @@ class WBC {
   void setDesiredFeetPoses(const int &iteration, const int &time);
 
   void iterate(const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current,
-               const bool &is_feasible);
-  
-  void iterate(const int &iteration,
-               const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current,
-               const bool &is_feasible);
+               const Eigen::VectorXd &v_current, const bool &is_feasible);
+
+  void iterate(const int &iteration, const Eigen::VectorXd &q_current,
+               const Eigen::VectorXd &v_current, const bool &is_feasible);
 
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
