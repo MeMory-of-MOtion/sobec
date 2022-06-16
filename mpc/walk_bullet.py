@@ -76,7 +76,7 @@ simu.setTalosDefaultFriction()
 
 robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
 robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
-walkParams = WalkParams()
+walkParams = WalkParams(robot.name)
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 assert norm(robot.x0 - simu.getState()) < 1e-6
