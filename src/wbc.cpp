@@ -114,14 +114,9 @@ void WBC::updateStepCycleTiming() {
   if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
 }
 
-bool WBC::timeToSolveDDP(const int &iteration) {
-  return !(iteration % settings_.Nc);
-}
-
-void WBC::setDesiredFeetPoses(const int & /*iteration*/, const int & /*time*/) {
-  throw std::runtime_error(
-      "void WBC::setDesiredFeetPoses(const int &iteration, const int &time) is "
-      "not implemented!!!");
+const bool &WBC::timeToSolveDDP(const int &iteration) {
+  time_to_solve_ddp_ = !(iteration % settings_.Nc);
+  return time_to_solve_ddp_;
 }
 
 void WBC::iterate(const Eigen::VectorXd &q_current,
@@ -182,11 +177,6 @@ void WBC::updateNonThinkingReferences() {
 }
 
 void WBC::recedeWithCycle() {
-  ///@todo: We switch from walking to standing at the beggining of the double
-  /// support stage.
-  /// We can evaluate later the possibility of resetting the walking cycle, to
-  /// start at the end of the beginning of a single support when we switch back
-  /// to walking.
   if (now_ == WALKING) {
     recedeWithCycle(walkingCycle_);
   } else if (now_ == STANDING &&
@@ -205,7 +195,7 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
   return;
 }
 
-Eigen::VectorXd WBC::shapeState(const Eigen::VectorXd &q,
+const Eigen::VectorXd& WBC::shapeState(const Eigen::VectorXd &q,
                                 const Eigen::VectorXd &v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
