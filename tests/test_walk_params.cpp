@@ -16,9 +16,8 @@
 
 BOOST_AUTO_TEST_CASE(test_walk_params) {
   sobec::OCPWalkParams anOCPWalkParams;
-  std::string filename(PROJECT_SOURCE_DIR"/tests/config_walk.yaml");
+  std::string filename(PROJECT_SOURCE_DIR "/tests/config_walk.yaml");
   anOCPWalkParams.readParamsFile(filename);
 
   BOOST_CHECK(anOCPWalkParams.DT == 0.01);
-  
 }
