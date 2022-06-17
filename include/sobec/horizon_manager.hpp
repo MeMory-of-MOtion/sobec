@@ -28,7 +28,7 @@ class HorizonManager {
   Eigen::VectorXd new_ref_;
   unsigned long size_;
   Eigen::VectorXd command_torque_;
-  Eigen::VectorXd tr_error_ ;
+  Eigen::VectorXd tr_error_;
   Eigen::VectorXd K_tr_error_;
   eVector3 foot_torque_, foot_force_;
   pinocchio::SE3 pose_;
@@ -56,7 +56,7 @@ class HorizonManager {
   Contact contacts(const unsigned long &time);
   boost::shared_ptr<crocoddyl::StateMultibody> state(const unsigned long &time);
   boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation(
-  const unsigned long &time);
+      const unsigned long &time);
 
   void setActuationReference(const unsigned long &time,
                              const std::string &nameCostActuation,
@@ -73,8 +73,8 @@ class HorizonManager {
   void setPoseReferenceRF(const unsigned long &time,
                           const std::string &nameCostRF,
                           const pinocchio::SE3 &ref_placement);
-  const pinocchio::SE3 &getFootPoseReference(const unsigned long &time,
-                                           const std::string &nameCostFootPose);
+  const pinocchio::SE3 &getFootPoseReference(
+      const unsigned long &time, const std::string &nameCostFootPose);
   void setVelocityRefCOM(const unsigned long &time, const std::string &nameCost,
                          const eVector3 &ref_placement);
   void activateContactLF(const unsigned long &time,

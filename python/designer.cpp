@@ -59,7 +59,8 @@ pinocchio::Model get_rModelComplete(RobotDesigner &self) {
   return self.get_rModelComplete();
 }
 
-// pinocchio::Model get_rModel(RobotDesigner &self) { return self.get_rModel(); }
+// pinocchio::Model get_rModel(RobotDesigner &self) { return self.get_rModel();
+// }
 
 pinocchio::Data get_rData(RobotDesigner &self) { return self.get_rData(); }
 
@@ -72,25 +73,78 @@ void exposeDesigner() {
       .def("initialize", &initialize)
       .def("updateReducedModel", &RobotDesigner::updateReducedModel)
       .def("updateCompleteModel", &RobotDesigner::updateCompleteModel)
-      .def("get_LF_frame", bp::make_function(&RobotDesigner::get_LF_frame, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_RF_frame", bp::make_function(&RobotDesigner::get_RF_frame, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("getRobotMass", bp::make_function(&RobotDesigner::getRobotMass, bp::return_value_policy<bp::copy_const_reference>()))
-      .def("get_rModel", bp::make_function(&RobotDesigner::get_rModel, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_rModelComplete", bp::make_function(&RobotDesigner::get_rModelComplete, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_rData", bp::make_function(&RobotDesigner::get_rData, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_rDataComplete", bp::make_function(&RobotDesigner::get_rDataComplete, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_q0", bp::make_function(&RobotDesigner::get_q0, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_q0Complete", bp::make_function(&RobotDesigner::get_q0Complete, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_v0", bp::make_function(&RobotDesigner::get_v0, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_v0Complete", bp::make_function(&RobotDesigner::get_v0Complete, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_x0", bp::make_function(&RobotDesigner::get_x0, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_LF_name", bp::make_function(&RobotDesigner::get_LF_name, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_RF_name", bp::make_function(&RobotDesigner::get_RF_name, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_LF_id", bp::make_function(&RobotDesigner::get_LF_id, bp::return_value_policy<bp::copy_const_reference>()))
-      .def("get_RF_id", bp::make_function(&RobotDesigner::get_RF_id, bp::return_value_policy<bp::copy_const_reference>()))
-      .def("get_settings", bp::make_function(&RobotDesigner::get_settings, bp::return_value_policy<bp::reference_existing_object>()))
-      .def("get_controlledJointsIDs", bp::make_function(&RobotDesigner::get_controlledJointsIDs, bp::return_value_policy<bp::copy_const_reference>()))
-      ;
+      .def("get_LF_frame",
+           bp::make_function(
+               &RobotDesigner::get_LF_frame,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_RF_frame",
+           bp::make_function(
+               &RobotDesigner::get_RF_frame,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("getRobotMass",
+           bp::make_function(
+               &RobotDesigner::getRobotMass,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_rModel",
+           bp::make_function(
+               &RobotDesigner::get_rModel,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_rModelComplete",
+           bp::make_function(
+               &RobotDesigner::get_rModelComplete,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_rData",
+           bp::make_function(
+               &RobotDesigner::get_rData,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_rDataComplete",
+           bp::make_function(
+               &RobotDesigner::get_rDataComplete,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_q0",
+           bp::make_function(
+               &RobotDesigner::get_q0,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_q0Complete",
+           bp::make_function(
+               &RobotDesigner::get_q0Complete,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_v0",
+           bp::make_function(
+               &RobotDesigner::get_v0,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_v0Complete",
+           bp::make_function(
+               &RobotDesigner::get_v0Complete,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_x0",
+           bp::make_function(
+               &RobotDesigner::get_x0,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_LF_name",
+           bp::make_function(
+               &RobotDesigner::get_LF_name,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_RF_name",
+           bp::make_function(
+               &RobotDesigner::get_RF_name,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_LF_id",
+           bp::make_function(
+               &RobotDesigner::get_LF_id,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_RF_id",
+           bp::make_function(
+               &RobotDesigner::get_RF_id,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_settings",
+           bp::make_function(
+               &RobotDesigner::get_settings,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("get_controlledJointsIDs",
+           bp::make_function(
+               &RobotDesigner::get_controlledJointsIDs,
+               bp::return_value_policy<bp::copy_const_reference>()));
 
   return;
 }

@@ -199,14 +199,14 @@ for s in range(conf.T_total * conf.Nc):
         mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
         mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
 
-#        print_trajectory(mpc.ref_LF_poses)
-        
+    #        print_trajectory(mpc.ref_LF_poses)
+
     t_solve_start = time()
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
     t_solve_end = time()
-    sum_solve_time+= (t_solve_end - t_solve_start)
-    
+    sum_solve_time += t_solve_end - t_solve_start
+
     if conf.simulator == "bullet":
         device.execute(torques)
         q_current, v_current = device.measureState()
@@ -222,11 +222,11 @@ for s in range(conf.T_total * conf.Nc):
 
 
 #    if s == 0:stop
-        
+
 t2 = time()
-total_t = t2-t1
-iteration_time = total_t/s
-average_solve_time = sum_solve_time/s 
+total_t = t2 - t1
+iteration_time = total_t / s
+average_solve_time = sum_solve_time / s
 
 if conf.simulator == "bullet":
     device.close()

@@ -125,8 +125,8 @@ void RobotDesigner::updateCompleteModel(const Eigen::VectorXd &x) {
   RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
-const pinocchio::SE3 &RobotDesigner::get_LF_frame() { 
-  return rData_.oMf[leftFootId_]; 
+const pinocchio::SE3 &RobotDesigner::get_LF_frame() {
+  return rData_.oMf[leftFootId_];
 }
 
 const pinocchio::SE3 &RobotDesigner::get_RF_frame() {
