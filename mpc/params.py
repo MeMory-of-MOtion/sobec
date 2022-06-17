@@ -11,7 +11,7 @@ class WalkParams(swparams.WalkParams):
     vcomRef = np.array([0.1, 0, 0])
     baumgartGains = np.array([0, 50])
 
-    def __init__(self, name="talos_14"):
+    def __init__(self, name="talos_low"):
         swparams.WalkParams.__init__(self, name)
 
 

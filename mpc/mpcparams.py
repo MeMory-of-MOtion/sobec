@@ -54,7 +54,7 @@ class StandParams(swparams.WalkParams):
 
     stateTerminalWeight = 20  # 2000
 
-    def __init__(self, name="talos_12"):
+    def __init__(self, name="talos_legs"):
         swparams.WalkParams.__init__(self, name)
         # super(swparams.WalkParams, self).__init__(self, name)
 
