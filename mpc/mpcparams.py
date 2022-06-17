@@ -23,22 +23,22 @@ class StandParams(swparams.WalkParams):
 
     DT = 0.01
     Tstart = 50
-    Tsingle = 0  # int(0.8 / DT)
+    Tsingle = 10  # int(0.8 / DT)
     # I prefer an even number for Tdouble
     Tdouble = 50  # 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
     Tend = 50
     Tmpc = 50
-    transitionDuration = 0
+    transitionDuration = 20
 
     vcomRef = np.array([0, 0, 0])
     vcomImportance = np.array([0.0, 0, 1])
-    vcomWeight = 0
+    vcomWeight = 2
 
     refStateWeight = 1e-1
     forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
     coneAxisWeight = 0  # 2e-4
     copWeight = 1  # 2
-    refForceWeight = 10  # 10
+    refForceWeight = 20  # 10
 
     refTorqueWeight = 0
     comWeight = 0  # 20
