@@ -92,7 +92,7 @@ class WBC {
                   const std::string &actuationCostName);
 
   const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
-                             const Eigen::VectorXd &v);
+                                    const Eigen::VectorXd &v);
 
   void generateWalkingCycle(ModelMaker &mm);
 

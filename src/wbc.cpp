@@ -195,8 +195,8 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
   return;
 }
 
-const Eigen::VectorXd& WBC::shapeState(const Eigen::VectorXd &q,
-                                const Eigen::VectorXd &v) {
+const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q,
+                                       const Eigen::VectorXd &v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
