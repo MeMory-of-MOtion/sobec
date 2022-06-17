@@ -36,9 +36,9 @@ class StandParams(swparams.WalkParams):
 
     refStateWeight = 1e-1
     forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
-    coneAxisWeight = 0  ###2e-4
-    copWeight = 1  ###2
-    refForceWeight = 10  ####10
+    coneAxisWeight = 0  # 2e-4
+    copWeight = 1  # 2
+    refForceWeight = 10  # 10
 
     refTorqueWeight = 0
     comWeight = 0  # 20
