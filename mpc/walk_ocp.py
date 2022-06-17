@@ -29,6 +29,21 @@ if sys.version_info.major < 3:
 
 walkParams = WalkParams("talos_low")
 
+# #####################################################################################
+# ### LOAD ROBOT ######################################################################
+# #####################################################################################
+
+# ## LOAD AND DISPLAY TALOS
+# Load the robot model from example robot data and display it if possible in
+# Gepetto-viewer
+
+urdf = robexLoadAndReduce("talos", walkParams.robotName)
+robot = RobotWrapper(urdf.model, contactKey="sole_link")
+assert len(walkParams.stateImportance) == robot.model.nv * 2
+
+# #####################################################################################
+# ### CONTACT PATTERN #################################################################
+# #####################################################################################
 try:
     # If possible, the initial state and contact pattern are taken from a file.
     ocpConfig = loadProblemConfig()
@@ -53,18 +68,6 @@ except (KeyError, FileNotFoundError):
         + [[1, 1]] * 40
         + [[1, 1]]
     )
-# #####################################################################################
-# ### LOAD ROBOT ######################################################################
-# #####################################################################################
-
-# ## LOAD AND DISPLAY TALOS
-# Load the robot model from example robot data and display it if possible in
-# Gepetto-viewer
-
-urdf = robexLoadAndReduce("talos", walkParams.robotName)
-robot = RobotWrapper(urdf.model, contactKey="sole_link")
-assert len(walkParams.stateImportance) == robot.model.nv * 2
-
 # #####################################################################################
 # ### VIZ #############################################################################
 # #####################################################################################
