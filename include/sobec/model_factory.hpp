@@ -1,6 +1,7 @@
 #ifndef SOBEC_MODEL_FACTORY
 #define SOBEC_MODEL_FACTORY
 
+#include <pinocchio/fwd.hpp>
 #include <Eigen/Dense>
 #include <string>
 #include <vector>
