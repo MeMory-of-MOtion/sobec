@@ -3,31 +3,30 @@ import sobec
 from sobec.walk.yaml_params import yamlWriteParams, yamlReadToParams
 from sobec.walk.params import WalkParams
 import sobec.walk.yaml_params as yaml_params
+from collections.abc import Iterable
+
+
+def checkValueEquality(v1, v2):
+    if isinstance(v1, float) or isinstance(v1, int):
+        return abs(v1 - v2) < 1e-6
+    elif isinstance(v2, np.ndarray):
+        return np.linalg.norm(v1 - v2) < 1e-6
+    elif isinstance(v1, str):
+        return v1 == v2
+    elif isinstance(v1, Iterable) and isinstance(v2, Iterable):
+        return all([checkValueEquality(vi1, vi2) for vi1, vi2 in zip(v1, v2)])
+    else:
+        return False
 
 
 def compareTwoParams(params1, params2, ParamClass):
-    for k in ParamClass.__dict__.keys():
-        if k[:2] == "__":
-            continue
-        if not hasattr(params1, k) or not hasattr(params2, k):
-            # Check that, if v1 exits, it is not yaml compatible
-            assert not (
-                hasattr(params1, k)
-                and yaml_params.isYamlTypeCompatible(getattr(params1, k))
-            )
-            # Check that, if v2 exits, it is not yaml compatible
-            assert not (
-                hasattr(params2, k)
-                and yaml_params.isYamlTypeCompatible(getattr(params2, k))
-            )
-            continue
-        v1 = getattr(params1, k)
-        v2 = getattr(params2, k)
-        # print(f'Compare {k}: {v1} vs {v2} ')
-        if isinstance(v1, float) or isinstance(v1, int):
-            assert abs(v1 - v2) < 1e-6
-        elif isinstance(v2, np.ndarray):
-            assert np.linalg.norm(v1 - v2) < 1e-6
+    for k in dir(params1):
+        if k in dir(params2):
+            v1 = getattr(params1, k)
+            v2 = getattr(params2, k)
+            if k[:2] != "__" and yaml_params.isYamlTypeCompatible(v1):
+                print(k, v1, v2)
+                assert checkValueEquality(v1, v2)
 
 
 # ### TEST 1
