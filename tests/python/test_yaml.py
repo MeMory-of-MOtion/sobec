@@ -1,12 +1,13 @@
-import numpy as np
-import sobec
-from sobec.walk.yaml_params import yamlWriteParams, yamlReadToParams
-from sobec.walk.params import WalkParams
-import sobec.walk.yaml_params as yaml_params
-from collections.abc import Iterable
 import sys
 
-if sys.version_info.major == 3:
+if sys.version_info.major > 2:
+
+    import numpy as np
+    import sobec
+    from sobec.walk.yaml_params import yamlWriteParams, yamlReadToParams
+    from sobec.walk.params import WalkParams
+    import sobec.walk.yaml_params as yaml_params
+    from collections.abc import Iterable
 
     def checkValueEquality(v1, v2):
         if isinstance(v1, float) or isinstance(v1, int):
