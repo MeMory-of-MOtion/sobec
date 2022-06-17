@@ -26,7 +26,7 @@ add_library(${PROJECT_NAME}_unittest SHARED ${${PROJECT_NAME}_FACTORY_TEST})
 target_link_libraries(${PROJECT_NAME}_unittest PUBLIC ${PROJECT_NAME} crocoddyl::crocoddyl)
 
 ADD_UNIT_TEST(test_costs test_costs.cpp)
-target_link_libraries(test_costs PUBLIC ${PROJECT_NAME}_unittest)
+target_link_libraries(test_costs PUBLIC ${PROJECT_NAME}_unittest yaml-cpp)
 
 ADD_UNIT_TEST(test_states test_states.cpp)
 target_link_libraries(test_states PUBLIC ${PROJECT_NAME}_unittest)
@@ -45,6 +45,10 @@ target_link_libraries(test_contact1d PUBLIC ${PROJECT_NAME}_unittest)
 
 ADD_UNIT_TEST(test_diff_actions test_diff_actions.cpp)
 target_link_libraries(test_diff_actions PUBLIC ${PROJECT_NAME}_unittest)
+
+ADD_UNIT_TEST(test_walk_params test_walk_params.cpp)
+target_link_libraries(test_walk_params PUBLIC ${PROJECT_NAME}_unittest)
+target_compile_definitions(test_walk_params PRIVATE PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 if(BUILD_PYTHON_INTERFACE)
   ADD_UNIT_TEST(test_init_shooting_problem test_init_shooting_problem.cpp)
