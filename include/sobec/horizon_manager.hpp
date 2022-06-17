@@ -65,6 +65,10 @@ class HorizonManager {
   void setPoseReferenceRF(const unsigned long &time,
                           const std::string &nameCostRF,
                           const pinocchio::SE3 &ref_placement);
+  pinocchio::SE3 getPoseReferenceRF(const unsigned long &time,
+                                    const std::string &nameCostRF);
+  pinocchio::SE3 getPoseReferenceLF(const unsigned long &time,
+                                    const std::string &nameCostLF);
   void setVelocityRefCOM(const unsigned long &time, const std::string &nameCost,
                          const eVector3 &ref_placement);
   void activateContactLF(const unsigned long &time,
@@ -93,6 +97,11 @@ class HorizonManager {
   void setDoubleSupport(const unsigned long &time,
                         const std::string &nameContactLF,
                         const std::string &nameContactRF);
+
+  eVector3 getFootForce(const unsigned long &time,
+                        const std::string &nameFootForceCost);
+  eVector3 getFootTorque(const unsigned long &time,
+                         const std::string &nameFootForceCost);
 
   void recede(const AMA &new_model, const ADA &new_data);
   void recede(const AMA &new_model);

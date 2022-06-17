@@ -56,33 +56,34 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
 
   // timming
-  t_takeoff_RF_ = Eigen::ArrayXi::LinSpaced(
-      settings_.horizonSteps, 0, 2 * settings_.horizonSteps * settings_.Tstep);
-  t_takeoff_RF_ += (int)settings_.T;
-  t_takeoff_LF_ = t_takeoff_RF_ + settings_.Tstep;
-  t_land_RF_ = t_takeoff_RF_ + settings_.TsingleSupport;
-  t_land_LF_ = t_takeoff_LF_ + settings_.TsingleSupport;
+  t_takeoff_RF_.setLinSpaced(settings_.horizonSteps, 0,
+                             2 * settings_.horizonSteps * settings_.Tstep);
+  t_takeoff_RF_.array() += (int)settings_.T;
+  t_takeoff_LF_ = t_takeoff_RF_.array() + settings_.Tstep;
+  t_land_RF_ = t_takeoff_RF_.array() + settings_.TsingleSupport;
+  t_land_LF_ = t_takeoff_LF_.array() + settings_.TsingleSupport;
 
   initialized_ = true;
 }
 
-void WBC::generateWalkigCycle(ModelMaker &mm) {
+void WBC::generateWalkingCycle(ModelMaker &mm) {
   std::vector<Support> cycle;
   int takeoff_RF, land_RF, takeoff_LF, land_LF;
-  takeoff_RF = 0;
-  land_RF = takeoff_RF + settings_.TsingleSupport;
+
+  land_LF = 0;
+  takeoff_RF = land_LF + settings_.TdoubleSupport;
+  land_RF = land_LF + settings_.Tstep;
   takeoff_LF = takeoff_RF + settings_.Tstep;
-  land_LF = takeoff_LF + settings_.TsingleSupport;
 
   for (int i = 0; i < 2 * settings_.Tstep; i++) {
-    if (i < land_RF)
+    if (i < takeoff_RF)
+      cycle.push_back(DOUBLE);
+    else if (i < land_RF)
       cycle.push_back(LEFT);
     else if (i < takeoff_LF)
       cycle.push_back(DOUBLE);
-    else if (i < land_LF)
-      cycle.push_back(RIGHT);
     else
-      cycle.push_back(DOUBLE);
+      cycle.push_back(RIGHT);
   }
   std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
@@ -102,48 +103,56 @@ void WBC::generateStandingCycle(ModelMaker &mm) {
 }
 
 void WBC::updateStepCycleTiming() {
-  t_takeoff_RF_ -= 1;
-  t_takeoff_LF_ -= 1;
-  t_land_RF_ -= 1;
-  t_land_LF_ -= 1;
+  t_takeoff_RF_.array() -= 1;
+  t_takeoff_LF_.array() -= 1;
+  t_land_RF_.array() -= 1;
+  t_land_LF_.array() -= 1;
 
-  if (t_land_LF_(0) < 0) t_land_LF_ += 2 * settings_.Tstep;
-  if (t_land_RF_(0) < 0) t_land_RF_ += 2 * settings_.Tstep;
-  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_ += 2 * settings_.Tstep;
-  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_ += 2 * settings_.Tstep;
+  if (t_land_LF_(0) < 0) t_land_LF_.array() += 2 * settings_.Tstep;
+  if (t_land_RF_(0) < 0) t_land_RF_.array() += 2 * settings_.Tstep;
+  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
+  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
 }
 
 bool WBC::timeToSolveDDP(const int &iteration) {
   return !(iteration % settings_.Nc);
 }
 
-Eigen::VectorXd WBC::iterate(const int &iteration,
-                             const Eigen::VectorXd &q_current,
-                             const Eigen::VectorXd &v_current,
-                             const bool &is_feasible) {
+void WBC::setDesiredFeetPoses(const int & /*iteration*/, const int & /*time*/) {
+  throw std::runtime_error(
+      "void WBC::setDesiredFeetPoses(const int &iteration, const int &time) is "
+      "not implemented!!!");
+}
+
+void WBC::iterate(const Eigen::VectorXd &q_current,
+                  const Eigen::VectorXd &v_current, const bool &is_feasible) {
   x0_ = shapeState(q_current, v_current);
-  if (timeToSolveDDP(iteration)) {
-    // ~~TIMING~~ //
-    updateStepCycleTiming();
-    recedeWithCycle();
+  // ~~TIMING~~ //
+  updateStepCycleTiming();
+  recedeWithCycle();
 
-    // ~~REFERENCES~~ //
-    designer_.updateReducedModel(x0_);
-    switch (settings_.typeOfCommand) {
-      case StepTracker:
-        updateStepTrackerReferences();
-        break;
-      case NonThinking:
-        updateNonThinkingReferences();
-        break;
-      default:
-        break;
-    }
-
-    // ~~SOLVER~~ //
-    horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+  // ~~REFERENCES~~ //
+  designer_.updateReducedModel(x0_);
+  switch (settings_.typeOfCommand) {
+    case StepTracker:
+      updateStepTrackerLastReference();
+      break;
+    case NonThinking:
+      updateNonThinkingReferences();
+      break;
+    default:
+      break;
   }
-  return horizon_.currentTorques(x0_);
+  // ~~SOLVER~~ //
+  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+}
+
+void WBC::iterate(const int &iteration, const Eigen::VectorXd &q_current,
+                  const Eigen::VectorXd &v_current, const bool &is_feasible) {
+  if (timeToSolveDDP(iteration)) {
+    iterate(q_current, v_current, is_feasible);
+  } else
+    x0_ = shapeState(q_current, v_current);
 }
 
 void WBC::updateStepTrackerReferences() {
@@ -152,6 +161,17 @@ void WBC::updateStepTrackerReferences() {
     horizon_.setPoseReferenceRF(time, "placement_RF", getPoseRef_RF(time));
     ///@todo: the names must be provided by the user
   }
+}
+
+void WBC::updateStepTrackerLastReference() {
+  horizon_.setPoseReferenceLF(horizon_.size() - 1, "placement_LF",
+                              getPoseRef_LF(horizon_.size() - 1));
+  horizon_.setPoseReferenceRF(horizon_.size() - 1, "placement_RF",
+                              getPoseRef_RF(horizon_.size() - 1));
+  ref_LF_poses_.erase(ref_LF_poses_.begin());
+  ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size() - 1]);
+  ref_RF_poses_.erase(ref_RF_poses_.begin());
+  ref_RF_poses_.push_back(ref_RF_poses_[horizon_.size() - 1]);
 }
 
 void WBC::updateNonThinkingReferences() {
@@ -185,7 +205,8 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
   return;
 }
 
-Eigen::VectorXd WBC::shapeState(Eigen::VectorXd q, Eigen::VectorXd v) {
+Eigen::VectorXd WBC::shapeState(const Eigen::VectorXd &q,
+                                const Eigen::VectorXd &v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();

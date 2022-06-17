@@ -20,6 +20,9 @@ struct ModelMakerSettings {
   // physics
   eVector3 gravity = eVector3(0, 0, -9.81);
 
+  // geometry
+  double footSize = 0.05;  //[m]
+
   double mu = 0.3;
   eVector2 coneBox = eVector2(0.1, 0.05);  // half lenght and width
   double minNforce = 200.0;
@@ -39,6 +42,7 @@ struct ModelMakerSettings {
   double wFootXYTrans = 0;    // 0;
   double wFootRot = 0;        // 100;
   double wGroundCol = 0;      // 0.05;
+  double wCoP = 0;            // 1;
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
@@ -63,7 +67,6 @@ class ModelMaker {
   bool initialized_ = false;
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
-  // AMA formulate_flat_walker(const Support &support = Support::DOUBLE);
   AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
 
   std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
@@ -80,6 +83,8 @@ class ModelMaker {
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
+  void defineCoPTask(Cost &costCollector,
+                     const Support &support = Support::DOUBLE);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {

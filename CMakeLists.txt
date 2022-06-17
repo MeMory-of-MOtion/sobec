@@ -63,7 +63,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/designer.hpp
   include/${PROJECT_NAME}/model_factory.hpp
   include/${PROJECT_NAME}/horizon_manager.hpp
-  # include/${PROJECT_NAME}/ocp.hpp
+  include/${PROJECT_NAME}/ocp.hpp
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
   include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
   include/${PROJECT_NAME}/contact/contact3d.hpp
@@ -88,16 +88,17 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/ocp-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hxx
+  include/${PROJECT_NAME}/flexibility_compensation.hpp
  )
 
 set(${PROJECT_NAME}_SOURCES
   src/designer.cpp
   src/model_factory.cpp
   src/horizon_manager.cpp
-  # src/ocp.cpp
+  src/ocp.cpp
   src/wbc.cpp
   src/foot_trajectory.cpp
-
+  src/flexibility_compensation.cpp
   src/ocp-walk.cpp
   src/ocp-walk-running-models.cpp
   src/ocp-walk-terminal.cpp
