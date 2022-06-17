@@ -101,9 +101,10 @@ set(${PROJECT_NAME}_SOURCES
   src/ocp-walk.cpp
   src/ocp-walk-running-models.cpp
   src/ocp-walk-terminal.cpp
-  src/ocp-walk-param.cpp
+  src/ocp-walk-params.cpp
   src/ocp-walk-robot.cpp
   src/ocp-ref-forces.cpp
+  src/mpc-walk-params.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

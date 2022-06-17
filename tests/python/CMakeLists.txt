@@ -7,6 +7,7 @@ ADD_PYTHON_UNIT_TEST("py-test-mpc-walk" "tests/python/test_mpc_walk.py" "python"
 ADD_PYTHON_UNIT_TEST("py-walk" "tests/python/test_walk.py" "python")
 ADD_PYTHON_UNIT_TEST("py-mpc-walk-complex" "tests/python/test_mpc_walk__complex.py" "python")
 ADD_PYTHON_UNIT_TEST("py-ocpcpp" "tests/python/test_ocpcpp.py" "python")
+# ADD_PYTHON_UNIT_TEST("py-yaml" "tests/python/test_yaml.py" "python")
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 if (CMAKE_BUILD_TYPE_LOWER STREQUAL "release")
