@@ -72,16 +72,19 @@ def computeBestTransitionDuration(contactPattern, maxTransitionDuration):
     return transitionDuration
 
 
-def computeReferenceForces(contactPattern, robotweight, maxTransitionDuration=50):
+def computeReferenceForces(
+    contactPattern, robotweight, transitionDuration=-1, maxTransitionDuration=50
+):
     """
     # The force costs are defined using a reference (smooth) force.
     # Search the contact phase of minimal duration (typically double support)
     """
     T = len(contactPattern)
 
-    transitionDuration = computeBestTransitionDuration(
-        contactPattern, maxTransitionDuration
-    )
+    if transitionDuration < 0:
+        transitionDuration = computeBestTransitionDuration(
+            contactPattern, maxTransitionDuration
+        )
 
     # Compute contact importance, ie how much of the weight should be supported by each
     # foot at each time.
