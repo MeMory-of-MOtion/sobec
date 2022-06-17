@@ -1,29 +1,8 @@
 import example_robot_data as robex
 import pinocchio as pin
+from sobec.walk.talos_collections import jointToLockCollection
 
-jointToLockNames = [
-    # "universe",
-    "arm_left_1_joint",
-    "arm_left_2_joint",
-    "arm_left_3_joint",
-    # "arm_left_4_joint",
-    "arm_left_5_joint",
-    "arm_left_6_joint",
-    "arm_left_7_joint",
-    "arm_right_1_joint",
-    "arm_right_2_joint",
-    "arm_right_3_joint",
-    # "arm_right_4_joint",
-    "arm_right_5_joint",
-    "arm_right_6_joint",
-    "arm_right_7_joint",
-    "gripper_left_joint",
-    "gripper_right_joint",
-    "head_1_joint",
-    "head_2_joint",
-    "torso_1_joint",
-    "torso_2_joint",
-]
+jointToLockNames = jointToLockCollection["talos_low"]
 
 
 def load():

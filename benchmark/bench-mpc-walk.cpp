@@ -7,8 +7,8 @@
 #include <sobec/ocp-walk.hpp>
 #include <sobec/py2cpp.hpp>
 
+#include "automaticallygeneratedinit/mpc-walk-default.hpp"
 #include "crocoddyl/core/utils/callbacks.hpp"
-#include "mpc-walk-automaticallygeneratedinit.hpp"
 
 int main() {
   using namespace sobec;
@@ -27,13 +27,8 @@ int main() {
                               *fullmodel);
 
   // -- REDUCED MODEL
-  // Choose to lock the upper body
   std::vector<pinocchio::JointIndex> jointToLock_ids =
-      // talos 14
-      {14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33};
-  // talos 12
-  //{14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
-  // 33};
+      getAutomaticallyGeneratedJointIdsToLock();
   std::cout << "I am going to lock the following joints: " << std::endl;
   for (pinocchio::JointIndex i : jointToLock_ids) {
     std::cout << i << " => " << fullmodel->names[i] << std::endl;
@@ -132,8 +127,27 @@ int main() {
   Eigen::VectorXd x = robot->x0;
 
   for (int t = 1; t <= 100; t++) {
-    std::cout << "=== " << t << " === " << std::endl;
     mpc->calc(x, t);
     x = mpc->solver->get_xs()[1];
+
+    // Recover contact activation
+    auto iam =
+        boost::dynamic_pointer_cast<crocoddyl::IntegratedActionModelEuler>(
+            mpc->problem->get_runningModels()[0]);
+    auto dam = boost::dynamic_pointer_cast<
+        crocoddyl::DifferentialActionModelContactFwdDynamics>(
+        iam->get_differential());
+    auto contacts = dam->get_contacts();
+    auto contactMap = contacts->get_contacts();
+    std::string rightContactName = "right_sole_link_contact";
+    std::string leftContactName = "left_sole_link_contact";
+
+    bool rightContactActive =
+        (contactMap.find(rightContactName) != contactMap.end());
+    bool leftContactActive =
+        (contactMap.find(leftContactName) != contactMap.end());
+
+    std::cout << "=== " << t << " === contact=[" << (int)rightContactActive
+              << (int)leftContactActive << "]" << std::endl;
   }
 }

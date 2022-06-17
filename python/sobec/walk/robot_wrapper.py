@@ -51,7 +51,16 @@ class RobotWrapper:
         - robotGravForce
         """
         self.model = model
-        self.name = "%s_%s" % (model.name, model.nv - 6)
+
+        model_version = None
+        if model.nv - 6 == 12:
+            model_version = "legs"
+        elif model.nv - 6 == 14:
+            model_version = "low"
+        if model_version is None:
+            raise RuntimeError("I need a robot version")
+        self.name = "%s_%s" % (model.name, model_version)
+
         self.contactIds = [
             i for i, f in enumerate(self.model.frames) if contactKey in f.name
         ]
