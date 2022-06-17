@@ -60,7 +60,7 @@ class WalkParams:
     verticalFootVelWeight = 20
     footVelWeight = 0  # 20
     footAccWeight = 0  # 2
-    flyWeight = 20
+    flyHighWeight = 20
     groundColWeight = 200
     conePenaltyWeight = 20
     feetCollisionWeight = 1000
@@ -145,9 +145,9 @@ ddp.solve(x0s, u0s, 200)
 # #####################################################################################
 # ### MPC #############################################################################
 # #####################################################################################
-
-mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc, walkParams)
+mpcparams = sobec.MPCWalkParams()
+configureMPCWalk(mpcparams, walkParams)
+mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 mpc.solver.setCallbacks([croc.CallbackVerbose()])
 x = robot.x0

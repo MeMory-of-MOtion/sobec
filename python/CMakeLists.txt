@@ -16,7 +16,9 @@ set(${PY_NAME}_SOURCES
   contact-fwddyn.cpp
   contact-force.cpp
   wbc.cpp
+  ocp-walk.cpp
   mpc-walk.cpp
+  std-containers.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
@@ -46,6 +48,8 @@ set(${PY_WALK_NAME}_PYTHON
   config_mpc.py
   miscdisp.py
   params.py
+  yaml_params.py
+  talos_collections.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})

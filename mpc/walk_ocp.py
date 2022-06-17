@@ -10,39 +10,13 @@ from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 from utils.save_traj import loadProblemConfig, save_traj
 from params import WalkParams
 import utils.walk_plotter as walk_plotter
-import utils.talos_low as talos_low
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
-
+from sobec.walk.talos_collections import robexLoadAndReduce
 
 # workaround python 2
 if sys.version_info.major < 3:
     FileNotFoundError = IOError
-
-
-# #####################################################################################
-# ### LOAD ROBOT ######################################################################
-# #####################################################################################
-
-# ## LOAD AND DISPLAY TALOS
-# Load the robot model from example robot data and display it if possible in
-# Gepetto-viewer
-
-urdf = talos_low.load()
-robot = RobotWrapper(urdf.model, contactKey="sole_link")
-
-# #####################################################################################
-# ### VIZ #############################################################################
-# #####################################################################################
-try:
-    Viz = pin.visualize.GepettoVisualizer
-    viz = Viz(urdf.model, urdf.collision_model, urdf.visual_model)
-    viz.initViewer()
-    viz.loadViewerModel()
-    gv = viz.viewer.gui
-except (ImportError, AttributeError):
-    print("No viewer")
-
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -53,9 +27,23 @@ except (ImportError, AttributeError):
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-walkParams = WalkParams(robot.name)
+walkParams = WalkParams("talos_low")
+
+# #####################################################################################
+# ### LOAD ROBOT ######################################################################
+# #####################################################################################
+
+# ## LOAD AND DISPLAY TALOS
+# Load the robot model from example robot data and display it if possible in
+# Gepetto-viewer
+
+urdf = robexLoadAndReduce("talos", walkParams.robotName)
+robot = RobotWrapper(urdf.model, contactKey="sole_link")
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
+# #####################################################################################
+# ### CONTACT PATTERN #################################################################
+# #####################################################################################
 try:
     # If possible, the initial state and contact pattern are taken from a file.
     ocpConfig = loadProblemConfig()
@@ -80,6 +68,18 @@ except (KeyError, FileNotFoundError):
         + [[1, 1]] * 40
         + [[1, 1]]
     )
+# #####################################################################################
+# ### VIZ #############################################################################
+# #####################################################################################
+try:
+    Viz = pin.visualize.GepettoVisualizer
+    viz = Viz(urdf.model, urdf.collision_model, urdf.visual_model)
+    viz.initViewer()
+    viz.loadViewerModel()
+    gv = viz.viewer.gui
+except (ImportError, AttributeError):
+    print("No viewer")
+
 
 q0 = robot.x0[: robot.model.nq]
 print(
@@ -98,6 +98,7 @@ problem = ddp.problem
 x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
+croc.enable_profiler()
 ddp.solve(x0s, u0s, 200)
 
 # ### PLOT ######################################################################

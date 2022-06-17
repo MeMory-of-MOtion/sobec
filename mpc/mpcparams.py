@@ -2,9 +2,61 @@ import sobec.walk.params as swparams
 import numpy as np
 
 
-class WalkParamsNew(swparams.WalkParams):
-    def __init__(self, name="talos_14"):
-        super(WalkParamsNew, self).__init__(self, name)
+class WalkParams(swparams.WalkParams):
+    DT = 0.015
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.8 / DT)  # 60
+    # I prefer an even number for Tdouble
+    Tdouble = 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
+    Tend = int(0.3 / DT)
+    Tmpc = int(1.4 / DT)  # 1.6
+
+    vcomRef = np.array([0 * 0.05, 0, 0])
+
+    def __init__(self, name="talos_low"):
+        swparams.WalkParams.__init__(self, name)
+        # super(swparams.WalkParams, self).__init__(self, name)
+
+
+class StandParams(swparams.WalkParams):
+    """MPC Params with not single support, hence standing straight"""
+
+    DT = 0.01
+    Tstart = 50
+    Tsingle = 0  # int(0.8 / DT)
+    # I prefer an even number for Tdouble
+    Tdouble = 50  # 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
+    Tend = 50
+    Tmpc = 50
+    transitionDuration = 0
+
+    vcomRef = np.array([0, 0, 0])
+    vcomImportance = np.array([0.0, 0, 1])
+    vcomWeight = 0
+
+    refStateWeight = 1e-1
+    forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
+    coneAxisWeight = 0  # 2e-4
+    copWeight = 1  # 2
+    refForceWeight = 10  # 10
+
+    refTorqueWeight = 0
+    comWeight = 0  # 20
+    verticalFootVelWeight = 0
+    flyHighWeight = 0
+    groundColWeight = 0
+    conePenaltyWeight = 0
+    feetCollisionWeight = 0
+    impactAltitudeWeight = 0
+    impactVelocityWeight = 0
+    impactRotationWeight = 0
+    refMainJointsAtImpactWeight = 0  # 2e2 # For avoinding crossing legs
+
+    stateTerminalWeight = 20  # 2000
+
+    def __init__(self, name="talos_legs"):
+        swparams.WalkParams.__init__(self, name)
+        # super(swparams.WalkParams, self).__init__(self, name)
 
 
 # ### KEPT FOR REFERENCES ##################################################
@@ -62,7 +114,7 @@ class WalkParamsOld(params.WalkParamsOld):
 
     refFootFlyingAltitude = 7e-2
     flyHighSlope = 3 / refFootFlyingAltitude
-    flyWeight = 10 * 20
+    flyHighWeight = 10 * 20
     baumgartGains = np.array([0, 100])
 
     vcomRef = np.array([0.05, 0, 0])
@@ -79,6 +131,3 @@ class WalkParamsOld(params.WalkParamsOld):
 
     # DEBUG
     showPreview = False
-
-
-WalkParams = WalkParamsNew

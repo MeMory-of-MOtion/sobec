@@ -4,6 +4,9 @@ OCP.
 """
 
 import numpy as np
+import example_robot_data as robex
+import sobec
+from .talos_collections import jointNamesToIds, jointToLockCollection
 
 
 class StateRelatedParams:
@@ -39,7 +42,7 @@ class TalosInfo:
 # ### STATE FOR EACH ROBOT ##################################################
 
 Robot_2_StateMap = {
-    "talos_14": StateRelatedParams(
+    "talos_low": StateRelatedParams(
         stateImportance=np.array(
             TalosInfo.basisQWeights
             + TalosInfo.legQWeights * 2
@@ -51,7 +54,7 @@ Robot_2_StateMap = {
         stateTerminalImportance=np.array([3, 3, 0, 0, 0, 30] + [0] * 14 + [1] * 20),
         controlImportance=np.array([1] * 14),
     ),
-    "talos_12": StateRelatedParams(
+    "talos_legs": StateRelatedParams(
         stateImportance=np.array(
             TalosInfo.basisQWeights
             + TalosInfo.legQWeights * 2
@@ -77,27 +80,27 @@ class WalkParams:
 
     refTorqueWeight = 0
     refStateWeight = 1e-1
-    flatBaseWeight = 0  # 20
+    # [DEPREC] flatBaseWeight = 0  # 20
     forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
     coneAxisWeight = 2e-4
     comWeight = 0  # 20
     vcomImportance = np.array([0.0, 0, 1])
     vcomWeight = 1
-    acomWeight = 0  # 16*DT
+    # [DEPREC] acomWeight = 0  # 16*DT
     copWeight = 2
     verticalFootVelWeight = 20
-    footVelWeight = 0  # 20
-    footAccWeight = 0  # 2
-    flyWeight = 200
+    # [DEPREC] footVelWeight = 0  # 20
+    # [DEPREC] footAccWeight = 0  # 2
+    flyHighWeight = 200
     groundColWeight = 200
     conePenaltyWeight = 0
     feetCollisionWeight = 1000
 
-    lowbandwidthweight = 0  # 2e-1
-    minTorqueDiffWeight = 0  # 2e-2
+    # [DEPREC] lowbandwidthweight = 0  # 2e-1
+    # [DEPREC] minTorqueDiffWeight = 0  # 2e-2
 
     refForceWeight = 10
-    contiForceWeight = 0
+    # [DEPREC] contiForceWeight = 0
 
     impactAltitudeWeight = 20000
     impactVelocityWeight = 10000
@@ -105,18 +108,18 @@ class WalkParams:
     refMainJointsAtImpactWeight = 0  # 2e2 # For avoinding crossing legs
 
     stateTerminalWeight = 20  # 2000
-    terminalNoVelocityWeight = 2000
-    terminalXTargetWeight = 0  # ##DDP## 2000
+    # [DEPREC] terminalNoVelocityWeight = 2000
+    # [DEPREC] terminalXTargetWeight = 0  # ##DDP## 2000
 
     # ## Other terms related to the cost functions
-    enforceMinimalFootDistance = False
+    # [DEPREC] enforceMinimalFootDistance = False
 
     refFootFlyingAltitude = 7e-2
     flyHighSlope = 3 / refFootFlyingAltitude
     footMinimalDistance = 0.2  # (.17 is the max value wrt initial config)
-    soleCollision = True
-    towCollision = False
-    heelCollision = False
+    # [DEPREC] soleCollision = True
+    # [DEPREC] towCollision = False
+    # [DEPREC] heelCollision = False
     mainJointIds = [
         "leg_%s_%s_joint" % (side, idx)
         for side in ["left", "right"]
@@ -129,6 +132,8 @@ class WalkParams:
     # ## Contact parameters for the kkt dynamics
     kktDamping = 0  # 1e-6
     baumgartGains = np.array([0, 100])
+    # Beware, this is not used by the Py ocp, only by the c++ ocp
+    transitionDuration = 4
 
     # ## Parameters related to the solver
     solver_th_stop = 1e-3
@@ -159,7 +164,121 @@ class WalkParams:
         Init from the robot name used as a key to
         selec the info related to the state dimension.
         """
+        self.robotName = robotName
         w = Robot_2_StateMap[robotName]
         self.stateImportance = w.stateImportance
         self.stateTerminalImportance = w.stateTerminalImportance
         self.controlImportance = w.controlImportance
+        self.jointNamesToLock = jointToLockCollection[robotName]
+
+
+# ### AD HOC CODE GENERATION ############################################
+# The method to call is generateParamFileForTheRobot. See main for an example.
+def nparrayToCpp(v):
+    res = " "
+    first = ""
+    for vi in v:
+        res += "%s %.10f" % (first, vi)
+        first = ","
+    return res
+
+
+def keyValueToCpp(objName, k, v):
+    if isinstance(v, int):
+        res = "  %s->%s = %d; " % (objName, k, v)
+    elif isinstance(v, float):
+        res = "  %s->%s = %.10f; " % (objName, k, v)
+    elif isinstance(v, np.ndarray):
+        res = "  %s->%s.resize(%d);" % (objName, k, len(v))
+        res += "%s->%s << %s;" % (objName, k, nparrayToCpp(v))
+    elif isinstance(v, list) and isinstance(v[0], str):
+        res = ' %s->%s = { "%s" ' % (objName, k, v[0])
+        for vi in v[1:]:
+            res += ', "%s"' % vi
+        res += " };"
+    else:
+        print(" *** Error, the type of <%s> is not implemented (v=%s) " % (k, str(v)))
+        # raise TypeError
+    return res
+
+
+def generateParamsFromCppClass(pyobj, cppName, cppClass, verbose=True):
+    res = ""
+    for k in cppClass.__dict__.keys():
+        if k[:2] == "__":
+            continue
+        if not hasattr(pyobj, k):
+            if verbose:
+                res += "  // *** Cannot find field <%s> in python params object.\n" % k
+            continue
+        v = pyobj.__getattribute__(k)
+        res += keyValueToCpp(cppName, k, v) + "\n"
+    return res
+
+
+def generateJointLockVector(params):
+    name = params.robotName.split("_")[0]
+    print("// Load robex.load %s" % name)
+    urdf = robex.load(name)
+
+    jointIds = jointNamesToIds(params.jointNamesToLock, urdf.model)
+    jointIds_str = ", ".join([str(i) for i in jointIds])
+    res = """
+
+std::vector<pinocchio::JointIndex>> getAutomaticallyGeneratedJointIdsToLock()
+{
+  // Joint id list for model %s
+  return { %s };
+}
+""" % (
+        params.robotName,
+        jointIds_str,
+    )
+
+    return res
+
+
+def generateParamFileForTheRobot(params, robot=None):
+    """
+    From a param object, generate the c++ code for initializing the c++ ocp/mpc
+
+    """
+    res = """
+#include <sobec/ocp-walk.hpp>
+#include <sobec/mpc-walk.hpp>
+
+void initParamsFromAutomaticallyGeneratedCode(
+    boost::shared_ptr<sobec::OCPWalkParams> params) {
+%s
+}
+void initMPCFromAutomaticallyGeneratedCode(
+    boost::shared_ptr<sobec::MPCWalkParams> mpcparams) {
+%s
+}
+""" % (
+        generateParamsFromCppClass(params, "params", sobec.OCPWalkParams),
+        generateParamsFromCppClass(params, "mpcparams", sobec.MPCWalkParams),
+    )
+
+    if robot is not None:
+        res += """
+bool checkAutomaticallyGeneratedCodeCompatibility(
+    boost::shared_ptr<sobec::OCPRobotWrapper> robot) {
+  bool res = true;
+  res &= (robot->model->nq == %d);
+  res &= (robot->model->nv == %d);
+  return res;
+}
+""" % (
+            robot.model.nq,
+            robot.model.nv,
+        )
+
+        res += generateJointLockVector(params)
+    return res
+
+
+if __name__ == "__main__":
+    params = WalkParams("talos_low")
+    robot = robex.load("talos_legs")
+    print(generateParamFileForTheRobot(params, robot))

@@ -12,12 +12,10 @@
 #include <iostream>
 #include <limits>
 
+#include "contact1d.hpp"
 #include "crocoddyl/multibody/contact-base.hpp"
 #include "crocoddyl/multibody/numdiff/contact.hpp"
 #include "state.hpp"
-// #include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
-
-#include "contact1d.hpp"
 
 namespace sobec {
 namespace unittest {

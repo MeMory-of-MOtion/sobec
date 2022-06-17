@@ -21,7 +21,6 @@
 #include "crocoddyl/multibody/contacts/contact-6d.hpp"
 #include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
 #include "crocoddyl/multibody/data/contacts.hpp"
-#include "sobec/contact/multiple-contacts.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -125,7 +124,6 @@ struct ResidualDataCenterOfPressureTpl
   typedef ResidualDataAbstractTpl<Scalar> Base;
   typedef StateMultibodyTpl<Scalar> StateMultibody;
   typedef DataCollectorAbstractTpl<Scalar> DataCollectorAbstract;
-  typedef ContactModelMultipleTpl<Scalar> ContactModelMultiple;
 
   typedef typename MathBase::Matrix6xs Matrix6xs;
 
@@ -146,15 +144,13 @@ struct ResidualDataCenterOfPressureTpl
         boost::static_pointer_cast<StateMultibody>(model->get_state());
     std::string frame_name = state->get_pinocchio()->frames[id].name;
     bool found_contact = false;
-    for (typename ContactModelMultiple::ContactDataContainer::iterator it =
-             d->contacts->contacts.begin();
-         it != d->contacts->contacts.end(); ++it) {
-      if (it->second->frame == id) {
+    for (auto &it : d->contacts->contacts) {
+      if (it.second->frame == id) {
         ContactData6DTpl<Scalar> *d6d =
-            dynamic_cast<ContactData6DTpl<Scalar> *>(it->second.get());
+            dynamic_cast<ContactData6DTpl<Scalar> *>(it.second.get());
         if (d6d != NULL) {
           found_contact = true;
-          this->contact = it->second;
+          this->contact = it.second;
           break;
         }
         throw_pretty(

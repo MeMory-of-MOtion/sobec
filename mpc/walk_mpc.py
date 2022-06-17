@@ -11,12 +11,36 @@ import utils.walk_plotter as walk_plotter
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
 from mpcparams import WalkParams
-import utils.talos_low as talos_low
+
+# import utils.talos_low as talos_low
 from sobec.walk.config_mpc import configureMPCWalk
 import sobec.walk.miscdisp as miscdisp
+from sobec.walk.talos_collections import robexLoadAndReduce
 
 # import utils.viewer_multiple as viewer_multiple
 
+# #####################################################################################
+# ## TUNING ###########################################################################
+# #####################################################################################
+
+# In the code, cost terms with 0 weight are commented for reducing execution cost
+# An example of working weight value is then given as comment at the end of the line.
+# When setting them to >0, take care to uncomment the corresponding line.
+# All these lines are marked with the tag ##0##.
+
+walkParams = WalkParams("talos_low")
+
+contactPattern = (
+    []
+    + [[1, 1]] * walkParams.Tstart
+    + [[1, 1]] * walkParams.Tdouble
+    + [[0, 1]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 0]] * walkParams.Tsingle
+    + [[1, 1]] * walkParams.Tdouble
+    + [[1, 1]] * walkParams.Tend
+    + [[1, 1]]
+)
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
 # #####################################################################################
@@ -24,8 +48,9 @@ import sobec.walk.miscdisp as miscdisp
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
-urdf = talos_low.load()
+urdf = robexLoadAndReduce("talos", walkParams.robotName)
 robot = RobotWrapper(urdf.model, contactKey="sole_link")
+assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -40,29 +65,6 @@ except (ImportError, AttributeError):
     print("No viewer")
 
 
-# #####################################################################################
-# ## TUNING ###########################################################################
-# #####################################################################################
-
-# In the code, cost terms with 0 weight are commented for reducing execution cost
-# An example of working weight value is then given as comment at the end of the line.
-# When setting them to >0, take care to uncomment the corresponding line.
-# All these lines are marked with the tag ##0##.
-
-walkParams = WalkParams()
-assert len(walkParams.stateImportance) == robot.model.nv * 2
-
-contactPattern = (
-    []
-    + [[1, 1]] * walkParams.Tstart
-    + [[1, 1]] * walkParams.Tdouble
-    + [[0, 1]] * walkParams.Tsingle
-    + [[1, 1]] * walkParams.Tdouble
-    + [[1, 0]] * walkParams.Tsingle
-    + [[1, 1]] * walkParams.Tdouble
-    + [[1, 1]] * walkParams.Tend
-    + [[1, 1]]
-)
 # #####################################################################################
 # ### DDP #############################################################################
 # #####################################################################################
@@ -83,8 +85,9 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 # ### MPC #############################################################################
 
-mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc, walkParams)
+mpcparams = sobec.MPCWalkParams()
+configureMPCWalk(mpcparams, walkParams)
+mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
 x = robot.x0
