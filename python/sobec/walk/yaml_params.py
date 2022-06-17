@@ -20,11 +20,11 @@ def paramsToDict(params):
     res = params.__dict__
     for k in params.__class__.__dict__.keys():
         if k[:2] != "__" and k not in res:
-            res[k] = params.__getattribute__(k)
+            res[k] = getattr(params, k)
     if len(params.__class__.__bases__) > 0:
         for k in params.__class__.__bases__[0].__dict__.keys():
             if k[:2] != "__" and k not in res:
-                res[k] = params.__getattribute__(k)
+                res[k] = getattr(params, k)
     return res
 
 

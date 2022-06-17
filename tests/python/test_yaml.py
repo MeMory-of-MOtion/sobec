@@ -13,16 +13,16 @@ def compareTwoParams(params1, params2, ParamClass):
             # Check that, if v1 exits, it is not yaml compatible
             assert not (
                 hasattr(params1, k)
-                and yaml_params.isYamlTypeCompatible(params1.__getattribute__(k))
+                and yaml_params.isYamlTypeCompatible(getattr(params1, k))
             )
             # Check that, if v2 exits, it is not yaml compatible
             assert not (
                 hasattr(params2, k)
-                and yaml_params.isYamlTypeCompatible(params2.__getattribute__(k))
+                and yaml_params.isYamlTypeCompatible(getattr(params2, k))
             )
             continue
-        v1 = params1.__getattribute__(k)
-        v2 = params2.__getattribute__(k)
+        v1 = getattr(params1, k)
+        v2 = getattr(params2, k)
         # print(f'Compare {k}: {v1} vs {v2} ')
         if isinstance(v1, float) or isinstance(v1, int):
             assert abs(v1 - v2) < 1e-6
