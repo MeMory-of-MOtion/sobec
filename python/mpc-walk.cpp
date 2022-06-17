@@ -39,6 +39,8 @@ void exposeMPCParams() {
   bp::class_<MPCWalkParams>(
       "MPCWalkParams",
       bp::init<>(bp::args("self"), "Empty initialization of the MPC params"))
+      .def("readFromYaml", &MPCWalkParams::readParamsFromYamlFile,
+           bp::args("filename"))
       .add_property("DT", bp::make_getter(&MPCWalkParams::DT),
                     bp::make_setter(&MPCWalkParams::DT), "DT.")
       .add_property("vcomRef", bp::make_getter(&MPCWalkParams::vcomRef),

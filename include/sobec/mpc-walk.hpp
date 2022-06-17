@@ -52,6 +52,11 @@ struct MPCWalkParams {
 
   MPCWalkParams();
   virtual ~MPCWalkParams() {}
+
+  /// @brief Read a yaml parameter list, as a string.
+  void readParamsFromYamlString(std::string& StringToParse);
+  /// @brief Read a yaml parameter list from a file.
+  void readParamsFromYamlFile(std::string& Filename);
 };
 
 class MPCWalk {
