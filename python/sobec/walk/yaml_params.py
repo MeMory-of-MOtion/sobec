@@ -17,15 +17,16 @@ import sobec
 
 
 def paramsToDict(params):
-    res = params.__dict__
-    for k in params.__class__.__dict__.keys():
-        if k[:2] != "__" and k not in res:
-            res[k] = getattr(params, k)
-    if len(params.__class__.__bases__) > 0:
-        for k in params.__class__.__bases__[0].__dict__.keys():
-            if k[:2] != "__" and k not in res:
-                res[k] = getattr(params, k)
-    return res
+    # res = params.__dict__
+    # for k in params.__class__.__dict__.keys():
+    #     if k[:2] != "__" and k not in res:
+    #         res[k] = getattr(params, k)
+    # if len(params.__class__.__bases__) > 0:
+    #     for k in params.__class__.__bases__[0].__dict__.keys():
+    #         if k[:2] != "__" and k not in res:
+    #             res[k] = getattr(params, k)
+    # return res
+    return {k: getattr(params, k) for k in dir(params) if k[:2] != "__"}
 
 
 def isYamlTypeCompatible(v):
@@ -92,7 +93,7 @@ def yamlReadToParams(filename, params):
     dictToNpValue(pdict)
     for k, v in pdict.items():
         if hasattr(params, k):
-            params.__setattr__(k, v)
+            setattr(params, k, v)
 
 
 # ################################################################################
