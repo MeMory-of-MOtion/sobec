@@ -57,6 +57,10 @@ std::string displayVector(std::vector<T> &self) {
   return oss.str();
 }
 
+bool timeToSolveDDP(WBC &self, const int &iteration){
+    return self.timeToSolveDDP(iteration);
+}
+
 void exposeWBC() {
   bp::class_<std::vector<pinocchio::SE3>>("vector_pinocchio_se3_")
       .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3>>())
@@ -75,17 +79,17 @@ void exposeWBC() {
                     "actuationCostName"),
            "The posture required here is the full robot posture in the order "
            "of pinocchio")
-      .def("shapeState", &WBC::shapeState, bp::args("self", "q", "v"))
+      .def("shapeState", bp::make_function(
+              &WBC::shapeState,
+              bp::return_value_policy<bp::reference_existing_object>()))//, bp::args("self", "q", "v")
       .def("generateWalkigCycle", &WBC::generateWalkingCycle,
            bp::args("self", "modelMaker"))
       .def("generateStandingCycle", &WBC::generateStandingCycle,
            bp::args("self", "modelMaker"))
       .def("updateStepCycleTiming", &WBC::updateStepCycleTiming,
            bp::args("self"))
-      .def("timeToSolveDDP", &WBC::timeToSolveDDP,
+      .def("timeToSolveDDP", &timeToSolveDDP,
            bp::args("self", "iteration"))
-      .def("setDesiredFeetPoses", &WBC::setDesiredFeetPoses,
-           bp::args("self", "iteration", "time"))
       .def("iterate",
            static_cast<void (WBC::*)(const int &, const Eigen::VectorXd &,
                                      const Eigen::VectorXd &, const bool &)>(

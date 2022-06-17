@@ -59,6 +59,7 @@ void exposeHorizonManager() {
       .def("costs", &HorizonManager::costs, bp::args("self", "time"))
       .def("contacts", &HorizonManager::contacts, bp::args("self", "time"))
       .def("state", &HorizonManager::state, bp::args("self", "time"))
+      .def("actuation", &HorizonManager::actuation, bp::args("self", "time"))
       .def("ada", &HorizonManager::ada, bp::args("self", "time"))
       .def("iad", &HorizonManager::iad, bp::args("self", "time"))
       .def("setPoseReferenceLF", &HorizonManager::setPoseReferenceLF,
@@ -85,6 +86,8 @@ void exposeHorizonManager() {
                     "forceCostName"))
       .def("setDoubleSupport", &HorizonManager::setDoubleSupport,
            bp::args("self", "time", "contactNameLF", "contactNameRF"))
+      .def("getFootPoseReference", bp::make_function(&HorizonManager::getFootPoseReference, 
+           bp::return_value_policy<bp::reference_existing_object>()))
       .def<void (HorizonManager::*)(const AMA &, const ADA &)>(
           "recede", &HorizonManager::recede, bp::args("self", "IAM", "IAD"))
       .def<void (HorizonManager::*)(const AMA &)>(
@@ -92,7 +95,7 @@ void exposeHorizonManager() {
       .def<void (HorizonManager::*)()>("recede", &HorizonManager::recede,
                                        bp::args("self"))
       .add_property("ddp", &HorizonManager::get_ddp, &HorizonManager::set_ddp)
-      .def("currentTorques", &HorizonManager::currentTorques, bp::args("x0"))
+      .def("currentTorques", bp::make_function(&HorizonManager::currentTorques, bp::return_value_policy<bp::reference_existing_object>()))
       .def("solve", &HorizonManager::solve,
            (bp::arg("self"), bp::arg("x_measured"), bp::arg("ddpIteration"),
             bp::arg("is_feasible") = false))
@@ -104,10 +107,12 @@ void exposeHorizonManager() {
                                     const Eigen::VectorXd &)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time", "x"))
-      .def("size", &HorizonManager::size, (bp::arg("self")))
+     //  .def("size", &size)
+      .def("size", bp::make_function(&HorizonManager::size, bp::return_value_policy<bp::copy_const_reference>()))
       .def("setActuationReference", &HorizonManager::setActuationReference,
            bp::args("self", "time", "actuationCostName"))
-      .def("get_contacts", &get_contacts, bp::args("self", "time"));
+      .def("get_contacts", &get_contacts, bp::args("self", "time"))
+      ;
   return;
 }
 }  // namespace python

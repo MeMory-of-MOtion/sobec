@@ -78,6 +78,7 @@ class WBC {
   // Memory preallocations:
   std::vector<unsigned long> controlled_joints_id_;
   Eigen::VectorXd x_internal_;
+  bool time_to_solve_ddp_ = false;
 
  public:
   WBC();
@@ -90,7 +91,7 @@ class WBC {
                   const Eigen::VectorXd &v0,
                   const std::string &actuationCostName);
 
-  Eigen::VectorXd shapeState(const Eigen::VectorXd &q,
+  const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
                              const Eigen::VectorXd &v);
 
   void generateWalkingCycle(ModelMaker &mm);
@@ -99,9 +100,7 @@ class WBC {
 
   void updateStepCycleTiming();
 
-  bool timeToSolveDDP(const int &iteration);
-
-  void setDesiredFeetPoses(const int &iteration, const int &time);
+  const bool &timeToSolveDDP(const int &iteration);
 
   void iterate(const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, const bool &is_feasible);
@@ -118,12 +117,12 @@ class WBC {
   const Eigen::VectorXd &get_x0() const { return x0_; }
   void set_x0(const Eigen::VectorXd &x0) { x0_ = x0; }
 
-  const HorizonManager &get_walkingCycle() const { return walkingCycle_; }
+  HorizonManager &get_walkingCycle() { return walkingCycle_; }
   void set_walkingCycle(const HorizonManager &walkingCycle) {
     walkingCycle_ = walkingCycle;
   }
 
-  const HorizonManager &get_standingCycle() const { return standingCycle_; }
+  HorizonManager &get_standingCycle() { return standingCycle_; }
   void set_standingCycle(const HorizonManager &standingCycle) {
     standingCycle_ = standingCycle;
   }
