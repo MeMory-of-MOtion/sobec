@@ -1,8 +1,8 @@
 #ifndef SOBEC_MODEL_FACTORY
 #define SOBEC_MODEL_FACTORY
 
-#include <pinocchio/fwd.hpp>
 #include <Eigen/Dense>
+#include <pinocchio/fwd.hpp>
 #include <string>
 #include <vector>
 

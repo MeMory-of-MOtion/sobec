@@ -1,9 +1,9 @@
 #ifndef SOBEC_DESIGNER
 #define SOBEC_DESIGNER
 
-#include <pinocchio/fwd.hpp>
 #include <Eigen/Dense>
 #include <pinocchio/algorithm/model.hpp>
+#include <pinocchio/fwd.hpp>
 #include <pinocchio/spatial/se3.hpp>
 #include <string>
 #include <vector>

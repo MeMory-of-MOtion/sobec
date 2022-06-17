@@ -1,12 +1,13 @@
 #ifndef SOBEC_WBC
 #define SOBEC_WBC
 
-#include <pinocchio/fwd.hpp>
 #include <ndcurves/bezier_curve.h>
 #include <ndcurves/fwd.h>
 #include <ndcurves/piecewise_curve.h>
 #include <ndcurves/polynomial.h>
 #include <ndcurves/se3_curve.h>
+
+#include <pinocchio/fwd.hpp>
 
 #include "sobec/designer.hpp"
 #include "sobec/horizon_manager.hpp"

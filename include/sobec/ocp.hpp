@@ -2,6 +2,7 @@
 #define SOBEC_OCP
 
 #include <pinocchio/fwd.hpp>
+
 #include "sobec/designer.hpp"
 #include "sobec/foot_trajectory.hpp"
 #include "sobec/horizon_manager.hpp"
