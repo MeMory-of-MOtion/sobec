@@ -125,8 +125,7 @@ void WBC::setDesiredFeetPoses(const int & /*iteration*/, const int & /*time*/) {
 }
 
 void WBC::iterate(const Eigen::VectorXd &q_current,
-                  const Eigen::VectorXd &v_current,
-                  const bool &is_feasible) {
+                  const Eigen::VectorXd &v_current, const bool &is_feasible) {
   x0_ = shapeState(q_current, v_current);
   // ~~TIMING~~ //
   updateStepCycleTiming();
@@ -148,14 +147,11 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBC::iterate(const int &iteration,
-                  const Eigen::VectorXd &q_current,
-                  const Eigen::VectorXd &v_current,
-                  const bool &is_feasible) {
+void WBC::iterate(const int &iteration, const Eigen::VectorXd &q_current,
+                  const Eigen::VectorXd &v_current, const bool &is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterate(q_current, v_current, is_feasible);
-  }
-  else
+  } else
     x0_ = shapeState(q_current, v_current);
 }
 

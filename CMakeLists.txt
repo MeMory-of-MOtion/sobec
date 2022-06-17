@@ -63,7 +63,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/designer.hpp
   include/${PROJECT_NAME}/model_factory.hpp
   include/${PROJECT_NAME}/horizon_manager.hpp
-  # include/${PROJECT_NAME}/ocp.hpp
+  include/${PROJECT_NAME}/ocp.hpp
   include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
   include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
   include/${PROJECT_NAME}/contact/contact3d.hpp
@@ -95,16 +95,17 @@ set(${PROJECT_NAME}_SOURCES
   src/designer.cpp
   src/model_factory.cpp
   src/horizon_manager.cpp
-  # src/ocp.cpp
+  src/ocp.cpp
   src/wbc.cpp
   src/foot_trajectory.cpp
   src/flexibility_compensation.cpp
   src/ocp-walk.cpp
   src/ocp-walk-running-models.cpp
   src/ocp-walk-terminal.cpp
-  src/ocp-walk-param.cpp
+  src/ocp-walk-params.cpp
   src/ocp-walk-robot.cpp
   src/ocp-ref-forces.cpp
+  src/mpc-walk-params.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

@@ -119,9 +119,6 @@ void HorizonManager::setActuationReference(const unsigned long &time,
 void HorizonManager::setPoseReferenceLF(const unsigned long &time,
                                         const std::string &nameCostLF,
                                         const pinocchio::SE3 &ref_placement) {
-  std::cout << "Set left position to " << ref_placement.translation()[0] << ", "
-            << ref_placement.translation()[1] << ", "
-            << ref_placement.translation()[2] << std::endl;
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
       costs(time)->get_costs().at(nameCostLF)->cost->get_residual())
       ->set_reference(ref_placement);
@@ -130,12 +127,23 @@ void HorizonManager::setPoseReferenceLF(const unsigned long &time,
 void HorizonManager::setPoseReferenceRF(const unsigned long &time,
                                         const std::string &nameCostRF,
                                         const pinocchio::SE3 &ref_placement) {
-  std::cout << "Set right position to " << ref_placement.translation()[0]
-            << ", " << ref_placement.translation()[1] << ", "
-            << ref_placement.translation()[2] << std::endl;
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
       costs(time)->get_costs().at(nameCostRF)->cost->get_residual())
       ->set_reference(ref_placement);
+}
+
+pinocchio::SE3 HorizonManager::getPoseReferenceLF(
+    const unsigned long &time, const std::string &nameCostLF) {
+  return boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
+             costs(time)->get_costs().at(nameCostLF)->cost->get_residual())
+      ->get_reference();
+}
+
+pinocchio::SE3 HorizonManager::getPoseReferenceRF(
+    const unsigned long &time, const std::string &nameCostRF) {
+  return boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
+             costs(time)->get_costs().at(nameCostRF)->cost->get_residual())
+      ->get_reference();
 }
 
 void HorizonManager::setVelocityRefCOM(const unsigned long &time,
@@ -149,7 +157,6 @@ void HorizonManager::setVelocityRefCOM(const unsigned long &time,
 void HorizonManager::setForceReferenceLF(const unsigned long &time,
                                          const std::string &nameCostLF,
                                          const eVector6 &reference) {
-  std::cout << "Set left ref Fz ref to " << reference[2] << std::endl;
   cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
       costs(time)->get_costs().at(nameCostLF)->cost);
   new_ref_ =
@@ -165,7 +172,6 @@ void HorizonManager::setForceReferenceLF(const unsigned long &time,
 void HorizonManager::setForceReferenceRF(const unsigned long &time,
                                          const std::string &nameCostRF,
                                          const eVector6 &reference) {
-  std::cout << "Set right ref Fz to " << reference[2] << std::endl;
   cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
       costs(time)->get_costs().at(nameCostRF)->cost);
   new_ref_ =
@@ -184,7 +190,7 @@ void HorizonManager::setSwingingLF(const unsigned long &time,
                                    const std::string &nameForceCostLF) {
   removeContactLF(time, nameContactLF);
   activateContactRF(time, nameContactRF);
-  setForceReferenceRF(time, nameForceCostLF, eVector6::Zero());
+  setForceReferenceLF(time, nameForceCostLF, eVector6::Zero());
 }
 
 void HorizonManager::setSwingingRF(const unsigned long &time,

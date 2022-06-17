@@ -1,6 +1,8 @@
 #ifndef SOBEC_MODEL_FACTORY
 #define SOBEC_MODEL_FACTORY
 
+#include <pinocchio/fwd.hpp>
+// include pinocchio first
 #include <Eigen/Dense>
 #include <string>
 #include <vector>
@@ -83,7 +85,8 @@ class ModelMaker {
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
-  void defineCoPTask(Cost &costCollector, const Support &support = Support::DOUBLE);
+  void defineCoPTask(Cost &costCollector,
+                     const Support &support = Support::DOUBLE);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {

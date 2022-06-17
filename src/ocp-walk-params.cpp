@@ -9,7 +9,7 @@
 #include "yaml-cpp/yaml.h"
 namespace sobec {
 
-void OCPWalkParams::readParams(std::string &StringToParse) {
+void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {
   YAML::Node root = YAML::Load(StringToParse);
   YAML::Node config = root["walk"];
 
@@ -106,12 +106,12 @@ void OCPWalkParams::readParams(std::string &StringToParse) {
   }
 }
 
-void OCPWalkParams::readParamsFile(std::string &Filename) {
+void OCPWalkParams::readParamsFromYamlFile(const std::string &Filename) {
   std::ifstream t(Filename);
   std::stringstream buffer;
   buffer << t.rdbuf();
   std::string StringToParse = buffer.str();
-  readParams(StringToParse);
+  readParamsFromYamlStr(StringToParse);
 }
 
 }  // namespace sobec
