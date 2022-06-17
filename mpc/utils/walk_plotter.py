@@ -108,7 +108,9 @@ class WalkPlotter:
                 w_foot = np.dot(self.data.oMf[cid].homogeneous, l_foot)
                 plt.plot(w_foot[0, :], w_foot[1, :], "grey")
 
-    def plotForces(self, referenceForces=[]):
+    def plotForces(self, referenceForces=None):
+        if referenceForces is None:
+            referenceForces = []
         # Forces and reference forces wrt time
         plt.figure("forces")
         frefplot = np.array(referenceForces)
