@@ -46,15 +46,13 @@ def flattenDictArrayValues(paramsAsDict):
     """
     todel = []
     for k, v in paramsAsDict.items():
-        if isinstance(v, float) or isinstance(v, int) or isinstance(v, str):
-            pass
-        elif isinstance(v, np.ndarray):
+        if not isYamlTypeCompatible(v):
+            print("Field <%s> is not a serializable type for yaml ... ignore" % k)
+            todel.append(k)
+        if isinstance(v, np.ndarray):
             paramsAsDict[k] = v.tolist()
         elif isinstance(v, sobec.sobec_pywrap.StdVectorStdStringIndex_):
             paramsAsDict[k] = [str(vi) for vi in v]
-        else:
-            print("Field <%s> is not a serializable type for yaml ... ignore" % k)
-            todel.append(k)
     for k in todel:
         del paramsAsDict[k]
 
