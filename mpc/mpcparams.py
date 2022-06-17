@@ -30,9 +30,31 @@ class StandParams(swparams.WalkParams):
     Tmpc = 50
     transitionDuration = 0
 
-    vcomRef = np.array([0, 0, 0])
+    vcomRef = np.array([0 , 0, 0])
+    vcomImportance = np.array([0.0, 0, 1])
+    vcomWeight = 0
 
-    def __init__(self, name="talos_legs"):
+    refStateWeight = 1e-1
+    forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
+    coneAxisWeight = 0###2e-4
+    copWeight = 1###2
+    refForceWeight = 10 ####10
+
+    refTorqueWeight = 0
+    comWeight = 0  # 20
+    verticalFootVelWeight = 0
+    flyHighWeight = 0
+    groundColWeight = 0
+    conePenaltyWeight = 0
+    feetCollisionWeight = 0
+    impactAltitudeWeight = 0
+    impactVelocityWeight = 0
+    impactRotationWeight = 0
+    refMainJointsAtImpactWeight = 0  # 2e2 # For avoinding crossing legs
+
+    stateTerminalWeight = 20  # 2000
+
+    def __init__(self, name="talos_12"):
         swparams.WalkParams.__init__(self, name)
         # super(swparams.WalkParams, self).__init__(self, name)
 
