@@ -61,8 +61,8 @@ struct OCPWalkParams {
   double solver_th_stop;
   int transitionDuration;
 
-  void readParams(std::string& StringToParse);
-  void readParamsFile(const std::string& Filename);
+  void readParamsFromYamlStr(std::string& StringToParse);
+  void readParamsFromYamlFile(const std::string& Filename);
 };
 
 struct OCPRobotWrapper {

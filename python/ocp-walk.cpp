@@ -79,7 +79,8 @@ void exposeOCPParams() {
       // bp::make_getter(&OCPWalkParams::solver_maxiter),
       //               bp::make_setter(&OCPWalkParams::solver_maxiter),
       //               "maxiter param to configure the solver.")
-      .def("readFromYaml", &OCPWalkParams::readParams, bp::args("filename"))
+      .def("readFromYaml", &OCPWalkParams::readParamsFromYamlFile,
+           bp::args("filename"))
       .add_property("DT", bp::make_getter(&OCPWalkParams::DT),
                     bp::make_setter(&OCPWalkParams::DT),
                     "time step duration of the shooting nodes.")
