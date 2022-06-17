@@ -4,7 +4,9 @@ OCP.
 """
 
 import numpy as np
+import example_robot_data as robex
 import sobec
+from .talos_collections import jointNamesToIds, jointToLockCollection
 
 
 class StateRelatedParams:
@@ -40,7 +42,7 @@ class TalosInfo:
 # ### STATE FOR EACH ROBOT ##################################################
 
 Robot_2_StateMap = {
-    "talos_14": StateRelatedParams(
+    "talos_low": StateRelatedParams(
         stateImportance=np.array(
             TalosInfo.basisQWeights
             + TalosInfo.legQWeights * 2
@@ -52,7 +54,7 @@ Robot_2_StateMap = {
         stateTerminalImportance=np.array([3, 3, 0, 0, 0, 30] + [0] * 14 + [1] * 20),
         controlImportance=np.array([1] * 14),
     ),
-    "talos_12": StateRelatedParams(
+    "talos_legs": StateRelatedParams(
         stateImportance=np.array(
             TalosInfo.basisQWeights
             + TalosInfo.legQWeights * 2
@@ -162,10 +164,12 @@ class WalkParams:
         Init from the robot name used as a key to
         selec the info related to the state dimension.
         """
+        self.robotName = robotName
         w = Robot_2_StateMap[robotName]
         self.stateImportance = w.stateImportance
         self.stateTerminalImportance = w.stateTerminalImportance
         self.controlImportance = w.controlImportance
+        self.jointNamesToLock = jointToLockCollection[robotName]
 
 
 # ### AD HOC CODE GENERATION ############################################
@@ -212,6 +216,28 @@ def generateParamsFromCppClass(pyobj, cppName, cppClass, verbose=True):
     return res
 
 
+def generateJointLockVector(params):
+    name = params.robotName.split("_")[0]
+    print("// Load robex.load %s" % name)
+    urdf = robex.load(name)
+
+    jointIds = jointNamesToIds(params.jointNamesToLock, urdf.model)
+    jointIds_str = ", ".join([str(i) for i in jointIds])
+    res = """
+
+std::vector<pinocchio::JointIndex>> getAutomaticallyGeneratedJointIdsToLock()
+{
+  // Joint id list for model %s
+  return { %s };
+}
+""" % (
+        params.robotName,
+        jointIds_str,
+    )
+
+    return res
+
+
 def generateParamFileForTheRobot(params, robot=None):
     """
     From a param object, generate the c++ code for initializing the c++ ocp/mpc
@@ -248,12 +274,11 @@ bool checkAutomaticallyGeneratedCodeCompatibility(
             robot.model.nv,
         )
 
+        res += generateJointLockVector(params)
     return res
 
 
 if __name__ == "__main__":
-    import example_robot_data as robex
-
-    params = WalkParams("talos_14")
+    params = WalkParams("talos_low")
     robot = robex.load("talos_legs")
     print(generateParamFileForTheRobot(params, robot))
