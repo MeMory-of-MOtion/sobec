@@ -1,6 +1,10 @@
 #ifndef SOBEC_WBC
 #define SOBEC_WBC
 
+#include <pinocchio/fwd.hpp>
+
+// include pinocchio first
+
 #include <ndcurves/bezier_curve.h>
 #include <ndcurves/fwd.h>
 #include <ndcurves/piecewise_curve.h>
