@@ -21,7 +21,7 @@
 #include "sobec/fwd.hpp"
 
 namespace sobec {
-// using namespace crocoddyl;
+namespace newcontacts {
 
 enum Vector3MaskType { x = 0, y = 1, z = 2 };
 
@@ -255,6 +255,7 @@ struct ContactData1DTpl : public crocoddyl::ContactData1DTpl<_Scalar> {
   MatrixXs drnea_skew_term_;
 };
 
+}  // namespace newcontacts
 }  // namespace sobec
 
 /* --- Details -------------------------------------------------------------- */

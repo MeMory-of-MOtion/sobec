@@ -41,6 +41,7 @@ ADD_COMPILE_OPTIONS(-Wno-error)
 # Project dependencies
 ADD_PROJECT_DEPENDENCY(ndcurves REQUIRED)
 ADD_PROJECT_DEPENDENCY(crocoddyl REQUIRED)
+ADD_PROJECT_DEPENDENCY(yaml-cpp REQUIRED)
 
 if(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
@@ -84,6 +85,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
   include/${PROJECT_NAME}/contact/contact-force.hxx
   include/${PROJECT_NAME}/residual-fly-high.hxx
+  include/${PROJECT_NAME}/ocp-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hpp
   include/${PROJECT_NAME}/mpc-walk.hxx
   include/${PROJECT_NAME}/flexibility_compensation.hpp
@@ -97,11 +99,17 @@ set(${PROJECT_NAME}_SOURCES
   src/wbc.cpp
   src/foot_trajectory.cpp
   src/flexibility_compensation.cpp
+  src/ocp-walk.cpp
+  src/ocp-walk-running-models.cpp
+  src/ocp-walk-terminal.cpp
+  src/ocp-walk-param.cpp
+  src/ocp-walk-robot.cpp
+  src/ocp-ref-forces.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl ndcurves::ndcurves)
+target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl ndcurves::ndcurves yaml-cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 if(SUFFIX_SO_VERSION)

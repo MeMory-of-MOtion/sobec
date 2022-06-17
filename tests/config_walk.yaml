@@ -1,0 +1,33 @@
+walk:
+  DT: 0.01
+  baumgartGains: [0., 100.]
+  mainJointIds: [ ]
+  stateImportance: [ 0., 0., 0., 50., 50., 0., 5., 5., 1., 2., 1., 1., 5., 5., 1., 2., 1., 1., 0., 0., 0., 3., 3., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1. ]
+  stateTerminalImportance: [ 3., 3., 0., 0., 0., 30., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1. ]
+  controlImportance: [ 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1. ]
+  vcomImportance: [ 0., 0., 1. ]
+  forceImportance: [ 1., 1., 0.1, 10., 10., 2. ]
+  vcomRef: [ 0.05, 0., 0.]
+  footSize: 0.05
+  refStateWeight: 0.1
+  refTorqueWeight: 0.0
+  comWeight: 0.0
+  vcomWeight: 1.0
+  copWeight: 2.0
+  conePenaltyWeight: 0.0
+  coneAxisWeight: 0.0002
+  refForceWeight: 10.0
+  impactAltitudeWeight: 20000.0
+  impactVelocityWeight: 10000.0
+  impactRotationWeight: 200.0
+  refMainJointsAtImpactWeight: 0.0
+  verticalFootVelWeight: 20.0
+  flyHighSlope: 42.857142857142854
+  flyHighWeight: 200.0
+  groundColWeight: 200.0
+  footMinimalDistance: 0.2
+  feetCollisionWeight: 1000.0
+  kktDamping: 0.0
+  stateTerminalWeight: 20.0
+  solver_th_stop: 0.001
+  transitionDuration: 6

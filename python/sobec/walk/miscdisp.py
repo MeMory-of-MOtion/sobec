@@ -34,7 +34,7 @@ def reprAction(amodel):
 def reprProblem(problem):
     return "".join(
         "*t=%s\n%s" % (t, reprAction(r)) for t, r in enumerate(problem.runningModels)
-    ) + "*TERMINAL\n%s" % {reprAction(problem.terminalModel)}
+    ) + "*TERMINAL\n%s" % reprAction(problem.terminalModel)
 
 
 def contact2car(model, contactIds, contacts, costs):

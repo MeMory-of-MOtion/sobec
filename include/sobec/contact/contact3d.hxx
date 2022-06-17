@@ -9,6 +9,7 @@
 #include "contact3d.hpp"
 
 namespace sobec {
+namespace newcontacts {
 
 template <typename Scalar>
 ContactModel3DTpl<Scalar>::ContactModel3DTpl(
@@ -202,4 +203,5 @@ const pinocchio::ReferenceFrame ContactModel3DTpl<Scalar>::get_type() const {
   return type_;
 }
 
+}  // namespace newcontacts
 }  // namespace sobec

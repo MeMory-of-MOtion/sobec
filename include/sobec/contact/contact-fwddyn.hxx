@@ -19,6 +19,7 @@
 #include "crocoddyl/core/utils/math.hpp"
 
 namespace sobec {
+namespace newcontacts {
 
 template <typename Scalar>
 DifferentialActionModelContactFwdDynamicsTpl<Scalar>::
@@ -31,8 +32,7 @@ DifferentialActionModelContactFwdDynamicsTpl<Scalar>::
     : Base(state, actuation, contacts, costs, JMinvJt_damping, enable_force),
       enable_force_(enable_force) {
   sobec_contacts_ =
-      boost::static_pointer_cast<sobec::ContactModelMultipleTpl<Scalar>>(
-          contacts);
+      boost::static_pointer_cast<ContactModelMultipleTpl<Scalar>>(contacts);
 }
 
 template <typename Scalar>
@@ -168,4 +168,5 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
 //   d->pinocchio.tau.setZero();
 // }
 
+}  // namespace newcontacts
 }  // namespace sobec

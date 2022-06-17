@@ -66,7 +66,7 @@ q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
 # ## Load urdf model in pinocchio and bullet
 simu = SimuProxy()
 simu.loadExampleRobot("talos")
-simu.rmodel.q0 = q_init
+# simu.rmodel.q0 = q_init
 simu.loadBulletModel()  # pyb.GUI)
 simu.freeze(talos_low.jointToLockNames)
 simu.setTorqueControlMode()
@@ -75,8 +75,8 @@ simu.setTalosDefaultFriction()
 # ## OCP ########################################################################
 
 robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
-robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
-walkParams = WalkParams()
+# robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
+walkParams = WalkParams(robot.name)
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 assert norm(robot.x0 - simu.getState()) < 1e-6
@@ -114,9 +114,9 @@ x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 
-# mpc = WalkMPC(robot, ddp.problem, walkParams, xs_init=ddp.xs, us_init=ddp.us)
-mpc = sobec.MPCWalk(ddp.problem)
-configureMPCWalk(mpc, walkParams)
+mpcparams = sobec.MPCWalkParams()
+configureMPCWalk(mpcparams, walkParams)
+mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # mpc.solver.setCallbacks([
 # croc.CallbackVerbose(),
@@ -159,8 +159,10 @@ def play():
         time.sleep(1e-2)
 
 
+croc.enable_profiler()
+
 # FOR LOOP
-for s in range(int(20.0 / walkParams.DT)):
+for s in range(15):  # int(20.0 / walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -223,6 +225,8 @@ for s in range(int(20.0 / walkParams.DT)):
         viz0.play(np.array(mpc.solver.xs)[:, : robot.model.nq].T, walkParams.DT)
         time.sleep(1)
 
+croc.stop_watch_report(3)
+
 # #####################################################################################
 # #####################################################################################
 # #####################################################################################
@@ -236,7 +240,7 @@ if walkParams.saveFile is not None:
 
 # The 2 next import must not be included **AFTER** pyBullet starts.
 import matplotlib.pylab as plt  # noqa: E402,F401
-import walk_plotter  # noqa: E402
+import utils.walk_plotter as walk_plotter  # noqa: E402
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)
