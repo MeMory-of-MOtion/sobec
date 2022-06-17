@@ -3,6 +3,8 @@
 
 #include <pinocchio/fwd.hpp>
 
+// include pinocchio first
+
 #include "sobec/designer.hpp"
 #include "sobec/foot_trajectory.hpp"
 #include "sobec/horizon_manager.hpp"
