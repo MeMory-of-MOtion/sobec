@@ -165,7 +165,7 @@ croc.enable_profiler()
 
 # FOR LOOP
 mpcPeriod = int(walkParams.DT / 1e-3)
-for s in range(120):  # int(20.0 / walkParams.DT)):
+for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates

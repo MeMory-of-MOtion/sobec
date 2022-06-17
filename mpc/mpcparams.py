@@ -22,10 +22,11 @@ class StandParams(swparams.WalkParams):
     """MPC Params with not single support, hence standing straight"""
 
     DT = 0.01
+    Tsimu = 500
     Tstart = 50
     Tsingle = 10  # int(0.8 / DT)
     # I prefer an even number for Tdouble
-    Tdouble = 50  # 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
+    Tdouble = 51  # 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
     Tend = 50
     Tmpc = 50
     transitionDuration = 20
@@ -36,20 +37,20 @@ class StandParams(swparams.WalkParams):
 
     refStateWeight = 1e-1
     forceImportance = np.array([1, 1, 0.1, 10, 10, 2])
-    coneAxisWeight = 0  # 2e-4
-    copWeight = 1  # 2
+    coneAxisWeight = 5e-5  # 2e-4
+    copWeight = 2  # 2
     refForceWeight = 20  # 10
 
     refTorqueWeight = 0
-    comWeight = 0  # 20
+    comWeight = 10  # 20
     verticalFootVelWeight = 0
     flyHighWeight = 0
     groundColWeight = 0
     conePenaltyWeight = 0
     feetCollisionWeight = 0
-    impactAltitudeWeight = 0
-    impactVelocityWeight = 0
-    impactRotationWeight = 0
+    impactAltitudeWeight = 2000  # 20000
+    impactVelocityWeight = 200  # 10000
+    impactRotationWeight = 100  # 200
     refMainJointsAtImpactWeight = 0  # 2e2 # For avoinding crossing legs
 
     stateTerminalWeight = 20  # 2000
