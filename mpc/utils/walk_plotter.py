@@ -108,18 +108,20 @@ class WalkPlotter:
                 w_foot = np.dot(self.data.oMf[cid].homogeneous, l_foot)
                 plt.plot(w_foot[0, :], w_foot[1, :], "grey")
 
-    def plotForces(self, referenceForces):
+    def plotForces(self, referenceForces=[]):
         # Forces and reference forces wrt time
         plt.figure("forces")
         frefplot = np.array(referenceForces)
         fs0plot = np.array(self.fs)
         plt.subplot(211)
         plt.plot(fs0plot[:, 2])
-        plt.plot(frefplot[:, 2])
+        if len(frefplot) > 0:
+            plt.plot(frefplot[:, 2])
         plt.xlabel(self.model.frames[self.contactIds[0]].name)
         plt.subplot(212)
         plt.plot(fs0plot[:, 8])
-        plt.plot(frefplot[:, 8])
+        if len(frefplot > 0):
+            plt.plot(frefplot[:, 8])
         plt.xlabel(self.model.frames[self.contactIds[1]].name)
 
     def plotCom(self, com0):
@@ -197,6 +199,23 @@ class WalkPlotter:
             bb = m - d * footMinimalDistance / 2
             plt.plot([aa[0], bb[0]], [aa[1], bb[1]], "grey")
         plt.axis([-0.1, 0.4, -0.25, 0.25])
+
+    def plotJointTorques(self):
+        others = len(self.us[0]) > 12
+        fig, axs = plt.subplots(
+            6, 2 if others else 1, sharex=True, figsize=(12 if others else 6, 8)
+        )
+        axlegs = axs[:, 0] if others else axs
+        for iax, ax in enumerate(axlegs):
+            h1 = ax.plot(self.us[:, iax])
+            h2 = ax.plot(self.us[:, iax + 6])
+            if iax == 0:
+                ax.legend(h1 + h2, ["left", "right"])
+            ax.set_ylabel("torque %d" % iax)
+
+        for i in range(12, len(self.us[0])):
+            axs[i - 12, 1].plot(self.us[:, i])
+            ax.set_ylabel("torque %d" % iax)
 
 
 # ######################################################################
