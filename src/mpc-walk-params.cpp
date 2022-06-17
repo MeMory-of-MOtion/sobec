@@ -89,7 +89,7 @@ void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
   read_int(solver_maxiter, "solver_maxiter");
 }
 
-void MPCWalkParams::readParamsFromYamlFile(std::string &Filename) {
+void MPCWalkParams::readParamsFromYamlFile(const std::string &Filename) {
   std::ifstream t(Filename);
   std::stringstream buffer;
   buffer << t.rdbuf();

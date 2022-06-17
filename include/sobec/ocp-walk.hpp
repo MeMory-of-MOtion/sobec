@@ -62,7 +62,7 @@ struct OCPWalkParams {
   int transitionDuration;
 
   void readParams(std::string& StringToParse);
-  void readParamsFile(std::string& Filename);
+  void readParamsFile(const std::string& Filename);
 };
 
 struct OCPRobotWrapper {

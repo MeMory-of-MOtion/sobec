@@ -106,7 +106,7 @@ void OCPWalkParams::readParams(std::string &StringToParse) {
   }
 }
 
-void OCPWalkParams::readParamsFile(std::string &Filename) {
+void OCPWalkParams::readParamsFile(const std::string &Filename) {
   std::ifstream t(Filename);
   std::stringstream buffer;
   buffer << t.rdbuf();
