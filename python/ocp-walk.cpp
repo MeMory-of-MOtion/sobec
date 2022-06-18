@@ -189,7 +189,14 @@ void exposeOCPParams() {
                     bp::make_setter(&OCPWalkParams::solver_th_stop), ".")
       .add_property("transitionDuration",
                     bp::make_getter(&OCPWalkParams::transitionDuration),
-                    bp::make_setter(&OCPWalkParams::transitionDuration), ".");
+                    bp::make_setter(&OCPWalkParams::transitionDuration), ".")
+      .add_property("withNormalForceBoundOnly",
+                    bp::make_getter(&OCPWalkParams::withNormalForceBoundOnly),
+                    bp::make_setter(&OCPWalkParams::withNormalForceBoundOnly),
+                    ".")
+      .add_property("minimalNormalForce",
+                    bp::make_getter(&OCPWalkParams::minimalNormalForce),
+                    bp::make_setter(&OCPWalkParams::minimalNormalForce), ".");
 }
 
 void exposeRefForce() {

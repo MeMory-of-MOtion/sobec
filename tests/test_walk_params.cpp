@@ -75,7 +75,10 @@ BOOST_AUTO_TEST_CASE(test_ocp_walk_params) {
   std::cout << "solver_th_stop = " << ocpparams.solver_th_stop << std::endl;
   std::cout << "transitionDuration = " << ocpparams.transitionDuration
             << std::endl;
-  ;
+  std::cout << "minimalNormalForce = " << ocpparams.minimalNormalForce
+            << std::endl;
+  std::cout << "withNormalForceBoundOnly = "
+            << ocpparams.withNormalForceBoundOnly << std::endl;
 }
 BOOST_AUTO_TEST_CASE(test_mpc_walk_params_real) {
   sobec::MPCWalkParams mpcparams;
