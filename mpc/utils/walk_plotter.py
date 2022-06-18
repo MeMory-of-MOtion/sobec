@@ -126,6 +126,29 @@ class WalkPlotter:
             plt.plot(frefplot[:, 8])
         plt.xlabel(self.model.frames[self.contactIds[1]].name)
 
+    def plotAllForces(self):
+        # Forces and reference forces wrt time
+        fig, axs = plt.subplots(5, 1, sharex=True, figsize=(6, 8))
+        fs0plot = np.array(self.fs)
+
+        hp1 = axs[0].plot(fs0plot[:, [0, 1]])
+        hp2 = axs[0].plot(fs0plot[:, [6, 7]])
+        axs[0].set_xlabel("lat. f")
+        axs[0].legend(hp1 + hp2, ["xl", "yl", "xr", "yl"])
+
+        hp1 = axs[1].plot(fs0plot[:, [2, 8]])
+        axs[1].set_xlabel("norm f")
+        axs[1].legend(hp1 + hp2, ["zl", "zr"])
+
+        hp1 = axs[2].plot(fs0plot[:, [3, 4]])
+        hp2 = axs[2].plot(fs0plot[:, [9, 10]])
+        axs[2].set_xlabel("lat. tau")
+        axs[2].legend(hp1 + hp2, ["xl", "yl", "xr", "yl"])
+
+        hp1 = axs[3].plot(fs0plot[:, [5, 11]])
+        axs[3].set_xlabel("norm. tau")
+        axs[3].legend(hp1 + hp2, ["zl", "zr"])
+
     def plotCom(self, com0):
         # COM position and velocity (x+y separated from z)
         plt.figure("com", figsize=(6, 8))
