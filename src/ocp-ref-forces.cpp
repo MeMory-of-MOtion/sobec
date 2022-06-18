@@ -67,7 +67,7 @@ Eigen::MatrixXd computeWeightShareSmoothProfile(
 }
 
 void OCPWalk::computeReferenceForces() {
-  double duration = params->transitionDuration;
+  int duration = params->transitionDuration;
   double robotGravityForce = robot->robotGravityForce;
 
   Eigen::MatrixXd contactImportance =
