@@ -88,6 +88,7 @@ class WalkParams:
     vcomWeight = 1
     # [DEPREC] acomWeight = 0  # 16*DT
     copWeight = 2
+    centerOfFrictionWeight = 0
     verticalFootVelWeight = 20
     # [DEPREC] footVelWeight = 0  # 20
     # [DEPREC] footAccWeight = 0  # 2

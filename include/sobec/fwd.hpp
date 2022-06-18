@@ -64,6 +64,14 @@ struct ResidualDataCenterOfPressureTpl;
 typedef ResidualModelCenterOfPressureTpl<double> ResidualModelCenterOfPressure;
 typedef ResidualDataCenterOfPressureTpl<double> ResidualDataCenterOfPressure;
 
+// Cost CenterOfFriction
+template <typename Scalar>
+class ResidualModelCenterOfFrictionTpl;
+template <typename Scalar>
+struct ResidualDataCenterOfFrictionTpl;
+typedef ResidualModelCenterOfFrictionTpl<double> ResidualModelCenterOfFriction;
+typedef ResidualDataCenterOfFrictionTpl<double> ResidualDataCenterOfFriction;
+
 // Cost velocity collision
 template <typename Scalar>
 class ResidualModelVelCollisionTpl;

@@ -94,6 +94,18 @@ def buildRunningModels(robotWrapper, contactPattern, params):
                     "%s_cop" % robot.model.frames[cid].name, copCost, p.copWeight
                 )
 
+            cofResidual = sobec.ResidualModelCenterOfPressure(state, cid, actuation.nu)
+            cofAct = croc.ActivationModelWeightedQuad(
+                np.array([1.0 / p.footSize**2] * 2)
+            )
+            cofCost = croc.CostModelResidual(state, cofAct, cofResidual)
+            if p.centerOfFrictionWeight > 0:
+                costs.addCost(
+                    "%s_centeroffriction" % robot.model.frames[cid].name,
+                    cofCost,
+                    p.centerOfFrictionWeight,
+                )
+
             # Cone with enormous friction (Assuming the robot will barely ever slide).
             # p.footSize is the allowed area size, while cone expects the corner
             # coordinates => x2
