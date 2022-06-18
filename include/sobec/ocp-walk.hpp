@@ -37,6 +37,8 @@ struct OCPWalkParams {
   Eigen::Vector3d vcomRef;
 
   double footSize;
+  bool withNormalForceBoundOnly;
+  double minimalNormalForce;
 
   double refStateWeight;
   double refTorqueWeight;
