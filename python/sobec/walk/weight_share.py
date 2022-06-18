@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def switch_tanh(x):
+def switch_tanh(x, **kwargs):
     return (
         0
         if x <= 0
@@ -11,13 +11,22 @@ def switch_tanh(x):
     )
 
 
-def switch_linear(x):
+def switch_linear(x, **kwargs):
     return x
 
 
+def switch_linear_saturation(x, sat=0.1, **kwargs):
+    """Similar behavior to switch_linear, but with a minimal value
+    given by <sat>"""
+    # print(f'with sat={sat}')
+    assert sat >= 0.0 and sat < 1.0
+    return x * (1 - sat) + sat
+
+
 def weightShareSmoothProfile(
-    contactPattern, duration, switch=switch_linear, verbose=False
+    contactPattern, duration, switch=switch_linear_saturation, verbose=False, **kwargs
 ):
+    # print(f'with sat={kwargs["sat"]}')
 
     contactImportance = np.array(contactPattern, dtype=np.float64)
     nbc = np.sum(contactImportance, 1)
@@ -26,7 +35,9 @@ def weightShareSmoothProfile(
 
     T = len(contactPattern) - 1
     Ttrans = duration
-    trans = np.array([switch(x) for x in np.arange(1, Ttrans + 1.0) / (Ttrans + 1.0)])
+    trans = np.array(
+        [switch(x, **kwargs) for x in np.arange(1, Ttrans + 1.0) / (Ttrans + 1.0)]
+    )
 
     for t in range(1, T):
         if np.any(
@@ -44,9 +55,10 @@ def weightShareSmoothProfile(
             np.logical_and(np.logical_not(contactPattern[t]), contactPattern[t - 1])
         ):
             for k, cid in enumerate(contactPattern[t]):
-                contactImportance[t - Ttrans : t, k] = contactImportance[t, k] * (
-                    trans
-                ) + contactImportance[t - 1, k] * (1 - trans)
+                contactImportance[t - Ttrans : t, k] = (
+                    contactImportance[t, k] * (1 - trans[::-1])
+                    + contactImportance[t - 1, k] * trans[::-1]
+                )
                 if verbose and contactImportance[t, k] == 0:
                     print("Break %s:%s" % (t, cid))
 
@@ -73,7 +85,11 @@ def computeBestTransitionDuration(contactPattern, maxTransitionDuration):
 
 
 def computeReferenceForces(
-    contactPattern, robotweight, transitionDuration=-1, maxTransitionDuration=50
+    contactPattern,
+    robotweight,
+    transitionDuration=-1,
+    maxTransitionDuration=50,
+    minimalNormalForce=0.0,
 ):
     """
     # The force costs are defined using a reference (smooth) force.
@@ -89,7 +105,10 @@ def computeReferenceForces(
     # Compute contact importance, ie how much of the weight should be supported by each
     # foot at each time.
     contactImportance = weightShareSmoothProfile(
-        contactPattern, transitionDuration, switch=switch_linear
+        contactPattern,
+        transitionDuration,
+        switch=switch_linear_saturation,
+        sat=minimalNormalForce / robotweight,
     )
     # Contact reference forces are set to contactimportance*weight
     weightReaction = np.array([0, 0, robotweight, 0, 0, 0])
