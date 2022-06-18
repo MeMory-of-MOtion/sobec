@@ -4,18 +4,40 @@ import numpy as np
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 import time
 import numpy.random
+import example_robot_data.robots_loader as robex
 
 # Local imports
 import sobec
 from utils.save_traj import save_traj
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
-from mpcparams import StandParams
+import mpcparams
 from sobec.walk.config_mpc import configureMPCWalk
 from utils.pinbullet import SimuProxy
 from utils import viewer_multiple
 from sobec.walk import miscdisp
-from sobec.walk.talos_collections import jointToLockCollection
+from sobec.walk import talos_collections
+
+
+class PyreneLoader(robex.RobotLoader):
+    """
+    Load the model used by Pierre on Pyrene.
+    This model is not in robex, and as been copied on my (nmsd) /opt
+    manually ... baaaad.
+    If you are not me, change l87 with the following diff:
+    - simu.loadExampleRobot("pyrene")
+    + simu.loadExampleRobot("talos")
+    Not much changes to expect, both models are quite similar.
+    """
+
+    path = "talos_data"
+    urdf_filename = "pyrene.urdf"
+    srdf_filename = "talos.srdf"
+    free_flyer = True
+    has_rotor_parameters = True
+
+
+robex.ROBOTS["pyrene"] = PyreneLoader
 
 q_init = np.array(
     [
@@ -61,13 +83,14 @@ q_init = np.array(
     ]
 )
 q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
-walkParams = StandParams("talos_legs")
-walkParams.jointToLock = jointToLockCollection["pyrene_legs"]
+walkParams = mpcparams.StandParams("talos_legs")
+walkParams.jointNamesToLock = talos_collections.jointToLockCollection["pyrene_legs"]
+
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
 simu = SimuProxy()
-simu.loadExampleRobot("talos")
+simu.loadExampleRobot("pyrene")
 # simu.rmodel.q0 = q_init
 simu.loadBulletModel()  # pyb.GUI)
 simu.freeze(walkParams.jointNamesToLock)
@@ -76,10 +99,53 @@ simu.setTalosDefaultFriction()
 # ## OCP ########################################################################
 # ## OCP ########################################################################
 
-robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
-# robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
-assert len(walkParams.stateImportance) == robot.model.nv * 2
+# Reference model used in Pyrene simulation.
+# Would be nice to add the as a standard parameters in walkParam ... for later.
+pyrene_default_x0 = np.array(
+    [
+        -0.0251348,
+        0.00373202,
+        1.04257,
+        -0.00022295,
+        -0.00306881,
+        -1.7334e-06,
+        0.999995,
+        2.74527e-05,
+        -0.000336093,
+        -0.367617,
+        0.672117,
+        -0.302917,
+        0.000342691,
+        -2.16974e-05,
+        0.000216317,
+        -0.367698,
+        0.67208,
+        -0.303009,
+        -0.000275359,
+        0.03354,
+        9.05423e-05,
+        0.000637797,
+        -5.4381e-05,
+        0.000833764,
+        -5.16007e-05,
+        -1.62615e-06,
+        -8.1946e-05,
+        -0.00016472,
+        -0.000271272,
+        -0.000346178,
+        7.36229e-05,
+        6.53619e-06,
+        8.45607e-05,
+        -0.000133411,
+        -0.000298404,
+        -0.000370441,
+        -3.99304e-05,
+    ]
+)
+pyrene_default_x0[simu.rmodel.nq :] = 0
 
+robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
+assert len(walkParams.stateImportance) == robot.model.nv * 2
 assert norm(robot.x0 - simu.getState()) < 1e-6
 
 # Left foot moves first
@@ -113,16 +179,19 @@ ddp = ocp.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
 x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
+# ddp.problem.x0 = pyrene_default_x0
 ddp.solve(x0s, u0s, 200)
 
 mpcparams = sobec.MPCWalkParams()
 configureMPCWalk(mpcparams, walkParams)
 mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
-# mpc.solver.setCallbacks([
-# croc.CallbackVerbose(),
-# miscdisp.CallbackMPCWalk(robot.contactIds)
-# ])
+mpc.solver.setCallbacks(
+    [
+        croc.CallbackVerbose(),
+        # miscdisp.CallbackMPCWalk(robot.contactIds)
+    ]
+)
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -281,3 +350,9 @@ pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 
 print("Run ```play()``` to visualize the motion.")
+
+print("Run the following line to save the config:")
+print(
+    "with open('autogen/stand12-autogen.hpp','w') as f: "
+    "f.write(sobec.walk.params.generateParamFileForTheRobot(walkParams,robot))"
+)
