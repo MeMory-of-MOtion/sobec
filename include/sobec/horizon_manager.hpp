@@ -32,6 +32,8 @@ class HorizonManager {
   Eigen::VectorXd K_tr_error_;
   eVector3 foot_torque_, foot_force_;
   pinocchio::SE3 pose_;
+  int support_size_;
+  std::set<std::__cxx11::string> active_contacts_;
 
  public:
   HorizonManager();
@@ -106,12 +108,14 @@ class HorizonManager {
                                const std::string &nameFootForceCost);
   const eVector3 &getFootTorque(const unsigned long time,
                                 const std::string &nameFootForceCost);
+  const std::set<std::__cxx11::string> &get_contacts(const unsigned long &time);
 
   void recede(const AMA &new_model, const ADA &new_data);
   void recede(const AMA &new_model);
   void recede();
 
-  unsigned long size();
+  const int &supportSize(const unsigned long time);
+  const unsigned long size();
 
   void solve(const Eigen::VectorXd &measured_x, const std::size_t ddpIteration,
              const bool is_feasible = false);
