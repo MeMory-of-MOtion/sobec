@@ -32,8 +32,9 @@ void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {
 
   YAML::Node yn_mainJointIds = config["mainJointIds"];
   if (yn_mainJointIds) {
+    mainJointIds.clear();
     for (std::size_t id = 0; id < yn_mainJointIds.size(); id++) {
-      mainJointIds[id] = yn_mainJointIds[id].as<std::string>();
+      mainJointIds.push_back(yn_mainJointIds[id].as<std::string>());
     }
   } else {
     std::cout << "No mainJointIds" << std::endl;
