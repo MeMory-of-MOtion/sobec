@@ -25,6 +25,7 @@ assert norm(pyrobot.x0 - robot.x0) < 1e-9
 pyparams = pyWalkParams(pyrobot.name)
 params = sobec.OCPWalkParams()
 
+pyparams.minimalNormalForce = 50
 
 # TODO. The following option is deactivated. When activated, the cone-penalty,
 # containing infinite bounds, is anormally detected as not matching. Here is an
@@ -104,6 +105,9 @@ ocp.buildSolver()
 
 pyserial = reprProblem(pyocp.problem)
 cppserial = reprProblem(ocp.problem)
+
+fs = np.array([np.concatenate(f) for f in ocp.referenceForces])
+import matplotlib.pylab as plt  # noqa: E402,F401
 
 if pyserial != cppserial:
     with open("/tmp/cpp.txt", "w") as f:

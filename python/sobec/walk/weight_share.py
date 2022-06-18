@@ -20,7 +20,7 @@ def switch_linear_saturation(x, sat=0.1, **kwargs):
     given by <sat>"""
     # print(f'with sat={sat}')
     assert sat >= 0.0 and sat < 1.0
-    return x * (1 - sat) + sat
+    return x * (1 - 2 * sat) + 2 * sat
 
 
 def weightShareSmoothProfile(

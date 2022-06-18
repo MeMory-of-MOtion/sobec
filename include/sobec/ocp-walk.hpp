@@ -82,7 +82,8 @@ struct OCPRobotWrapper {
 };
 
 Eigen::MatrixXd computeWeightShareSmoothProfile(
-    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration);
+    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration,
+    double saturation);
 
 class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
