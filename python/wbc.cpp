@@ -62,6 +62,10 @@ bool timeToSolveDDP(WBC &self, const int &iteration) {
 }
 
 void exposeWBC() {
+  bp::enum_<LocomotionType>("LocomotionType")
+      .value("WALKING", LocomotionType::WALKING)
+      .value("STANDING", LocomotionType::STANDING);
+
   bp::class_<std::vector<pinocchio::SE3>>("vector_pinocchio_se3_")
       .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3>>())
       .def("__init__",
@@ -184,8 +188,27 @@ void exposeWBC() {
               bp::return_value_policy<bp::reference_existing_object>()),
           static_cast<void (WBC::*)(const std::vector<eVector3> &)>(
               &WBC::setVelRef_COM))
-
-      ;
+      .def("switchToWalk", &WBC::switchToWalk)
+      .def("switchToStand", &WBC::switchToStand)
+      .def("current_motion_type",
+           make_function(&WBC::currentLocomotion,
+                         bp::return_value_policy<bp::copy_const_reference>()))
+      .def("land_LF",
+           make_function(
+               &WBC::get_land_LF,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("land_RF",
+           make_function(
+               &WBC::get_land_RF,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("takeoff_LF",
+           make_function(
+               &WBC::get_takeoff_LF,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("takeoff_RF",
+           make_function(
+               &WBC::get_takeoff_RF,
+               bp::return_value_policy<bp::reference_existing_object>()));
 }
 }  // namespace python
 }  // namespace sobec
