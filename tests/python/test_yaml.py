@@ -1,6 +1,10 @@
-from collections.abc import Iterable
 import unittest
 from tempfile import NamedTemporaryFile
+
+try:
+    from collections.abc import Iterable
+except ImportError:  # Python 2
+    from collections import Iterable
 
 
 import numpy as np
