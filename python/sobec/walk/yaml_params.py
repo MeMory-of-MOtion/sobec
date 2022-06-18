@@ -7,8 +7,6 @@ sobec.OCPWalkParams
 
 """
 
-import sys
-
 import yaml
 import numpy as np
 
@@ -78,8 +76,11 @@ def yamlWriteParams(filename, *args):
 
 
 def yamlRead(filename):
+
+    yaml_version = tuple(int(i) for i in yaml.__version__.split("."))
+
     with open(filename, "r") as infile:
-        if sys.version_info > (3, 7):
+        if yaml_version > (5,):
             return yaml.load(infile, Loader=yaml.FullLoader)
         else:
             return yaml.load(infile.read())
