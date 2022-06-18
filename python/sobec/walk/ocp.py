@@ -21,7 +21,10 @@ def buildRunningModels(robotWrapper, contactPattern, params):
     robot = robotWrapper
 
     referenceForces = computeReferenceForces(
-        contactPattern, robot.gravForce, params.transitionDuration
+        contactPattern,
+        robot.gravForce,
+        transitionDuration=params.transitionDuration,
+        minimalNormalForce=params.minimalNormalForce,
     )
     models = []
 
