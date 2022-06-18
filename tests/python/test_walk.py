@@ -103,6 +103,8 @@ class WalkParams:
     saveFile = "/tmp/test_walk.npy"
 
     transitionDuration = -1
+    withNormalForceBoundOnly = False
+    minimalNormalForce = 1.0
 
 
 walkParams = WalkParams()
