@@ -250,7 +250,7 @@ def getReferenceForcesFromProblemModels(problem, cid):
             fs.append(np.zeros(6))
         else:
             cm = dm.costs.costs[cname].cost
-            fs.append(cm.residual.reference.vector)
+            fs.append(cm.residual.reference.vector.copy())
     fs = np.array(fs)
     return fs
 
