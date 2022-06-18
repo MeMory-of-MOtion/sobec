@@ -1,6 +1,6 @@
 import sys
 
-if sys.version_info.major > 2:
+if sys.version_info.major > 2 and sys.version_info.minor > 7:
 
     import numpy as np
     import sobec
@@ -52,5 +52,5 @@ if sys.version_info.major > 2:
     # ### TEST 3: use c++ yaml read
     ocpparams_cppread = sobec.OCPWalkParams()
     # TODO Not working as param.readFromYaml does not accept str.
-    # ocpparams_cppread.readFromYaml('/tmp/test_sobec_yaml_2.yml')
-    # compareTwoParams(pyparams,ocpparams_cppread,sobec.OCPWalkParams)
+    ocpparams_cppread.readFromYaml("/tmp/test_sobec_yaml_2.yml")
+    compareTwoParams(pyparams, ocpparams_cppread, sobec.OCPWalkParams)

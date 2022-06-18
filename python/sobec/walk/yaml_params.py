@@ -7,6 +7,16 @@ sobec.OCPWalkParams
 
 """
 
+import sys
+
+if sys.version_info.major < 2 and sys.version_info.minor < 8:
+    print(
+        "!! Python version %d.%d not compatible with yaml lib "
+        % (sys.version_info.major, sys.version_info.minor)
+        + "(py 3.8 needed)"
+    )
+
+
 import yaml
 import numpy as np
 import sobec
@@ -59,7 +69,7 @@ def flattenDictArrayValues(paramsAsDict):
 
 def yamlWrite(paramsAsDict, filename):
     with open(filename, "w") as outfile:
-        yaml.dump(paramsAsDict, outfile, default_flow_style=None)
+        yaml.dump({"walk": paramsAsDict}, outfile, default_flow_style=None)
 
 
 def yamlWriteParams(filename, *args):
@@ -88,6 +98,10 @@ def dictToNpValue(paramsAsDict):
 
 def yamlReadToParams(filename, params):
     pdict = yamlRead(filename)
+    if "walk" not in pdict:
+        print("!! Silent error, no walk section in yaml file")
+        return
+    pdict = pdict["walk"]
     dictToNpValue(pdict)
     for k, v in pdict.items():
         if hasattr(params, k):
