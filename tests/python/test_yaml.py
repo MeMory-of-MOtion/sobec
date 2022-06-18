@@ -1,6 +1,5 @@
 from collections.abc import Iterable
 import unittest
-import sys
 from tempfile import NamedTemporaryFile
 
 
@@ -69,5 +68,4 @@ class TestYaml(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    if sys.version_info > (3, 7):
-        unittest.main()
+    unittest.main()

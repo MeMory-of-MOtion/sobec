@@ -9,16 +9,9 @@ sobec.OCPWalkParams
 
 import sys
 
-if sys.version_info.major < 2 and sys.version_info.minor < 8:
-    print(
-        "!! Python version %d.%d not compatible with yaml lib "
-        % (sys.version_info.major, sys.version_info.minor)
-        + "(py 3.8 needed)"
-    )
-
-
 import yaml
 import numpy as np
+
 import sobec
 
 # ################################################################################
@@ -86,7 +79,10 @@ def yamlWriteParams(filename, *args):
 
 def yamlRead(filename):
     with open(filename, "r") as infile:
-        return yaml.load(infile, Loader=yaml.FullLoader)
+        if sys.version_info > (3, 7):
+            return yaml.load(infile, Loader=yaml.FullLoader)
+        else:
+            return yaml.load(infile.read())
 
 
 def dictToNpValue(paramsAsDict):
