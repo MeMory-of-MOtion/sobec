@@ -112,6 +112,8 @@ class WalkParams:
     Tend = int(0.3 / DT)
     Tmpc = int(1.6 / DT)  # 120
     transitionDuration = -1
+    withNormalForceBoundOnly = False
+    minimalNormalForce = 1.0
 
 
 walkParams = WalkParams()
