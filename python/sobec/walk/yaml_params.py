@@ -9,6 +9,7 @@ sobec.OCPWalkParams
 
 import yaml
 import numpy as np
+
 import sobec
 
 # ################################################################################
@@ -59,7 +60,7 @@ def flattenDictArrayValues(paramsAsDict):
 
 def yamlWrite(paramsAsDict, filename):
     with open(filename, "w") as outfile:
-        yaml.dump(paramsAsDict, outfile, default_flow_style=None)
+        yaml.dump({"walk": paramsAsDict}, outfile, default_flow_style=None)
 
 
 def yamlWriteParams(filename, *args):
@@ -75,8 +76,14 @@ def yamlWriteParams(filename, *args):
 
 
 def yamlRead(filename):
+
+    yaml_version = tuple(int(i) for i in yaml.__version__.split("."))
+
     with open(filename, "r") as infile:
-        return yaml.load(infile, Loader=yaml.FullLoader)
+        if yaml_version > (5,):
+            return yaml.load(infile, Loader=yaml.FullLoader)
+        else:
+            return yaml.load(infile.read())
 
 
 def dictToNpValue(paramsAsDict):
@@ -88,6 +95,10 @@ def dictToNpValue(paramsAsDict):
 
 def yamlReadToParams(filename, params):
     pdict = yamlRead(filename)
+    if "walk" not in pdict:
+        print("!! Silent error, no walk section in yaml file")
+        return
+    pdict = pdict["walk"]
     dictToNpValue(pdict)
     for k, v in pdict.items():
         if hasattr(params, k):
