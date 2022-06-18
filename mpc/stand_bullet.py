@@ -216,6 +216,8 @@ hx = [simu.getState()]
 hu = []
 hxs = []
 hf = []
+hfref = []
+hfsref = []
 
 
 class SolverError(Exception):
@@ -272,13 +274,29 @@ for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
     contactsm0 = mpc.problem.runningModels[0].differential.contacts.contacts
     contactsd0 = mpc.problem.runningDatas[0].differential.multibody.contacts.contacts
     fs = []
+    fsref = []
     for cid in robot.contactIds:
         if "%s_contact" % robot.model.frames[cid].name in contactsm0:
             cd = contactsd0["%s_contact" % robot.model.frames[cid].name]
             fs.append((cd.jMf * cd.f).vector)
+            cstsm = mpc.problem.runningModels[0].differential.costs.costs
+            cm = cstsm["%s_forceref" % robot.model.frames[cid].name].cost
+            fsref.append(cm.residual.reference.vector)
         else:
             fs.append(np.zeros(6))
+            fsref.append(np.zeros(6))
     hf.append(np.concatenate(fs))
+    hfref.append(np.concatenate(fsref))
+    import utils.walk_plotter as walk_plotter  # noqa: E402
+
+    hfsref.append(
+        np.hstack(
+            [
+                walk_plotter.getReferenceForcesFromProblemModels(mpc.problem, cid)
+                for cid in robot.contactIds
+            ]
+        )
+    )
 
     # ### DISPLAY
     print(
@@ -340,7 +358,7 @@ plotter.plotCom(robot.com0)
 plotter.plotFeet()
 plotter.plotFootCollision(walkParams.footMinimalDistance, 50)
 plotter.plotJointTorques()
-plotter.plotForces()
+plotter.plotForces(hfref)
 # mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
 # mpcplotter.plotFeet()
 
