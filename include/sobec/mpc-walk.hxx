@@ -124,8 +124,9 @@ void MPCWalk::calc(const Eigen::Ref<const VectorXd>& x, const int t) {
   updateTerminalCost(t);
 
   /// Recede the horizon
-  int Tcycle = 2 * (p.Tsingle + p.Tdouble);
-  int tlast = p.Tstart + 1 + ((t + p.Tmpc - p.Tstart - 1) % Tcycle);
+  int Tcycle = 2 * (p.Tsingle + p.Tdouble), Tinit = p.Tstart + p.Tdouble / 2;
+
+  int tlast = Tinit + ((t + p.Tmpc - Tinit) % Tcycle);
   // std::cout << "tlast = " << tlast << std::endl;
   problem->circularAppend(storage->get_runningModels()[tlast],
                           storage->get_runningDatas()[tlast]);
