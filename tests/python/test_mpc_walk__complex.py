@@ -113,7 +113,7 @@ class WalkParams:
     Tmpc = int(1.6 / DT)  # 120
     transitionDuration = -1
     withNormalForceBoundOnly = False
-    minimalNormalForce = 1.0
+    minimalNormalForce = 0.0
 
 
 walkParams = WalkParams()
