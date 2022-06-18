@@ -198,4 +198,4 @@ for t in range(2 * mpcparams.Tmpc):
 
 
 # Check final state
-assert abs(x[5] + 0.5510828857463467) < 1e-6
+assert abs(x[5] + 0.022906777787769225) < 1e-6
