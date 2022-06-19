@@ -100,13 +100,13 @@ class WBC {
 
   void updateStepCycleTiming();
 
-  bool timeToSolveDDP(const int &iteration);
+  bool timeToSolveDDP(int iteration);
 
   void iterate(const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, const bool &is_feasible);
+               const Eigen::VectorXd &v_current, bool is_feasible);
 
-  void iterate(const int &iteration, const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, const bool &is_feasible);
+  void iterate(int iteration, const Eigen::VectorXd &q_current,
+               const Eigen::VectorXd &v_current, bool is_feasible);
 
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
@@ -148,37 +148,37 @@ class WBC {
   // USER REFERENCE SETTERS AND GETTERS
 
   const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
-  const pinocchio::SE3 &getPoseRef_LF(const unsigned long &time) {
+  const pinocchio::SE3 &getPoseRef_LF(unsigned long time) {
     return ref_LF_poses_[time];
   }
   void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) {
     ref_LF_poses_ = ref_LF_poses;
   }
   void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose,
-                     const unsigned long &time) {
+                     unsigned long time) {
     ref_LF_poses_[time] = ref_LF_pose;
   }
 
   const std::vector<pinocchio::SE3> &getPoseRef_RF() { return ref_RF_poses_; }
-  const pinocchio::SE3 &getPoseRef_RF(const unsigned long &time) {
+  const pinocchio::SE3 &getPoseRef_RF(unsigned long time) {
     return ref_RF_poses_[time];
   }
   void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses) {
     ref_RF_poses_ = ref_RF_poses;
   }
   void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose,
-                     const unsigned long &time) {
+                     unsigned long time) {
     ref_RF_poses_[time] = ref_RF_pose;
   }
 
   const std::vector<eVector3> &getVelRef_COM() { return ref_com_vel_; }
-  const eVector3 &getVelRef_COM(const unsigned long &time) {
+  const eVector3 &getVelRef_COM(unsigned long time) {
     return ref_com_vel_[time];
   }
   void setVelRef_COM(const std::vector<eVector3> &ref_com_vel) {
     ref_com_vel_ = ref_com_vel;
   }
-  void setVelRef_COM(const eVector3 &ref_com_vel, const unsigned long &time) {
+  void setVelRef_COM(const eVector3 &ref_com_vel, unsigned long time) {
     ref_com_vel_[time] = ref_com_vel;
   }
   // For the python bindings:

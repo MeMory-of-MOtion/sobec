@@ -93,14 +93,14 @@ void exposeWBC() {
            bp::args("self"))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
-           static_cast<void (WBC::*)(const int &, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool &)>(
+           static_cast<void (WBC::*)(int, const Eigen::VectorXd &,
+                                     const Eigen::VectorXd &, bool)>(
                &WBC::iterate),
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
             bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterate",
            static_cast<void (WBC::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool &)>(
+                                     const Eigen::VectorXd &, bool)>(
                &WBC::iterate),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
