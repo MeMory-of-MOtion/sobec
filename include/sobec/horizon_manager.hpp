@@ -67,41 +67,30 @@ class HorizonManager {
   void setBalancingTorque(unsigned long time,
                           const std::string &nameCostActuation,
                           const std::string &nameCostState);
-  void setPoseReferenceLF(unsigned long time,
-                          const std::string &nameCostLF,
+  void setPoseReferenceLF(unsigned long time, const std::string &nameCostLF,
                           const pinocchio::SE3 &ref_placement);
-  void setPoseReferenceRF(unsigned long time,
-                          const std::string &nameCostRF,
+  void setPoseReferenceRF(unsigned long time, const std::string &nameCostRF,
                           const pinocchio::SE3 &ref_placement);
-  const pinocchio::SE3 &getFootPoseReference(unsigned long time, 
-                                             const std::string &nameCostFootPose);
+  const pinocchio::SE3 &getFootPoseReference(
+      unsigned long time, const std::string &nameCostFootPose);
   void setVelocityRefCOM(unsigned long time, const std::string &nameCost,
                          const eVector3 &ref_placement);
-  void activateContactLF(unsigned long time,
-                         const std::string &nameContacttLF);
-  void activateContactRF(unsigned long time,
-                         const std::string &nameContactRF);
-  void removeContactLF(unsigned long time,
-                       const std::string &nameContactLF);
-  void removeContactRF(unsigned long time,
-                       const std::string &nameContactRF);
-  void setForceReferenceLF(unsigned long time,
-                           const std::string &nameCostLF,
+  void activateContactLF(unsigned long time, const std::string &nameContacttLF);
+  void activateContactRF(unsigned long time, const std::string &nameContactRF);
+  void removeContactLF(unsigned long time, const std::string &nameContactLF);
+  void removeContactRF(unsigned long time, const std::string &nameContactRF);
+  void setForceReferenceLF(unsigned long time, const std::string &nameCostLF,
                            const eVector6 &reference);
-  void setForceReferenceRF(unsigned long time,
-                           const std::string &nameCostRF,
+  void setForceReferenceRF(unsigned long time, const std::string &nameCostRF,
                            const eVector6 &reference);
 
-  void setSwingingLF(unsigned long time,
-                     const std::string &nameContactLF,
+  void setSwingingLF(unsigned long time, const std::string &nameContactLF,
                      const std::string &nameContactRF,
                      const std::string &nameForceContactLF);
-  void setSwingingRF(unsigned long time,
-                     const std::string &nameContactLF,
+  void setSwingingRF(unsigned long time, const std::string &nameContactLF,
                      const std::string &nameContactRF,
                      const std::string &nameForceContactRF);
-  void setDoubleSupport(unsigned long time,
-                        const std::string &nameContactLF,
+  void setDoubleSupport(unsigned long time, const std::string &nameContactLF,
                         const std::string &nameContactRF);
 
   const eVector3 &getFootForce(unsigned long time,

@@ -42,9 +42,11 @@ def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
                 else (
                     1 - np.cos(2 * t * np.pi / (tmax - landing_advance - takeoff_delay))
                 )
-                * foot_height/2
+                * foot_height
+                / 2
             )
     return [np.array([translation[0], translation[1], move_z]) for move_z in z]
+
 
 def print_trajectory(ref):
     u = [y.translation for y in ref]
@@ -52,6 +54,7 @@ def print_trajectory(ref):
     fig = plt.figure()
     ax = fig.gca()
     ax.plot(t)
+
 
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
@@ -163,12 +166,18 @@ sum_bullet_time = 0
 for s in range(conf.T_total * conf.Nc):
     if mpc.timeToSolveDDP(s):
         # Trajectory
-        LF_refs = foot_trajectory(len(mpc.ref_LF_poses), mpc.t_land_LF[0], 
-                                  mpc.ref_LF_poses[0].translation, "cosine"
-                                  )[len(mpc.ref_LF_poses) - 1]
-        RF_refs = foot_trajectory(len(mpc.ref_RF_poses),mpc.t_land_RF[0], 
-                                  mpc.ref_RF_poses[0].translation,"cosine",
-                                  )[len(mpc.ref_LF_poses) - 1]
+        LF_refs = foot_trajectory(
+            len(mpc.ref_LF_poses),
+            mpc.t_land_LF[0],
+            mpc.ref_LF_poses[0].translation,
+            "cosine",
+        )[len(mpc.ref_LF_poses) - 1]
+        RF_refs = foot_trajectory(
+            len(mpc.ref_RF_poses),
+            mpc.t_land_RF[0],
+            mpc.ref_RF_poses[0].translation,
+            "cosine",
+        )[len(mpc.ref_LF_poses) - 1]
 
         mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
         mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
@@ -178,8 +187,8 @@ for s in range(conf.T_total * conf.Nc):
     torques = horizon.currentTorques(mpc.x0)
     t_solve_end = time()
     sum_solve_time += t_solve_end - t_solve_start
-    
-    #pybullet
+
+    # pybullet
     t_bullet_start = time()
     device.execute(torques)
     q_current, v_current = device.measureState()
@@ -191,14 +200,14 @@ t2 = time()
 total_t = t2 - t1
 iteration_time = total_t / s
 average_solve_time = sum_solve_time / s
-average_bullet_time = sum_bullet_time/s
+average_bullet_time = sum_bullet_time / s
 resting_time = iteration_time - average_bullet_time - average_solve_time
 
 print("#####################  Benchmark Times ####################### ")
 print("##")
 print("## Time per iteration:\t\t ", iteration_time)
 print("##")
-print("## Time solving ddp problem:\t ", average_solve_time) 
+print("## Time solving ddp problem:\t ", average_solve_time)
 print("##")
 print("## Time solving pyBullet:\t\t ", average_bullet_time)
 print("##")
