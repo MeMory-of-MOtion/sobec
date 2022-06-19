@@ -266,7 +266,7 @@ const int &HorizonManager::supportSize(const unsigned long time) {
   return support_size_;
 }
 
-const std::set<std::__cxx11::string> &HorizonManager::get_contacts(
+const std::set<std::string> &HorizonManager::get_contacts(
     const unsigned long &time) {
   active_contacts_ = contacts(time)->get_active_set();
   return active_contacts_;
