@@ -60,8 +60,8 @@ Tstep = T2contact + T1contact
 # #### PHYSICS #####
 
 simulator = (
-            "bullet"
-#    "pinocchio"
+    "bullet"
+    #    "pinocchio"
 )
 
 

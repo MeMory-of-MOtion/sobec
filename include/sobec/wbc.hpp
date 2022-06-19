@@ -154,8 +154,7 @@ class WBC {
   void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) {
     ref_LF_poses_ = ref_LF_poses;
   }
-  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose,
-                     unsigned long time) {
+  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose, unsigned long time) {
     ref_LF_poses_[time] = ref_LF_pose;
   }
 
@@ -166,8 +165,7 @@ class WBC {
   void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses) {
     ref_RF_poses_ = ref_RF_poses;
   }
-  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose,
-                     unsigned long time) {
+  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) {
     ref_RF_poses_[time] = ref_RF_pose;
   }
 

@@ -257,8 +257,7 @@ unsigned long HorizonManager::size() {
 }
 
 void HorizonManager::solve(const Eigen::VectorXd &measured_x,
-                           std::size_t ddpIteration,
-                           bool is_feasible) {
+                           std::size_t ddpIteration, bool is_feasible) {
   warm_xs_ = ddp_->get_xs();
   warm_xs_.erase(warm_xs_.begin());
   warm_xs_[0] = measured_x;

@@ -104,11 +104,11 @@ void exposeHorizonManager() {
       .def("solve", &HorizonManager::solve,
            (bp::arg("self"), bp::arg("x_measured"), bp::arg("ddpIteration"),
             bp::arg("is_feasible") = false))
-      .def<void (HorizonManager::*)(unsigned long , const std::string &,
+      .def<void (HorizonManager::*)(unsigned long, const std::string &,
                                     const std::string &)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time"))
-      .def<void (HorizonManager::*)(unsigned long , const std::string &,
+      .def<void (HorizonManager::*)(unsigned long, const std::string &,
                                     const Eigen::VectorXd &)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time", "x"))
