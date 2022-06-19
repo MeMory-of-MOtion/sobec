@@ -73,8 +73,8 @@ class HorizonManager {
   void setPoseReferenceRF(const unsigned long &time,
                           const std::string &nameCostRF,
                           const pinocchio::SE3 &ref_placement);
-  const pinocchio::SE3 &getFootPoseReference(
-      const unsigned long &time, const std::string &nameCostFootPose);
+  const pinocchio::SE3 &getFootPoseReference(const unsigned long &time, 
+                                             const std::string &nameCostFootPose);
   void setVelocityRefCOM(const unsigned long &time, const std::string &nameCost,
                          const eVector3 &ref_placement);
   void activateContactLF(const unsigned long &time,
@@ -113,7 +113,7 @@ class HorizonManager {
   void recede(const AMA &new_model);
   void recede();
 
-  const unsigned long &size();
+  unsigned long size();
 
   void solve(const Eigen::VectorXd &measured_x, const std::size_t &ddpIteration,
              const bool &is_feasible = false);

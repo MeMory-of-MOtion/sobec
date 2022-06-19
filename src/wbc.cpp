@@ -114,7 +114,7 @@ void WBC::updateStepCycleTiming() {
   if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
 }
 
-const bool &WBC::timeToSolveDDP(const int &iteration) {
+bool WBC::timeToSolveDDP(const int &iteration) {
   time_to_solve_ddp_ = !(iteration % settings_.Nc);
   return time_to_solve_ddp_;
 }

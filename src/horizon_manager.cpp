@@ -251,7 +251,7 @@ void HorizonManager::recede() {
   ddp_->get_problem()->circularAppend(ama(0), ada(0));
 }
 
-const unsigned long &HorizonManager::size() {
+unsigned long HorizonManager::size() {
   size_ = ddp_->get_problem()->get_T();
   return size_;
 }
