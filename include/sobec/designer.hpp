@@ -59,7 +59,7 @@ class RobotDesigner {
   const pinocchio::SE3 &get_LF_frame();
   const pinocchio::SE3 &get_RF_frame();
 
-  const double &getRobotMass();
+  double getRobotMass();
 
   const pinocchio::Model &get_rModel() { return rModel_; }
   const pinocchio::Model &get_rModelComplete() { return rModelComplete_; }

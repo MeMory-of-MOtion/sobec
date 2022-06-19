@@ -100,7 +100,7 @@ class WBC {
 
   void updateStepCycleTiming();
 
-  const bool &timeToSolveDDP(const int &iteration);
+  bool timeToSolveDDP(const int &iteration);
 
   void iterate(const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, const bool &is_feasible);
@@ -188,7 +188,7 @@ class WBC {
 
   void switchToWalk() { now_ = WALKING; }
   void switchToStand() { now_ = STANDING; }
-  const LocomotionType &currentLocomotion() { return now_; }
+  LocomotionType currentLocomotion() { return now_; }
 };
 }  // namespace sobec
 

@@ -81,10 +81,7 @@ void exposeDesigner() {
            bp::make_function(
                &RobotDesigner::get_RF_frame,
                bp::return_value_policy<bp::reference_existing_object>()))
-      .def("getRobotMass",
-           bp::make_function(
-               &RobotDesigner::getRobotMass,
-               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("getRobotMass", &RobotDesigner::getRobotMass)
       .def("get_rModel",
            bp::make_function(
                &RobotDesigner::get_rModel,
