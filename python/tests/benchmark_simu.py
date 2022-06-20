@@ -42,9 +42,11 @@ def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
                 else (
                     1 - np.cos(2 * t * np.pi / (tmax - landing_advance - takeoff_delay))
                 )
-                * foot_height/2
+                * foot_height
+                / 2
             )
     return [np.array([translation[0], translation[1], move_z]) for move_z in z]
+
 
 def print_trajectory(ref):
     u = [y.translation for y in ref]
@@ -52,6 +54,7 @@ def print_trajectory(ref):
     fig = plt.figure()
     ax = fig.gca()
     ax.plot(t)
+
 
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
@@ -204,7 +207,7 @@ print("## Over iterations of 10 ms")
 print("##")
 print("## Time per iteration:\t\t ", iteration_time)
 print("##")
-print("## Time solving ddp problem:\t ", average_solve_time) 
+print("## Time solving ddp problem:\t ", average_solve_time)
 print("##")
 print("## Time solving pyBullet:\t\t ", average_bullet_time)
 print("##")

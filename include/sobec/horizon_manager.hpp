@@ -47,66 +47,64 @@ class HorizonManager {
                   const AMA &terminalModel);
   bool initialized_ = false;
 
-  AMA ama(unsigned long time);
-  IAM iam(unsigned long time);
-  DAM dam(unsigned long time);
-  ADA ada(unsigned long time);
-  IAD iad(unsigned long time);
-  Cost costs(unsigned long time);
-  Contact contacts(unsigned long time);
-  boost::shared_ptr<crocoddyl::StateMultibody> state(unsigned long time);
+  AMA ama(const unsigned long time);
+  IAM iam(const unsigned long time);
+  DAM dam(const unsigned long time);
+  ADA ada(const unsigned long time);
+  IAD iad(const unsigned long time);
+  Cost costs(const unsigned long time);
+  Contact contacts(const unsigned long time);
+  boost::shared_ptr<crocoddyl::StateMultibody> state(const unsigned long time);
   boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation(
-      unsigned long time);
+      const unsigned long time);
 
-  void setActuationReference(unsigned long time,
+  void setActuationReference(const unsigned long time,
                              const std::string &nameCostActuation,
                              const Eigen::VectorXd &reference);
-  void setBalancingTorque(unsigned long time,
+  void setBalancingTorque(const unsigned long time,
                           const std::string &nameCostActuation,
                           const Eigen::VectorXd &x);
-  void setBalancingTorque(unsigned long time,
+  void setBalancingTorque(const unsigned long time,
                           const std::string &nameCostActuation,
                           const std::string &nameCostState);
-  void setPoseReferenceLF(unsigned long time,
+  void setPoseReferenceLF(const unsigned long time,
                           const std::string &nameCostLF,
                           const pinocchio::SE3 &ref_placement);
-  void setPoseReferenceRF(unsigned long time,
+  void setPoseReferenceRF(const unsigned long time,
                           const std::string &nameCostRF,
                           const pinocchio::SE3 &ref_placement);
-  const pinocchio::SE3 &getFootPoseReference(unsigned long time, 
-                                             const std::string &nameCostFootPose);
-  void setVelocityRefCOM(unsigned long time, const std::string &nameCost,
+  const pinocchio::SE3 &getFootPoseReference(
+      const unsigned long time, const std::string &nameCostFootPose);
+  void setVelocityRefCOM(const unsigned long time, const std::string &nameCost,
                          const eVector3 &ref_placement);
-  void activateContactLF(unsigned long time,
+  void activateContactLF(const unsigned long time,
                          const std::string &nameContacttLF);
-  void activateContactRF(unsigned long time,
+  void activateContactRF(const unsigned long time,
                          const std::string &nameContactRF);
-  void removeContactLF(unsigned long time,
+  void removeContactLF(const unsigned long time,
                        const std::string &nameContactLF);
-  void removeContactRF(unsigned long time,
+  void removeContactRF(const unsigned long time,
                        const std::string &nameContactRF);
-  void setForceReferenceLF(unsigned long time,
+  void setForceReferenceLF(const unsigned long time,
                            const std::string &nameCostLF,
                            const eVector6 &reference);
-  void setForceReferenceRF(unsigned long time,
+  void setForceReferenceRF(const unsigned long time,
                            const std::string &nameCostRF,
                            const eVector6 &reference);
 
-  void setSwingingLF(unsigned long time,
-                     const std::string &nameContactLF,
+  void setSwingingLF(const unsigned long time, const std::string &nameContactLF,
                      const std::string &nameContactRF,
                      const std::string &nameForceContactLF);
-  void setSwingingRF(unsigned long time,
-                     const std::string &nameContactLF,
+  void setSwingingRF(const unsigned long time, const std::string &nameContactLF,
                      const std::string &nameContactRF,
                      const std::string &nameForceContactRF);
-  void setDoubleSupport(unsigned long time,
+  void setDoubleSupport(const unsigned long time,
                         const std::string &nameContactLF,
                         const std::string &nameContactRF);
 
-  const eVector3 &getFootForce(unsigned long time,
+  const eVector3 &getFootForce(const unsigned long time,
                                const std::string &nameFootForceCost);
-  const eVector3 &getFootTorque(unsigned long time,
+  const eVector3 &getFootTorque(const unsigned long time,
                                 const std::string &nameFootForceCost);
 
   void recede(const AMA &new_model, const ADA &new_data);
@@ -115,8 +113,8 @@ class HorizonManager {
 
   unsigned long size();
 
-  void solve(const Eigen::VectorXd &measured_x, std::size_t ddpIteration,
-             bool is_feasible = false);
+  void solve(const Eigen::VectorXd &measured_x, const std::size_t ddpIteration,
+             const bool is_feasible = false);
   const Eigen::VectorXd &currentTorques(const Eigen::VectorXd &measured_x);
 
   DDP get_ddp() { return ddp_; }
