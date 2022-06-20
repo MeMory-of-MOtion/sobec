@@ -7,6 +7,7 @@ from sobec.walk.robot_wrapper import RobotWrapper as pyRobotWrapper
 from sobec.walk.params import WalkParams as pyWalkParams
 import sobec.walk.ocp as pyOCPWalk
 from sobec.walk.miscdisp import reprProblem
+from sobec.walk.yaml_params import yamlWriteParams
 
 # --- ROBOT WRAPPER
 pyurdf = robex.load("talos_legs")
@@ -24,6 +25,42 @@ assert norm(pyrobot.x0 - robot.x0) < 1e-9
 pyparams = pyWalkParams(pyrobot.name)
 params = sobec.OCPWalkParams()
 
+pyparams.minimalNormalForce = 50
+
+# TODO. The following option is deactivated. When activated, the cone-penalty,
+# containing infinite bounds, is anormally detected as not matching. Here is an
+# example of a false-negative detection:
+
+"""
+  - right_sole_link_cone: {w=0.1, CostModelResidual {ResidualModelContactWrenchCone {frame=right_sole_link, mu=1000, box=[0.1, 0.1]}, ActivationModelQuadraticBarrier {nr=17}}}
+		lower = [-1.79769313e+308 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+  5.00000000e+001 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+ -1.79769313e+308 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+ -1.79769313e+308 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+ -1.79769313e+308]
+		upper = [-1.79769313e+308 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+  5.00000000e+001 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+ -1.79769313e+308 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+ -1.79769313e+308 -1.79769313e+308 -1.79769313e+308 -1.79769313e+308
+ -1.79769313e+308]
+		ref =          R: 1 0 0
+0 1 0
+0 0 1
+"""  # noqa E501
+
+"""
+# Force all 0 cost to be activated to a small value, to strengthen this test
+# (otherwise, the cost is not added to the OCP hence not tested).
+for k in dir(pyparams):
+    if k[-6:]=='Weight' and getattr(pyparams,k)==0.:
+        setattr(pyparams,k,.1)
+"""
+
+
+# TODO: this could be added as another test. I mean: the following commented
+# code is converted the pyparam into c++ param by manual copy (which is ugly coded
+# btw). I now rewrite it by going through yaml file.
+"""
 for k, v in pyparams.__dict__.items():
     if hasattr(params, k):
         # TODO: "ArgumentError" doesn't exist, does it ? In argparse maybe ?
@@ -43,11 +80,19 @@ for k, v in pyparams.__class__.__dict__.items():
         # print("*** ", k, " cannot be allocated to ", v)
     else:
         print(k, " is not a field of params")
+"""
+yamlWriteParams("/tmp/test_ocpcpp.yml", pyparams)
+params.readFromYaml("/tmp/test_ocpcpp.yml")
 
 # --- CONTACT PATTERN
-pycontactPattern = [] + [[1, 1]] * 10 + [[1, 0]] * 20 + [[1, 1]] * 11 + [[1, 1]]
+pycontactPattern = (
+    []
+    + [[1, 1]] * pyparams.Tdouble
+    + [[1, 0]] * pyparams.Tsingle
+    + [[1, 1]] * pyparams.Tdouble
+    + [[1, 1]]
+)
 contactPattern = np.array(pycontactPattern).T
-params.transitionDuration = -1
 
 # --- OCP
 pyocp = pyOCPWalk.buildSolver(pyrobot, pycontactPattern, pyparams)
@@ -61,4 +106,12 @@ ocp.buildSolver()
 pyserial = reprProblem(pyocp.problem)
 cppserial = reprProblem(ocp.problem)
 
-# assert pyserial == cppserial
+fs = np.array([np.concatenate(f) for f in ocp.referenceForces])
+import matplotlib.pylab as plt  # noqa: E402,F401
+
+if pyserial != cppserial:
+    with open("/tmp/cpp.txt", "w") as f:
+        f.write(reprProblem(ocp.problem))
+    with open("/tmp/py.txt", "w") as f:
+        f.write(reprProblem(pyocp.problem))
+assert pyserial == cppserial

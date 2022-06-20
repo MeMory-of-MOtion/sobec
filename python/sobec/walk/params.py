@@ -128,6 +128,8 @@ class WalkParams:
     vcomRef = np.array([0.05, 0, 0])
 
     footSize = 0.05
+    withNormalForceBoundOnly = False
+    minimalNormalForce = 1.0
 
     # ## Contact parameters for the kkt dynamics
     kktDamping = 0  # 1e-6

@@ -21,7 +21,10 @@ def buildRunningModels(robotWrapper, contactPattern, params):
     robot = robotWrapper
 
     referenceForces = computeReferenceForces(
-        contactPattern, robot.gravForce, params.transitionDuration
+        contactPattern,
+        robot.gravForce,
+        transitionDuration=params.transitionDuration,
+        minimalNormalForce=params.minimalNormalForce,
     )
     models = []
 
@@ -94,9 +97,10 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             # Cone with enormous friction (Assuming the robot will barely ever slide).
             # p.footSize is the allowed area size, while cone expects the corner
             # coordinates => x2
-            cone = croc.WrenchCone(
-                np.eye(3), 1000, np.array([p.footSize * 2] * 2), 4, True, 1, 10000
-            )
+            fmin = p.minimalNormalForce
+            wbound = p.footSize * 2 if not p.withNormalForceBoundOnly else 1000.0
+            wbound = np.array([wbound] * 2)
+            cone = croc.WrenchCone(np.eye(3), 1000, wbound, 4, True, fmin, 10000)
             coneCost = croc.ResidualModelContactWrenchCone(
                 state, cid, cone, actuation.nu
             )

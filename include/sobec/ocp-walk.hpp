@@ -37,6 +37,8 @@ struct OCPWalkParams {
   Eigen::Vector3d vcomRef;
 
   double footSize;
+  bool withNormalForceBoundOnly;
+  double minimalNormalForce;
 
   double refStateWeight;
   double refTorqueWeight;
@@ -80,7 +82,8 @@ struct OCPRobotWrapper {
 };
 
 Eigen::MatrixXd computeWeightShareSmoothProfile(
-    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration);
+    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration,
+    double saturation);
 
 class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;

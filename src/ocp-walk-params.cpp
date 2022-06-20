@@ -99,11 +99,18 @@ void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {
   read_double(kktDamping, "kktDamping");
   read_double(stateTerminalWeight, "stateTerminalWeight");
   read_double(solver_th_stop, "solver_th_stop");
+  read_double(minimalNormalForce, "minimalNormalForce");
 
   if (config["transitionDuration"])
     transitionDuration = config["transitionDuration"].as<int>();
   else {
     std::cout << "No transitionDuration" << std::endl;
+  }
+
+  if (config["withNormalForceBoundOnly"])
+    withNormalForceBoundOnly = config["withNormalForceBoundOnly"].as<bool>();
+  else {
+    std::cout << "No withNormalForceBoundOnly" << std::endl;
   }
 }
 
