@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 
 #include "sobec/fwd.hpp"
+#include <deque>
 
 namespace sobec {
 typedef Eigen::Array2d eArray2;
@@ -19,7 +20,7 @@ struct FlexSettings {
   eVector2 left_damping = 2 * left_stiffness.cwiseSqrt();    // (y, x) [Nm/rad]
   eVector2 right_stiffness = eVector2(15000, 15000);         // (y, x) [Nm/rad]
   eVector2 right_damping = 2 * right_stiffness.cwiseSqrt();  // (y, x) [Nm/rad]
-  double dt = 0.002;                                         // [s]
+  double dt = 0.002, MA_duration = 0.01;                     // [s]
 
   friend std::ostream &operator<<(std::ostream &out, const FlexSettings &obj) {
     out << "FlexSettings:\n";
@@ -44,10 +45,19 @@ struct FlexSettings {
 
 class Flex {
  private:
-  eVector3 equivalentAngles(const eMatrixRot &fullRotation);
+  const eVector3 &equivalentAngles(const eMatrixRot &fullRotation);
   FlexSettings settings_;
+  unsigned long MA_samples_;
 
   // memory pre-allocations:
+  std::deque<eArray2> queue_LH_, queue_RH_;
+  eVector3 resulting_angles_;
+  eVector2 computed_deflection_;
+  eArray2 temp_damping_, temp_actuation_, temp_full_torque_, temp_stiff_;
+  eArray2 temp_equiv_stiff_, temp_compliance_;
+  eArray2 summation_, average_;
+  unsigned long queueSize_;
+
   // equivalentAngles:
   double qz_;
 
@@ -87,11 +97,11 @@ class Flex {
   void setLeftFlex0(eVector2 delta0) { leftFlex0_ = delta0; }
   void setRightFlex0(eVector2 delta0) { rightFlex0_ = delta0; }
 
-  eVector2 computeDeflection(const eArray2 &torques, const eArray2 &delta0,
+  const eVector2 &computeDeflection(const eArray2 &torques, const eArray2 &delta0,
                              const eArray2 &stiffness, const eArray2 &damping,
-                             const double &dt);
+                             const double dt);
 
-  eVector2 computeDeflection(const eArray2 &torques, const side &side);
+  const eVector2 &computeDeflection(const eArray2 &torques, const side side);
 
   void correctHip(const eVector2 &delta, const eVector2 &deltaDot, eVectorX &q,
                   eVectorX &dq, const Eigen::Array3i &hipIndices);
@@ -105,6 +115,8 @@ class Flex {
                                    eVectorX &dq,
                                    const Eigen::Array3i &leftHipIndices,
                                    const Eigen::Array3i &rightHipIndices);
+  
+  const eArray2 &movingAverage(const eArray2 &x, std::deque<eArray2> &queue);
 };
 }  // namespace sobec
 
