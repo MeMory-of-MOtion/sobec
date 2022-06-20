@@ -14,6 +14,7 @@ typedef Eigen::Matrix2d eMatrix2;
 
 enum side { LEFT, RIGHT };
 
+///@todo BIND AND TEST IT.
 struct FlexSettings {
  public:
   eVector2 left_stiffness = eVector2(15000, 15000);          // (y, x) [Nm/rad]
