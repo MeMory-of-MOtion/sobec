@@ -114,8 +114,8 @@ class HorizonManager {
   void recede(const AMA &new_model);
   void recede();
 
-  const int &supportSize(const unsigned long time);
-  const unsigned long size();
+  int supportSize(const unsigned long time);
+  unsigned long size();
 
   void solve(const Eigen::VectorXd &measured_x, const std::size_t ddpIteration,
              const bool is_feasible = false);
