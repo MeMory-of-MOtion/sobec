@@ -113,8 +113,11 @@ void exposeHorizonManager() {
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time", "x"))
       //  .def("size", &size)
-      .def("size", &HorizonManager::size, (bp::arg("self"))
-      .def("supportSize", bp::make_function(&HorizonManager::supportSize, bp::return_value_policy<bp::copy_const_reference>()))
+      .def("size", &HorizonManager::size, (bp::arg("self")))
+      .def("supportSize",
+           bp::make_function(
+               &HorizonManager::supportSize,
+               bp::return_value_policy<bp::copy_const_reference>()))
       .def("setActuationReference", &HorizonManager::setActuationReference,
            bp::args("self", "time", "actuationCostName"))
       .def("get_contacts", &get_contacts, bp::args("self", "time"));

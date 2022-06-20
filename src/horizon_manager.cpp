@@ -256,7 +256,7 @@ unsigned long HorizonManager::size() {
   return size_;
 }
 
-int &HorizonManager::supportSize(const unsigned long time) {
+int HorizonManager::supportSize(const unsigned long time) {
   get_contacts(time);
   support_size_ = 2;
   if (active_contacts_.find(settings_.leftFootName) == active_contacts_.end())
