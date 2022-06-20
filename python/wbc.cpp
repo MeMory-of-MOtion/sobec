@@ -57,7 +57,15 @@ std::string displayVector(std::vector<T> &self) {
   return oss.str();
 }
 
+bool timeToSolveDDP(WBC &self, const int &iteration) {
+  return self.timeToSolveDDP(iteration);
+}
+
 void exposeWBC() {
+  bp::enum_<LocomotionType>("LocomotionType")
+      .value("WALKING", LocomotionType::WALKING)
+      .value("STANDING", LocomotionType::STANDING);
+
   bp::class_<std::vector<pinocchio::SE3>>("vector_pinocchio_se3_")
       .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3>>())
       .def("__init__",
@@ -75,26 +83,28 @@ void exposeWBC() {
                     "actuationCostName"),
            "The posture required here is the full robot posture in the order "
            "of pinocchio")
-      .def("shapeState", &WBC::shapeState, bp::args("self", "q", "v"))
+      .def("shapeState",
+           bp::make_function(
+               &WBC::shapeState,
+               bp::return_value_policy<
+                   bp::reference_existing_object>()))  //, bp::args("self", "q",
+                                                       //"v")
       .def("generateWalkigCycle", &WBC::generateWalkingCycle,
            bp::args("self", "modelMaker"))
       .def("generateStandingCycle", &WBC::generateStandingCycle,
            bp::args("self", "modelMaker"))
       .def("updateStepCycleTiming", &WBC::updateStepCycleTiming,
            bp::args("self"))
-      .def("timeToSolveDDP", &WBC::timeToSolveDDP,
-           bp::args("self", "iteration"))
-      .def("setDesiredFeetPoses", &WBC::setDesiredFeetPoses,
-           bp::args("self", "iteration", "time"))
+      .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
-           static_cast<void (WBC::*)(const int &, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool &)>(
+           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
+                                     const Eigen::VectorXd &, const bool)>(
                &WBC::iterate),
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
             bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterate",
            static_cast<void (WBC::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool &)>(
+                                     const Eigen::VectorXd &, const bool)>(
                &WBC::iterate),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
@@ -178,8 +188,25 @@ void exposeWBC() {
               bp::return_value_policy<bp::reference_existing_object>()),
           static_cast<void (WBC::*)(const std::vector<eVector3> &)>(
               &WBC::setVelRef_COM))
-
-      ;
+      .def("switchToWalk", &WBC::switchToWalk)
+      .def("switchToStand", &WBC::switchToStand)
+      .def("current_motion_type", &WBC::currentLocomotion)
+      .def("land_LF",
+           make_function(
+               &WBC::get_land_LF,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("land_RF",
+           make_function(
+               &WBC::get_land_RF,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("takeoff_LF",
+           make_function(
+               &WBC::get_takeoff_LF,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("takeoff_RF",
+           make_function(
+               &WBC::get_takeoff_RF,
+               bp::return_value_policy<bp::reference_existing_object>()));
 }
 }  // namespace python
 }  // namespace sobec

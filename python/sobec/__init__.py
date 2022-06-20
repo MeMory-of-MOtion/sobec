@@ -24,4 +24,5 @@ from .sobec_pywrap import (
     MPCWalkParams,
     MPCWalk,
     computeWeightShareSmoothProfile,
+    LocomotionType,
 )

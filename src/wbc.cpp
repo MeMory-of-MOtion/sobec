@@ -55,15 +55,16 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
   horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
 
-  // timming
+  initializeSupportTiming();
+  initialized_ = true;
+
+  // timing deprecated soon:
   t_takeoff_RF_.setLinSpaced(settings_.horizonSteps, 0,
                              2 * settings_.horizonSteps * settings_.Tstep);
   t_takeoff_RF_.array() += (int)settings_.T;
   t_takeoff_LF_ = t_takeoff_RF_.array() + settings_.Tstep;
   t_land_RF_ = t_takeoff_RF_.array() + settings_.TsingleSupport;
   t_land_LF_ = t_takeoff_LF_.array() + settings_.TsingleSupport;
-
-  initialized_ = true;
 }
 
 void WBC::generateWalkingCycle(ModelMaker &mm) {
@@ -114,28 +115,25 @@ void WBC::updateStepCycleTiming() {
   if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
 }
 
-bool WBC::timeToSolveDDP(const int &iteration) {
-  return !(iteration % settings_.Nc);
-}
-
-void WBC::setDesiredFeetPoses(const int & /*iteration*/, const int & /*time*/) {
-  throw std::runtime_error(
-      "void WBC::setDesiredFeetPoses(const int &iteration, const int &time) is "
-      "not implemented!!!");
+bool WBC::timeToSolveDDP(int iteration) {
+  time_to_solve_ddp_ = !(iteration % settings_.Nc);
+  return time_to_solve_ddp_;
 }
 
 void WBC::iterate(const Eigen::VectorXd &q_current,
-                  const Eigen::VectorXd &v_current, const bool &is_feasible) {
+                  const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
   // ~~TIMING~~ //
   updateStepCycleTiming();
+  updateSupportTiming();
   recedeWithCycle();
 
   // ~~REFERENCES~~ //
   designer_.updateReducedModel(x0_);
   switch (settings_.typeOfCommand) {
     case StepTracker:
-      updateStepTrackerLastReference();
+      // updateStepTrackerLastReference();
+      updateStepTrackerReferences();
       break;
     case NonThinking:
       updateNonThinkingReferences();
@@ -147,8 +145,8 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBC::iterate(const int &iteration, const Eigen::VectorXd &q_current,
-                  const Eigen::VectorXd &v_current, const bool &is_feasible) {
+void WBC::iterate(int iteration, const Eigen::VectorXd &q_current,
+                  const Eigen::VectorXd &v_current, bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterate(q_current, v_current, is_feasible);
   } else
@@ -182,19 +180,18 @@ void WBC::updateNonThinkingReferences() {
 }
 
 void WBC::recedeWithCycle() {
-  ///@todo: We switch from walking to standing at the beggining of the double
-  /// support stage.
-  /// We can evaluate later the possibility of resetting the walking cycle, to
-  /// start at the end of the beginning of a single support when we switch back
-  /// to walking.
   if (now_ == WALKING) {
     recedeWithCycle(walkingCycle_);
   } else if (now_ == STANDING &&
-             horizon_.contacts(horizon_.size() - 1)->get_active_set().size() ==
-                 2) {
+             horizon_.supportSize(horizon_.size() - 1) == 2) {
     recedeWithCycle(standingCycle_);
+    if (first_switch_to_stand_) {
+      rewindWalkingCycle();
+      first_switch_to_stand_ = false;
+    }
   } else {
     recedeWithCycle(walkingCycle_);
+    first_switch_to_stand_ = true;
   }
   return;
 }
@@ -205,8 +202,20 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
   return;
 }
 
-Eigen::VectorXd WBC::shapeState(const Eigen::VectorXd &q,
-                                const Eigen::VectorXd &v) {
+void WBC::rewindWalkingCycle() {
+  /** This function brings the walking cycle to the beggining of a single
+   * support*/
+  for (unsigned long i = 0; i < walkingCycle_.size(); i++) {
+    if (horizon_.supportSize(0) == 1 && horizon_.supportSize(1) == 2) {
+      walkingCycle_.recede();
+      return;
+    }
+    walkingCycle_.recede();
+  }
+}
+
+const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q,
+                                       const Eigen::VectorXd &v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
@@ -228,4 +237,75 @@ Eigen::VectorXd WBC::shapeState(const Eigen::VectorXd &q,
     throw std::runtime_error(
         "q and v must have the dimentions of the reduced or complete model.");
 }
+
+void WBC::initializeSupportTiming() {
+  for (unsigned int i = 0; i < horizon_.size() - 1; i++) {
+    getSwitches(i, i + 1);
+    std::cout << switch_ << std::endl;
+    if (switch_ == LAND_LF)
+      land_LF_.push_back(i + 1);
+    else if (switch_ == LAND_RF)
+      land_RF_.push_back(i + 1);
+    else if (switch_ == TAKEOFF_LF)
+      takeoff_LF_.push_back(i + 1);
+    else if (switch_ == TAKEOFF_RF)
+      takeoff_RF_.push_back(i + 1);
+  }
+}
+
+void WBC::updateSupportTiming() {
+  for (unsigned long i = 0; i < land_LF_.size(); i++) land_LF_[i] -= 1;
+  for (unsigned long i = 0; i < land_RF_.size(); i++) land_RF_[i] -= 1;
+  for (unsigned long i = 0; i < takeoff_LF_.size(); i++) takeoff_LF_[i] -= 1;
+  for (unsigned long i = 0; i < takeoff_RF_.size(); i++) takeoff_RF_[i] -= 1;
+
+  if (land_LF_.size() > 0 && land_LF_[0] < 0) land_LF_.erase(land_LF_.begin());
+
+  if (land_RF_.size() > 0 && land_RF_[0] < 0) land_RF_.erase(land_RF_.begin());
+
+  if (takeoff_LF_.size() > 0 && takeoff_LF_[0] < 0)
+    takeoff_LF_.erase(takeoff_LF_.begin());
+
+  if (takeoff_RF_.size() > 0 && takeoff_RF_[0] < 0)
+    takeoff_RF_.erase(takeoff_RF_.begin());
+
+  horizon_end_ = (int)horizon_.size();
+  getSwitches(horizon_end_ - 2, horizon_end_ - 1);
+  if (switch_ == LAND_LF)
+    land_LF_.push_back(horizon_end_ - 1);
+  else if (switch_ == LAND_RF)
+    land_RF_.push_back(horizon_end_ - 1);
+  else if (switch_ == TAKEOFF_LF)
+    takeoff_LF_.push_back(horizon_end_ - 1);
+  else if (switch_ == TAKEOFF_RF)
+    takeoff_RF_.push_back(horizon_end_ - 1);
+}
+
+const supportSwitch &WBC::getSwitches(const unsigned long &before,
+                                      const unsigned long &after) {
+  contacts_before_ = horizon_.get_contacts(before);
+  contacts_after_ = horizon_.get_contacts(after);
+
+  if (contacts_before_ == contacts_after_) {
+    switch_ = NO_SWITCH;
+    return switch_;
+  }
+  if (horizon_.supportSize(before) == 2) {
+    if (contacts_after_.find(designer_.get_LF_name()) ==
+        contacts_after_.end()) {
+      switch_ = TAKEOFF_LF;  // case LF not in contact_after
+      return switch_;
+    }
+    switch_ = TAKEOFF_RF;  // case RF not in contact_after
+    return switch_;
+  }
+  if (contacts_before_.find(designer_.get_LF_name()) ==
+      contacts_before_.end()) {
+    switch_ = LAND_LF;  // case LF not in contact_before
+    return switch_;
+  }
+  switch_ = LAND_RF;  // case RF not in contact_before
+  return switch_;
+}
+
 }  // namespace sobec

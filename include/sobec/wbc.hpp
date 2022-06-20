@@ -22,6 +22,7 @@ namespace sobec {
 /// @todo: bind these enumerations
 enum ControlForm { StepTracker, NonThinking, StairClimber };
 enum LocomotionType { WALKING, STANDING };
+enum supportSwitch { NO_SWITCH, LAND_LF, LAND_RF, TAKEOFF_LF, TAKEOFF_RF };
 
 struct WBCSettings {
   ///@todo: add the cost names as setting parameters.
@@ -62,22 +63,32 @@ class WBC {
   LocomotionType now_ = WALKING;
 
   // timings
+  // Deprecated soon:
   Eigen::VectorXi t_takeoff_RF_, t_takeoff_LF_, t_land_RF_, t_land_LF_;
+  // use this instead:
+  std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;
 
   // INTERNAL UPDATING functions
   void updateStepTrackerReferences();
   void updateStepTrackerLastReference();
   void updateNonThinkingReferences();
+
   // References for costs:
   std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
   std::vector<eVector3> ref_com_vel_;
 
   // Security management
   bool initialized_ = false;
+  void rewindWalkingCycle();
 
   // Memory preallocations:
   std::vector<unsigned long> controlled_joints_id_;
   Eigen::VectorXd x_internal_;
+  bool time_to_solve_ddp_ = false;
+  bool first_switch_to_stand_ = true;
+  std::set<std::string> contacts_before_, contacts_after_;
+  supportSwitch switch_;
+  int horizon_end_;
 
  public:
   WBC();
@@ -90,8 +101,15 @@ class WBC {
                   const Eigen::VectorXd &v0,
                   const std::string &actuationCostName);
 
-  Eigen::VectorXd shapeState(const Eigen::VectorXd &q,
-                             const Eigen::VectorXd &v);
+  void initializeSupportTiming();
+
+  void updateSupportTiming();
+
+  const supportSwitch &getSwitches(const unsigned long &before,
+                                   const unsigned long &after);
+
+  const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
+                                    const Eigen::VectorXd &v);
 
   void generateWalkingCycle(ModelMaker &mm);
 
@@ -99,15 +117,13 @@ class WBC {
 
   void updateStepCycleTiming();
 
-  bool timeToSolveDDP(const int &iteration);
-
-  void setDesiredFeetPoses(const int &iteration, const int &time);
+  bool timeToSolveDDP(int iteration);
 
   void iterate(const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, const bool &is_feasible);
+               const Eigen::VectorXd &v_current, bool is_feasible);
 
-  void iterate(const int &iteration, const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, const bool &is_feasible);
+  void iterate(int iteration, const Eigen::VectorXd &q_current,
+               const Eigen::VectorXd &v_current, bool is_feasible);
 
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
@@ -118,12 +134,12 @@ class WBC {
   const Eigen::VectorXd &get_x0() const { return x0_; }
   void set_x0(const Eigen::VectorXd &x0) { x0_ = x0; }
 
-  const HorizonManager &get_walkingCycle() const { return walkingCycle_; }
+  HorizonManager &get_walkingCycle() { return walkingCycle_; }
   void set_walkingCycle(const HorizonManager &walkingCycle) {
     walkingCycle_ = walkingCycle;
   }
 
-  const HorizonManager &get_standingCycle() const { return standingCycle_; }
+  HorizonManager &get_standingCycle() { return standingCycle_; }
   void set_standingCycle(const HorizonManager &standingCycle) {
     standingCycle_ = standingCycle;
   }
@@ -134,6 +150,7 @@ class WBC {
   RobotDesigner &get_designer() { return designer_; }
   void set_designer(const RobotDesigner &designer) { designer_ = designer; }
 
+  //////////// SOON DEPRECATED BLOCK ///////////////////
   const Eigen::VectorXi &get_LF_land() const { return t_land_LF_; }
   void set_LF_land(Eigen::VectorXi t) { t_land_LF_ = t; }
 
@@ -145,41 +162,44 @@ class WBC {
 
   const Eigen::VectorXi &get_RF_takeoff() const { return t_takeoff_RF_; }
   void set_RF_takeoff(const Eigen::VectorXi &t) { t_takeoff_RF_ = t; }
+  //////////// end SOON DEPRECATED BLOCK ///////////////////
+
+  const std::vector<int> &get_land_LF() { return land_LF_; }
+  const std::vector<int> &get_land_RF() { return land_RF_; }
+  const std::vector<int> &get_takeoff_LF() { return takeoff_LF_; }
+  const std::vector<int> &get_takeoff_RF() { return takeoff_RF_; }
 
   // USER REFERENCE SETTERS AND GETTERS
-
   const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
-  const pinocchio::SE3 &getPoseRef_LF(const unsigned long &time) {
+  const pinocchio::SE3 &getPoseRef_LF(unsigned long time) {
     return ref_LF_poses_[time];
   }
   void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) {
     ref_LF_poses_ = ref_LF_poses;
   }
-  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose,
-                     const unsigned long &time) {
+  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose, unsigned long time) {
     ref_LF_poses_[time] = ref_LF_pose;
   }
 
   const std::vector<pinocchio::SE3> &getPoseRef_RF() { return ref_RF_poses_; }
-  const pinocchio::SE3 &getPoseRef_RF(const unsigned long &time) {
+  const pinocchio::SE3 &getPoseRef_RF(unsigned long time) {
     return ref_RF_poses_[time];
   }
   void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses) {
     ref_RF_poses_ = ref_RF_poses;
   }
-  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose,
-                     const unsigned long &time) {
+  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) {
     ref_RF_poses_[time] = ref_RF_pose;
   }
 
   const std::vector<eVector3> &getVelRef_COM() { return ref_com_vel_; }
-  const eVector3 &getVelRef_COM(const unsigned long &time) {
+  const eVector3 &getVelRef_COM(unsigned long time) {
     return ref_com_vel_[time];
   }
   void setVelRef_COM(const std::vector<eVector3> &ref_com_vel) {
     ref_com_vel_ = ref_com_vel;
   }
-  void setVelRef_COM(const eVector3 &ref_com_vel, const unsigned long &time) {
+  void setVelRef_COM(const eVector3 &ref_com_vel, unsigned long time) {
     ref_com_vel_[time] = ref_com_vel;
   }
   // For the python bindings:
@@ -189,7 +209,7 @@ class WBC {
 
   void switchToWalk() { now_ = WALKING; }
   void switchToStand() { now_ = STANDING; }
-  const LocomotionType &currentLocomotion() { return now_; }
+  LocomotionType currentLocomotion() { return now_; }
 };
 }  // namespace sobec
 

@@ -102,7 +102,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   initialized_ = true;
 }
 
-void RobotDesigner::updateReducedModel(Eigen::VectorXd x) {
+void RobotDesigner::updateReducedModel(const Eigen::VectorXd &x) {
   /** x is the reduced posture, or contains the reduced posture in the first
    * elements */
   pinocchio::forwardKinematics(rModel_, rData_, x.head(rModel_.nq));
@@ -113,7 +113,7 @@ void RobotDesigner::updateReducedModel(Eigen::VectorXd x) {
   RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
-void RobotDesigner::updateCompleteModel(Eigen::VectorXd x) {
+void RobotDesigner::updateCompleteModel(const Eigen::VectorXd &x) {
   /** x is the complete posture, or contains the complete posture in the first
    * elements */
   pinocchio::forwardKinematics(rModelComplete_, rDataComplete_,
@@ -125,16 +125,18 @@ void RobotDesigner::updateCompleteModel(Eigen::VectorXd x) {
   RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
-pinocchio::SE3 RobotDesigner::get_LF_frame() { return rData_.oMf[leftFootId_]; }
+const pinocchio::SE3 &RobotDesigner::get_LF_frame() {
+  return rData_.oMf[leftFootId_];
+}
 
-pinocchio::SE3 RobotDesigner::get_RF_frame() {
+const pinocchio::SE3 &RobotDesigner::get_RF_frame() {
   return rData_.oMf[rightFootId_];
 }
 
 double RobotDesigner::getRobotMass() {
-  double mass = 0;
-  for (pinocchio::Inertia &I : rModel_.inertias) mass += I.mass();
-  return mass;
+  mass_ = 0;
+  for (pinocchio::Inertia &I : rModel_.inertias) mass_ += I.mass();
+  return mass_;
 }
 
 }  // namespace sobec
