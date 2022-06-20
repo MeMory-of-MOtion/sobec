@@ -190,9 +190,7 @@ void exposeWBC() {
               &WBC::setVelRef_COM))
       .def("switchToWalk", &WBC::switchToWalk)
       .def("switchToStand", &WBC::switchToStand)
-      .def("current_motion_type",
-           make_function(&WBC::currentLocomotion,
-                         bp::return_value_policy<bp::copy_const_reference>()))
+      .def("current_motion_type", &WBC::currentLocomotion)
       .def("land_LF",
            make_function(
                &WBC::get_land_LF,
