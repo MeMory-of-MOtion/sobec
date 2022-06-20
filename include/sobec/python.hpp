@@ -21,6 +21,7 @@ void exposeIntegratedActionLPF();
 void exposeDAMContactFwdDyn();
 void exposeResidualContactForce();
 void exposeWBC();
+void exposeFlex();
 void exposeOCPWalk();
 void exposeMPCWalk();
 
