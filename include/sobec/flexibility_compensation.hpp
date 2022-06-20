@@ -92,15 +92,15 @@ class Flex {
 
   const FlexSettings &getSettings() { return settings_; }
 
-  void resetLeftFlex0() { leftFlex0_ = eVector2::Zero(); }
-  void resetRightFlex0() { rightFlex0_ = eVector2::Zero(); }
+  void resetLeftFlex0() { leftFlex0_ = eVector2::Zero(); }// is it used?
+  void resetRightFlex0() { rightFlex0_ = eVector2::Zero(); }// is it used?
 
-  void setLeftFlex0(eVector2 delta0) { leftFlex0_ = delta0; }
-  void setRightFlex0(eVector2 delta0) { rightFlex0_ = delta0; }
+  void setLeftFlex0(const eVector2 &delta0) { leftFlex0_ = delta0; }// is it used?
+  void setRightFlex0(const eVector2 &delta0) { rightFlex0_ = delta0; }// is it used?
 
   const eVector2 &computeDeflection(const eArray2 &torques, const eArray2 &delta0,
-                             const eArray2 &stiffness, const eArray2 &damping,
-                             const double dt);
+                                    const eArray2 &stiffness, const eArray2 &damping,
+                                    const double dt);
 
   const eVector2 &computeDeflection(const eArray2 &torques, const side side);
 
