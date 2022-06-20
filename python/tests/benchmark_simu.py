@@ -163,17 +163,23 @@ q_current, v_current = device.measureState()
 t1 = time()
 sum_solve_time = 0
 sum_bullet_time = 0
-i = 0 # Counter for ddp solutions
+i = 0  # Counter for ddp solutions
 for s in range(conf.T_total * conf.Nc):
     if mpc.timeToSolveDDP(s):
         # Trajectory
         i += 1
-        LF_refs = foot_trajectory(len(mpc.ref_LF_poses), mpc.t_land_LF[0], 
-                                  mpc.ref_LF_poses[0].translation, "cosine"
-                                  )[len(mpc.ref_LF_poses) - 1]
-        RF_refs = foot_trajectory(len(mpc.ref_RF_poses),mpc.t_land_RF[0], 
-                                  mpc.ref_RF_poses[0].translation,"cosine",
-                                  )[len(mpc.ref_LF_poses) - 1]
+        LF_refs = foot_trajectory(
+            len(mpc.ref_LF_poses),
+            mpc.t_land_LF[0],
+            mpc.ref_LF_poses[0].translation,
+            "cosine",
+        )[len(mpc.ref_LF_poses) - 1]
+        RF_refs = foot_trajectory(
+            len(mpc.ref_RF_poses),
+            mpc.t_land_RF[0],
+            mpc.ref_RF_poses[0].translation,
+            "cosine",
+        )[len(mpc.ref_LF_poses) - 1]
 
         mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
         mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
@@ -186,8 +192,8 @@ for s in range(conf.T_total * conf.Nc):
     else:
         mpc.iterate(s, q_current, v_current)
         torques = horizon.currentTorques(mpc.x0)
-    
-    #pybullet
+
+    # pybullet
     t_bullet_start = time()
     device.execute(torques)
     q_current, v_current = device.measureState()
@@ -197,13 +203,13 @@ for s in range(conf.T_total * conf.Nc):
 
 t2 = time()
 total_t = t2 - t1
-iteration_time =  conf.Nc * total_t / s
+iteration_time = conf.Nc * total_t / s
 average_solve_time = sum_solve_time / i
-average_bullet_time =  conf.Nc * sum_bullet_time/s
+average_bullet_time = conf.Nc * sum_bullet_time / s
 resting_time = iteration_time - average_bullet_time - average_solve_time
 
 print("#####################  Benchmark Times ####################### ")
-print("## Over iterations of 10 ms")      
+print("## Over iterations of 10 ms")
 print("##")
 print("## Time per iteration:\t\t ", iteration_time)
 print("##")
