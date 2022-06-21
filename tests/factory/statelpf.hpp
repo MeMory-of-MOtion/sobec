@@ -15,6 +15,7 @@
 
 #include "pinocchio_model.hpp"
 #include "sobec/lowpassfilter/statelpf.hpp"
+#include "state.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -38,6 +39,13 @@ struct StateLPFModelTypes {
   static const std::vector<Type> all;
 };
 
+const std::map<StateLPFModelTypes::Type, StateModelTypes::Type> mapStateLPFToStateMultibody{
+  {StateLPFModelTypes::StateLPF_TalosArm, StateModelTypes::StateMultibody_TalosArm},
+  {StateLPFModelTypes::StateLPF_HyQ, StateModelTypes::StateMultibody_HyQ},
+  {StateLPFModelTypes::StateLPF_Talos, StateModelTypes::StateMultibody_Talos},
+  {StateLPFModelTypes::StateLPF_RandomHumanoid, StateModelTypes::StateMultibody_RandomHumanoid}
+};
+
 std::ostream& operator<<(std::ostream& os, StateLPFModelTypes::Type type);
 
 class StateLPFModelFactory {
@@ -48,7 +56,7 @@ class StateLPFModelFactory {
   ~StateLPFModelFactory();
 
   boost::shared_ptr<sobec::StateLPF> create(
-      StateLPFModelTypes::Type state_type) const;
+      StateLPFModelTypes::Type state_type, bool nu0 = false) const;
 };
 
 }  // namespace unittest
