@@ -163,7 +163,7 @@ def play():
 croc.enable_profiler()
 
 # FOR LOOP
-for s in range(15):  # int(20.0 / walkParams.DT)):
+for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -208,8 +208,7 @@ for s in range(15):  # int(20.0 / walkParams.DT)):
             solve_time,
         )
     )
-    if not s % 10:
-        viz.display(simu.getState()[: robot.model.nq])
+    viz.display(simu.getState()[: robot.model.nq])
 
     # Before each takeoff, the robot display the previewed movement (3 times)
     if (

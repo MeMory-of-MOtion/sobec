@@ -10,8 +10,8 @@ class WalkParams(swparams.WalkParams):
     Tdouble = 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
     Tend = int(0.3 / DT)
     Tmpc = int(1.4 / DT)  # 1.6
-
     vcomRef = np.array([0.05, 0, 0])
+    Tsimu = 1500
 
     def __init__(self, name="talos_low"):
         swparams.WalkParams.__init__(self, name)
@@ -77,7 +77,7 @@ class StandParams(swparams.WalkParams):
     refMainJointsAtImpactWeight = 0  # 2e2 # For avoinding crossing legs
 
     stateTerminalWeight = 20  # 2000
-    maxiter = 10
+    solver_maxiter = 10
 
     def __init__(self, name="talos_legs"):
         swparams.WalkParams.__init__(self, name)
