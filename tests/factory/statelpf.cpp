@@ -60,7 +60,7 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
   switch (state_type) {
     case StateLPFModelTypes::StateLPF_TalosArm: {
       model = PinocchioModelFactory(PinocchioModelTypes::TalosArm).create();
-      if(!nu0){
+      if (!nu0) {
         boost::shared_ptr<crocoddyl::ActuationModelFull> actuation =
             boost::make_shared<crocoddyl::ActuationModelFull>(
                 StateModelFactory().create(
@@ -73,7 +73,7 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
     }
     case StateLPFModelTypes::StateLPF_HyQ: {
       model = PinocchioModelFactory(PinocchioModelTypes::HyQ).create();
-      if(!nu0){
+      if (!nu0) {
         boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
             boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
                 boost::static_pointer_cast<crocoddyl::StateMultibody>(
@@ -87,7 +87,7 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
     }
     case StateLPFModelTypes::StateLPF_Talos: {
       model = PinocchioModelFactory(PinocchioModelTypes::Talos).create();
-      if(!nu0){
+      if (!nu0) {
         boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
             boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
                 boost::static_pointer_cast<crocoddyl::StateMultibody>(
@@ -102,7 +102,7 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
     case StateLPFModelTypes::StateLPF_RandomHumanoid: {
       model =
           PinocchioModelFactory(PinocchioModelTypes::RandomHumanoid).create();
-      if(!nu0){
+      if (!nu0) {
         boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
             boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
                 boost::static_pointer_cast<crocoddyl::StateMultibody>(

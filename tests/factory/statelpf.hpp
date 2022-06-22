@@ -39,12 +39,15 @@ struct StateLPFModelTypes {
   static const std::vector<Type> all;
 };
 
-const std::map<StateLPFModelTypes::Type, StateModelTypes::Type> mapStateLPFToStateMultibody{
-  {StateLPFModelTypes::StateLPF_TalosArm, StateModelTypes::StateMultibody_TalosArm},
-  {StateLPFModelTypes::StateLPF_HyQ, StateModelTypes::StateMultibody_HyQ},
-  {StateLPFModelTypes::StateLPF_Talos, StateModelTypes::StateMultibody_Talos},
-  {StateLPFModelTypes::StateLPF_RandomHumanoid, StateModelTypes::StateMultibody_RandomHumanoid}
-};
+const std::map<StateLPFModelTypes::Type, StateModelTypes::Type>
+    mapStateLPFToStateMultibody{
+        {StateLPFModelTypes::StateLPF_TalosArm,
+         StateModelTypes::StateMultibody_TalosArm},
+        {StateLPFModelTypes::StateLPF_HyQ, StateModelTypes::StateMultibody_HyQ},
+        {StateLPFModelTypes::StateLPF_Talos,
+         StateModelTypes::StateMultibody_Talos},
+        {StateLPFModelTypes::StateLPF_RandomHumanoid,
+         StateModelTypes::StateMultibody_RandomHumanoid}};
 
 std::ostream& operator<<(std::ostream& os, StateLPFModelTypes::Type type);
 
@@ -55,8 +58,8 @@ class StateLPFModelFactory {
   explicit StateLPFModelFactory();
   ~StateLPFModelFactory();
 
-  boost::shared_ptr<sobec::StateLPF> create(
-      StateLPFModelTypes::Type state_type, bool nu0 = false) const;
+  boost::shared_ptr<sobec::StateLPF> create(StateLPFModelTypes::Type state_type,
+                                            bool nu0 = false) const;
 };
 
 }  // namespace unittest
