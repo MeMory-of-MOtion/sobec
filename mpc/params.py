@@ -10,6 +10,7 @@ class WalkParams(swparams.WalkParams):
     flyHighSlope = 5 / refFootFlyingAltitude
     vcomRef = np.array([0.1, 0, 0])
     baumgartGains = np.array([0, 50])
+    minimalNormalForce = 0.0
 
     def __init__(self, name="talos_low"):
         swparams.WalkParams.__init__(self, name)

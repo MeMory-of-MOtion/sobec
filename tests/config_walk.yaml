@@ -1,33 +1,62 @@
 walk:
   DT: 0.01
-  baumgartGains: [0., 100.]
-  mainJointIds: [ ]
-  stateImportance: [ 0., 0., 0., 50., 50., 0., 5., 5., 1., 2., 1., 1., 5., 5., 1., 2., 1., 1., 0., 0., 0., 3., 3., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1. ]
-  stateTerminalImportance: [ 3., 3., 0., 0., 0., 30., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1. ]
-  controlImportance: [ 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1. ]
-  vcomImportance: [ 0., 0., 1. ]
-  forceImportance: [ 1., 1., 0.1, 10., 10., 2. ]
-  vcomRef: [ 0.05, 0., 0.]
-  footSize: 0.05
-  refStateWeight: 0.1
-  refTorqueWeight: 0.0
-  comWeight: 0.0
-  vcomWeight: 1.0
-  copWeight: 2.0
-  conePenaltyWeight: 0.0
-  coneAxisWeight: 0.0002
-  refForceWeight: 10.0
-  impactAltitudeWeight: 20000.0
-  impactVelocityWeight: 10000.0
-  impactRotationWeight: 200.0
-  refMainJointsAtImpactWeight: 0.0
-  verticalFootVelWeight: 20.0
+  Tdouble: 50
+  Tend: 50
+  Tmpc: 50
+  Tsingle: 10
+  Tstart: 50
+  baumgartGains: [0, 100]
+  comWeight: 0
+  coneAxisWeight: 0
+  conePenaltyWeight: 0
+  controlImportance: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  copWeight: 1
+  feetCollisionWeight: 0
   flyHighSlope: 42.857142857142854
-  flyHighWeight: 200.0
-  groundColWeight: 200.0
+  flyHighWeight: 0
   footMinimalDistance: 0.2
-  feetCollisionWeight: 1000.0
-  kktDamping: 0.0
-  stateTerminalWeight: 20.0
+  footSize: 0.05
+  forceImportance: [1.0, 1.0, 0.1, 10.0, 10.0, 2.0]
+  groundColWeight: 0
+  impactAltitudeWeight: 0
+  impactRotationWeight: 0
+  impactVelocityWeight: 0
+  jointNamesToLock: [arm_left_1_joint, arm_left_2_joint, arm_left_3_joint, arm_left_4_joint,
+    arm_left_5_joint, arm_left_6_joint, arm_left_7_joint, arm_right_1_joint, arm_right_2_joint,
+    arm_right_3_joint, arm_right_4_joint, arm_right_5_joint, arm_right_6_joint, arm_right_7_joint,
+    gripper_left_joint, gripper_right_joint, head_1_joint, head_2_joint, torso_1_joint,
+    torso_2_joint]
+  jointToLock: [arm_left_1_joint, arm_left_2_joint, arm_left_3_joint, arm_left_4_joint,
+    arm_left_5_joint, arm_left_6_joint, arm_left_7_joint, arm_right_1_joint, arm_right_2_joint,
+    arm_right_3_joint, arm_right_4_joint, arm_right_5_joint, arm_right_6_joint, arm_right_7_joint,
+    gripper_left_joint, gripper_right_joint, head_1_joint, head_2_joint, torso_1_joint,
+    torso_2_joint, gripper_left_inner_double_joint, gripper_left_fingertip_1_joint,
+    gripper_left_fingertip_2_joint, gripper_left_inner_single_joint, gripper_left_fingertip_3_joint,
+    gripper_left_motor_single_joint, gripper_right_inner_double_joint, gripper_right_fingertip_1_joint,
+    gripper_right_fingertip_2_joint, gripper_right_inner_single_joint, gripper_right_fingertip_3_joint,
+    gripper_right_motor_single_joint]
+  kktDamping: 0
+  mainJointIds: [ toto]
+  refFootFlyingAltitude: 0.07
+  refForceWeight: 20
+  refMainJointsAtImpactWeight: 0
+  refStateWeight: 0.1
+  refTorqueWeight: 0
+  robotName: talos_legs
+  saveFile: /tmp/sobec.npy
+  showPreview: false
+  solver_maxiter: 2
+  solver_reg_min: 1.0e-06
   solver_th_stop: 0.001
-  transitionDuration: 6
+  stateImportance: [0, 0, 0, 50, 50, 0, 5, 5, 1, 2, 1, 1, 5, 5, 1, 2, 1, 1, 0, 0, 0,
+    3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  stateTerminalImportance: [3, 3, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  stateTerminalWeight: 20
+  torque_noise: 0.0
+  transitionDuration: 20
+  vcomImportance: [0.0, 0.0, 1.0]
+  vcomRef: [0, 0, 0]
+  vcomWeight: 2
+  verticalFootVelWeight: 0
+  x0: [1,2,3]

@@ -10,11 +10,13 @@ import sobec
 from utils.save_traj import save_traj
 from sobec.walk.robot_wrapper import RobotWrapper
 from sobec.walk import ocp
-from mpcparams import WalkParams
+import mpcparams
 from sobec.walk.config_mpc import configureMPCWalk
 from utils.pinbullet import SimuProxy
 from utils import viewer_multiple
 from sobec.walk import miscdisp
+import pybullet as pyb
+import random
 
 # from sobec.walk.talos_collections import jointToLockCollection
 
@@ -62,7 +64,7 @@ q_init = np.array(
     ]
 )
 q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
-walkParams = WalkParams("talos_low")
+walkParams = mpcparams.PushParams("talos_low")
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
@@ -123,7 +125,6 @@ mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # croc.CallbackVerbose(),
 # miscdisp.CallbackMPCWalk(robot.contactIds)
 # ])
-
 # #####################################################################################
 # ### VIZ #############################################################################
 # #####################################################################################
@@ -161,9 +162,23 @@ def play():
 
 
 croc.enable_profiler()
+# viz.play(np.array(ddp.xs)[:, : robot.model.nq].T, walkParams.DT)
 
+viz.viewer.gui.deleteNode("world/cub", True)
+viz.viewer.gui.addBox("world/cub", 0.15, 0.15, 0.15, [0.5, 1, 1, 1])
+viz.viewer.gui.setVisibility("world/cub", "OFF")
+
+Timpact = 111
+direc = np.array([0.8, 0.2, 0])
+Tcub = 15
+mass = 5
+vcub = 100.0
+
+nextSolve = -1
+
+hiter = []
 # FOR LOOP
-for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
+for s in range(1500):  # int(20.0 / walkParams.DT)):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -190,12 +205,36 @@ for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
 
     # ###############################################################################
 
+    # ### CUBE
+    if s > Tcub and Timpact - (s % Timpact) < Tcub:
+        xcub = x[:3] + direc * vcub * walkParams.DT * (Timpact - (s % Timpact)) / Tcub
+        viz.viewer.gui.applyConfiguration("world/cub", xcub.tolist() + [1, 0, 0, 0])
+        viz.viewer.gui.refresh()
+        viz.viewer.gui.setVisibility("world/cub", "ON")
+        # viz.viewer.gui.refresh()
+        print("CUB at ", xcub)
+
+    if s > Tcub and (Timpact - s < 5):
+        pyb.applyExternalForce(simu.robotId, 1, -direc * vcub * mass, np.zeros(3), True)
+        print("Impact!", direc)
+
+    if s > Tcub and s % Timpact == 0:
+        print("Finish, new dir!")
+        viz.viewer.gui.setVisibility("world/cub", "OFF")
+        Timpact += random.randint(50, 250)
+        direc = np.random.rand(3) * 2 - 1
+        direc[2] = 0
+        direc /= np.linalg.norm(direc)
+        mpc.solver.solve(mpc.solver.xs, mpc.solver.us, 50)
+        hiter[-1] += mpc.solver.iter
+
     start_time = time.time()
     mpc.calc(simu.getState(), s)
     solve_time = time.time() - start_time
     if mpc.solver.iter == 0:
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
+    hiter.append(mpc.solver.iter)
 
     # f"{mpc.basisRef[0]:.03} "
     print(
@@ -208,6 +247,7 @@ for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
             solve_time,
         )
     )
+    # if not s % 10:
     viz.display(simu.getState()[: robot.model.nq])
 
     # Before each takeoff, the robot display the previewed movement (3 times)

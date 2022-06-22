@@ -22,6 +22,7 @@ namespace sobec {
 /// @todo: bind these enumerations
 enum ControlForm { StepTracker, NonThinking, StairClimber };
 enum LocomotionType { WALKING, STANDING };
+enum supportSwitch { NO_SWITCH, LAND_LF, LAND_RF, TAKEOFF_LF, TAKEOFF_RF };
 
 struct WBCSettings {
   ///@todo: add the cost names as setting parameters.
@@ -62,23 +63,32 @@ class WBC {
   LocomotionType now_ = WALKING;
 
   // timings
+  // Deprecated soon:
   Eigen::VectorXi t_takeoff_RF_, t_takeoff_LF_, t_land_RF_, t_land_LF_;
+  // use this instead:
+  std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;
 
   // INTERNAL UPDATING functions
   void updateStepTrackerReferences();
   void updateStepTrackerLastReference();
   void updateNonThinkingReferences();
+
   // References for costs:
   std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
   std::vector<eVector3> ref_com_vel_;
 
   // Security management
   bool initialized_ = false;
+  void rewindWalkingCycle();
 
   // Memory preallocations:
   std::vector<unsigned long> controlled_joints_id_;
   Eigen::VectorXd x_internal_;
   bool time_to_solve_ddp_ = false;
+  bool first_switch_to_stand_ = true;
+  std::set<std::string> contacts_before_, contacts_after_;
+  supportSwitch switch_;
+  int horizon_end_;
 
  public:
   WBC();
@@ -90,6 +100,13 @@ class WBC {
                   const HorizonManager &horizon, const Eigen::VectorXd &q0,
                   const Eigen::VectorXd &v0,
                   const std::string &actuationCostName);
+
+  void initializeSupportTiming();
+
+  void updateSupportTiming();
+
+  const supportSwitch &getSwitches(const unsigned long &before,
+                                   const unsigned long &after);
 
   const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
                                     const Eigen::VectorXd &v);
@@ -133,6 +150,7 @@ class WBC {
   RobotDesigner &get_designer() { return designer_; }
   void set_designer(const RobotDesigner &designer) { designer_ = designer; }
 
+  //////////// SOON DEPRECATED BLOCK ///////////////////
   const Eigen::VectorXi &get_LF_land() const { return t_land_LF_; }
   void set_LF_land(Eigen::VectorXi t) { t_land_LF_ = t; }
 
@@ -144,9 +162,14 @@ class WBC {
 
   const Eigen::VectorXi &get_RF_takeoff() const { return t_takeoff_RF_; }
   void set_RF_takeoff(const Eigen::VectorXi &t) { t_takeoff_RF_ = t; }
+  //////////// end SOON DEPRECATED BLOCK ///////////////////
+
+  const std::vector<int> &get_land_LF() { return land_LF_; }
+  const std::vector<int> &get_land_RF() { return land_RF_; }
+  const std::vector<int> &get_takeoff_LF() { return takeoff_LF_; }
+  const std::vector<int> &get_takeoff_RF() { return takeoff_RF_; }
 
   // USER REFERENCE SETTERS AND GETTERS
-
   const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
   const pinocchio::SE3 &getPoseRef_LF(unsigned long time) {
     return ref_LF_poses_[time];

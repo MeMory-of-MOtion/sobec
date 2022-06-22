@@ -210,6 +210,7 @@ resting_time = iteration_time - average_bullet_time - average_solve_time
 
 print("#####################  Benchmark Times ####################### ")
 print("## Over iterations of 10 ms")
+
 print("##")
 print("## Time per iteration:\t\t ", iteration_time)
 print("##")

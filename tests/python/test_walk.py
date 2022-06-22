@@ -102,6 +102,10 @@ class WalkParams:
     guessFile = "/tmp/test_walk.npy"
     saveFile = "/tmp/test_walk.npy"
 
+    transitionDuration = -1
+    withNormalForceBoundOnly = False
+    minimalNormalForce = 0.0
+
 
 walkParams = WalkParams()
 assert len(walkParams.stateImportance) == robot.model.nv * 2

@@ -14,7 +14,9 @@ namespace sobec {
 // contact_pattern(k,t)
 
 Eigen::MatrixXd computeWeightShareSmoothProfile(
-    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration) {
+    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration,
+    double saturation) {
+  assert((saturation >= 0) && (saturation < 1));
   double robotGravityForce = 1;              // todo
   Eigen::Index T = contact_pattern.cols();   // time horizon length
   Eigen::Index nc = contact_pattern.rows();  // number of contact
@@ -36,7 +38,9 @@ Eigen::MatrixXd computeWeightShareSmoothProfile(
     }
     if (landing)
       for (Eigen::Index s = duration - 1; s >= 0; --s) {
-        double ratio = (double(s + 1) / double(duration + 1));
+        double ratio =
+            (double(s + 1) / double(duration + 1)) * (1 - 2 * saturation) +
+            2 * saturation;
         for (Eigen::Index k = 0; k < nc; ++k) {
           std::cout << k << " " << s << " " << contactImportance(k, t - 1)
                     << ratio << std::endl;
@@ -54,7 +58,9 @@ Eigen::MatrixXd computeWeightShareSmoothProfile(
     }
     if (takingoff)
       for (Eigen::Index s = duration - 1; s >= 0; --s) {
-        double ratio = (double(s + 1) / double(duration + 1));
+        double ratio =
+            (double(s + 1) / double(duration + 1)) * (1 - 2 * saturation) +
+            2 * saturation;
         for (Eigen::Index k = 0; k < nc; ++k) {
           contactImportance(k, t - s - 1) =
               contactImportance(k, t) * (1 - ratio) +
@@ -67,11 +73,12 @@ Eigen::MatrixXd computeWeightShareSmoothProfile(
 }
 
 void OCPWalk::computeReferenceForces() {
-  double duration = params->transitionDuration;
+  int duration = params->transitionDuration;
   double robotGravityForce = robot->robotGravityForce;
 
+  const double sat = params->minimalNormalForce / robot->robotGravityForce;
   Eigen::MatrixXd contactImportance =
-      computeWeightShareSmoothProfile(contact_pattern, duration);
+      computeWeightShareSmoothProfile(contact_pattern, duration, sat);
 
   Eigen::Index T = contact_pattern.cols();   // time horizon length
   Eigen::Index nc = contact_pattern.rows();  // number of contact

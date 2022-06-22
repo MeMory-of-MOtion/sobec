@@ -21,6 +21,7 @@ from time import time
 
 
 def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
+    print(time_to_land)
     """Functions to generate steps."""
     tmax = conf.T1contact
     landing_advance = 3
@@ -59,6 +60,7 @@ def print_trajectory(ref):
     fig = plt.figure()
     ax = fig.gca()
     ax.plot(t)
+    ax.set_ylim(0, 0.05)
 
 
 # ####### CONFIGURATION  ############
@@ -158,6 +160,7 @@ mpc.initialize(
     "actuationTask",
 )
 mpc.generateWalkigCycle(formuler)
+mpc.generateStandingCycle(formuler)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
@@ -180,15 +183,18 @@ sum_solve_time = 0
 for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
+
+        landing_LF = mpc.land_LF()[0] if mpc.land_LF() else 2 * mpc.horizon.size()
+        landing_RF = mpc.land_RF()[0] if mpc.land_RF() else 2 * mpc.horizon.size()
         LF_refs = foot_trajectory(
             len(mpc.ref_LF_poses),
-            mpc.t_land_LF[0],
+            landing_LF,
             mpc.ref_LF_poses[0].translation,
             "cosine",
-        )[len(mpc.ref_LF_poses) - 1]
+        )
         RF_refs = foot_trajectory(
             len(mpc.ref_RF_poses),
-            mpc.t_land_RF[0],
+            landing_RF,
             mpc.ref_RF_poses[0].translation,
             "cosine",
         )[len(mpc.ref_LF_poses) - 1]
@@ -200,6 +206,7 @@ for s in range(conf.T_total * conf.Nc):
         mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
 
     #        print_trajectory(mpc.ref_LF_poses)
+
 
     t_solve_start = time()
     mpc.iterate(s, q_current, v_current)
@@ -220,7 +227,10 @@ for s in range(conf.T_total * conf.Nc):
         esti_state = real_state  # wbc.joint_estimation(real_state, command)
         q_current, v_current = esti_state["q"], esti_state["dq"]
 
-
+    if s == 150:
+        mpc.switchToStand()
+    if s == 3000:
+        mpc.switchToWalk()
 #    if s == 0:stop
 
 t2 = time()
