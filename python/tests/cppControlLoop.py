@@ -207,7 +207,6 @@ for s in range(conf.T_total * conf.Nc):
 
     #        print_trajectory(mpc.ref_LF_poses)
 
-
     t_solve_start = time()
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
