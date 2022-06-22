@@ -112,7 +112,6 @@ void exposeHorizonManager() {
                                     const Eigen::VectorXd &)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time", "x"))
-      //  .def("size", &size)
       .def("size", &HorizonManager::size, (bp::arg("self")))
       .def("supportSize", &HorizonManager::supportSize, (bp::arg("self")))
       .def("setActuationReference", &HorizonManager::setActuationReference,

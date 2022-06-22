@@ -267,7 +267,7 @@ int HorizonManager::supportSize(const unsigned long time) {
 }
 
 const std::set<std::string> &HorizonManager::get_contacts(
-    const unsigned long &time) {
+    const unsigned long time) {
   active_contacts_ = contacts(time)->get_active_set();
   return active_contacts_;
 }
