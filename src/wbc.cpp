@@ -179,7 +179,7 @@ void WBC::updateNonThinkingReferences() {
   }
 }
 ///@todo: Correct the condition on the else if and consider adding here a
-///condition based on DCM
+/// condition based on DCM
 void WBC::recedeWithCycle() {
   if (now_ == WALKING) {
     recedeWithCycle(walkingCycle_);
