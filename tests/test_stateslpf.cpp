@@ -36,6 +36,18 @@ void test_state_dimension(StateLPFModelTypes::Type state_type) {
               state->get_ny());
   BOOST_CHECK(static_cast<std::size_t>(state->get_ub().size()) ==
               state->get_ny());
+
+  // Check that dimensions matches multibody dimensions when nu=0
+  StateModelFactory factoryMultibody;
+  const boost::shared_ptr<sobec::StateLPF>& stateLPF =
+      factory.create(state_type, true);
+  const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
+      factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
+  BOOST_CHECK(stateLPF->get_ny() == stateMultibody->get_nx());
+  BOOST_CHECK(stateLPF->get_ndy() == stateMultibody->get_ndx());
+  BOOST_CHECK(stateLPF->get_nq() == stateMultibody->get_nq());
+  BOOST_CHECK(stateLPF->get_nv() == stateMultibody->get_nv());
+  BOOST_CHECK(stateLPF->get_nv() == stateMultibody->get_nv());
 }
 
 void test_integrate_against_difference(StateLPFModelTypes::Type state_type) {
@@ -56,6 +68,24 @@ void test_integrate_against_difference(StateLPFModelTypes::Type state_type) {
 
   // Checking that both states agree
   BOOST_CHECK(dxi.isZero(1e-9));
+
+  // Check diff against state multibody diff when nu=0
+  StateModelFactory factoryMultibody;
+  const boost::shared_ptr<sobec::StateLPF>& stateLPF =
+      factory.create(state_type, true);
+  const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
+      factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
+  // Generating random states
+  const Eigen::VectorXd& x3 = stateLPF->rand();
+  const Eigen::VectorXd& x4 = stateLPF->rand();
+  // Difference LPF
+  Eigen::VectorXd dxLPF(stateLPF->get_ndy());
+  stateLPF->diff(x3, x4, dxLPF);
+  // Difference multibody
+  Eigen::VectorXd dxMultibody(stateMultibody->get_ndx());
+  stateMultibody->diff(x3, x4, dxMultibody);
+
+  BOOST_CHECK((dxLPF - dxMultibody).isZero(1e-9));
 }
 
 void test_difference_against_integrate(StateLPFModelTypes::Type state_type) {
@@ -73,6 +103,23 @@ void test_difference_against_integrate(StateLPFModelTypes::Type state_type) {
 
   // Checking that both states agree
   BOOST_CHECK((dxd - dx).isZero(1e-9));
+
+  // Check integrate against state multibody integrate when nu=0
+  StateModelFactory factoryMultibody;
+  const boost::shared_ptr<sobec::StateLPF>& stateLPF =
+      factory.create(state_type, true);
+  const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
+      factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
+  // Generating random states
+  const Eigen::VectorXd& x1 = stateLPF->rand();
+  const Eigen::VectorXd& dx1 = Eigen::VectorXd::Random(stateLPF->get_ndy());
+  // Integrate LPF
+  Eigen::VectorXd xLPF(stateLPF->get_ny());
+  stateLPF->integrate(x1, dx1, xLPF);
+  // Integrate multibody
+  Eigen::VectorXd xMultibody(stateLPF->get_nx());
+  stateMultibody->integrate(x1, dx1, xMultibody);
+  BOOST_CHECK((xLPF - xMultibody).isZero(1e-9));
 }
 
 void test_Jdiff_firstsecond(StateLPFModelTypes::Type state_type) {
@@ -101,6 +148,51 @@ void test_Jdiff_firstsecond(StateLPFModelTypes::Type state_type) {
 
   BOOST_CHECK((Jdiff_first - Jdiff_both_first).isZero(1e-9));
   BOOST_CHECK((Jdiff_second - Jdiff_both_second).isZero(1e-9));
+
+  // Check Jdiff against state multibody when nu=0
+  StateModelFactory factoryMultibody;
+  const boost::shared_ptr<sobec::StateLPF>& stateLPF =
+      factory.create(state_type, true);
+  const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
+      factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
+  const Eigen::VectorXd& x3 = stateLPF->rand();
+  const Eigen::VectorXd& x4 = stateLPF->rand();
+  // Jdiff LPF
+  Eigen::MatrixXd Jdiff_tmpLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  Eigen::MatrixXd Jdiff_firstLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  Eigen::MatrixXd Jdiff_secondLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  stateLPF->Jdiff(x3, x4, Jdiff_firstLPF, Jdiff_tmpLPF, crocoddyl::first);
+  stateLPF->Jdiff(x3, x4, Jdiff_tmpLPF, Jdiff_secondLPF, crocoddyl::second);
+  Eigen::MatrixXd Jdiff_both_firstLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  Eigen::MatrixXd Jdiff_both_secondLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  stateLPF->Jdiff(x3, x4, Jdiff_both_firstLPF, Jdiff_both_secondLPF);
+  // Jdiff multibody
+  Eigen::MatrixXd Jdiff_tmpMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jdiff_firstMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jdiff_secondMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jdiff(x3, x4, Jdiff_firstMultibody, Jdiff_tmpMultibody,
+                        crocoddyl::first);
+  stateMultibody->Jdiff(x3, x4, Jdiff_tmpMultibody, Jdiff_secondMultibody,
+                        crocoddyl::second);
+  Eigen::MatrixXd Jdiff_both_firstMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jdiff_both_secondMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jdiff(x3, x4, Jdiff_both_firstMultibody,
+                        Jdiff_both_secondMultibody);
+
+  BOOST_CHECK((Jdiff_firstLPF - Jdiff_firstMultibody).isZero(1e-9));
+  BOOST_CHECK((Jdiff_secondLPF - Jdiff_secondMultibody).isZero(1e-9));
+  BOOST_CHECK((Jdiff_both_firstLPF - Jdiff_both_firstMultibody).isZero(1e-9));
+  BOOST_CHECK((Jdiff_both_secondLPF - Jdiff_both_secondMultibody).isZero(1e-9));
 }
 
 void test_Jint_firstsecond(StateLPFModelTypes::Type state_type) {
@@ -129,6 +221,51 @@ void test_Jint_firstsecond(StateLPFModelTypes::Type state_type) {
 
   BOOST_CHECK((Jint_first - Jint_both_first).isZero(1e-9));
   BOOST_CHECK((Jint_second - Jint_both_second).isZero(1e-9));
+
+  // Check Jintegrate against state multibody Jintegrate when nu=0
+  StateModelFactory factoryMultibody;
+  const boost::shared_ptr<sobec::StateLPF>& stateLPF =
+      factory.create(state_type, true);
+  const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
+      factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
+  const Eigen::VectorXd& x1 = stateLPF->rand();
+  const Eigen::VectorXd& dx1 = Eigen::VectorXd::Random(stateLPF->get_ndy());
+  // Jint LPF
+  Eigen::MatrixXd Jint_tmpLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  Eigen::MatrixXd Jint_firstLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  Eigen::MatrixXd Jint_secondLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  stateLPF->Jintegrate(x1, dx1, Jint_firstLPF, Jint_tmpLPF, crocoddyl::first);
+  stateLPF->Jintegrate(x1, dx1, Jint_tmpLPF, Jint_secondLPF, crocoddyl::second);
+  Eigen::MatrixXd Jint_both_firstLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  Eigen::MatrixXd Jint_both_secondLPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  stateLPF->Jintegrate(x1, dx1, Jint_both_firstLPF, Jint_both_secondLPF);
+  // Jint multibody
+  Eigen::MatrixXd Jint_tmpMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_firstMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_secondMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jintegrate(x1, dx1, Jint_firstMultibody, Jint_tmpMultibody,
+                             crocoddyl::first);
+  stateMultibody->Jintegrate(x1, dx1, Jint_tmpMultibody, Jint_secondMultibody,
+                             crocoddyl::second);
+  Eigen::MatrixXd Jint_both_firstMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_both_secondMultibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jintegrate(x1, dx1, Jint_both_firstMultibody,
+                             Jint_both_secondMultibody);
+
+  BOOST_CHECK((Jint_firstLPF - Jint_firstMultibody).isZero(1e-9));
+  BOOST_CHECK((Jint_secondLPF - Jint_secondMultibody).isZero(1e-9));
+  BOOST_CHECK((Jint_both_firstLPF - Jint_both_firstMultibody).isZero(1e-9));
+  BOOST_CHECK((Jint_both_secondLPF - Jint_both_secondMultibody).isZero(1e-9));
 }
 
 void test_Jdiff_num_diff_firstsecond(StateLPFModelTypes::Type state_type) {
@@ -259,6 +396,26 @@ void test_Jintegrate_against_numdiff(StateLPFModelTypes::Type state_type) {
   double tol = sqrt(state_num_diff.get_disturbance());
   BOOST_CHECK((Jint_1 - Jint_num_1).isZero(tol));
   BOOST_CHECK((Jint_2 - Jint_num_2).isZero(tol));
+
+  // Check Jdiff against state multibody when nu=0
+  StateModelFactory factoryMultibody;
+  const boost::shared_ptr<sobec::StateLPF>& stateLPF =
+      factory.create(state_type, true);
+  const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
+      factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
+  Eigen::MatrixXd Jint_1LPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  Eigen::MatrixXd Jint_2LPF(
+      Eigen::MatrixXd::Zero(stateLPF->get_ndy(), stateLPF->get_ndy()));
+  stateLPF->Jintegrate(x, dx, Jint_1LPF, Jint_2LPF);
+  Eigen::MatrixXd Jint_1Multibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_2Multibody(Eigen::MatrixXd::Zero(
+      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jintegrate(x, dx, Jint_1Multibody, Jint_2Multibody);
+
+  BOOST_CHECK((Jint_1LPF - Jint_1Multibody).isZero(tol));
+  BOOST_CHECK((Jint_2LPF - Jint_2Multibody).isZero(tol));
 }
 
 void test_JintegrateTransport(StateLPFModelTypes::Type state_type) {
@@ -285,6 +442,32 @@ void test_JintegrateTransport(StateLPFModelTypes::Type state_type) {
   Jref = Jtest;
   state->JintegrateTransport(x, dx, Jref, crocoddyl::second);
   BOOST_CHECK((Jref - Jint_2 * Jtest).isZero(1e-10));
+
+  // Check JintegrateTransport against state multibody JintegrateTransport when
+  // nu=0
+  StateModelFactory factoryMultibody;
+  const boost::shared_ptr<sobec::StateLPF>& stateLPF =
+      factory.create(state_type, true);
+  const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
+      factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
+  const Eigen::VectorXd& x1 = stateLPF->rand();
+  const Eigen::VectorXd& dx1 = Eigen::VectorXd::Random(stateLPF->get_ndy());
+  Eigen::MatrixXd JrefLPF(
+      Eigen::MatrixXd::Random(state->get_ndy(), 2 * state->get_ndy()));
+  Eigen::MatrixXd JrefMultibody(JrefLPF);
+  const Eigen::MatrixXd Jtest1(JrefLPF);
+  // test first
+  stateLPF->JintegrateTransport(x1, dx1, JrefLPF, crocoddyl::first);
+  stateMultibody->JintegrateTransport(x1, dx1, JrefMultibody, crocoddyl::first);
+  BOOST_CHECK((JrefLPF - JrefMultibody).isZero(1e-10));
+  // reset
+  JrefLPF = Jtest1;
+  JrefMultibody = Jtest1;
+  // test second
+  stateLPF->JintegrateTransport(x1, dx1, JrefLPF, crocoddyl::second);
+  stateMultibody->JintegrateTransport(x1, dx1, JrefMultibody,
+                                      crocoddyl::second);
+  BOOST_CHECK((JrefLPF - JrefMultibody).isZero(1e-10));
 }
 
 void test_Jdiff_and_Jintegrate_are_inverses(
@@ -385,9 +568,11 @@ void register_state_unit_tests(StateLPFModelTypes::Type state_type) {
 }
 
 bool init_function() {
+  // test state LPF functions
   for (size_t i = 0; i < StateLPFModelTypes::all.size(); ++i) {
     register_state_unit_tests(StateLPFModelTypes::all[i]);
   }
+
   return true;
 }
 

@@ -2,6 +2,7 @@
 #define _FLEXIBILITY_COMPENSATION_
 
 #include <Eigen/Dense>
+#include <deque>
 
 #include "sobec/fwd.hpp"
 #include <deque>
@@ -14,6 +15,7 @@ typedef Eigen::Matrix2d eMatrix2;
 
 // enum side { LEFT, RIGHT };
 
+///@todo BIND AND TEST IT.
 struct FlexSettings {
  public:
   eVector2 left_stiffness = eVector2(15000, 15000);          // (y, x) [Nm/rad]
@@ -22,6 +24,7 @@ struct FlexSettings {
   eVector2 right_damping = 2 * right_stiffness.cwiseSqrt();  // (y, x) [Nm/rad]
   Eigen::Array3i left_hip_indices = Eigen::Array3i::Zero();
   Eigen::Array3i right_hip_indices = Eigen::Array3i::Zero();
+
   double dt = 0.002, MA_duration = 0.01;                     // [s]
 
   friend std::ostream &operator<<(std::ostream &out, const FlexSettings &obj) {

@@ -256,6 +256,22 @@ unsigned long HorizonManager::size() {
   return size_;
 }
 
+int HorizonManager::supportSize(const unsigned long time) {
+  get_contacts(time);
+  support_size_ = 2;
+  if (active_contacts_.find(settings_.leftFootName) == active_contacts_.end())
+    support_size_ -= 1;
+  if (active_contacts_.find(settings_.rightFootName) == active_contacts_.end())
+    support_size_ -= 1;
+  return support_size_;
+}
+
+const std::set<std::string> &HorizonManager::get_contacts(
+    const unsigned long time) {
+  active_contacts_ = contacts(time)->get_active_set();
+  return active_contacts_;
+}
+
 void HorizonManager::solve(const Eigen::VectorXd &measured_x,
                            const std::size_t ddpIteration,
                            const bool is_feasible) {

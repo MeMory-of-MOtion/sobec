@@ -25,4 +25,5 @@ from .sobec_pywrap import (
     MPCWalk,
     Flex,
     computeWeightShareSmoothProfile,
+    LocomotionType,
 )

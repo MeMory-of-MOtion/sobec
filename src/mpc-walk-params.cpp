@@ -64,18 +64,6 @@ void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
     }
   };
 
-  Eigen::Vector3d vcomRef;
-  Eigen::VectorXd x0;
-  int Tmpc;
-  int Tstart;
-  int Tdouble;
-  int Tsingle;
-  int Tend;
-  double DT;
-  double solver_th_stop;
-  double solver_reg_min;
-  int solver_maxiter;
-
   read_v3d(vcomRef, "vcomRef");
   read_vxd(x0, "x0");
   read_int(Tmpc, "Tmpc");

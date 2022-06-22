@@ -9,6 +9,7 @@ sobec.OCPWalkParams
 
 import yaml
 import numpy as np
+
 import sobec
 
 # ################################################################################
@@ -46,22 +47,20 @@ def flattenDictArrayValues(paramsAsDict):
     """
     todel = []
     for k, v in paramsAsDict.items():
-        if isinstance(v, float) or isinstance(v, int) or isinstance(v, str):
-            pass
-        elif isinstance(v, np.ndarray):
+        if not isYamlTypeCompatible(v):
+            print("Field <%s> is not a serializable type for yaml ... ignore" % k)
+            todel.append(k)
+        if isinstance(v, np.ndarray):
             paramsAsDict[k] = v.tolist()
         elif isinstance(v, sobec.sobec_pywrap.StdVectorStdStringIndex_):
             paramsAsDict[k] = [str(vi) for vi in v]
-        else:
-            print("Field <%s> is not a serializable type for yaml ... ignore" % k)
-            todel.append(k)
     for k in todel:
         del paramsAsDict[k]
 
 
 def yamlWrite(paramsAsDict, filename):
     with open(filename, "w") as outfile:
-        yaml.dump(paramsAsDict, outfile, default_flow_style=None)
+        yaml.dump({"walk": paramsAsDict}, outfile, default_flow_style=None)
 
 
 def yamlWriteParams(filename, *args):
@@ -77,8 +76,14 @@ def yamlWriteParams(filename, *args):
 
 
 def yamlRead(filename):
+
+    yaml_version = tuple(int(i) for i in yaml.__version__.split("."))
+
     with open(filename, "r") as infile:
-        return yaml.load(infile, Loader=yaml.FullLoader)
+        if yaml_version > (5,):
+            return yaml.load(infile, Loader=yaml.FullLoader)
+        else:
+            return yaml.load(infile.read())
 
 
 def dictToNpValue(paramsAsDict):
@@ -90,6 +95,10 @@ def dictToNpValue(paramsAsDict):
 
 def yamlReadToParams(filename, params):
     pdict = yamlRead(filename)
+    if "walk" not in pdict:
+        print("!! Silent error, no walk section in yaml file")
+        return
+    pdict = pdict["walk"]
     dictToNpValue(pdict)
     for k, v in pdict.items():
         if hasattr(params, k):

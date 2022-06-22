@@ -21,6 +21,7 @@ import numpy as np
 
 
 def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
+    print(time_to_land)
     """Functions to generate steps."""
     tmax = conf.T1contact
     landing_advance = 3
@@ -59,6 +60,7 @@ def print_trajectory(ref):
     fig = plt.figure()
     ax = fig.gca()
     ax.plot(t)
+    ax.set_ylim(0, 0.05)
 
 
 # ####### CONFIGURATION  ############
@@ -171,6 +173,7 @@ mpc.initialize(
     "actuationTask",
 )
 mpc.generateWalkigCycle(formuler)
+mpc.generateStandingCycle(formuler)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
@@ -194,15 +197,18 @@ elif conf.simulator == "pinocchio":
 for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
+
+        landing_LF = mpc.land_LF()[0] if mpc.land_LF() else 2 * mpc.horizon.size()
+        landing_RF = mpc.land_RF()[0] if mpc.land_RF() else 2 * mpc.horizon.size()
         LF_refs = foot_trajectory(
             len(mpc.ref_LF_poses),
-            mpc.t_land_LF[0],
+            landing_LF,
             mpc.ref_LF_poses[0].translation,
             "cosine",
-        )[len(mpc.ref_LF_poses) - 1]
+        )
         RF_refs = foot_trajectory(
             len(mpc.ref_RF_poses),
-            mpc.t_land_RF[0],
+            landing_RF,
             mpc.ref_RF_poses[0].translation,
             "cosine",
         )[len(mpc.ref_LF_poses) - 1]
@@ -236,7 +242,7 @@ for s in range(conf.T_total * conf.Nc):
         
         
         
-#2        esti_state = flex.correctEstimatedDeflections(torques, q_current[7:], v_current[6:])
+#        esti_state = flex.correctEstimatedDeflections(torques, q_current[7:], v_current[6:])
 #        
 #        q_current = np.hstack([q_current[:7], esti_state[0]])
 #        v_current = np.hstack([v_current[:6], esti_state[1]])

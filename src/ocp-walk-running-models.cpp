@@ -97,10 +97,15 @@ std::vector<AMA> OCPWalk::buildRunningModels() {
       // slide). # p.footSize is the allowed area size, while cone expects the
       // corner # coordinates => x2
       Eigen::Vector2d corners;
-      value = params->footSize * 2;
-      corners << value, value;
+      if (!params->withNormalForceBoundOnly) {
+        value = params->footSize * 2;
+        corners << value, value;
+      } else {
+        corners << 1000., 1000.;
+      }
+
       const auto cone = WrenchCone(Eigen::Matrix3d::Identity(), 1000, corners,
-                                   4, true, 1, 10000);
+                                   4, true, params->minimalNormalForce, 10000);
       auto coneCost = boost::make_shared<ResidualModelContactWrenchCone>(
           state, cid, cone, actuation->get_nu());
       VectorXd ub = cone.get_ub();

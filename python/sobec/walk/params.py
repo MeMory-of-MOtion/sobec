@@ -128,6 +128,8 @@ class WalkParams:
     vcomRef = np.array([0.05, 0, 0])
 
     footSize = 0.05
+    withNormalForceBoundOnly = False
+    minimalNormalForce = 1.0
 
     # ## Contact parameters for the kkt dynamics
     kktDamping = 0  # 1e-6
@@ -148,6 +150,7 @@ class WalkParams:
     Tdouble = 2 * int(np.round(0.11 / DT / 2 - 0.75)) + 1  # 11
     Tend = int(0.3 / DT)
     Tmpc = int(1.6 / DT)  # 120
+    transitionDuration = (Tdouble - 1) // 2
 
     # ## Parameters related to the IO file (load and save)
     guessFile = None
