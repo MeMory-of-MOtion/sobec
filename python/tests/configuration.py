@@ -60,8 +60,8 @@ Tstep = T2contact + T1contact
 # #### PHYSICS #####
 
 simulator = (
-    "bullet"
-    #    "pinocchio"
+#    "bullet"
+        "pinocchio"
 )
 
 
@@ -74,7 +74,7 @@ maxNforce = 1200  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
-model_name = "talos"  # _flex
+model_name = "talos_flex"  # 
 
 # Flexibility Parameters
 compensate_deflections = True
@@ -82,7 +82,7 @@ exact_deflection = False
 
 if model_name == "talos_flex":
 
-    H_stiff = [2200, 2200, 5000, 5000]  # [LH_pitch, LH_roll, RH_pitch, RH_roll]
+    H_stiff = [2200, 2200, 5000, 5000]  # [12000, 12000, 12000, 12000]#[LH_pitch, LH_roll, RH_pitch, RH_roll]
     H_damp = 2 * np.sqrt(H_stiff)
 
     # Number of times that the flexibility is computed in each control period
@@ -132,7 +132,7 @@ wFootRot = 100
 wGroundCol = 0.05
 
 weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
-weightBaseVel = [0, 0, 10, 1000, 1000, 10]  # [x, y, z| x, y, z]
+weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
 weightLegPos = [1, 100, 100, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
 weightArmPos = [10, 10, 10, 10]  # [z, x, z, y, z, x, y]

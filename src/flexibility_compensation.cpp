@@ -32,15 +32,6 @@ const eVector2 &Flex::computeDeflection(const eArray2 &torques, const eArray2 &d
   return computed_deflection_;
 }
 
-const eVector2 &Flex::computeDeflection(const eArray2 &torques, const side side) {
-  if (side == LEFT)
-    return computeDeflection(torques, leftFlex0_, settings_.left_stiffness,
-                             settings_.left_damping, settings_.dt);
-  else
-    return computeDeflection(torques, rightFlex0_, settings_.right_stiffness,
-                             settings_.right_damping, settings_.dt);
-}
-
 const eVector3 &Flex::equivalentAngles(const eMatrixRot &fullRotation) {
   /**
    * Computes three angles with the order "z-x-y" such that their
@@ -87,9 +78,7 @@ void Flex::correctHip(const eVector2 &delta, const eVector2 &deltaDot,
 void Flex::correctDeflections(const eVector2 &leftFlexingTorque,
                               const eVector2 &rightFlexingTorque, 
                               eVectorX &q,
-                              eVectorX &dq,
-                              const Eigen::Array3i &leftHipIndices,
-                              const Eigen::Array3i &rightHipIndices) {
+                              eVectorX &dq) {
   /**
    * Arguments:
    *
@@ -102,25 +91,26 @@ void Flex::correctDeflections(const eVector2 &leftFlexingTorque,
    * dq.
    */
 
-  leftFlex_ << computeDeflection(leftFlexingTorque, LEFT);
-  rightFlex_ << computeDeflection(rightFlexingTorque, RIGHT);
-
+  leftFlex_ << computeDeflection(leftFlexingTorque, leftFlex0_, settings_.left_stiffness,
+                                  settings_.left_damping, settings_.dt);
+  rightFlex_ << computeDeflection(rightFlexingTorque, rightFlex0_, settings_.right_stiffness,
+                                  settings_.right_damping, settings_.dt);
+  ///@todo: Do we include an option to choose between filtered / not filtered?
   // leftFlexRate_ = (leftFlex_ - leftFlex0_) / settings_.dt;
   // rightFlexRate_ = (rightFlex_ - rightFlex0_) / settings_.dt;
-  leftFlexRate_ = movingAverage((leftFlex_ - leftFlex0_) / settings_.dt, queue_LH_);
-  rightFlexRate_ = movingAverage((rightFlex_ - rightFlex0_) / settings_.dt, queue_RH_);
+
+  leftFlexRate_ = movingAverage((leftFlex_ - leftFlex0_) / settings_.dt, queue_LH_, summation_LH_);
+  rightFlexRate_ = movingAverage((rightFlex_ - rightFlex0_) / settings_.dt, queue_RH_, summation_RH_);
 
   leftFlex0_ = leftFlex_;
   rightFlex0_ = rightFlex_;
 
-  correctHip(leftFlex_, leftFlexRate_, q, dq, leftHipIndices);
-  correctHip(rightFlex_, rightFlexRate_, q, dq, rightHipIndices);
+  correctHip(leftFlex_, leftFlexRate_, q, dq, settings_.left_hip_indices);
+  correctHip(rightFlex_, rightFlexRate_, q, dq, settings_.right_hip_indices);
 }
 
 void Flex::correctEstimatedDeflections(const eVectorX &desiredTorque,
-                                       eVectorX &q, eVectorX &dq,
-                                       const Eigen::Array3i &leftHipIndices,
-                                       const Eigen::Array3i &rightHipIndices) {
+                                       eVectorX &q, eVectorX &dq) {
   /**
    * Arguments:
    *
@@ -132,31 +122,49 @@ void Flex::correctEstimatedDeflections(const eVectorX &desiredTorque,
    * dq.
    */
 
-  adaptLeftYawl_ = Eigen::Rotation2Dd(q(leftHipIndices(0))) * xy_to_yx;
-  adaptRightYawl_ = Eigen::Rotation2Dd(q(rightHipIndices(0))) * xy_to_yx;
+  adaptLeftYawl_ = Eigen::Rotation2Dd(q(settings_.left_hip_indices(0))) * xy_to_yx;
+  adaptRightYawl_ = Eigen::Rotation2Dd(q(settings_.right_hip_indices(0))) * xy_to_yx;
 
   correctDeflections(
-      adaptLeftYawl_ * desiredTorque.segment(leftHipIndices(1), 2),
-      adaptRightYawl_ * desiredTorque.segment(rightHipIndices(1), 2), q, dq,
-      leftHipIndices, rightHipIndices);
+      adaptLeftYawl_ * desiredTorque.segment(settings_.left_hip_indices(1), 2),
+      adaptRightYawl_ * desiredTorque.segment(settings_.right_hip_indices(1), 2), q, dq);
 }
 
 /// @todo: Implement methods for a better estimation of the flexing torque. i.e.
 // including the gravity. Giulio made a function for such estimation.
 // Alternatively, a better estimation can be obtained from RNEA.
 
-const eArray2 &Flex::movingAverage(const eArray2 &x, std::deque<eArray2> &queue) {
+// const eArray2 &Flex::movingAverage(const eArray2 &x, std::deque<eArray2> &queue) {
+//   queue.push_back(x);
+//   queueSize_ = queue.size();
+//   if (queueSize_ > MA_samples_) {
+//     queue.pop_front();
+//     queueSize_--;
+//   }
+//   summation_LH_ << eArray2::Zero();
+//   for (eArray2 const &element : queue){
+//     summation_LH_ += element;
+//   }
+//   average_ = summation_LH_ / queueSize_;
+//   return average_;
+// }
+
+const eArray2 &Flex::movingAverage(const eArray2 &x, 
+                                   std::deque<eArray2> &queue, 
+                                    eArray2 &summation) {
+  /// @todo: Compare the results and choose one. This function has the adventage of not
+  // reading the full queue.
   queue.push_back(x);
   queueSize_ = queue.size();
+
   if (queueSize_ > MA_samples_) {
+    summation -= queue[0];
     queue.pop_front();
     queueSize_--;
   }
-  summation_ << eArray2::Zero();
-  for (eArray2 const &element : queue){
-    summation_ += element;
-  }
-  average_ = summation_ / queueSize_;
+  
+  summation += queue[queueSize_ - 1];
+  average_ = summation / queueSize_;
   return average_;
 }
 
