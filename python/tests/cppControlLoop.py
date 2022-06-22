@@ -177,8 +177,6 @@ elif conf.simulator == "pinocchio":
     device.initialize(design.rmodelComplete)
     q_current, v_current = device.Cq0, device.Cv0
 
-
-# stop
 # ### SIMULATION LOOP ###
 t1 = time()
 sum_solve_time = 0
@@ -199,17 +197,16 @@ for s in range(conf.T_total * conf.Nc):
             landing_RF,
             mpc.ref_RF_poses[0].translation,
             "cosine",
-        )
+        )[len(mpc.ref_LF_poses) - 1]
 
-        for t in range(len(mpc.ref_LF_poses)):
-            mpc.ref_LF_poses[t] = pin.SE3(np.eye(3), LF_refs[t])
-            mpc.ref_RF_poses[t] = pin.SE3(np.eye(3), RF_refs[t])
+        #        for t in range(len(mpc.ref_LF_poses)):
+        #            mpc.ref_LF_poses[t] = pin.SE3(np.eye(3), LF_refs[t])
+        #            mpc.ref_RF_poses[t] = pin.SE3(np.eye(3), RF_refs[t])
+        mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
+        mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
 
-    # print("LF_land", mpc.land_LF().tolist(), mpc.t_land_LF)
-    # print("RF_land", mpc.land_RF().tolist(), mpc.t_land_RF)
-    # print("LF_takeof", mpc.takeoff_LF().tolist())
-    # print("RF_takeoff", mpc.takeoff_RF().tolist())
-    # print_trajectory(mpc.ref_RF_poses)
+    #        print_trajectory(mpc.ref_LF_poses)
+
     t_solve_start = time()
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
