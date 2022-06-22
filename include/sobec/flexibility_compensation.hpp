@@ -2,9 +2,9 @@
 #define _FLEXIBILITY_COMPENSATION_
 
 #include <Eigen/Dense>
+#include <deque>
 
 #include "sobec/fwd.hpp"
-#include <deque>
 
 namespace sobec {
 typedef Eigen::Array2d eArray2;
@@ -92,15 +92,20 @@ class Flex {
 
   const FlexSettings &getSettings() { return settings_; }
 
-  void resetLeftFlex0() { leftFlex0_ = eVector2::Zero(); }// is it used?
-  void resetRightFlex0() { rightFlex0_ = eVector2::Zero(); }// is it used?
+  void resetLeftFlex0() { leftFlex0_ = eVector2::Zero(); }    // is it used?
+  void resetRightFlex0() { rightFlex0_ = eVector2::Zero(); }  // is it used?
 
-  void setLeftFlex0(const eVector2 &delta0) { leftFlex0_ = delta0; }// is it used?
-  void setRightFlex0(const eVector2 &delta0) { rightFlex0_ = delta0; }// is it used?
+  void setLeftFlex0(const eVector2 &delta0) {
+    leftFlex0_ = delta0;
+  }  // is it used?
+  void setRightFlex0(const eVector2 &delta0) {
+    rightFlex0_ = delta0;
+  }  // is it used?
 
-  const eVector2 &computeDeflection(const eArray2 &torques, const eArray2 &delta0,
-                                    const eArray2 &stiffness, const eArray2 &damping,
-                                    const double dt);
+  const eVector2 &computeDeflection(const eArray2 &torques,
+                                    const eArray2 &delta0,
+                                    const eArray2 &stiffness,
+                                    const eArray2 &damping, const double dt);
 
   const eVector2 &computeDeflection(const eArray2 &torques, const side side);
 
@@ -116,7 +121,7 @@ class Flex {
                                    eVectorX &dq,
                                    const Eigen::Array3i &leftHipIndices,
                                    const Eigen::Array3i &rightHipIndices);
-  
+
   const eArray2 &movingAverage(const eArray2 &x, std::deque<eArray2> &queue);
 };
 }  // namespace sobec

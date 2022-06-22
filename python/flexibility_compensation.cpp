@@ -43,27 +43,35 @@ bp::tuple correctEstimatedDeflections(const eVectorX &desiredTorque,
 void exposeFlex() {
   bp::class_<Flex>("Flex", bp::init<>())
       .def("initialize", &initialize, bp::args("self", "settings"))
-      .def("Settings", &Flex::getSettings, bp::return_value_policy<bp::reference_existing_object>(), bp::args("self"))
-      .def("computeDeflection", bp::make_function(
-            static_cast<const eVector2 &(Flex::*)(const eArray2 &, const side)>(
-              &Flex::computeDeflection), bp::return_value_policy
-              <bp::reference_existing_object>(), bp::args("self", "torques", "side")))
-      .def("computeDeflection", bp::make_function(static_cast<const eVector2 &(Flex::*)
-                                                 (const eArray2 &, const eArray2 &,
-                                                  const eArray2 &, const eArray2 &,
-                                                  const double)>(&Flex::computeDeflection), 
-                                                  bp::return_value_policy<bp::reference_existing_object>(), 
-                                                  bp::args("self", "torques", "delta0", "stiffnes", "damping")))
-      .def("correctHip", &Flex::correctHip, bp::args("self", "delta", "delta_dot", "q", "dq", "hipIndices"))
-      .def("correctDeflections", &Flex::correctDeflections, bp::args("self", "leftFlexingTorque",
-                                                                     "rightFlexingTorque","q",
-                                                                     "dq","leftHipIndices",
-                                                                     "rightHipIndices"))
-      .def("correctEstimatedDeflections", &Flex::correctEstimatedDeflections, bp::args("self", "esiredTorque", "q",
-                                                                                       "dq", "leftHipIndices", "rightHipIndices"))
-      .def("movingAverage", &Flex::movingAverage, bp::return_value_policy<bp::reference_existing_object>(), 
-                              bp::args("self", "value", "queue"))
-      ;
+      .def("Settings", &Flex::getSettings,
+           bp::return_value_policy<bp::reference_existing_object>(),
+           bp::args("self"))
+      .def("computeDeflection",
+           bp::make_function(
+               static_cast<const eVector2 &(Flex::*)(const eArray2 &,
+                                                     const side)>(
+                   &Flex::computeDeflection),
+               bp::return_value_policy<bp::reference_existing_object>(),
+               bp::args("self", "torques", "side")))
+      .def("computeDeflection",
+           bp::make_function(
+               static_cast<const eVector2 &(
+                   Flex::*)(const eArray2 &, const eArray2 &, const eArray2 &,
+                            const eArray2 &, const double)>(
+                   &Flex::computeDeflection),
+               bp::return_value_policy<bp::reference_existing_object>(),
+               bp::args("self", "torques", "delta0", "stiffnes", "damping")))
+      .def("correctHip", &Flex::correctHip,
+           bp::args("self", "delta", "delta_dot", "q", "dq", "hipIndices"))
+      .def("correctDeflections", &Flex::correctDeflections,
+           bp::args("self", "leftFlexingTorque", "rightFlexingTorque", "q",
+                    "dq", "leftHipIndices", "rightHipIndices"))
+      .def("correctEstimatedDeflections", &Flex::correctEstimatedDeflections,
+           bp::args("self", "esiredTorque", "q", "dq", "leftHipIndices",
+                    "rightHipIndices"))
+      .def("movingAverage", &Flex::movingAverage,
+           bp::return_value_policy<bp::reference_existing_object>(),
+           bp::args("self", "value", "queue"));
 }
 }  // namespace python
 }  // namespace sobec
