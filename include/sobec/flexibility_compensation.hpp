@@ -5,7 +5,6 @@
 #include <deque>
 
 #include "sobec/fwd.hpp"
-#include <deque>
 
 namespace sobec {
 typedef Eigen::Array2d eArray2;
@@ -25,7 +24,7 @@ struct FlexSettings {
   Eigen::Array3i left_hip_indices = Eigen::Array3i::Zero();
   Eigen::Array3i right_hip_indices = Eigen::Array3i::Zero();
 
-  double dt = 0.002, MA_duration = 0.01;                     // [s]
+  double dt = 0.002, MA_duration = 0.01;  // [s]
 
   friend std::ostream &operator<<(std::ostream &out, const FlexSettings &obj) {
     out << "FlexSettings:\n";
@@ -56,7 +55,6 @@ struct FlexSettings {
 
 class Flex {
  private:
-  
   FlexSettings settings_;
   unsigned long MA_samples_;
   const eMatrix2 xy_to_yx = (eMatrix2() << 0, 1, 1, 0).finished();
@@ -81,7 +79,6 @@ class Flex {
 
   // correctEstimatedDeflections:
   eMatrix2 adaptLeftYawl_, adaptRightYawl_;
-  
 
   // correctHip:
   eMatrixRot rotationA_;
@@ -100,9 +97,9 @@ class Flex {
 
   // const eArray2 &movingAverage(const eArray2 &x, std::deque<eArray2> &queue);
 
-  const eArray2 &movingAverage(const eArray2 &x, 
-                               std::deque<eArray2> &queue, 
+  const eArray2 &movingAverage(const eArray2 &x, std::deque<eArray2> &queue,
                                eArray2 &summation);
+
  public:
   Flex();
 
@@ -110,24 +107,29 @@ class Flex {
 
   void initialize(const FlexSettings &settings);
 
-  const eVector2 &computeDeflection(const eArray2 &torques, const eArray2 &delta0,
-                                    const eArray2 &stiffness, const eArray2 &damping,
-                                    const double dt);
-  
+  const eVector2 &computeDeflection(const eArray2 &torques,
+                                    const eArray2 &delta0,
+                                    const eArray2 &stiffness,
+                                    const eArray2 &damping, const double dt);
+
   void correctDeflections(const eVector2 &leftFlexingTorque,
                           const eVector2 &rightFlexingTorque, eVectorX &q,
                           eVectorX &dq);
-                          
+
   void correctEstimatedDeflections(const eVectorX &desiredTorque, eVectorX &q,
                                    eVectorX &dq);
 
   const FlexSettings &getSettings() { return settings_; }
 
-  void resetLeftFlex0() { leftFlex0_ = eVector2::Zero(); }// is it used?
-  void resetRightFlex0() { rightFlex0_ = eVector2::Zero(); }// is it used?
+  void resetLeftFlex0() { leftFlex0_ = eVector2::Zero(); }    // is it used?
+  void resetRightFlex0() { rightFlex0_ = eVector2::Zero(); }  // is it used?
 
-  void setLeftFlex0(const eVector2 &delta0) { leftFlex0_ = delta0; }// is it used?
-  void setRightFlex0(const eVector2 &delta0) { rightFlex0_ = delta0; }// is it used?
+  void setLeftFlex0(const eVector2 &delta0) {
+    leftFlex0_ = delta0;
+  }  // is it used?
+  void setRightFlex0(const eVector2 &delta0) {
+    rightFlex0_ = delta0;
+  }  // is it used?
 };
 }  // namespace sobec
 

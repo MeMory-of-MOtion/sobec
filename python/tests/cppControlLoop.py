@@ -17,7 +17,8 @@ from cricket.virtual_talos import VirtualPhysics
 import pinocchio as pin
 from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex
 import numpy as np
-#from time import time
+
+# from time import time
 
 
 def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
@@ -152,16 +153,18 @@ wbc_conf = dict(
 
 # Flex
 flex = Flex()
-flex.initialize(dict(left_stiffness = np.array(conf.H_stiff[:2]),
-                     right_stiffness = np.array(conf.H_stiff[2:]),
-                     left_damping = np.array(conf.H_damp[:2]),
-                     right_damping = np.array(conf.H_damp[2:]),
-                     dt = conf.simu_period,
-                     MA_duration = 0.01,
-                     left_hip_indices = np.array([0, 1, 2]),
-                     right_hip_indices = np.array([6, 7, 8])
-                     )
-                )
+flex.initialize(
+    dict(
+        left_stiffness=np.array(conf.H_stiff[:2]),
+        right_stiffness=np.array(conf.H_stiff[2:]),
+        left_damping=np.array(conf.H_damp[:2]),
+        right_damping=np.array(conf.H_damp[2:]),
+        dt=conf.simu_period,
+        MA_duration=0.01,
+        left_hip_indices=np.array([0, 1, 2]),
+        right_hip_indices=np.array([6, 7, 8]),
+    )
+)
 
 mpc = WBC()
 mpc.initialize(
@@ -188,7 +191,7 @@ elif conf.simulator == "pinocchio":
 
     device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
     device.initialize(design.rmodelComplete)
-    init_state = device.measure_state(device.Cq0, device.Cv0, device.Cv0*0 )
+    init_state = device.measure_state(device.Cq0, device.Cv0, device.Cv0 * 0)
     q_current = init_state["q"]
     v_current = init_state["dq"]
 
@@ -234,16 +237,17 @@ for s in range(conf.T_total * conf.Nc):
         correct_contacts = mpc.horizon.get_contacts(0)
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
-        
-        qc, dqc = flex.correctEstimatedDeflections(torques, real_state["q"][7:], real_state["dq"][6:])
-        
+
+        qc, dqc = flex.correctEstimatedDeflections(
+            torques, real_state["q"][7:], real_state["dq"][6:]
+        )
+
         q_current = np.hstack([real_state["q"][:7], qc])
         v_current = np.hstack([real_state["dq"][:6], dqc])
-        
-        
-        
+
+
 #        esti_state = flex.correctEstimatedDeflections(torques, q_current[7:], v_current[6:])
-#        
+#
 #        q_current = np.hstack([q_current[:7], esti_state[0]])
 #        v_current = np.hstack([v_current[:6], esti_state[1]])
 

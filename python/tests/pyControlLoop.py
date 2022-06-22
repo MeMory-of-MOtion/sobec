@@ -21,17 +21,18 @@ design = PinTalos(conf)
 design.update_reduced(design.q0)
 
 flex = Flex()
-flex.initialize(dict(left_stiffness = np.array(conf.H_stiff[:2]),
-                     right_stiffness = np.array(conf.H_stiff[2:]),
-                     left_damping = np.array(conf.H_damp[:2]),
-                     right_damping = np.array(conf.H_damp[2:]),
-                     dt = conf.simu_period,
-                     MA_duration = 0.01,
-                     left_hip_indices = np.array([0, 1, 2]),
-                     right_hip_indices = np.array([6, 7, 8])
-                     )
-                )
-
+flex.initialize(
+    dict(
+        left_stiffness=np.array(conf.H_stiff[:2]),
+        right_stiffness=np.array(conf.H_stiff[2:]),
+        left_damping=np.array(conf.H_damp[:2]),
+        right_damping=np.array(conf.H_damp[2:]),
+        dt=conf.simu_period,
+        MA_duration=0.01,
+        left_hip_indices=np.array([0, 1, 2]),
+        right_hip_indices=np.array([6, 7, 8]),
+    )
+)
 
 
 wbc = CrocoWBC(conf, design)
@@ -65,13 +66,15 @@ for s in range(conf.T_total * conf.Nc):
         correct_contacts = wbc.get_current_contact()
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
-#        esti_state = wbc.joint_estimation(real_state, command)
-        
-        qc, dqc = flex.correctEstimatedDeflections(torques, real_state["q"][7:], real_state["dq"][6:])
-        
+        #        esti_state = wbc.joint_estimation(real_state, command)
+
+        qc, dqc = flex.correctEstimatedDeflections(
+            torques, real_state["q"][7:], real_state["dq"][6:]
+        )
+
         q_cur = np.hstack([real_state["q"][:7], qc])
         v_cur = np.hstack([real_state["dq"][:6], dqc])
-        
+
         x0_meas = wbc.shapeState(q_cur, v_cur)
 
 #    if s == 900:stop
