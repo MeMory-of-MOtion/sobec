@@ -44,9 +44,12 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
 
   IntegratedActionModelLPFTpl(
       boost::shared_ptr<DifferentialActionModelAbstract> model,
+      std::vector<std::string> lpf_joint_names = {},
       const Scalar& time_step = Scalar(1e-3),
-      const bool& with_cost_residual = true, const Scalar& fc = 0,
-      const bool& tau_plus_integration = true, const int& filter = 0,
+      const bool& with_cost_residual = true, 
+      const Scalar& fc = 0,
+      const bool& tau_plus_integration = true, 
+      const int& filter = 0,
       const bool& is_terminal = false);
   virtual ~IntegratedActionModelLPFTpl();
 
@@ -70,6 +73,12 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   const Scalar& get_dt() const;
   const Scalar& get_fc() const;
 
+  const std::size_t& get_nw() const {return nw_;};
+  const std::size_t& get_ntau() const {return ntau_;};
+  const std::size_t& get_ny() const {return ny_;};
+  
+  const std::vector<std::string>& get_lpf_joint_names() const {return lpf_joint_names_;};
+
   void set_dt(const Scalar& dt);
   void set_fc(const Scalar& fc);
   void set_differential(
@@ -90,14 +99,14 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   using Base::u_lb_;                //!< Lower control limits
   using Base::u_ub_;                //!< Upper control limits
   using Base::unone_;               //!< Neutral state
-  std::size_t nw_;                  //!< Unfiltered torque dimension
-  std::size_t ny_;                  //!< Augmented state dimension
+  std::size_t nw_;                  //!< Input torque dimension (unfiltered)
+  std::size_t ntau_;                //!< Filtered torque dimension ("lpf" dimension)
+  std::size_t ny_;                  //!< Augmented state dimension : nq+nv+ntau
   using Base::state_;               //!< Model of the state
-                                    // boost::shared_ptr<StateLPF> state_;
 
  public:
   boost::shared_ptr<ActivationModelQuadraticBarrier>
-      activation_model_w_lim_;  //!< for lim cost
+      activation_model_tauLim_;  //!< for lim cost
 
  private:
   boost::shared_ptr<DifferentialActionModelAbstract> differential_;
@@ -107,17 +116,23 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   Scalar alpha_;
   bool with_cost_residual_;
   bool enable_integration_;
-  Scalar wreg_;    //!< Cost weight for unfiltered torque regularization
-  VectorXs wref_;  //!< Cost reference for unfiltered torque regularization
-  // bool gravity_reg_;                           //!< Use gravity torque for
+  Scalar tauReg_weight_;                                  //!< Cost weight for unfiltered torque regularization
+  VectorXs tauReg_reference_;                                //!< Cost reference for unfiltered torque regularization
+  VectorXs tauReg_residual_, tauLim_residual_;                 //!< Residuals for LPF torques reg and lim
+  // bool gravity_reg_;                          //!< Use gravity torque for
   // unfiltered torque reg, or user-provided reference?
-  Scalar wlim_;                //!< Cost weight for unfiltered torque limits
-  bool tau_plus_integration_;  //!< Use tau+ = LPF(tau,w) in acceleration
-                               //!< computation, or tau
-  int filter_;                 //!< Type of LPF used>
+  Scalar tauLim_weight_;                                  //!< Cost weight for unfiltered torque limits
+  bool tau_plus_integration_;                    //!< Use tau+ = LPF(tau,w) in acceleration
+                                                 //!< computation, or tau
+  int filter_;                                   //!< Type of LPF used>
   boost::shared_ptr<PinocchioModel> pin_model_;  //!< for reg cost
-  bool is_terminal_;  //!< is it a terminal model or not ? (deactivate cost on w
-                      //!< if true)
+  bool is_terminal_;                             //!< is it a terminal model or not ? (deactivate cost on w
+                                                 //!< if true)
+  std::vector<std::string> lpf_joint_names_;     //!< Vector of joint names that are low-pass filtered
+  std::vector<int> lpf_joint_ids_;       //!< Vector of joint ids that are low-pass filtered 
+//   std::vector<int> nonlpf_joint_ids_;    //!< Vector of joint ids that are NOT low-pass filtered 
+  std::vector<int> lpf_torque_ids_;    //!< Vector of torque ids that are low-passs filtered
+
 };
 
 template <typename _Scalar>
@@ -137,13 +152,15 @@ struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
 
   template <template <typename Scalar> class Model>
   explicit IntegratedActionDataLPFTpl(Model<Scalar>* const model)
-      : Base(model) {
+      : Base(model),
+        tau_tmp(model->get_nu()) {
+    tau_tmp.setZero();
     differential = model->get_differential()->createData();
     const std::size_t& ndy = model->get_state()->get_ndx();
     dy = VectorXs::Zero(ndy);
     // for wlim cost
     activation = boost::static_pointer_cast<ActivationDataQuadraticBarrier>(
-        model->activation_model_w_lim_->createData());
+        model->activation_model_tauLim_->createData());
   }
   virtual ~IntegratedActionDataLPFTpl() {}
 
@@ -156,6 +173,7 @@ struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
 
   using Base::cost;
   using Base::r;
+  VectorXs tau_tmp;
   // use refs to "alias" base class member names
   VectorXs& ynext = Base::xnext;
   MatrixXs& Fy = Base::Fx;

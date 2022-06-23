@@ -50,14 +50,13 @@ void test_calc_returns_state(
   ActionModelLPFFactory factory_iam;
   const boost::shared_ptr<sobec::IntegratedActionModelLPF>& model =
       factory_iam.create(iam_type, dam_type, ref_type, mask_type);
-
   // create the corresponding data object
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& data =
       model->createData();
 
   // Generating random state and control vectors
   const Eigen::VectorXd& x = model->get_state()->rand();
-  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nw());
 
   // Getting the state dimension from calc() call
   model->calc(data, x, u);
@@ -84,7 +83,7 @@ void test_calc_returns_a_cost(
 
   // Getting the cost value computed by calc()
   const Eigen::VectorXd& x = model->get_state()->rand();
-  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nw());
   model->calc(data, x, u);
 
   // Checking that calc returns a cost value
@@ -103,7 +102,7 @@ void test_partial_derivatives_against_numdiff(
 
   // Generating random values for the state and control
   Eigen::VectorXd x = model->get_state()->rand();
-  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nw());
 
   // Computing the action derivatives
   model->calc(data, x, u);

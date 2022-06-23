@@ -29,7 +29,7 @@ class StateLPFTpl : public StateAbstractTpl<_Scalar> {
   enum JointType { FreeFlyer = 0, Spherical, Simple };
 
   explicit StateLPFTpl(boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model,
-                       std::size_t nu = 0);
+                       std::vector<int> lpf_joint_ids );
   virtual ~StateLPFTpl();
 
   virtual VectorXs zero() const;
@@ -57,7 +57,7 @@ class StateLPFTpl : public StateAbstractTpl<_Scalar> {
                                    const Jcomponent firstsecond) const;
 
   const boost::shared_ptr<pinocchio::ModelTpl<Scalar> >& get_pinocchio() const;
-  const std::size_t& get_nw() const;
+  const std::size_t& get_ntau() const;
   const std::size_t& get_ny() const;
   const std::size_t& get_ndy() const;
 
@@ -69,7 +69,7 @@ class StateLPFTpl : public StateAbstractTpl<_Scalar> {
   using Base::nv_;
   using Base::nx_;
   using Base::ub_;
-  std::size_t nw_;
+  std::size_t ntau_;
   std::size_t ny_;
   std::size_t ndy_;
 

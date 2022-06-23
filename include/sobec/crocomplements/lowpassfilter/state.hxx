@@ -16,10 +16,11 @@ using namespace crocoddyl;
 
 template <typename Scalar>
 StateLPFTpl<Scalar>::StateLPFTpl(
-    boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model, std::size_t nu)
-    : Base(model->nq + model->nv + nu, 2 * model->nv + nu),
-      pinocchio_(model),
-      y0_(VectorXs::Zero(model->nq + model->nv + nu)) {
+    boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model, std::vector<int> lpf_joint_ids) 
+    : Base(model->nq + model->nv + lpf_joint_ids.size(), 2 * model->nv + lpf_joint_ids.size()), 
+  pinocchio_(model),
+  ntau_(lpf_joint_ids.size()),
+  y0_(VectorXs::Zero(model->nq + model->nv + lpf_joint_ids.size())) {
   // In a multibody system, we could define the first joint using Lie groups.
   // The current cases are free-flyer (SE3) and spherical (S03).
   // Instead simple represents any joint that can model within the Euclidean
@@ -28,9 +29,8 @@ StateLPFTpl<Scalar>::StateLPFTpl(
 
   nv_ = model->nv;       // tangent configuration dimension
   nq_ = model->nq;       // configuration dimension
-  ny_ = nq_ + nv_ + nu;  // augmented state dimension
-  ndy_ = 2 * nv_ + nu;   // augmented state tangent space dimension
-  nw_ = nu;              // unfiltered input dimension (nb of actuated joints)
+  ny_ = nq_ + nv_ + ntau_;  // augmented state dimension
+  ndy_ = 2 * nv_ + ntau_;   // augmented state tangent space dimension
 
   // Define internally the limits of the first joint
   const std::size_t nq0 = model->joints[1].nq();
@@ -41,20 +41,28 @@ StateLPFTpl<Scalar>::StateLPFTpl(
   ub_.segment(nq0, nq_ - nq0) = pinocchio_->upperPositionLimit.tail(nq_ - nq0);
   lb_.segment(nq_, nv_) = -pinocchio_->velocityLimit;
   ub_.segment(nq_, nv_) = pinocchio_->velocityLimit;
-  lb_.tail(nw_) = -pinocchio_->effortLimit.tail(nw_);
-  ub_.tail(nw_) = pinocchio_->effortLimit.tail(nw_);
+  // Effort limit (only for LPF joints)
+  // lb_.tail(ntau_) = -pinocchio_->effortLimit.tail[model->idx_vs[lpf_joint_ids[i]]];
+  // ub_.tail(ntau_) = pinocchio_->effortLimit.tail(nw_)[model->idx_vs[lpf_joint_ids[i]]]; 
+  for(int i=0; i<lpf_joint_ids.size(); i++){
+    if((int)model->nvs[lpf_joint_ids[i]] != (int)1 ){
+      throw_pretty("Invalid argument: " << "Joint " << lpf_joint_ids[i] << " has nv=" << model->nvs[lpf_joint_ids[i]] << ". LPF joints list can only contain joints with nv=1 (i.e. free-flyer joint is forbidden) ");
+    }
+    lb_.tail(ntau_)(i) = -pinocchio_->effortLimit[model->idx_vs[lpf_joint_ids[i]]];
+    ub_.tail(ntau_)(i) = pinocchio_->effortLimit[model->idx_vs[lpf_joint_ids[i]]]; 
+  }
   Base::update_has_limits();
 
   y0_.head(nq_) = pinocchio::neutral(*pinocchio_.get());
-  y0_.tail(nv_ + nu) = VectorXs::Zero(nv_ + nu);
+  y0_.tail(nv_ + ntau_) = VectorXs::Zero(nv_ + ntau_);
 }
 
 template <typename Scalar>
 StateLPFTpl<Scalar>::~StateLPFTpl() {}
 
 template <typename Scalar>
-const std::size_t& StateLPFTpl<Scalar>::get_nw() const {
-  return nw_;
+const std::size_t& StateLPFTpl<Scalar>::get_ntau() const {
+  return ntau_;
 }
 
 template <typename Scalar>
@@ -102,7 +110,7 @@ void StateLPFTpl<Scalar>::diff(const Eigen::Ref<const VectorXs>& y0,
   pinocchio::difference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
                         dyout.head(nv_));
   dyout.segment(nv_, nv_) = y1.segment(nq_, nv_) - y0.segment(nq_, nv_);
-  dyout.tail(nw_) = y1.tail(nw_) - y0.tail(nw_);
+  dyout.tail(ntau_) = y1.tail(ntau_) - y0.tail(ntau_);
 }
 
 template <typename Scalar>
@@ -128,7 +136,7 @@ void StateLPFTpl<Scalar>::integrate(const Eigen::Ref<const VectorXs>& y,
   pinocchio::integrate(*pinocchio_.get(), y.head(nq_), dy.head(nv_),
                        yout.head(nq_));
   yout.segment(nq_, nv_) = y.segment(nq_, nv_) + dy.segment(nv_, nv_);
-  yout.tail(nw_) = y.tail(nw_) + dy.tail(nw_);
+  yout.tail(ntau_) = y.tail(ntau_) + dy.tail(ntau_);
 }
 
 template <typename Scalar>
@@ -163,7 +171,7 @@ void StateLPFTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
     pinocchio::dDifference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
                            Jfirst.topLeftCorner(nv_, nv_), pinocchio::ARG0);
     Jfirst.block(nv_, nv_, nv_, nv_).diagonal().array() = (Scalar)-1;
-    Jfirst.bottomRightCorner(nw_, nw_).diagonal().array() = (Scalar)-1;
+    Jfirst.bottomRightCorner(ntau_, ntau_).diagonal().array() = (Scalar)-1;
   } else if (firstsecond == second) {
     if (static_cast<std::size_t>(Jsecond.rows()) != ndy_ ||
         static_cast<std::size_t>(Jsecond.cols()) != ndy_) {
@@ -175,7 +183,7 @@ void StateLPFTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
     pinocchio::dDifference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
                            Jsecond.topLeftCorner(nv_, nv_), pinocchio::ARG1);
     Jsecond.block(nv_, nv_, nv_, nv_).diagonal().array() = (Scalar)1;
-    Jsecond.bottomRightCorner(nw_, nw_).diagonal().array() = (Scalar)1;
+    Jsecond.bottomRightCorner(ntau_, ntau_).diagonal().array() = (Scalar)1;
   } else {  // computing both
     if (static_cast<std::size_t>(Jfirst.rows()) != ndy_ ||
         static_cast<std::size_t>(Jfirst.cols()) != ndy_) {
@@ -196,9 +204,9 @@ void StateLPFTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
     pinocchio::dDifference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
                            Jsecond.topLeftCorner(nv_, nv_), pinocchio::ARG1);
     Jfirst.block(nv_, nv_, nv_, nv_).diagonal().array() = (Scalar)-1;
-    Jfirst.bottomRightCorner(nw_, nw_).diagonal().array() = (Scalar)-1;
+    Jfirst.bottomRightCorner(ntau_, ntau_).diagonal().array() = (Scalar)-1;
     Jsecond.block(nv_, nv_, nv_, nv_).diagonal().array() = (Scalar)1;
-    Jsecond.bottomRightCorner(nw_, nw_).diagonal().array() = (Scalar)1;
+    Jsecond.bottomRightCorner(ntau_, ntau_).diagonal().array() = (Scalar)1;
   }
 }
 
@@ -228,21 +236,21 @@ void StateLPFTpl<Scalar>::Jintegrate(const Eigen::Ref<const VectorXs>& y,
                               Jfirst.topLeftCorner(nv_, nv_), pinocchio::ARG0,
                               pinocchio::SETTO);
         Jfirst.block(nv_, nv_, nv_, nv_).diagonal().array() = (Scalar)1;
-        Jfirst.bottomRightCorner(nw_, nw_).diagonal().array() = (Scalar)1;
+        Jfirst.bottomRightCorner(ntau_, ntau_).diagonal().array() = (Scalar)1;
         break;
       case addto:
         pinocchio::dIntegrate(*pinocchio_.get(), y.head(nq_), dy.head(nv_),
                               Jfirst.topLeftCorner(nv_, nv_), pinocchio::ARG0,
                               pinocchio::ADDTO);
         Jfirst.block(nv_, nv_, nv_, nv_).diagonal().array() += (Scalar)1;
-        Jfirst.bottomRightCorner(nw_, nw_).diagonal().array() += (Scalar)1;
+        Jfirst.bottomRightCorner(ntau_, ntau_).diagonal().array() += (Scalar)1;
         break;
       case rmfrom:
         pinocchio::dIntegrate(*pinocchio_.get(), y.head(nq_), dy.head(nv_),
                               Jfirst.topLeftCorner(nv_, nv_), pinocchio::ARG0,
                               pinocchio::RMTO);
         Jfirst.block(nv_, nv_, nv_, nv_).diagonal().array() -= (Scalar)1;
-        Jfirst.bottomRightCorner(nw_, nw_).diagonal().array() -= (Scalar)1;
+        Jfirst.bottomRightCorner(ntau_, ntau_).diagonal().array() -= (Scalar)1;
         break;
       default:
         throw_pretty(
@@ -264,21 +272,21 @@ void StateLPFTpl<Scalar>::Jintegrate(const Eigen::Ref<const VectorXs>& y,
                               Jsecond.topLeftCorner(nv_, nv_), pinocchio::ARG1,
                               pinocchio::SETTO);
         Jsecond.block(nv_, nv_, nv_, nv_).diagonal().array() = (Scalar)1;
-        Jsecond.bottomRightCorner(nw_, nw_).diagonal().array() = (Scalar)1;
+        Jsecond.bottomRightCorner(ntau_, ntau_).diagonal().array() = (Scalar)1;
         break;
       case addto:
         pinocchio::dIntegrate(*pinocchio_.get(), y.head(nq_), dy.head(nv_),
                               Jsecond.topLeftCorner(nv_, nv_), pinocchio::ARG1,
                               pinocchio::ADDTO);
         Jsecond.block(nv_, nv_, nv_, nv_).diagonal().array() += (Scalar)1;
-        Jsecond.bottomRightCorner(nw_, nw_).diagonal().array() += (Scalar)1;
+        Jsecond.bottomRightCorner(ntau_, ntau_).diagonal().array() += (Scalar)1;
         break;
       case rmfrom:
         pinocchio::dIntegrate(*pinocchio_.get(), y.head(nq_), dy.head(nv_),
                               Jsecond.topLeftCorner(nv_, nv_), pinocchio::ARG1,
                               pinocchio::RMTO);
         Jsecond.block(nv_, nv_, nv_, nv_).diagonal().array() -= (Scalar)1;
-        Jsecond.bottomRightCorner(nw_, nw_).diagonal().array() -= (Scalar)1;
+        Jsecond.bottomRightCorner(ntau_, ntau_).diagonal().array() -= (Scalar)1;
         break;
       default:
         throw_pretty(

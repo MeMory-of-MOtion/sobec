@@ -5,7 +5,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
   factory/random_generator.hpp
   factory/state.hpp
   factory/statelpf.hpp
-  factory/lpf.hpp
+  # factory/lpf.hpp
   factory/diff-action.hpp
   factory/actuation.hpp
   factory/contact3d.hpp
@@ -15,7 +15,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
   factory/pinocchio_model.cpp
   factory/state.cpp
   factory/statelpf.cpp
-  factory/lpf.cpp
+  # factory/lpf.cpp
   factory/diff-action.cpp
   factory/actuation.cpp
   factory/contact3d.cpp
@@ -34,8 +34,8 @@ target_link_libraries(test_states PUBLIC ${PROJECT_NAME}_unittest)
 ADD_UNIT_TEST(test_stateslpf test_stateslpf.cpp)
 target_link_libraries(test_stateslpf PUBLIC ${PROJECT_NAME}_unittest)
 
-ADD_UNIT_TEST(test_lpf test_lpf.cpp)
-target_link_libraries(test_lpf PUBLIC ${PROJECT_NAME}_unittest)
+# ADD_UNIT_TEST(test_lpf test_lpf.cpp)
+# target_link_libraries(test_lpf PUBLIC ${PROJECT_NAME}_unittest)
 
 ADD_UNIT_TEST(test_contact3d test_contact3d.cpp)
 target_link_libraries(test_contact3d PUBLIC ${PROJECT_NAME}_unittest)
