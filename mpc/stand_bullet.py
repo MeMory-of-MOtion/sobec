@@ -193,6 +193,56 @@ mpc.solver.setCallbacks(
     ]
 )
 
+"""
+import matplotlib.pylab as plt  # noqa: E402,F401
+import utils.walk_plotter as walk_plotter  # noqa: E402
+
+sol = ocp.Solution(robot, ddp)
+
+ocpplotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+ocpplotter.setData(contactPattern, sol.xs, sol.us, sol.fs0)
+
+target = problem.terminalModel.differential.costs.costs[
+    "stateReg"
+].cost.residual.reference
+forceRef = [
+    walk_plotter.getReferenceForcesFromProblemModels(problem, cid)
+    for cid in robot.contactIds
+]
+forceRef = [np.concatenate(fs) for fs in zip(*forceRef)]
+
+
+
+wp=walkParams
+frefocp = np.hstack([walk_plotter.getReferenceForcesFromProblemModels(ddp.problem,cid)
+                              for cid in robot.contactIds ])
+Tcycle = (wp.Tdouble+wp.Tsingle)*2
+
+plt.figure()
+plt.plot(frefocp[:,[2,8]])
+plt.plot([wp.Tstart,wp.Tstart],[0,1000],'r')
+wp=walkParams
+plt.plot([wp.Tstart,wp.Tstart],[0,1000],'r')
+plt.plot([wp.Tstart+wp.Tdouble]*2,[0,1000],'r')
+plt.plot([wp.Tstart+wp.Tdouble+wp.Tsingle]*2,[0,1000],'r')
+plt.plot([wp.Tstart+wp.Tdouble+wp.Tsingle+wp.Tdouble]*2,[0,1000],'r')
+plt.plot([wp.Tstart+wp.Tdouble+wp.Tsingle+wp.Tdouble+wp.Tsingle]*2,[0,1000],'r')
+plt.plot([wp.Tstart+wp.Tdouble+wp.Tsingle+wp.Tdouble+wp.Tsingle+wp.Tdouble]*2,[0,1000],'r')
+plt.plot([wp.Tstart+wp.Tdouble+wp.Tsingle+wp.Tdouble+wp.Tsingle+wp.Tdouble+wp.Tend]*2,[0,1000],'r')
+plt.plot([wp.Tstart+wp.Tdouble//2]*2,[0,1000],'k')
+plt.plot([wp.Tstart+wp.Tdouble//2+Tcycle]*2,[0,1000],'k')
+
+hf = [ f for f in frefocp[:wp.Tmpc,:]]
+for t in range(1000):
+    Tinit = wp.Tstart+wp.Tdouble//2;
+    tlast = Tinit + ((t + wp.Tmpc - Tinit) % Tcycle);
+    hf.append(  frefocp[tlast,:] )
+hf = np.array(hf)
+plt.figure()
+plt.plot(hf[:,[2,8]])
+stophere
+"""
+
 # #####################################################################################
 # ### VIZ #############################################################################
 # #####################################################################################
@@ -214,6 +264,7 @@ except (ImportError, AttributeError):
 
 hx = [simu.getState()]
 hu = []
+hus = []
 hxs = []
 hf = []
 hfref = []
@@ -271,6 +322,7 @@ for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
 
     # ### LOG DATA
     hxs.append(np.array(mpc.solver.xs))
+    hus.append(np.array(mpc.solver.us))
     contactsm0 = mpc.problem.runningModels[0].differential.contacts.contacts
     contactsd0 = mpc.problem.runningDatas[0].differential.multibody.contacts.contacts
     fs = []
@@ -359,8 +411,9 @@ plotter.plotFeet()
 plotter.plotFootCollision(walkParams.footMinimalDistance, 50)
 plotter.plotJointTorques()
 plotter.plotForces(hfref)
-# mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
-# mpcplotter.plotFeet()
+plotter.plotAllForces()
+plotter.plotTimeCop()
+plotter.plotTimeCof()
 
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
 

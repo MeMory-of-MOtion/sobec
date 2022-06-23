@@ -74,6 +74,23 @@ class WalkPlotter:
             cop = [[t, [f[4] / f[2], -f[3] / f[2]]] for (t, f) in ftraj]
             plt.plot([t for t, p in cop], [p for t, p in cop], ".")
 
+    def plotTimeCof(self):
+        plt.figure("cof time local")
+        for ifig, cid in enumerate(self.contactIds):
+            plt.subplot(len(self.contactIds), 1, ifig + 1)
+            # ftraj = [
+            # [t, f[6 * ifig : 6 * ifig + 6]]
+            # for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))
+            # if cid in patternToId(p)
+            # ]
+            ftraj = [
+                [t, f[6 * ifig : 6 * ifig + 6]]
+                for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))
+                if p[ifig]
+            ]
+            cof = [[t, [f[1] / f[2], -f[0] / f[2]]] for (t, f) in ftraj]
+            plt.plot([t for t, p in cof], [p for t, p in cof], ".")
+
     def plotCopAndFeet(self, footSize, ARENA_SIZE=0.6):
         # Cop of each foot in x-vs-y (with limits)
         plt.figure(figsize=(12, 6))
