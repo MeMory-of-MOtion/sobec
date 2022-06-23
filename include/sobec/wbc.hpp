@@ -42,7 +42,6 @@ struct WBCSettings {
   int Nc = (int)round(Dt / simu_step);
   ControlForm typeOfCommand = StepTracker;
 };
-
 class WBC {
   /**
    * Form to use this class:
@@ -63,9 +62,6 @@ class WBC {
   LocomotionType now_ = WALKING;
 
   // timings
-  // Deprecated soon:
-  Eigen::VectorXi t_takeoff_RF_, t_takeoff_LF_, t_land_RF_, t_land_LF_;
-  // use this instead:
   std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;
 
   // INTERNAL UPDATING functions
@@ -149,20 +145,6 @@ class WBC {
 
   RobotDesigner &get_designer() { return designer_; }
   void set_designer(const RobotDesigner &designer) { designer_ = designer; }
-
-  //////////// SOON DEPRECATED BLOCK ///////////////////
-  const Eigen::VectorXi &get_LF_land() const { return t_land_LF_; }
-  void set_LF_land(Eigen::VectorXi t) { t_land_LF_ = t; }
-
-  const Eigen::VectorXi &get_RF_land() const { return t_land_RF_; }
-  void set_RF_land(const Eigen::VectorXi &t) { t_land_RF_ = t; }
-
-  const Eigen::VectorXi &get_LF_takeoff() const { return t_takeoff_LF_; }
-  void set_LF_takeoff(const Eigen::VectorXi &t) { t_takeoff_LF_ = t; }
-
-  const Eigen::VectorXi &get_RF_takeoff() const { return t_takeoff_RF_; }
-  void set_RF_takeoff(const Eigen::VectorXi &t) { t_takeoff_RF_ = t; }
-  //////////// end SOON DEPRECATED BLOCK ///////////////////
 
   const std::vector<int> &get_land_LF() { return land_LF_; }
   const std::vector<int> &get_land_RF() { return land_RF_; }
