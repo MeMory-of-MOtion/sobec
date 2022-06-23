@@ -266,7 +266,7 @@ for s in range(conf.T_total * conf.Nc):
         # v_current = np.hstack([v_current[:6], esti_state[1]])
 
     # if s == 0:
-    stop
+    # stop
 
 if conf.simulator == "bullet":
     device.close()
