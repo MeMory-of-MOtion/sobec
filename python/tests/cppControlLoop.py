@@ -200,21 +200,37 @@ for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
 
-        landing_LF = mpc.land_LF()[0] if mpc.land_LF() else (mpc.takeoff_LF()[0]+conf.T1contact if mpc.takeoff_LF() else 2 * mpc.horizon.size())
-        landing_RF = mpc.land_RF()[0] if mpc.land_RF() else (mpc.takeoff_RF()[0]+conf.T1contact if mpc.takeoff_RF() else 2 * mpc.horizon.size())
-        
+        landing_LF = (
+            mpc.land_LF()[0]
+            if mpc.land_LF()
+            else (
+                mpc.takeoff_LF()[0] + conf.T1contact
+                if mpc.takeoff_LF()
+                else 2 * mpc.horizon.size()
+            )
+        )
+        landing_RF = (
+            mpc.land_RF()[0]
+            if mpc.land_RF()
+            else (
+                mpc.takeoff_RF()[0] + conf.T1contact
+                if mpc.takeoff_RF()
+                else 2 * mpc.horizon.size()
+            )
+        )
+
         LF_refs = foot_trajectory(
-                                    len(mpc.ref_LF_poses),
-                                    landing_LF,
-                                    mpc.ref_LF_poses[0].translation,
-                                    "cosine",
-                                    )[len(mpc.ref_LF_poses) - 1]
+            len(mpc.ref_LF_poses),
+            landing_LF,
+            mpc.ref_LF_poses[0].translation,
+            "cosine",
+        )[len(mpc.ref_LF_poses) - 1]
         RF_refs = foot_trajectory(
-                                    len(mpc.ref_RF_poses),
-                                    landing_RF,
-                                    mpc.ref_RF_poses[0].translation,
-                                    "cosine",
-                                   )[len(mpc.ref_RF_poses) - 1]
+            len(mpc.ref_RF_poses),
+            landing_RF,
+            mpc.ref_RF_poses[0].translation,
+            "cosine",
+        )[len(mpc.ref_RF_poses) - 1]
         print("LF: ", landing_LF, LF_refs)
         print("RF: ", landing_RF, RF_refs)
 

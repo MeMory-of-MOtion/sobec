@@ -106,7 +106,7 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   x0_ = shapeState(q_current, v_current);
   // ~~TIMING~~ //
   updateSupportTiming();
-  recedeWithCycle(); 
+  recedeWithCycle();
 
   // ~~REFERENCES~~ //
   designer_.updateReducedModel(x0_);
