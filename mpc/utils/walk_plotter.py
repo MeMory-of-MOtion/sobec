@@ -74,6 +74,23 @@ class WalkPlotter:
             cop = [[t, [f[4] / f[2], -f[3] / f[2]]] for (t, f) in ftraj]
             plt.plot([t for t, p in cop], [p for t, p in cop], ".")
 
+    def plotTimeCof(self):
+        plt.figure("cof time local")
+        for ifig, cid in enumerate(self.contactIds):
+            plt.subplot(len(self.contactIds), 1, ifig + 1)
+            # ftraj = [
+            # [t, f[6 * ifig : 6 * ifig + 6]]
+            # for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))
+            # if cid in patternToId(p)
+            # ]
+            ftraj = [
+                [t, f[6 * ifig : 6 * ifig + 6]]
+                for t, (f, p) in enumerate(zip(self.fs, self.contactPattern))
+                if p[ifig]
+            ]
+            cof = [[t, [f[1] / f[2], -f[0] / f[2]]] for (t, f) in ftraj]
+            plt.plot([t for t, p in cof], [p for t, p in cof], ".")
+
     def plotCopAndFeet(self, footSize, ARENA_SIZE=0.6):
         # Cop of each foot in x-vs-y (with limits)
         plt.figure(figsize=(12, 6))
@@ -125,6 +142,29 @@ class WalkPlotter:
         if len(frefplot > 0):
             plt.plot(frefplot[:, 8])
         plt.xlabel(self.model.frames[self.contactIds[1]].name)
+
+    def plotAllForces(self):
+        # Forces and reference forces wrt time
+        fig, axs = plt.subplots(5, 1, sharex=True, figsize=(6, 8))
+        fs0plot = np.array(self.fs)
+
+        hp1 = axs[0].plot(fs0plot[:, [0, 1]])
+        hp2 = axs[0].plot(fs0plot[:, [6, 7]])
+        axs[0].set_xlabel("lat. f")
+        axs[0].legend(hp1 + hp2, ["xl", "yl", "xr", "yl"])
+
+        hp1 = axs[1].plot(fs0plot[:, [2, 8]])
+        axs[1].set_xlabel("norm f")
+        axs[1].legend(hp1 + hp2, ["zl", "zr"])
+
+        hp1 = axs[2].plot(fs0plot[:, [3, 4]])
+        hp2 = axs[2].plot(fs0plot[:, [9, 10]])
+        axs[2].set_xlabel("lat. tau")
+        axs[2].legend(hp1 + hp2, ["xl", "yl", "xr", "yl"])
+
+        hp1 = axs[3].plot(fs0plot[:, [5, 11]])
+        axs[3].set_xlabel("norm. tau")
+        axs[3].legend(hp1 + hp2, ["zl", "zr"])
 
     def plotCom(self, com0):
         # COM position and velocity (x+y separated from z)

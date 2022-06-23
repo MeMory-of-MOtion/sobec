@@ -114,6 +114,7 @@ class WalkParams:
     transitionDuration = -1
     withNormalForceBoundOnly = False
     minimalNormalForce = 0.0
+    centerOfFrictionWeight = 0
 
 
 walkParams = WalkParams()
