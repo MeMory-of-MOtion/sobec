@@ -101,8 +101,8 @@ class WBC {
 
   void updateSupportTiming();
 
-  const supportSwitch &getSwitches(const unsigned long &before,
-                                   const unsigned long &after);
+  const supportSwitch &getSwitches(const unsigned long before,
+                                   const unsigned long after);
 
   const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
                                     const Eigen::VectorXd &v);

@@ -57,7 +57,7 @@ std::string displayVector(std::vector<T> &self) {
   return oss.str();
 }
 
-bool timeToSolveDDP(WBC &self, const int &iteration) {
+bool timeToSolveDDP(WBC &self, const int iteration) {
   return self.timeToSolveDDP(iteration);
 }
 
