@@ -55,7 +55,6 @@ bp::dict get_settings(Flex &self) {
 
 bp::tuple correctEstimatedDeflections(Flex &self, const eVectorX &desiredTorque,
                                       const eVectorX &q, const eVectorX &dq) {
-  std::cout << "At least, enters in the function" << std::endl;
   eVectorX correct_q(q.size()), correct_dq(dq.size());
   correct_q << q;
   correct_dq << dq;

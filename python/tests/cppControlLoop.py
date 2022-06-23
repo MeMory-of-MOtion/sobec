@@ -231,14 +231,12 @@ for s in range(conf.T_total * conf.Nc):
             mpc.ref_RF_poses[0].translation,
             "cosine",
         )[len(mpc.ref_RF_poses) - 1]
-        print("LF: ", landing_LF, LF_refs)
-        print("RF: ", landing_RF, RF_refs)
 
         mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
         mpc.ref_RF_poses[len(mpc.ref_RF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
 
         print_trajectory(mpc.ref_LF_poses)
-
+    
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
 
@@ -268,7 +266,7 @@ for s in range(conf.T_total * conf.Nc):
         # v_current = np.hstack([v_current[:6], esti_state[1]])
 
     # if s == 0:
-    # stop
+    stop
 
 if conf.simulator == "bullet":
     device.close()

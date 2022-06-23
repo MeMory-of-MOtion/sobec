@@ -29,7 +29,6 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
   x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
   x0_ << shapeState(q0, v0);
-  std::cout << x0_.size() << std::endl;
   designer_.updateReducedModel(x0_);
   designer_.updateCompleteModel(q0);
 
@@ -221,7 +220,6 @@ const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q,
 void WBC::initializeSupportTiming() {
   for (unsigned int i = 0; i < horizon_.size() - 1; i++) {
     getSwitches(i, i + 1);
-    std::cout << switch_ << std::endl;
     if (switch_ == LAND_LF)
       land_LF_.push_back(i + 1);
     else if (switch_ == LAND_RF)
