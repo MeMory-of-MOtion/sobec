@@ -236,7 +236,7 @@ for s in range(conf.T_total * conf.Nc):
         mpc.ref_RF_poses[len(mpc.ref_RF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
 
         print_trajectory(mpc.ref_LF_poses)
-    
+
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
 
