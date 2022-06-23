@@ -261,8 +261,8 @@ void WBC::updateSupportTiming() {
     takeoff_RF_.push_back(horizon_end_ - 1);
 }
 
-const supportSwitch &WBC::getSwitches(const unsigned long &before,
-                                      const unsigned long &after) {
+const supportSwitch &WBC::getSwitches(const unsigned long before,
+                                      const unsigned long after) {
   contacts_before_ = horizon_.get_contacts(before);
   contacts_after_ = horizon_.get_contacts(after);
 
