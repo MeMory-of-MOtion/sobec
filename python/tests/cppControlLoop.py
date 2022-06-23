@@ -245,13 +245,15 @@ for s in range(conf.T_total * conf.Nc):
         q_current = np.hstack([real_state["q"][:7], qc])
         v_current = np.hstack([real_state["dq"][:6], dqc])
 
+        # esti_state = flex.correctEstimatedDeflections(
+        # torques, q_current[7:], v_current[6:]
+        # )
 
-#        esti_state = flex.correctEstimatedDeflections(torques, q_current[7:], v_current[6:])
-#
-#        q_current = np.hstack([q_current[:7], esti_state[0]])
-#        v_current = np.hstack([v_current[:6], esti_state[1]])
+        # q_current = np.hstack([q_current[:7], esti_state[0]])
+        # v_current = np.hstack([v_current[:6], esti_state[1]])
 
-#    if s == 0:stop
+    # if s == 0:
+    # stop
 
 if conf.simulator == "bullet":
     device.close()
