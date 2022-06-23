@@ -178,7 +178,8 @@ void WBC::updateNonThinkingReferences() {
     ///@todo: the names must be provided by the user
   }
 }
-
+///@todo: Correct the condition on the else if and consider adding here a
+/// condition based on DCM
 void WBC::recedeWithCycle() {
   if (now_ == WALKING) {
     recedeWithCycle(walkingCycle_);

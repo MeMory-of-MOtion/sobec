@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Created on Mon May  9 17:15:22 2022
 
@@ -7,7 +8,7 @@ Created on Mon May  9 17:15:22 2022
 import example_robot_data
 import numpy as np
 
-# PATHS
+# ## PATHS
 
 URDF_FILENAME = "talos_reduced_corrected.urdf"
 SRDF_FILENAME = "talos.srdf"
@@ -15,7 +16,7 @@ SRDF_SUBPATH = "/talos_data/srdf/" + SRDF_FILENAME
 URDF_SUBPATH = "/talos_data/robots/" + URDF_FILENAME
 modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
-# Joint settings
+# ## Joint settings
 
 blocked_joints = [
     "universe",
@@ -39,35 +40,30 @@ blocked_joints = [
     "head_2_joint",
 ]
 
-# #### TIMING #####
-preview_steps = 2
+# ## TIMING
 total_steps = 8
 T_total = 2000  # Total number of nodes of the simulation
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-T2contact = 10  # Double support time  # TODO: (check with 20)
+T2contact = 50  # Double support time  # TODO: (check with 20)
 simu_step = simu_period = 1e-3  #
-
-Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
 
 # TODO: landing_advance and takeoff_delay are missing
 
-T1contact = 70  # Single support time
+T1contact = 100  # Single support time
 ddpIteration = 1  # Number of DDP iterations
 
-Tstep = T2contact + T1contact
-
-# #### PHYSICS #####
+preview_steps = 2
+# ## PHYSICS
 
 simulator = (
-    #    "bullet"
+    # "bullet"
     "pinocchio"
 )
 
-
 gravity = np.array([0, 0, -9.81])
 
-mu = 0.3
+mu = 0.1
 cone_box = np.array([0.1, 0.05])
 minNforce = 200
 maxNforce = 1200  # This may be still too low
@@ -82,12 +78,7 @@ exact_deflection = False
 
 if model_name == "talos_flex":
 
-    H_stiff = [
-        2200,
-        2200,
-        5000,
-        5000,
-    ]  # [12000, 12000, 12000, 12000]#[LH_pitch, LH_roll, RH_pitch, RH_roll]
+    H_stiff = [2200, 2200, 5000, 5000]  # [LH_pitch, LH_roll, RH_pitch, RH_roll]
     H_damp = 2 * np.sqrt(H_stiff)
 
     # Number of times that the flexibility is computed in each control period
@@ -105,17 +96,20 @@ flex_esti_delay = 0.0  # [s]
 flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 
-# ###### WALKING GEOMETRY #########
-xForward = 0.15 * 0  # step size
+# ## WALKING GEOMETRY
+xForward = 0.15  # step size
 foot_height = 0.03  # foot height
 TFootDepth = 220  # Foot depth in ground (#TODO: what is this?)
 yCorrection = 0.0  # 0.005 # Correction in y to push the feet away from each other
 
+Nc = int(DT / 1e-3)  # Number of control knots per planification timestep
+Tstep = T1contact + T2contact
+
 normal_height = 0.87
-omega = np.sqrt(-gravity[2] / normal_height)
+omega = -normal_height / gravity[2]
 
 
-# ##### CROCO - CONFIGURATION ########
+# ## CROCO - CONFIGURATION
 
 # relevant frame names
 
@@ -126,37 +120,42 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 # Weights for all costs
 
 wFootPlacement = 1000
-wStateReg = 100
+wStateReg = 0.1
 wControlReg = 0.001
 wLimit = 1e3
 wVCoM = 0
 wWrenchCone = 0.05
-wFootTrans = 10000
-wFootXYTrans = 0
-wFootRot = 100
-wGroundCol = 0.05
 
-weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
-weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
-weightLegPos = [1, 100, 100, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
-weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
-weightArmPos = [10, 10, 10, 10]  # [z, x, z, y, z, x, y]
-weightArmVel = [100, 100, 100, 100]  # [z, x, z, y, z, x, y]
-weightTorsoPos = [5, 5]  # [z, y]
-weightTorsoVel = [5, 5]  # [z, y]
+wFootTrans = wFootPlacement  # This can be removed
+wFootXYTrans = 0  # This can be removed
+wFootRot = 100  # This can be removed
+wGroundCol = 0.05  # This can be removed
+
+weightBasePos = [0, 0, 0, 100000, 100000, 100]  # [0, 0, 0, 100000, 100000, 100000]
+weightBaseVel = [0, 0, 0, 1000, 1000, 10]  # [0, 0, 0, 1000, 1000, 1000]
+weightLegPos = [100, 100, 100, 10000, 100, 100]
+weightLegVel = [1000, 1000, 1000, 1000, 1000, 1000]
+weightArmRightPos = [10000, 10000, 10000, 10000]  # ,100,100,100 for 3 last arm joint
+weightArmRightVel = [1000, 1000, 1000, 1000]  # ,100,100,100 for 3 last arm joint
+weightArmLeftPos = [10000, 10000, 10000, 10000]  # ,100,100,100 for 3 last arm joint
+weightArmLeftVel = [100, 100, 100, 100]  # ,100,100,100 for 3 last arm joint
+weightTorsoPos = [500, 500]
+weightTorsoVel = [500, 500]
 stateWeights = np.array(
     weightBasePos
     + weightLegPos * 2
     + weightTorsoPos
-    + weightArmPos * 2
+    + weightArmLeftPos
+    + weightArmRightPos
     + weightBaseVel
     + weightLegVel * 2
     + weightTorsoVel
-    + weightArmVel * 2
+    + weightArmLeftVel
+    + weightArmRightVel
 )
 
-weightuBase = "not actuated"
-weightuLeg = [1, 0, 0, 1, 1, 1]
+weightuBase = [0, 0, 0, 0, 0, 0]
+weightuLeg = [1, 1, 1, 1, 1, 1]
 weightuArm = [10, 10, 10, 10]
 weightuTorso = [1, 1]
 controlWeight = np.array(weightuLeg * 2 + weightuTorso + weightuArm * 2)

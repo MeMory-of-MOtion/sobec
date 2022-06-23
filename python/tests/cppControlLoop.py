@@ -15,9 +15,10 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker
+from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex
 import numpy as np
-from time import time
+
+# from time import time
 
 
 def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
@@ -150,6 +151,21 @@ wbc_conf = dict(
     Nc=conf.Nc,
 )
 
+# Flex
+flex = Flex()
+flex.initialize(
+    dict(
+        left_stiffness=np.array(conf.H_stiff[:2]),
+        right_stiffness=np.array(conf.H_stiff[2:]),
+        left_damping=np.array(conf.H_damp[:2]),
+        right_damping=np.array(conf.H_damp[2:]),
+        dt=conf.simu_period,
+        MA_duration=0.01,
+        left_hip_indices=np.array([0, 1, 2]),
+        right_hip_indices=np.array([6, 7, 8]),
+    )
+)
+
 mpc = WBC()
 mpc.initialize(
     wbc_conf,
@@ -175,11 +191,12 @@ elif conf.simulator == "pinocchio":
 
     device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
     device.initialize(design.rmodelComplete)
-    q_current, v_current = device.Cq0, device.Cv0
+    init_state = device.measure_state(device.Cq0, device.Cv0, device.Cv0 * 0)
+    q_current = init_state["q"]
+    v_current = init_state["dq"]
 
 # ### SIMULATION LOOP ###
-t1 = time()
-sum_solve_time = 0
+
 for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
@@ -207,11 +224,8 @@ for s in range(conf.T_total * conf.Nc):
 
     #        print_trajectory(mpc.ref_LF_poses)
 
-    t_solve_start = time()
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
-    t_solve_end = time()
-    sum_solve_time += t_solve_end - t_solve_start
 
     if conf.simulator == "bullet":
         device.execute(torques)
@@ -223,19 +237,23 @@ for s in range(conf.T_total * conf.Nc):
         correct_contacts = mpc.horizon.get_contacts(0)
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
-        esti_state = real_state  # wbc.joint_estimation(real_state, command)
-        q_current, v_current = esti_state["q"], esti_state["dq"]
 
-    if s == 150:
-        mpc.switchToStand()
-    if s == 3000:
-        mpc.switchToWalk()
-#    if s == 0:stop
+        qc, dqc = flex.correctEstimatedDeflections(
+            torques, real_state["q"][7:], real_state["dq"][6:]
+        )
 
-t2 = time()
-total_t = t2 - t1
-iteration_time = total_t / s
-average_solve_time = sum_solve_time / s
+        q_current = np.hstack([real_state["q"][:7], qc])
+        v_current = np.hstack([real_state["dq"][:6], dqc])
+
+        # esti_state = flex.correctEstimatedDeflections(
+        # torques, q_current[7:], v_current[6:]
+        # )
+
+        # q_current = np.hstack([q_current[:7], esti_state[0]])
+        # v_current = np.hstack([v_current[:6], esti_state[1]])
+
+    # if s == 0:
+    # stop
 
 if conf.simulator == "bullet":
     device.close()
