@@ -29,9 +29,6 @@ void initialize(WBC &self, const bp::dict &settings,
   conf.Dt = bp::extract<double>(settings["Dt"]);
   conf.simu_step = bp::extract<double>(settings["simu_step"]);
   conf.Nc = bp::extract<int>(settings["Nc"]);
-  // conf.stepSize = bp::extract<double>(settings["stepSize"]);
-  // conf.stepHeight = bp::extract<double>(settings["stepHeight"]);
-  // conf.stepDepth = bp::extract<double>(settings["stepDepth"]);
 
   self.initialize(conf, designer, horizon, q0, v0, actuationCostName);
 }
@@ -57,7 +54,7 @@ std::string displayVector(std::vector<T> &self) {
   return oss.str();
 }
 
-bool timeToSolveDDP(WBC &self, const int &iteration) {
+bool timeToSolveDDP(WBC &self, const int iteration) {
   return self.timeToSolveDDP(iteration);
 }
 
@@ -93,8 +90,6 @@ void exposeWBC() {
            bp::args("self", "modelMaker"))
       .def("generateStandingCycle", &WBC::generateStandingCycle,
            bp::args("self", "modelMaker"))
-      .def("updateStepCycleTiming", &WBC::updateStepCycleTiming,
-           bp::args("self"))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
            static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
@@ -142,31 +137,6 @@ void exposeWBC() {
               &WBC::get_designer,
               bp::return_value_policy<bp::reference_existing_object>()),
           &WBC::set_designer)
-      .add_property(
-          "t_land_LF",
-          bp::make_function(
-              &WBC::get_LF_land,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_LF_land)
-      .add_property(
-          "t_land_RF",
-          bp::make_function(
-              &WBC::get_RF_land,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_RF_land)
-      .add_property(
-          "t_takingoff_LF",
-          bp::make_function(
-              &WBC::get_LF_takeoff,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_LF_takeoff)
-      .add_property(
-          "t_takingoff_RF",
-          bp::make_function(
-              &WBC::get_RF_takeoff,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_RF_takeoff)
-
       .add_property(
           "ref_LF_poses",
           bp::make_function(
