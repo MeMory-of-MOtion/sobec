@@ -65,6 +65,7 @@ x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks(
     [
         croc.CallbackVerbose(),
+        croc.CallbackLogger(),
         # miscdisp.CallbackMPCWalk(robot.contactIds)
     ]
 )
@@ -74,6 +75,8 @@ with open("/tmp/mpc-repr.ascii", "w") as f:
     print("OCP described in /tmp/mpc-repr.ascii")
 
 ddp.solve(x0s, u0s, 200)
+
+assert sobec.logs.checkGitRefs(ddp.getCallbacks()[1], "refs/mpc-logs.npy")
 
 # ### MPC #############################################################################
 # ### MPC #############################################################################

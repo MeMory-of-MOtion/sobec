@@ -89,11 +89,12 @@ contactPattern = (
 ddp = sobec.wwt.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
 x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
-ddp.setCallbacks([croc.CallbackVerbose()])
+ddp.setCallbacks([croc.CallbackVerbose(), croc.CallbackLogger()])
 ddp.solve(x0s, u0s, 200)
 with open("/tmp/bullet-repr.ascii", "w") as f:
     f.write(sobec.reprProblem(ddp.problem))
     print("OCP described in /tmp/bullet-repr.ascii")
+assert sobec.logs.checkGitRefs(ddp.getCallbacks()[1], "refs/bullet-logs.npy")
 
 mpcparams = sobec.MPCWalkParams()
 sobec.wwt.config_mpc.configureMPCWalk(mpcparams, walkParams)

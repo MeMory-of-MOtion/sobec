@@ -8,8 +8,8 @@ from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
 # Local imports
 import sobec
-import specific_params
 import sobec.walk_without_think.plotter
+import specific_params
 
 # workaround python 2
 if sys.version_info.major < 3:
@@ -93,7 +93,7 @@ print(
 ddp = sobec.wwt.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
 x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
-ddp.setCallbacks([croc.CallbackVerbose()])
+ddp.setCallbacks([croc.CallbackVerbose(), croc.CallbackLogger()])
 
 with open("/tmp/ocp-repr.ascii", "w") as f:
     f.write(sobec.reprProblem(ddp.problem))
@@ -101,6 +101,8 @@ with open("/tmp/ocp-repr.ascii", "w") as f:
 
 croc.enable_profiler()
 ddp.solve(x0s, u0s, 200)
+
+assert sobec.logs.checkGitRefs(ddp.getCallbacks()[1], "refs/ocp-logs.npy")
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################

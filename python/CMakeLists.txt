@@ -40,6 +40,7 @@ set(${PY_NAME}_PYTHON
   viewer_multiple.py
   talos_collections.py
   repr_ocp.py
+  logs.py
   # talos_low.py
   )
 
