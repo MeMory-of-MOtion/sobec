@@ -38,6 +38,9 @@ set(${PY_NAME}_PYTHON
   __init__.py
   pinbullet.py
   viewer_multiple.py
+  talos_collections.py
+  repr_ocp.py
+  # talos_low.py
   )
 
 foreach(python ${${PY_NAME}_PYTHON})
@@ -53,9 +56,7 @@ set(${PY_WALK_NAME}_PYTHON
   miscdisp.py
   params.py
   yaml_params.py
-  talos_collections.py
   plotter.py
-  talos_low.py
   save_traj.py
   )
 

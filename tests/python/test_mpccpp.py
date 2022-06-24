@@ -11,7 +11,6 @@ import example_robot_data as robex
 
 # import crocoddyl as croc
 import sobec
-from sobec.walk_without_think import miscdisp
 
 urdf = robex.load("talos_legs")
 urdf.model.name = "talos"
@@ -187,7 +186,7 @@ mpc.initialize(ocp.solver.xs[: mpcparams.Tmpc + 1], ocp.solver.us[: mpcparams.Tm
 mpc.solver.setCallbacks(
     [
         # croc.CallbackVerbose(),
-        miscdisp.CallbackMPCWalk(robot.contactIds)
+        sobec.wwt.CallbackMPCWalk(robot.contactIds)
     ]
 )
 x = robot.x0

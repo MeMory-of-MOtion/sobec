@@ -1,3 +1,10 @@
+"""
+Test the preliminary formulation of Ewen for locomotion.
+This test is kept for historical reason, but its content is deprecated.
+It still has some value for unit-testing.
+!!! DONT USE AS A REFERENCE
+"""
+
 import sys
 import pybullet as p  # PyBullet simulator
 import time  # Time module to sleep()
