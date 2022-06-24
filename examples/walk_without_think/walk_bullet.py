@@ -7,16 +7,8 @@ import numpy.random
 
 # Local imports
 import sobec
-from sobec.walk_without_think.save_traj import save_traj
-from sobec.walk_without_think.robot_wrapper import RobotWrapper
-from sobec.walk_without_think import ocp
 from mpcparams import WalkParams
-from sobec.walk_without_think.config_mpc import configureMPCWalk
 from sobec.pinbullet import SimuProxy
-import sobec.viewer_multiple as viewer_multiple
-from sobec.walk_without_think import miscdisp
-
-# from sobec.walk_without_think.talos_collections import jointToLockCollection
 
 q_init = np.array(
     [
@@ -73,27 +65,12 @@ simu.loadBulletModel()  # pyb.GUI)
 simu.freeze(walkParams.jointNamesToLock)
 simu.setTorqueControlMode()
 simu.setTalosDefaultFriction()
-# ## OCP ########################################################################
+
 # ## OCP ########################################################################
 
-robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
+robot = sobec.wwt.RobotWrapper(simu.rmodel, contactKey="sole_link")
 # robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
 assert len(walkParams.stateImportance) == robot.model.nv * 2
-
-assert norm(robot.x0 - simu.getState()) < 1e-6
-
-# Left foot moves first
-# contactPattern = (
-#     []
-#     + [[1, 1]] * walkParams.Tstart
-#     + [[1, 1]] * walkParams.Tdouble
-#     + [[0, 1]] * walkParams.Tsingle
-#     + [[1, 1]] * walkParams.Tdouble
-#     + [[1, 0]] * walkParams.Tsingle
-#     + [[1, 1]] * walkParams.Tdouble
-#     + [[1, 1]] * walkParams.Tend
-#     + [[1, 1]]
-# )
 
 # Right foot moves first
 contactPattern = (
@@ -109,19 +86,22 @@ contactPattern = (
 )
 
 # DDP for a full walk cycle, use as a standard pattern for the MPC.
-ddp = ocp.buildSolver(robot, contactPattern, walkParams)
+ddp = sobec.wwt.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
+with open("/tmp/bullet-repr.ascii", "w") as f:
+    f.write(sobec.reprProblem(ddp.problem))
+    print("OCP described in /tmp/bullet-repr.ascii")
 
 mpcparams = sobec.MPCWalkParams()
-configureMPCWalk(mpcparams, walkParams)
+sobec.wwt.config_mpc.configureMPCWalk(mpcparams, walkParams)
 mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # mpc.solver.setCallbacks([
 # croc.CallbackVerbose(),
-# miscdisp.CallbackMPCWalk(robot.contactIds)
+# sobec.wwt.CallbackMPCWalk(robot.contactIds)
 # ])
 
 # #####################################################################################
@@ -134,9 +114,7 @@ try:
     viz.loadViewerModel()
     gv = viz.viewer.gui
     viz.display(simu.getState()[: robot.model.nq])
-    viz0 = viewer_multiple.GepettoGhostViewer(
-        simu.rmodel, simu.gmodel_col, simu.gmodel_vis, 0.8
-    )
+    viz0 = sobec.GepettoGhostViewer(simu.rmodel, simu.gmodel_col, simu.gmodel_vis, 0.8)
     viz0.hide()
 except (ImportError, AttributeError):
     print("No viewer")
@@ -163,7 +141,7 @@ def play():
 croc.enable_profiler()
 
 # FOR LOOP
-for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
+for s in range(walkParams.Tsimu):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -197,11 +175,10 @@ for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
-    # f"{mpc.basisRef[0]:.03} "
     print(
         "{:4d} {} {:4d} reg={:.3} a={:.3} solveTime={:.3}".format(
             s,
-            miscdisp.dispocp(mpc.problem, robot.contactIds),
+            sobec.wwt.dispocp(mpc.problem, robot.contactIds),
             mpc.solver.iter,
             mpc.solver.x_reg,
             mpc.solver.stepLength,
@@ -232,7 +209,7 @@ croc.stop_watch_report(3)
 # #####################################################################################
 
 if walkParams.saveFile is not None:
-    save_traj(np.array(hx), filename=walkParams.saveFile)
+    sobec.wwt.save_traj(np.array(hx), filename=walkParams.saveFile)
 
 # #####################################################################################
 # #####################################################################################
@@ -240,9 +217,9 @@ if walkParams.saveFile is not None:
 
 # The 2 next import must not be included **AFTER** pyBullet starts.
 import matplotlib.pylab as plt  # noqa: E402,F401
-import utils.walk_plotter as walk_plotter  # noqa: E402
+import sobec.walk_without_think.plotter  # noqa: E402,F401
 
-plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+plotter = sobec.wwt.plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)
 
 target = problem.terminalModel.differential.costs.costs[
@@ -254,7 +231,7 @@ plotter.plotCom(robot.com0)
 plotter.plotFeet()
 plotter.plotFootCollision(walkParams.footMinimalDistance, 50)
 
-# mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
+# mpcplotter = sobec.wwt.plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
 # mpcplotter.plotFeet()
 
 print("Run ```plt.ion(); plt.show()``` to display the plots.")

@@ -6,18 +6,8 @@ import crocoddyl as croc
 
 # Local imports
 import sobec
-from sobec.walk_without_think.save_traj import save_traj
-import sobec.walk_without_think.plotter as walk_plotter
-from sobec.walk_without_think.robot_wrapper import RobotWrapper
-from sobec.walk_without_think import ocp
 from mpcparams import WalkParams
-
-# import utils.talos_low as talos_low
-from sobec.walk_without_think.config_mpc import configureMPCWalk
-import sobec.walk_without_think.miscdisp as miscdisp
-from sobec.walk_without_think.talos_collections import robexLoadAndReduce
-
-# import utils.viewer_multiple as viewer_multiple
+import sobec.walk_without_think.plotter
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -48,8 +38,8 @@ contactPattern = (
 # ## LOAD AND DISPLAY TALOS
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
-urdf = robexLoadAndReduce("talos", walkParams.robotName)
-robot = RobotWrapper(urdf.model, contactKey="sole_link")
+urdf = sobec.talos_collections.robexLoadAndReduce("talos", walkParams.robotName)
+robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="sole_link")
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 # #####################################################################################
@@ -69,15 +59,19 @@ except (ImportError, AttributeError):
 # ### DDP #############################################################################
 # #####################################################################################
 
-ddp = ocp.buildSolver(robot, contactPattern, walkParams)
+ddp = sobec.wwt.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks(
     [
         croc.CallbackVerbose(),
         # miscdisp.CallbackMPCWalk(robot.contactIds)
     ]
 )
+
+with open("/tmp/mpc-repr.ascii", "w") as f:
+    f.write(sobec.reprProblem(ddp.problem))
+    print("OCP described in /tmp/mpc-repr.ascii")
 
 ddp.solve(x0s, u0s, 200)
 
@@ -86,21 +80,21 @@ ddp.solve(x0s, u0s, 200)
 # ### MPC #############################################################################
 
 mpcparams = sobec.MPCWalkParams()
-configureMPCWalk(mpcparams, walkParams)
+sobec.wwt.config_mpc.configureMPCWalk(mpcparams, walkParams)
 mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 # mpc.solver.setCallbacks([ croc.CallbackVerbose() ])
 x = robot.x0
 
 hx = [x.copy()]
-for t in range(1, 1500):
+for t in range(walkParams.Tsimu):
     x = mpc.solver.xs[1]
     mpc.calc(x, t)
 
     print(
         "{:4d} {} {:4d} reg={:.3} a={:.3} ".format(
             t,
-            miscdisp.dispocp(mpc.problem, robot.contactIds),
+            sobec.wwt.dispocp(mpc.problem, robot.contactIds),
             mpc.solver.iter,
             mpc.solver.x_reg,
             mpc.solver.stepLength,
@@ -117,7 +111,7 @@ for t in range(1, 1500):
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
 
-plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+plotter = sobec.wwt.plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, np.array(hx), None, None)
 
 target = problem.terminalModel.differential.costs.costs[
@@ -129,9 +123,6 @@ plotter.plotCom(robot.com0)
 plotter.plotFeet()
 plotter.plotFootCollision(walkParams.footMinimalDistance)
 
-# mpcplotter = walk_plotter.WalkRecedingPlotter(robot.model, robot.contactIds, hxs)
-# mpcplotter.plotFeet()
-
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
 
 # ### SAVE #####################################################################
@@ -139,7 +130,7 @@ print("Run ```plt.ion(); plt.show()``` to display the plots.")
 # ### SAVE #####################################################################
 
 if walkParams.saveFile is not None:
-    save_traj(np.array(hx), filename=walkParams.saveFile)
+    sobec.wwt.save_traj(np.array(hx), filename=walkParams.saveFile)
 
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################

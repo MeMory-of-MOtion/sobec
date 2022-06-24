@@ -15,7 +15,7 @@ class WalkParams(swparams.WalkParams):
     Tend = int(0.3 / DT)
     Tmpc = int(1.4 / DT)  # 1.6
     vcomRef = np.array([0.05, 0, 0])
-    Tsimu = 1500
+    Tsimu = 15
 
     def __init__(self, name="talos_low"):
         swparams.WalkParams.__init__(self, name)

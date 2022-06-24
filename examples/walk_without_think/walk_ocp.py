@@ -7,12 +7,9 @@ import matplotlib.pylab as plt  # noqa: F401
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
 # Local imports
-from sobec.walk_without_think.save_traj import loadProblemConfig, save_traj
+import sobec
 from params import WalkParams
-import sobec.walk_without_think.plotter as walk_plotter
-from sobec.walk_without_think.robot_wrapper import RobotWrapper
-from sobec.walk_without_think import ocp
-from sobec.walk_without_think.talos_collections import robexLoadAndReduce
+import sobec.walk_without_think.plotter
 
 # workaround python 2
 if sys.version_info.major < 3:
@@ -37,8 +34,8 @@ walkParams = WalkParams("talos_low")
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
 
-urdf = robexLoadAndReduce("talos", walkParams.robotName)
-robot = RobotWrapper(urdf.model, contactKey="sole_link")
+urdf = sobec.talos_collections.robexLoadAndReduce("talos", walkParams.robotName)
+robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="sole_link")
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 # #####################################################################################
@@ -46,7 +43,7 @@ assert len(walkParams.stateImportance) == robot.model.nv * 2
 # #####################################################################################
 try:
     # If possible, the initial state and contact pattern are taken from a file.
-    ocpConfig = loadProblemConfig()
+    ocpConfig = sobec.wwt.loadProblemConfig()
     contactPattern = ocpConfig["contactPattern"]
     robot.x0 = ocpConfig["x0"]
     stateTerminalTarget = ocpConfig["stateTerminalTarget"]
@@ -93,10 +90,14 @@ print(
 # ### DDP #############################################################################
 # #####################################################################################
 
-ddp = ocp.buildSolver(robot, contactPattern, walkParams)
+ddp = sobec.wwt.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
+
+with open("/tmp/ocp-repr.ascii", "w") as f:
+    f.write(sobec.reprProblem(ddp.problem))
+    print("OCP described in /tmp/ocp-repr.ascii")
 
 croc.enable_profiler()
 ddp.solve(x0s, u0s, 200)
@@ -105,16 +106,16 @@ ddp.solve(x0s, u0s, 200)
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
 
-sol = ocp.Solution(robot, ddp)
+sol = sobec.wwt.Solution(robot, ddp)
 
-plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+plotter = sobec.wwt.plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(contactPattern, sol.xs, sol.us, sol.fs0)
 
 target = problem.terminalModel.differential.costs.costs[
     "stateReg"
 ].cost.residual.reference
 forceRef = [
-    walk_plotter.getReferenceForcesFromProblemModels(problem, cid)
+    sobec.wwt.plotter.getReferenceForcesFromProblemModels(problem, cid)
     for cid in robot.contactIds
 ]
 forceRef = [np.concatenate(fs) for fs in zip(*forceRef)]
@@ -133,7 +134,7 @@ print("Run ```plt.ion(); plt.show()``` to display the plots.")
 # ### SAVE #####################################################################
 
 if walkParams.saveFile is not None:
-    save_traj(np.array(sol.xs), filename=walkParams.saveFile)
+    sobec.wwt.save_traj(np.array(sol.xs), filename=walkParams.saveFile)
 
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
