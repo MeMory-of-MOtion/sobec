@@ -1,6 +1,6 @@
 import numpy as np
 import sobec
-from sobec.walk import weight_share as ws
+from sobec.walk_without_think import weight_share as ws
 
 np.set_printoptions(precision=3, linewidth=300, suppress=True, threshold=10000)
 

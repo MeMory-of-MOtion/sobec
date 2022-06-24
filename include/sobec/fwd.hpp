@@ -43,8 +43,8 @@
 #include <pinocchio/multibody/data.hpp>
 #include <pinocchio/multibody/model.hpp>
 
-#include "sobec/activation-quad-ref.hpp"
-#include "sobec/residual-com-velocity.hpp"
+#include "sobec/crocomplements/activation-quad-ref.hpp"
+#include "sobec/crocomplements/residual-com-velocity.hpp"
 
 namespace sobec {
 

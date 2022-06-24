@@ -2,12 +2,12 @@ import numpy as np
 from numpy.linalg import norm
 import example_robot_data as robex
 import sobec
-import sobec.walk
-from sobec.walk.robot_wrapper import RobotWrapper as pyRobotWrapper
-from sobec.walk.params import WalkParams as pyWalkParams
-import sobec.walk.ocp as pyOCPWalk
-from sobec.walk.miscdisp import reprProblem
-from sobec.walk.yaml_params import yamlWriteParams
+import sobec.walk_without_think
+from sobec.walk_without_think.robot_wrapper import RobotWrapper as pyRobotWrapper
+from sobec.walk_without_think.params import WalkParams as pyWalkParams
+import sobec.walk_without_think.ocp as pyOCPWalk
+from sobec.walk_without_think.miscdisp import reprProblem
+from sobec.walk_without_think.yaml_params import yamlWriteParams
 
 # --- ROBOT WRAPPER
 pyurdf = robex.load("talos_legs")
