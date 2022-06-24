@@ -113,7 +113,7 @@ ddp.setCallbacks([croc.CallbackVerbose()])
 ddp.solve(x0s, u0s, 200)
 with open("/tmp/pushreco-repr.ascii", "w") as f:
     f.write(sobec.reprProblem(ddp.problem))
-    print("OCP described in /tmp/stand-bullet-repr.ascii")
+    print("OCP described in /tmp/pushreco-repr.ascii")
 
 mpcparams = sobec.MPCWalkParams()
 sobec.wwt.config_mpc.configureMPCWalk(mpcparams, walkParams)
