@@ -10,9 +10,9 @@ except ImportError:  # Python 2
 import numpy as np
 
 import sobec
-from sobec.walk.yaml_params import yamlWriteParams, yamlReadToParams
-from sobec.walk.params import WalkParams
-import sobec.walk.yaml_params as yaml_params
+from sobec.walk_without_think.yaml_params import yamlWriteParams, yamlReadToParams
+from sobec.walk_without_think.params import WalkParams
+import sobec.walk_without_think.yaml_params as yaml_params
 
 
 class TestYaml(unittest.TestCase):

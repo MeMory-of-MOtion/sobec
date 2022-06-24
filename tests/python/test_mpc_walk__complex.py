@@ -6,9 +6,9 @@ import example_robot_data as robex
 
 # Local imports
 import sobec
-from sobec.walk.robot_wrapper import RobotWrapper
-import sobec.walk.ocp as walk
-from sobec.walk.config_mpc import configureMPCWalk
+from sobec.walk_without_think.robot_wrapper import RobotWrapper
+import sobec.walk_without_think.ocp as walk
+from sobec.walk_without_think.config_mpc import configureMPCWalk
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
