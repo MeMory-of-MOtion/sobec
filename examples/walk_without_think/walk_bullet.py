@@ -7,8 +7,8 @@ import numpy.random
 
 # Local imports
 import sobec
-from mpcparams import WalkParams
 from sobec.pinbullet import SimuProxy
+import specific_params
 
 q_init = np.array(
     [
@@ -54,7 +54,7 @@ q_init = np.array(
     ]
 )
 q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
-walkParams = WalkParams("talos_low")
+walkParams = specific_params.WalkParams("talos_low")
 
 # ## SIMU #############################################################################
 # ## Load urdf model in pinocchio and bullet
@@ -121,7 +121,7 @@ except (ImportError, AttributeError):
 
 # ## MAIN LOOP ##################################################################
 
-hx = []
+hx = [simu.getState()]
 hu = []
 hxs = []
 
@@ -141,11 +141,12 @@ def play():
 croc.enable_profiler()
 
 # FOR LOOP
+mpcPeriod = int(walkParams.DT / 1e-3)
 for s in range(walkParams.Tsimu):
 
     # ###############################################################################
     # # For timesteps without MPC updates
-    for k in range(int(walkParams.DT / 1e-3)):
+    for k in range(mpcPeriod):
         # Get simulation state
         x = simu.getState()
 
@@ -175,6 +176,7 @@ for s in range(walkParams.Tsimu):
         raise SolverError("0 iterations")
     hxs.append(np.array(mpc.solver.xs))
 
+    # ### DISPLAY
     print(
         "{:4d} {} {:4d} reg={:.3} a={:.3} solveTime={:.3}".format(
             s,

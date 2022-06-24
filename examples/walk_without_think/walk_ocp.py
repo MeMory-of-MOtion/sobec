@@ -8,7 +8,7 @@ from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
 # Local imports
 import sobec
-from params import WalkParams
+import specific_params
 import sobec.walk_without_think.plotter
 
 # workaround python 2
@@ -24,7 +24,7 @@ if sys.version_info.major < 3:
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-walkParams = WalkParams("talos_low")
+walkParams = specific_params.WalkOCPParams("talos_low")
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################

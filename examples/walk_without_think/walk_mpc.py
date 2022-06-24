@@ -6,8 +6,8 @@ import crocoddyl as croc
 
 # Local imports
 import sobec
-from mpcparams import WalkParams
 import sobec.walk_without_think.plotter
+import specific_params
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -18,7 +18,7 @@ import sobec.walk_without_think.plotter
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-walkParams = WalkParams("talos_low")
+walkParams = specific_params.WalkParams("talos_low")
 
 contactPattern = (
     []
