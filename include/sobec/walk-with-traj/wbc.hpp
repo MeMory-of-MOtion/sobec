@@ -11,9 +11,9 @@
 #include <ndcurves/polynomial.h>
 #include <ndcurves/se3_curve.h>
 
-#include "sobec/designer.hpp"
-#include "sobec/horizon_manager.hpp"
-#include "sobec/model_factory.hpp"
+#include "sobec/walk-with-traj/designer.hpp"
+#include "sobec/walk-with-traj/horizon_manager.hpp"
+#include "sobec/walk-with-traj/model_factory.hpp"
 
 namespace sobec {
 

@@ -8,11 +8,12 @@
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
+#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 // #include "python/crocoddyl/core/core.hpp"
 // #include "python/crocoddyl/core/activation-base.hpp"
 #include <crocoddyl/core/activation-base.hpp>
 
-#include "sobec/activation-quad-ref.hpp"
+#include "sobec/crocomplements/activation-quad-ref.hpp"
 
 namespace sobec {
 namespace python {

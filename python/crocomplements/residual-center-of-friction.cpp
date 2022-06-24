@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/residual-cop.hpp"
+#include "sobec/crocomplements/residual-center-of-friction.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
@@ -21,67 +21,68 @@ namespace python {
 using namespace crocoddyl;
 namespace bp = boost::python;
 
-void exposeResidualCenterOfPressure() {
+void exposeResidualCenterOfFriction() {
   bp::register_ptr_to_python<
-      boost::shared_ptr<ResidualModelCenterOfPressure> >();
+      boost::shared_ptr<ResidualModelCenterOfFriction> >();
 
-  bp::class_<ResidualModelCenterOfPressure, bp::bases<ResidualModelAbstract> >(
-      "ResidualModelCenterOfPressure",
+  bp::class_<ResidualModelCenterOfFriction, bp::bases<ResidualModelAbstract> >(
+      "ResidualModelCenterOfFriction",
       bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex,
-               std::size_t>(bp::args("self", "state", "contact_id", "nu"),
-                            "Initialize the residual model r(x,u)=cop.\n\n"
-                            ":param state: state of the multibody system\n"
-                            ":param contact_id: reference contact frame\n"
-                            ":param nu: dimension of control vector"))
-      .def<void (ResidualModelCenterOfPressure::*)(
+               std::size_t>(
+          bp::args("self", "state", "contact_id", "nu"),
+          "Initialize the residual model r(x,u)=center of friction.\n\n"
+          ":param state: state of the multibody system\n"
+          ":param contact_id: reference contact frame\n"
+          ":param nu: dimension of control vector"))
+      .def<void (ResidualModelCenterOfFriction::*)(
           const boost::shared_ptr<ResidualDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&,
           const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calc", &ResidualModelCenterOfPressure::calc,
+          "calc", &ResidualModelCenterOfFriction::calc,
           bp::args("self", "data", "x", "u"),
           "Compute the vel collision residual.\n\n"
           ":param data: residual data\n"
           ":param x: time-discrete state vector\n"
           ":param u: time-discrete control input")
-      .def<void (ResidualModelCenterOfPressure::*)(
+      .def<void (ResidualModelCenterOfFriction::*)(
           const boost::shared_ptr<ResidualDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&)>(
           "calc", &ResidualModelAbstract::calc, bp::args("self", "data", "x"))
-      .def<void (ResidualModelCenterOfPressure::*)(
+      .def<void (ResidualModelCenterOfFriction::*)(
           const boost::shared_ptr<ResidualDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&,
           const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calcDiff", &ResidualModelCenterOfPressure::calcDiff,
+          "calcDiff", &ResidualModelCenterOfFriction::calcDiff,
           bp::args("self", "data", "x", "u"),
           "Compute the Jacobians of the vel collision residual.\n\n"
           "It assumes that calc has been run first.\n"
           ":param data: action data\n"
           ":param x: time-discrete state vector\n"
           ":param u: time-discrete control input\n")
-      .def<void (ResidualModelCenterOfPressure::*)(
+      .def<void (ResidualModelCenterOfFriction::*)(
           const boost::shared_ptr<ResidualDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&)>(
           "calcDiff", &ResidualModelAbstract::calcDiff,
           bp::args("self", "data", "x"))
-      .def("createData", &ResidualModelCenterOfPressure::createData,
+      .def("createData", &ResidualModelCenterOfFriction::createData,
            bp::with_custodian_and_ward_postcall<0, 2>(),
            bp::args("self", "data"),
            "Create the residual data.\n\n"
            ":param data: shared data\n"
            ":return residual data.")
       .add_property(
-          "contact_id", &ResidualModelCenterOfPressure::get_contact_id,
-          &ResidualModelCenterOfPressure::set_contact_id, "Contact frame ID");
+          "contact_id", &ResidualModelCenterOfFriction::get_contact_id,
+          &ResidualModelCenterOfFriction::set_contact_id, "Contact frame ID");
 
   bp::register_ptr_to_python<
-      boost::shared_ptr<ResidualDataCenterOfPressure> >();
+      boost::shared_ptr<ResidualDataCenterOfFriction> >();
 
-  bp::class_<ResidualDataCenterOfPressure, bp::bases<ResidualDataAbstract> >(
-      "ResidualDataCenterOfPressure", "Data for vel collision residual.\n\n",
-      bp::init<ResidualModelCenterOfPressure*, DataCollectorAbstract*>(
+  bp::class_<ResidualDataCenterOfFriction, bp::bases<ResidualDataAbstract> >(
+      "ResidualDataCenterOfFriction", "Data for vel collision residual.\n\n",
+      bp::init<ResidualModelCenterOfFriction*, DataCollectorAbstract*>(
           bp::args("self", "model", "data"),
-          "Create COP residual data.\n\n"
-          ":param model: cop residual model\n"
+          "Create Center of friction residual data.\n\n"
+          ":param model: residual model\n"
           ":param data: shared data")[bp::with_custodian_and_ward<
           1, 2, bp::with_custodian_and_ward<1, 3> >()]);
 }

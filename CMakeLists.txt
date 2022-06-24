@@ -52,60 +52,60 @@ endif()
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
+  include/${PROJECT_NAME}/flexibility_compensation.hpp
   include/${PROJECT_NAME}/python.hpp
   include/${PROJECT_NAME}/fwd.hpp
-  include/${PROJECT_NAME}/residual-com-velocity.hpp
-  include/${PROJECT_NAME}/residual-cop.hpp
-  include/${PROJECT_NAME}/residual-feet-collision.hpp
-  include/${PROJECT_NAME}/residual-vel-collision.hpp
-  include/${PROJECT_NAME}/residual-fly-high.hpp
-  include/${PROJECT_NAME}/activation-quad-ref.hpp
-  include/${PROJECT_NAME}/designer.hpp
-  include/${PROJECT_NAME}/model_factory.hpp
-  include/${PROJECT_NAME}/horizon_manager.hpp
-  # include/${PROJECT_NAME}/ocp.hpp
-  include/${PROJECT_NAME}/lowpassfilter/statelpf.hpp
-  include/${PROJECT_NAME}/lowpassfilter/lpf.hpp
-  include/${PROJECT_NAME}/contact/contact3d.hpp
-  include/${PROJECT_NAME}/contact/contact1d.hpp
-  include/${PROJECT_NAME}/contact/multiple-contacts.hpp
-  include/${PROJECT_NAME}/contact/contact-fwddyn.hpp
-  include/${PROJECT_NAME}/contact/contact-force.hpp
-  include/${PROJECT_NAME}/wbc.hpp
-  include/${PROJECT_NAME}/foot_trajectory.hpp
-  include/${PROJECT_NAME}/residual-com-velocity.hxx
-  include/${PROJECT_NAME}/residual-cop.hxx
-  include/${PROJECT_NAME}/residual-feet-collision.hxx
-  include/${PROJECT_NAME}/residual-vel-collision.hxx
-  include/${PROJECT_NAME}/lowpassfilter/statelpf.hxx
-  include/${PROJECT_NAME}/lowpassfilter/lpf.hxx
-  include/${PROJECT_NAME}/contact/contact3d.hxx
-  include/${PROJECT_NAME}/contact/contact1d.hxx
-  include/${PROJECT_NAME}/contact/multiple-contacts.hxx
-  include/${PROJECT_NAME}/contact/contact-fwddyn.hxx
-  include/${PROJECT_NAME}/contact/contact-force.hxx
-  include/${PROJECT_NAME}/residual-fly-high.hxx
-  include/${PROJECT_NAME}/ocp-walk.hpp
-  include/${PROJECT_NAME}/mpc-walk.hpp
-  include/${PROJECT_NAME}/mpc-walk.hxx
-  include/${PROJECT_NAME}/flexibility_compensation.hpp
+  include/${PROJECT_NAME}/crocomplements/residual-com-velocity.hpp
+  include/${PROJECT_NAME}/crocomplements/residual-cop.hpp
+  include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hpp
+  include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hpp
+  include/${PROJECT_NAME}/crocomplements/residual-fly-high.hpp
+  include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
+  include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hpp
+  include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hxx
+  include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hpp
+  include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hxx
+  include/${PROJECT_NAME}/crocomplements/contact/contact3d.hpp
+  include/${PROJECT_NAME}/crocomplements/contact/contact1d.hpp
+  include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hpp
+  include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hpp
+  include/${PROJECT_NAME}/crocomplements/contact/contact-force.hpp
+  include/${PROJECT_NAME}/crocomplements/residual-com-velocity.hxx
+  include/${PROJECT_NAME}/crocomplements/residual-cop.hxx
+  include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hxx
+  include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hxx
+  include/${PROJECT_NAME}/crocomplements/contact/contact3d.hxx
+  include/${PROJECT_NAME}/crocomplements/contact/contact1d.hxx
+  include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hxx
+  include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hxx
+  include/${PROJECT_NAME}/crocomplements/contact/contact-force.hxx
+  include/${PROJECT_NAME}/crocomplements/residual-fly-high.hxx
+  include/${PROJECT_NAME}/walk-without-think/ocp.hpp
+  include/${PROJECT_NAME}/walk-without-think/mpc.hpp
+  include/${PROJECT_NAME}/walk-without-think/mpc.hxx
+  include/${PROJECT_NAME}/walk-with-traj/designer.hpp
+  include/${PROJECT_NAME}/walk-with-traj/model_factory.hpp
+  include/${PROJECT_NAME}/walk-with-traj/horizon_manager.hpp
+  # include/${PROJECT_NAME}/walk-with-traj/ocp.hpp
+  include/${PROJECT_NAME}/walk-with-traj/wbc.hpp
+  include/${PROJECT_NAME}/walk-with-traj/foot_trajectory.hpp
  )
 
 set(${PROJECT_NAME}_SOURCES
-  src/designer.cpp
-  src/model_factory.cpp
-  src/horizon_manager.cpp
-  # src/ocp.cpp
-  src/wbc.cpp
-  src/foot_trajectory.cpp
+  src/walk-with-traj/designer.cpp
+  src/walk-with-traj/model_factory.cpp
+  src/walk-with-traj/horizon_manager.cpp
+  # src/walk-with-traj/ocp.cpp
+  src/walk-with-traj/wbc.cpp
+  src/walk-with-traj/foot_trajectory.cpp
   src/flexibility_compensation.cpp
-  src/ocp-walk.cpp
-  src/ocp-walk-running-models.cpp
-  src/ocp-walk-terminal.cpp
-  src/ocp-walk-params.cpp
-  src/ocp-walk-robot.cpp
-  src/ocp-ref-forces.cpp
-  src/mpc-walk-params.cpp
+  src/walk-without-think/ocp.cpp
+  src/walk-without-think/ocp-running-models.cpp
+  src/walk-without-think/ocp-terminal-model.cpp
+  src/walk-without-think/ocp-params.cpp
+  src/walk-without-think/ocp-robot.cpp
+  src/walk-without-think/ocp-ref-forces.cpp
+  src/walk-without-think/mpc-params.cpp
   )
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})

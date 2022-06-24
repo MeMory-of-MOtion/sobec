@@ -19,7 +19,7 @@
 #include "crocoddyl/multibody/states/multibody.hpp"
 // #include "crocoddyl/multibody/data/contacts.hpp"
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
-#include "sobec/contact/multiple-contacts.hpp"
+#include "sobec/crocomplements/contact/multiple-contacts.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -157,6 +157,6 @@ class DifferentialActionModelContactFwdDynamicsTpl
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include <sobec/contact/contact-fwddyn.hxx>
+#include <sobec/crocomplements/contact/contact-fwddyn.hxx>
 
 #endif  // SOBEC_CONTACT_FWDDYN_HPP_

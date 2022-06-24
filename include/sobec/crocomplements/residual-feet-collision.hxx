@@ -10,7 +10,7 @@
 #include <pinocchio/algorithm/frames-derivatives.hpp>
 #include <pinocchio/algorithm/frames.hpp>
 
-#include "sobec/residual-feet-collision.hpp"
+#include "sobec/crocomplements/residual-feet-collision.hpp"
 
 namespace sobec {
 using namespace crocoddyl;

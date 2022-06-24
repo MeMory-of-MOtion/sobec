@@ -1,9 +1,9 @@
-#include "sobec/model_factory.hpp"
+#include "sobec/walk-with-traj/model_factory.hpp"
 
 #include <crocoddyl/multibody/fwd.hpp>
 
-#include "sobec/designer.hpp"
-#include "sobec/residual-cop.hpp"
+#include "sobec/crocomplements/residual-cop.hpp"
+#include "sobec/walk-with-traj/designer.hpp"
 
 namespace sobec {
 

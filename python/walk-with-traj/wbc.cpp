@@ -1,6 +1,6 @@
+#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 #include <sstream>
 
-#include "sobec/fwd.hpp"
 // keep this line on top
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
@@ -8,7 +8,10 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include <sobec/wbc.hpp>
+#include <sobec/walk-with-traj/wbc.hpp>
+
+#include "sobec/fwd.hpp"
+
 namespace sobec {
 namespace python {
 namespace bp = boost::python;

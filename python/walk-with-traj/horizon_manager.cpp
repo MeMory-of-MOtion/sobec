@@ -5,6 +5,8 @@
 // Copyright note valid unless otherwise stated in individual files.
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
+#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
+
 #include "sobec/fwd.hpp"
 // keep this line on top
 #include <boost/python.hpp>
@@ -12,7 +14,7 @@
 #include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include <sobec/horizon_manager.hpp>
+#include <sobec/walk-with-traj/horizon_manager.hpp>
 
 namespace sobec {
 namespace python {

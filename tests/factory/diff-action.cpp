@@ -19,7 +19,7 @@
 
 #include "contact3d.hpp"
 #include "cost.hpp"
-#include "sobec/contact/contact-force.hpp"
+#include "sobec/crocomplements/contact/contact-force.hpp"
 
 namespace sobec {
 namespace unittest {

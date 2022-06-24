@@ -10,7 +10,7 @@
 #include <pinocchio/algorithm/center-of-mass-derivatives.hpp>
 #include <pinocchio/algorithm/center-of-mass.hpp>
 
-#include "sobec/residual-com-velocity.hpp"
+#include "sobec/crocomplements/residual-com-velocity.hpp"
 
 namespace sobec {
 using namespace crocoddyl;

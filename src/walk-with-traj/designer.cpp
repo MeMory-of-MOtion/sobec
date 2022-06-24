@@ -1,4 +1,4 @@
-#include "sobec/designer.hpp"
+#include "sobec/walk-with-traj/designer.hpp"
 
 #include <pinocchio/algorithm/compute-all-terms.hpp>
 #include <pinocchio/algorithm/frames.hpp>

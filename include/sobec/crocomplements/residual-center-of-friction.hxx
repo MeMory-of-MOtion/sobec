@@ -11,7 +11,7 @@
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/algorithm/kinematics-derivatives.hpp>
 
-#include "sobec/residual-center-of-friction.hpp"
+#include "sobec/crocomplements/residual-center-of-friction.hpp"
 
 namespace sobec {
 

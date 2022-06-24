@@ -15,7 +15,7 @@
 #include <crocoddyl/multibody/residuals/state.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 
-#include "sobec/mpc-walk.hpp"
+#include "sobec/walk-without-think/mpc.hpp"
 
 namespace sobec {
 using namespace crocoddyl;

@@ -20,7 +20,7 @@
 #include <crocoddyl/core/utils/exception.hpp>
 
 #include "random_generator.hpp"
-#include "sobec/activation-quad-ref.hpp"
+#include "sobec/crocomplements/activation-quad-ref.hpp"
 
 namespace sobec {
 namespace unittest {

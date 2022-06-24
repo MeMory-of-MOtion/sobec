@@ -17,8 +17,8 @@
 #include "crocoddyl/multibody/fwd.hpp"
 #include "crocoddyl/multibody/residuals/contact-force.hpp"
 #include "crocoddyl/multibody/states/multibody.hpp"
-#include "sobec/contact/contact1d.hpp"
-#include "sobec/contact/contact3d.hpp"
+#include "sobec/crocomplements/contact/contact1d.hpp"
+#include "sobec/crocomplements/contact/contact3d.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -136,6 +136,6 @@ class ResidualModelContactForceTpl
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/contact/contact-force.hxx"
+#include "sobec/crocomplements/contact/contact-force.hxx"
 
 #endif  // SOBEC_CONTACT_FORCE_HPP_

@@ -10,7 +10,7 @@
 #include <crocoddyl/core/utils/exception.hpp>
 #include <iostream>
 
-#include "lpf.hpp"
+#include "action.hpp"
 
 namespace sobec {
 using namespace crocoddyl;

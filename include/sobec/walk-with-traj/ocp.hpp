@@ -5,10 +5,10 @@
 
 // include pinocchio first
 
-#include "sobec/designer.hpp"
-#include "sobec/foot_trajectory.hpp"
-#include "sobec/horizon_manager.hpp"
-#include "sobec/model_factory.hpp"
+#include "sobec/walk-with-traj/designer.hpp"
+#include "sobec/walk-with-traj/foot_trajectory.hpp"
+#include "sobec/walk-with-traj/horizon_manager.hpp"
+#include "sobec/walk-with-traj/model_factory.hpp"
 
 namespace sobec {
 

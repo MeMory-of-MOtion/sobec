@@ -175,6 +175,6 @@ struct ResidualDataCenterOfFrictionTpl
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/residual-center-of-friction.hxx"
+#include "sobec/crocomplements/residual-center-of-friction.hxx"
 
 #endif  // SOBEC_RESIDUAL_CENTER_OF_FRICTION_HPP_

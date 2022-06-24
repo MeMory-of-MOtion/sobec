@@ -5,9 +5,9 @@
 
 #include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "sobec/ocp-walk.hpp"
-#include "sobec/residual-feet-collision.hpp"
-#include "sobec/residual-fly-high.hpp"
+#include "sobec/crocomplements/residual-feet-collision.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
+#include "sobec/walk-without-think/ocp.hpp"
 
 namespace sobec {
 

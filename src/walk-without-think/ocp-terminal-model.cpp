@@ -9,9 +9,7 @@
 #include "crocoddyl/multibody/actions/contact-fwddyn.hpp"
 #include "crocoddyl/multibody/contacts/multiple-contacts.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "sobec/ocp-walk.hpp"
-// #include "sobec/contact/contact-force.hpp"
-// #include "sobec/contact/multiple-contacts.hpp"
+#include "sobec/walk-without-think/ocp.hpp"
 
 namespace sobec {
 

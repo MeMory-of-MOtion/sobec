@@ -1,4 +1,4 @@
-#include "sobec/horizon_manager.hpp"
+#include "sobec/walk-with-traj/horizon_manager.hpp"
 
 #include <crocoddyl/core/integrator/euler.hpp>
 #include <crocoddyl/multibody/actions/contact-fwddyn.hpp>

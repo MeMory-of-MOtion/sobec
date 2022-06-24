@@ -6,6 +6,8 @@
 // individual files. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <crocoddyl/core/utils/exception.hpp>
+#include <crocoddyl/core/utils/math.hpp>
 #include <pinocchio/algorithm/centroidal.hpp>
 #include <pinocchio/algorithm/compute-all-terms.hpp>
 #include <pinocchio/algorithm/contact-dynamics.hpp>
@@ -15,8 +17,6 @@
 #include <pinocchio/algorithm/rnea.hpp>
 
 #include "contact-fwddyn.hpp"
-#include "crocoddyl/core/utils/exception.hpp"
-#include "crocoddyl/core/utils/math.hpp"
 
 namespace sobec {
 namespace newcontacts {

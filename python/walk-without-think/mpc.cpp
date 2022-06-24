@@ -6,18 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-// #include <pinocchio/bindings/python/utils/list.hpp>
-// #include <pinocchio/multibody/fwd.hpp>
-
-// // Must be included first!
-// #include <boost/python.hpp>
-// #include <boost/python/enum.hpp>
-// #include <eigenpy/eigenpy.hpp>
-
-// #include "sobec/fwd.hpp"
-// #include "sobec/mpc-walk.hpp"
-
-#include "sobec/mpc-walk.hpp"
+#include "sobec/walk-without-think/mpc.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

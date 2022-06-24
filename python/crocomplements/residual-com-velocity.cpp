@@ -6,17 +6,14 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-//#include "python/crocoddyl/multibody/multibody.hpp"
-//#include <crocoddyl/multibody/fwd.hpp>
-#include "sobec/residual-com-velocity.hpp"
+#include "sobec/crocomplements/residual-com-velocity.hpp"
 
-#include <pinocchio/fwd.hpp>
-
-#include "sobec/fwd.hpp"
-//#include "python/crocoddyl/fwd.hpp"
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
 #include <eigenpy/eigenpy.hpp>
+#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
+
+#include "sobec/fwd.hpp"
 
 namespace sobec {
 namespace python {

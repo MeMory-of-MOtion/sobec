@@ -261,6 +261,6 @@ struct ContactData1DTpl : public crocoddyl::ContactData1DTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/contact/contact1d.hxx"
+#include "sobec/crocomplements/contact/contact1d.hxx"
 
 #endif  // SOBEC_CONTACT_1D_HPP_

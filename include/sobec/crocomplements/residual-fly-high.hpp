@@ -189,6 +189,6 @@ struct ResidualDataFlyHighTpl : public ResidualDataAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 
-#include "sobec/residual-fly-high.hxx"
+#include "sobec/crocomplements/residual-fly-high.hxx"
 
 #endif  // SOBEC_RESIDUAL_FLY_HIGH_HPP_

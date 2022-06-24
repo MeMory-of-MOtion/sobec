@@ -160,6 +160,6 @@ class ResidualModelCoMVelocityTpl : public ResidualModelAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 
-#include "sobec/residual-com-velocity.hxx"
+#include "sobec/crocomplements/residual-com-velocity.hxx"
 
 #endif  // SOBEC_RESIDUAL_COM_VELOCITY_HPP_

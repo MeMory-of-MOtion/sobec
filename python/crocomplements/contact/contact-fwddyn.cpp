@@ -6,7 +6,7 @@
 // individual files. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/contact/contact-fwddyn.hpp"
+#include "sobec/crocomplements/contact/contact-fwddyn.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

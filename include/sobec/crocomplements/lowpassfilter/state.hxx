@@ -9,7 +9,7 @@
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include "crocoddyl/core/utils/exception.hpp"
-#include "statelpf.hpp"
+#include "state.hpp"
 
 namespace sobec {
 using namespace crocoddyl;

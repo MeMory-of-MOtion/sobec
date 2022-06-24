@@ -175,6 +175,6 @@ struct ResidualDataCenterOfPressureTpl
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/residual-cop.hxx"
+#include "sobec/crocomplements/residual-cop.hxx"
 
 #endif  // SOBEC_RESIDUAL_COP_HPP_

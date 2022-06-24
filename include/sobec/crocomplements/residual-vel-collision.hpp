@@ -195,7 +195,7 @@ struct ResidualDataVelCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/residual-vel-collision.hxx"
+#include "sobec/crocomplements/residual-vel-collision.hxx"
 
 #endif  // PINOCCHIO_WITH_HPP_FCL
 

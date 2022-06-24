@@ -11,7 +11,7 @@
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/algorithm/kinematics-derivatives.hpp>
 
-#include "sobec/residual-vel-collision.hpp"
+#include "sobec/crocomplements/residual-vel-collision.hpp"
 
 namespace sobec {
 

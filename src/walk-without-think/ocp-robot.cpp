@@ -6,7 +6,8 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/ocp-walk.hpp"
+#include "sobec/walk-without-think/ocp.hpp"
+
 namespace sobec {
 
 OCPRobotWrapper::OCPRobotWrapper(boost::shared_ptr<pinocchio::Model> model_,

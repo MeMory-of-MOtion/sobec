@@ -8,7 +8,7 @@
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
-#include "sobec/residual-vel-collision.hpp"
+#include "sobec/crocomplements/residual-vel-collision.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

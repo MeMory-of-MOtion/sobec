@@ -6,8 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-// Must be included first!
-#include "sobec/ocp-walk.hpp"
+#include "sobec/walk-without-think/ocp.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

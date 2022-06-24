@@ -84,6 +84,6 @@ class StateLPFTpl : public StateAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/lowpassfilter/statelpf.hxx"
+#include "sobec/crocomplements/lowpassfilter/state.hxx"
 
 #endif  // SOBEC_STATELPF_HPP_

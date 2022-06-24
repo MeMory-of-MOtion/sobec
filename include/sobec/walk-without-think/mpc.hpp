@@ -115,6 +115,6 @@ class MPCWalk {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 
-#include "sobec/mpc-walk.hxx"
+#include "sobec/walk-without-think/mpc.hxx"
 
 #endif  // SOBEC_MPC_WALK_HPP_

@@ -6,17 +6,15 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/lowpassfilter/lpf.hpp"
+#include "sobec/crocomplements/lowpassfilter/action.hpp"
 
+#include <boost/python.hpp>
+#include <boost/python/enum.hpp>
+#include <crocoddyl/core/action-base.hpp>
+#include <eigenpy/eigenpy.hpp>
 #include <pinocchio/fwd.hpp>  // to avoid compilation error (https://github.com/loco-3d/crocoddyl/issues/205)
 
 #include "sobec/fwd.hpp"
-// #include "crocoddyl/core/core.hpp"
-#include "crocoddyl/core/action-base.hpp"
-// #include "crocoddyl/core/diff-action-base.hpp"
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <eigenpy/eigenpy.hpp>
 
 namespace sobec {
 namespace python {

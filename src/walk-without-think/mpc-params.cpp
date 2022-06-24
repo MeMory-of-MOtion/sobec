@@ -5,8 +5,10 @@
 // Copyright note valid unless otherwise stated in individual files.
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
-#include "sobec/mpc-walk.hpp"
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
+
+#include "sobec/walk-without-think/mpc.hpp"
+
 namespace sobec {
 
 void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {

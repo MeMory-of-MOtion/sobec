@@ -10,7 +10,7 @@
 #include <pinocchio/algorithm/frames-derivatives.hpp>
 #include <pinocchio/algorithm/frames.hpp>
 
-#include "sobec/residual-fly-high.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
 
 namespace sobec {
 using namespace crocoddyl;

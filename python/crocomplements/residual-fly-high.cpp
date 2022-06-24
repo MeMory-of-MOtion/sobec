@@ -6,8 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/residual-fly-high.hpp"
-//#include "sobec/residual-cop.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

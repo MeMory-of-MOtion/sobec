@@ -6,8 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/residual-feet-collision.hpp"
-//#include "sobec/residual-cop.hpp"
+#include "sobec/crocomplements/residual-feet-collision.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

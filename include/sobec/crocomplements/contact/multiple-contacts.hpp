@@ -18,8 +18,8 @@
 #include <string>
 #include <utility>
 
-#include "sobec/contact/contact1d.hpp"
-#include "sobec/contact/contact3d.hpp"
+#include "sobec/crocomplements/contact/contact1d.hpp"
+#include "sobec/crocomplements/contact/contact3d.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {
@@ -115,6 +115,6 @@ class ContactModelMultipleTpl
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/contact/multiple-contacts.hxx"
+#include "sobec/crocomplements/contact/multiple-contacts.hxx"
 
 #endif  // SOBEC_MULTIPLE_CONTACTS_HPP_

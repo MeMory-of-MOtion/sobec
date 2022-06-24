@@ -15,8 +15,8 @@
 #include <crocoddyl/multibody/states/multibody.hpp>
 #include <pinocchio/spatial/force.hpp>
 
+#include "sobec/crocomplements/residual-cop.hpp"
 #include "sobec/fwd.hpp"
-#include "sobec/residual-cop.hpp"
 
 namespace sobec {
 using namespace crocoddyl;

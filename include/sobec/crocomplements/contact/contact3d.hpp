@@ -240,6 +240,6 @@ struct ContactData3DTpl : public crocoddyl::ContactData3DTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "sobec/contact/contact3d.hxx"
+#include "sobec/crocomplements/contact/contact3d.hxx"
 
 #endif  // SOBEC_CONTACT_3D_HPP_

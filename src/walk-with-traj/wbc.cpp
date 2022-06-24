@@ -1,4 +1,4 @@
-#include "sobec/wbc.hpp"
+#include "sobec/walk-with-traj/wbc.hpp"
 
 namespace sobec {
 

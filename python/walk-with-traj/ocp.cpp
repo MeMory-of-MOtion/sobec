@@ -1,9 +1,11 @@
+#include "sobec/ocp.hpp"
+
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include <sobec/ocp.hpp>
+#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 
 #include "sobec/fwd.hpp"
 

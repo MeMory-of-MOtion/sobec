@@ -5,8 +5,10 @@
 // Copyright note valid unless otherwise stated in individual files.
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
-#include "sobec/ocp-walk.hpp"
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
+
+#include "sobec/walk-without-think/ocp.hpp"
+
 namespace sobec {
 
 void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {

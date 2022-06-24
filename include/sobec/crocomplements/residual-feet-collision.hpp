@@ -170,6 +170,6 @@ struct ResidualDataFeetCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 
-#include "sobec/residual-feet-collision.hxx"
+#include "sobec/crocomplements/residual-feet-collision.hxx"
 
 #endif  // SOBEC_RESIDUAL_FEET_COLLISION_HPP_

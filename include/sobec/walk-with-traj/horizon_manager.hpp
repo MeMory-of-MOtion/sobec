@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "sobec/designer.hpp"
 #include "sobec/fwd.hpp"
-#include "sobec/model_factory.hpp"
+#include "sobec/walk-with-traj/designer.hpp"
+#include "sobec/walk-with-traj/model_factory.hpp"
 
 namespace sobec {
 struct HorizonManagerSettings {

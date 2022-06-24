@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <pinocchio/fwd.hpp>
+#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 // This line must be the first include
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
@@ -16,7 +16,7 @@
 #include <pinocchio/algorithm/model.hpp>
 
 #include "pinocchio/multibody/model.hpp"
-#include "sobec/designer.hpp"
+#include "sobec/walk-with-traj/designer.hpp"
 
 namespace sobec {
 namespace python {
