@@ -1,4 +1,4 @@
-import sobec.walk.params as swparams
+import sobec.walk_without_think.params as swparams
 import numpy as np
 
 

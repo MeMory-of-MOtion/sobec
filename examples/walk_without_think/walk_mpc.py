@@ -6,16 +6,16 @@ import crocoddyl as croc
 
 # Local imports
 import sobec
-from utils.save_traj import save_traj
-import utils.walk_plotter as walk_plotter
-from sobec.walk.robot_wrapper import RobotWrapper
-from sobec.walk import ocp
+from sobec.walk_without_think.save_traj import save_traj
+import sobec.walk_without_think.plotter as walk_plotter
+from sobec.walk_without_think.robot_wrapper import RobotWrapper
+from sobec.walk_without_think import ocp
 from mpcparams import WalkParams
 
 # import utils.talos_low as talos_low
-from sobec.walk.config_mpc import configureMPCWalk
-import sobec.walk.miscdisp as miscdisp
-from sobec.walk.talos_collections import robexLoadAndReduce
+from sobec.walk_without_think.config_mpc import configureMPCWalk
+import sobec.walk_without_think.miscdisp as miscdisp
+from sobec.walk_without_think.talos_collections import robexLoadAndReduce
 
 # import utils.viewer_multiple as viewer_multiple
 

@@ -36,6 +36,8 @@ install(TARGETS ${PY_NAME}_pywrap DESTINATION ${${PY_NAME}_INSTALL_DIR})
 
 set(${PY_NAME}_PYTHON
   __init__.py
+  pinbullet.py
+  viewer_multiple.py
   )
 
 foreach(python ${${PY_NAME}_PYTHON})
@@ -52,6 +54,9 @@ set(${PY_WALK_NAME}_PYTHON
   params.py
   yaml_params.py
   talos_collections.py
+  plotter.py
+  talos_low.py
+  save_traj.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})

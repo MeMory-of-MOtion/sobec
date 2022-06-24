@@ -7,16 +7,16 @@ import numpy.random
 
 # Local imports
 import sobec
-from utils.save_traj import save_traj
-from sobec.walk.robot_wrapper import RobotWrapper
-from sobec.walk import ocp
+from sobec.walk_without_think.save_traj import save_traj
+from sobec.walk_without_think.robot_wrapper import RobotWrapper
+from sobec.walk_without_think import ocp
 from mpcparams import WalkParams
-from sobec.walk.config_mpc import configureMPCWalk
-from utils.pinbullet import SimuProxy
-from utils import viewer_multiple
-from sobec.walk import miscdisp
+from sobec.walk_without_think.config_mpc import configureMPCWalk
+from sobec.pinbullet import SimuProxy
+import sobec.viewer_multiple as viewer_multiple
+from sobec.walk_without_think import miscdisp
 
-# from sobec.walk.talos_collections import jointToLockCollection
+# from sobec.walk_without_think.talos_collections import jointToLockCollection
 
 q_init = np.array(
     [

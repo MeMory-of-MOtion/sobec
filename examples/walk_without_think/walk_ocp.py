@@ -7,12 +7,12 @@ import matplotlib.pylab as plt  # noqa: F401
 from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 
 # Local imports
-from utils.save_traj import loadProblemConfig, save_traj
+from sobec.walk_without_think.save_traj import loadProblemConfig, save_traj
 from params import WalkParams
-import utils.walk_plotter as walk_plotter
-from sobec.walk.robot_wrapper import RobotWrapper
-from sobec.walk import ocp
-from sobec.walk.talos_collections import robexLoadAndReduce
+import sobec.walk_without_think.plotter as walk_plotter
+from sobec.walk_without_think.robot_wrapper import RobotWrapper
+from sobec.walk_without_think import ocp
+from sobec.walk_without_think.talos_collections import robexLoadAndReduce
 
 # workaround python 2
 if sys.version_info.major < 3:

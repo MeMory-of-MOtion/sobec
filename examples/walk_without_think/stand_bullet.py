@@ -8,15 +8,15 @@ import example_robot_data.robots_loader as robex
 
 # Local imports
 import sobec
-from utils.save_traj import save_traj
-from sobec.walk.robot_wrapper import RobotWrapper
-from sobec.walk import ocp
+from sobec.walk_without_think.save_traj import save_traj
+from sobec.walk_without_think.robot_wrapper import RobotWrapper
+from sobec.walk_without_think import ocp
 import mpcparams
-from sobec.walk.config_mpc import configureMPCWalk
-from utils.pinbullet import SimuProxy
-from utils import viewer_multiple
-from sobec.walk import miscdisp
-from sobec.walk import talos_collections
+from sobec.walk_without_think.config_mpc import configureMPCWalk
+from sobec.pinbullet import SimuProxy
+import sobec.viewer_multiple as viewer_multiple
+from sobec.walk_without_think import miscdisp
+from sobec.walk_without_think import talos_collections
 
 
 class PyreneLoader(robex.RobotLoader):
@@ -339,7 +339,7 @@ for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
             fsref.append(np.zeros(6))
     hf.append(np.concatenate(fs))
     hfref.append(np.concatenate(fsref))
-    import utils.walk_plotter as walk_plotter  # noqa: E402
+    import sobec.walk_without_think.plotter as walk_plotter  # noqa: E402
 
     hfsref.append(
         np.hstack(
@@ -394,7 +394,7 @@ if walkParams.saveFile is not None:
 
 # The 2 next import must not be included **AFTER** pyBullet starts.
 import matplotlib.pylab as plt  # noqa: E402,F401
-import utils.walk_plotter as walk_plotter  # noqa: E402
+import sobec.walk_without_think.plotter as walk_plotter  # noqa: E402
 
 plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(
@@ -424,6 +424,8 @@ print("Run ```play()``` to visualize the motion.")
 
 print("Run the following line to save the config:")
 print(
-    "with open('autogen/stand12-autogen.hpp','w') as f: "
-    "f.write(sobec.walk.params.generateParamFileForTheRobot(walkParams,robot))"
+    """
+with open('autogen/stand12-autogen.hpp','w') as f:
+  f.write(sobec.walk_without_think.params.generateParamFileForTheRobot(walkParams,robot))
+"""
 )
