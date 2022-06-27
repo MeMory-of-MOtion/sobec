@@ -15,6 +15,8 @@
 #include "factory/diff-action.hpp"
 #include "factory/lpf.hpp"
 
+#include <crocoddyl/core/integrator/euler.hpp>
+
 using namespace boost::unit_test;
 using namespace sobec::unittest;
 
@@ -155,6 +157,67 @@ void test_partial_derivatives_action_model(
   test_partial_derivatives_against_numdiff(model);
 }
 
+
+
+void test_calc_equivalent_euler( 
+    ActionModelLPFTypes::Type iam_type,
+    DifferentialActionModelTypes::Type dam_type,
+    PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
+    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z){
+    
+  // Create IAM LPF
+  ActionModelLPFFactory factory_iam;
+  const boost::shared_ptr<sobec::IntegratedActionModelLPF>& modelLPF =
+      factory_iam.create(iam_type, dam_type, ref_type, mask_type);
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF = modelLPF->createData();
+
+  // Create IAM Euler from DAM and iamLPF.dt (with cost residual)
+  DifferentialActionModelFactory factory_dam;
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam = 
+      factory_dam.create(dam_type, ref_type, mask_type);
+  boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> modelEuler = 
+    boost::make_shared<crocoddyl::IntegratedActionModelEuler>(dam, modelLPF->get_dt(), true);
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEuler = modelEuler->createData();
+
+  // Generating random values for the state and control
+  Eigen::VectorXd y = modelLPF->get_state()->rand();
+  const Eigen::VectorXd& w = Eigen::VectorXd::Random(modelLPF->get_nw());
+  std::size_t nx = modelEuler->get_state()->get_nx();
+  std::size_t ndx = modelEuler->get_state()->get_ndx();
+  std::size_t nv = modelEuler->get_state()->get_nv();
+  // Checking the partial derivatives against NumDiff
+  double tol = 1e-2;
+
+  // Computing the action 
+  modelLPF->calc(dataLPF, y, w);
+  if(!(dataLPF->xnext.tail(nv) - w).isZero(tol)){
+    std::cout << " lpf " << std::endl;
+    std::cout << dataLPF->xnext.tail(nv) << std::endl;
+    std::cout << w << std::endl;
+    // std::cout << dataEuler->Lxx << std::endl;
+  }
+  BOOST_CHECK((dataLPF->xnext.tail(nv) - w).isZero(tol));
+  modelEuler->calc(dataEuler, y.head(nx), w);
+  BOOST_CHECK((dataLPF->xnext.head(nx) - dataEuler->xnext).isZero(tol));
+  // Computing the derivatives
+  modelLPF->calcDiff(dataLPF, y, w);
+  modelEuler->calcDiff(dataEuler, y.head(nx), w);
+  BOOST_CHECK((dataLPF->Fx.topLeftCorner(nv, ndx) - dataEuler->Fx).isZero(tol));
+  BOOST_CHECK((dataLPF->Fu.topLeftCorner(nv, ndx) - dataEuler->Fu).isZero(tol));
+  BOOST_CHECK((dataLPF->Lx.head(nx) - dataEuler->Lx).isZero(tol));
+  BOOST_CHECK((dataLPF->Lu.head(nv) - dataEuler->Lu).isZero(tol));
+  BOOST_CHECK((dataLPF->Lxx.topLeftCorner(ndx, ndx) - dataEuler->Lxx).isZero(tol));
+  // if(!(dataLPF->Lxx.topLeftCorner(ndx, nv) - dataEuler->Lxx).isZero(tol)){
+  //   std::cout << " lpf " << std::endl;
+  //   std::cout << dataLPF->Lxx.topLeftCorner(ndx, ndx) << std::endl;
+  //   std::cout << " euler " << std::endl;
+  //   std::cout << dataEuler->Lxx << std::endl;
+  // }
+  BOOST_CHECK((dataLPF->Lxu.topLeftCorner(ndx, nv) - dataEuler->Lxu).isZero(tol));
+  BOOST_CHECK((dataLPF->Luu.topLeftCorner(nv,nv) - dataEuler->Luu).isZero(tol));
+}
+
+
 //----------------------------------------------------------------------------//
 
 void register_action_model_unit_tests(
@@ -184,6 +247,10 @@ void register_action_model_unit_tests(
   ts->add(
       BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
                                   iam_type, dam_type, ref_type, mask_type)));
+  if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ||
+     iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_NONE){
+    ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
+  }
   framework::master_test_suite().add(ts);
 }
 

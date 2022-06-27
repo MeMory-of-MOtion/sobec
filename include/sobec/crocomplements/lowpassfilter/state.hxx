@@ -48,7 +48,7 @@ StateLPFTpl<Scalar>::StateLPFTpl(
   // -pinocchio_->effortLimit.tail[model->idx_vs[lpf_joint_ids[i]]];
   // ub_.tail(ntau_) =
   // pinocchio_->effortLimit.tail(nw_)[model->idx_vs[lpf_joint_ids[i]]];
-  for (int i = 0; i < lpf_joint_ids.size(); i++) {
+  for (std::size_t i = 0; i < lpf_joint_ids.size(); i++) {
     if ((int)model->nvs[lpf_joint_ids[i]] != (int)1) {
       throw_pretty("Invalid argument: "
                    << "Joint " << lpf_joint_ids[i]

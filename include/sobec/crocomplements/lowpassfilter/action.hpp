@@ -81,6 +81,7 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
 
   void set_dt(const Scalar& dt);
   void set_fc(const Scalar& fc);
+  void set_alpha(const Scalar& alpha);
   void set_differential(
       boost::shared_ptr<DifferentialActionModelAbstract> model);
 

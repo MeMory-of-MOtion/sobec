@@ -205,7 +205,7 @@ void ContactModel1DTpl<Scalar>::set_type(const pinocchio::ReferenceFrame type) {
 }
 
 template <typename Scalar>
-const pinocchio::ReferenceFrame ContactModel1DTpl<Scalar>::get_type() const {
+const pinocchio::ReferenceFrame& ContactModel1DTpl<Scalar>::get_type() const {
   return type_;
 }
 
@@ -215,7 +215,7 @@ void ContactModel1DTpl<Scalar>::set_mask(const Vector3MaskType mask) {
 }
 
 template <typename Scalar>
-const Vector3MaskType ContactModel1DTpl<Scalar>::get_mask() const {
+const Vector3MaskType& ContactModel1DTpl<Scalar>::get_mask() const {
   return mask_;
 }
 

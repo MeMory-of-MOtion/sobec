@@ -199,7 +199,7 @@ void ContactModel3DTpl<Scalar>::set_type(const pinocchio::ReferenceFrame type) {
 }
 
 template <typename Scalar>
-const pinocchio::ReferenceFrame ContactModel3DTpl<Scalar>::get_type() const {
+const pinocchio::ReferenceFrame& ContactModel3DTpl<Scalar>::get_type() const {
   return type_;
 }
 

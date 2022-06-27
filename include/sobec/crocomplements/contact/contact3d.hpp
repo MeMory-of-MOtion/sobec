@@ -130,7 +130,7 @@ class ContactModel3DTpl : public crocoddyl::ContactModel3DTpl<_Scalar> {
   /**
    * @brief Get pinocchio::ReferenceFrame
    */
-  const pinocchio::ReferenceFrame get_type() const;
+  const pinocchio::ReferenceFrame& get_type() const;
 
   /**
    * @brief Print relevant information of the 3d contact model
