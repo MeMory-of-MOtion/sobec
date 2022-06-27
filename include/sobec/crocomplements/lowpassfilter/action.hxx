@@ -123,7 +123,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   // Extract x=(q,v) and tau from augmented state y
   const Eigen::Ref<const VectorXs>& x = y.head(nx);    // get q,v_q
   d->tau_tmp = w;  
-
+  
 #if EIGEN_VERSION_AT_LEAST(3,4,0)
     d->tau_tmp(lpf_torque_ids_) = y.tail(ntau_);         // LPF dimensions
 #else
@@ -235,9 +235,10 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
       tauLim_residual_ = w(lpf_torque_ids_);
 #else
       for(int i=0; i<lpf_torque_ids_.size();i++){
-        activation_model_tauLim_->calc(d->activation, w(lpf_torque_ids_[i]));  // Compute limit cost torque residual of w
         tauLim_residual_(i) = w(lpf_torque_ids_[i]);
       }
+      activation_model_tauLim_->calc(d->activation, tauLim_residual_);  // Compute limit cost torque residual of w
+
 #endif 
       d->cost += Scalar(0.5 * time_step_ * tauLim_weight_ * d->activation->a_value);  // tau lim
     }
@@ -313,8 +314,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
         activation_model_tauLim_->calcDiff(d->activation, w(lpf_torque_ids_));
 #else
         for(int i=0; i<lpf_torque_ids_.size();i++){
-          activation_model_tauLim_->calcDiff(d->activation, w(lpf_torque_ids_[i]));
+          tauLim_residual_(i) = w(lpf_torque_ids_[i]);
         }
+        activation_model_tauLim_->calcDiff(d->activation, tauLim_residual_);
 #endif 
       }  // tauLim_weight_ != 0
     }
@@ -376,7 +378,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
         d->Lww.diagonal().array()(lpf_torque_ids_) = Scalar(time_step_ * tauReg_weight_);                     // tau reg
 #else 
       for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Lw(lpf_torque_ids_[i]) = time_step_ * tauReg_weight_ * d->r.segment(differential_->get_nr(), ntau_);  // tau reg
+        d->Lw(lpf_torque_ids_[i]) = time_step_ * tauReg_weight_ * d->r(differential_->get_nr()+i);  // tau reg
         d->Lww.diagonal().array()(lpf_torque_ids_[i]) = Scalar(time_step_ * tauReg_weight_);                     // tau reg
       }
 #endif
@@ -387,7 +389,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
         d->Lww.diagonal()(lpf_torque_ids_, lpf_torque_ids_) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal();  // tau lim
 #else 
       for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Lw(lpf_torque_ids_[i]) += time_step_ * tauLim_weight_ * d->activation->Ar;  // tau lim
+        d->Lw(lpf_torque_ids_[i]) += time_step_ * tauLim_weight_ * d->activation->Ar(i);  // tau lim
         for(int j=0; j<lpf_torque_ids_.size();j++){
           d->Lww.diagonal()(lpf_torque_ids_[i], lpf_torque_ids_[j]) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal()(i,j);  // tau lim
         }
