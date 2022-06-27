@@ -12,6 +12,7 @@ from .sobec_pywrap import (
     ResidualModelFeetCollision,
     ResidualModelFlyHigh,
     IntegratedActionModelLPF,
+    StateLPF,
     ContactModel3D,
     ContactModel1D,
     ContactModelMultiple,

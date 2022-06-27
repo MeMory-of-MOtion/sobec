@@ -15,13 +15,15 @@
 #include "crocoddyl/core/numdiff/action.hpp"
 #include "diff-action.hpp"
 #include "sobec/crocomplements/lowpassfilter/action.hpp"
-
+#include "statelpf.hpp"
 namespace sobec {
 namespace unittest {
 
 struct ActionModelLPFTypes {
   enum Type {
-    IntegratedActionModelLPF,
+    IntegratedActionModelLPF_ALL,
+    IntegratedActionModelLPF_RAND,
+    IntegratedActionModelLPF_NONE,
     // IntegratedActionModelLPF_zero_costs,
     // IntegratedActionModelLPF_terminal,
     NbActionModelLPFTypes
@@ -51,6 +53,7 @@ class ActionModelLPFFactory {
       DifferentialActionModelTypes::Type dam_type,
       PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) const;
+  // LPFJointMaskType lpf_mask_type = LPFJointMaskType::ALL) const;
 };
 
 }  // namespace unittest
