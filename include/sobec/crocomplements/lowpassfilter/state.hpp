@@ -29,7 +29,7 @@ class StateLPFTpl : public StateAbstractTpl<_Scalar> {
   enum JointType { FreeFlyer = 0, Spherical, Simple };
 
   explicit StateLPFTpl(boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model,
-                       std::vector<int> lpf_joint_ids );
+                       std::vector<int> lpf_joint_ids);
   virtual ~StateLPFTpl();
 
   virtual VectorXs zero() const;

@@ -16,19 +16,21 @@ using namespace crocoddyl;
 
 template <typename Scalar>
 StateLPFTpl<Scalar>::StateLPFTpl(
-    boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model, std::vector<int> lpf_joint_ids) 
-    : Base(model->nq + model->nv + lpf_joint_ids.size(), 2 * model->nv + lpf_joint_ids.size()), 
-  pinocchio_(model),
-  ntau_(lpf_joint_ids.size()),
-  y0_(VectorXs::Zero(model->nq + model->nv + lpf_joint_ids.size())) {
+    boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model,
+    std::vector<int> lpf_joint_ids)
+    : Base(model->nq + model->nv + lpf_joint_ids.size(),
+           2 * model->nv + lpf_joint_ids.size()),
+      pinocchio_(model),
+      ntau_(lpf_joint_ids.size()),
+      y0_(VectorXs::Zero(model->nq + model->nv + lpf_joint_ids.size())) {
   // In a multibody system, we could define the first joint using Lie groups.
   // The current cases are free-flyer (SE3) and spherical (S03).
   // Instead simple represents any joint that can model within the Euclidean
   // manifold. The rest of joints use Euclidean algebra. We use this fact for
   // computing Jdiff.
 
-  nv_ = model->nv;       // tangent configuration dimension
-  nq_ = model->nq;       // configuration dimension
+  nv_ = model->nv;          // tangent configuration dimension
+  nq_ = model->nq;          // configuration dimension
   ny_ = nq_ + nv_ + ntau_;  // augmented state dimension
   ndy_ = 2 * nv_ + ntau_;   // augmented state tangent space dimension
 
@@ -42,14 +44,22 @@ StateLPFTpl<Scalar>::StateLPFTpl(
   lb_.segment(nq_, nv_) = -pinocchio_->velocityLimit;
   ub_.segment(nq_, nv_) = pinocchio_->velocityLimit;
   // Effort limit (only for LPF joints)
-  // lb_.tail(ntau_) = -pinocchio_->effortLimit.tail[model->idx_vs[lpf_joint_ids[i]]];
-  // ub_.tail(ntau_) = pinocchio_->effortLimit.tail(nw_)[model->idx_vs[lpf_joint_ids[i]]]; 
-  for(int i=0; i<lpf_joint_ids.size(); i++){
-    if((int)model->nvs[lpf_joint_ids[i]] != (int)1 ){
-      throw_pretty("Invalid argument: " << "Joint " << lpf_joint_ids[i] << " has nv=" << model->nvs[lpf_joint_ids[i]] << ". LPF joints list can only contain joints with nv=1 (i.e. free-flyer joint is forbidden) ");
+  // lb_.tail(ntau_) =
+  // -pinocchio_->effortLimit.tail[model->idx_vs[lpf_joint_ids[i]]];
+  // ub_.tail(ntau_) =
+  // pinocchio_->effortLimit.tail(nw_)[model->idx_vs[lpf_joint_ids[i]]];
+  for (int i = 0; i < lpf_joint_ids.size(); i++) {
+    if ((int)model->nvs[lpf_joint_ids[i]] != (int)1) {
+      throw_pretty("Invalid argument: "
+                   << "Joint " << lpf_joint_ids[i]
+                   << " has nv=" << model->nvs[lpf_joint_ids[i]]
+                   << ". LPF joints list can only contain joints with nv=1 "
+                      "(i.e. free-flyer joint is forbidden) ");
     }
-    lb_.tail(ntau_)(i) = -pinocchio_->effortLimit[model->idx_vs[lpf_joint_ids[i]]];
-    ub_.tail(ntau_)(i) = pinocchio_->effortLimit[model->idx_vs[lpf_joint_ids[i]]]; 
+    lb_.tail(ntau_)(i) =
+        -pinocchio_->effortLimit[model->idx_vs[lpf_joint_ids[i]]];
+    ub_.tail(ntau_)(i) =
+        pinocchio_->effortLimit[model->idx_vs[lpf_joint_ids[i]]];
   }
   Base::update_has_limits();
 

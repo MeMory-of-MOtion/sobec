@@ -17,15 +17,12 @@ using namespace crocoddyl;
 template <typename Scalar>
 IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
     boost::shared_ptr<DifferentialActionModelAbstract> model,
-    std::vector<std::string> lpf_joint_names,
-    const Scalar& time_step, 
-    const bool& with_cost_residual, 
-    const Scalar& fc,
-    const bool& tau_plus_integration, 
-    const int& filter,
+    std::vector<std::string> lpf_joint_names, const Scalar& time_step,
+    const bool& with_cost_residual, const Scalar& fc,
+    const bool& tau_plus_integration, const int& filter,
     const bool& is_terminal)
-    : Base(model->get_state(), model->get_nu(), 
-           model->get_nr() + 2 * lpf_joint_names.size()), 
+    : Base(model->get_state(), model->get_nu(),
+           model->get_nr() + 2 * lpf_joint_names.size()),
       differential_(model),
       time_step_(time_step),
       time_step2_(time_step * time_step),
@@ -33,45 +30,57 @@ IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
       fc_(fc),
       tau_plus_integration_(tau_plus_integration),
       nw_(model->get_nu()),
-      ntau_(lpf_joint_names.size()), 
-      ny_(model->get_state()->get_nx() + lpf_joint_names.size()), 
+      ntau_(lpf_joint_names.size()),
+      ny_(model->get_state()->get_nx() + lpf_joint_names.size()),
       enable_integration_(true),
       filter_(filter),
       is_terminal_(is_terminal) {
   // Downcast DAM state (abstract --> multibody)
-  boost::shared_ptr<StateMultibody> state = boost::static_pointer_cast<StateMultibody>(model->get_state());
+  boost::shared_ptr<StateMultibody> state =
+      boost::static_pointer_cast<StateMultibody>(model->get_state());
   pin_model_ = state->get_pinocchio();
-  // Check that used-specified LPF joints are valid (no free-flyer) and collect ids
-  for(std::vector<std::string>::iterator iter = lpf_joint_names.begin(); iter != lpf_joint_names.end();  ++iter){
+  // Check that used-specified LPF joints are valid (no free-flyer) and collect
+  // ids
+  for (std::vector<std::string>::iterator iter = lpf_joint_names.begin();
+       iter != lpf_joint_names.end(); ++iter) {
     std::size_t jointId = pin_model_->getJointId(*iter);
     lpf_joint_ids_.push_back(jointId);
     std::size_t jointNv = pin_model_->nvs[jointId];
-    if(jointNv != (std::size_t)1 ){
-      throw_pretty("Invalid argument: " << "Joint " << *iter << " has nv=" << jointNv << ". Low-pass filtered joints must have nv=1 in pinocchio model ! ");
+    if (jointNv != (std::size_t)1) {
+      throw_pretty(
+          "Invalid argument: "
+          << "Joint " << *iter << " has nv=" << jointNv
+          << ". Low-pass filtered joints must have nv=1 in pinocchio model ! ");
     }
   }
   // Get lpf torque ids
-    // fixed base
-  if(pin_model_->joints[1].nv() == 1){ 
-    for(std::vector<int>::iterator iter = lpf_joint_ids_.begin(); iter != lpf_joint_ids_.end();  ++iter){
+  // fixed base
+  if (pin_model_->joints[1].nv() == 1) {
+    for (std::vector<int>::iterator iter = lpf_joint_ids_.begin();
+         iter != lpf_joint_ids_.end(); ++iter) {
       lpf_torque_ids_.push_back(pin_model_->idx_vs[*iter]);
-    } 
+    }
     // floating base
   } else {
-    for(std::vector<int>::iterator iter = lpf_joint_ids_.begin(); iter != lpf_joint_ids_.end();  ++iter){
-      lpf_torque_ids_.push_back(pin_model_->idx_vs[*iter] - pin_model_->joints[1].nv());
-    } 
+    for (std::vector<int>::iterator iter = lpf_joint_ids_.begin();
+         iter != lpf_joint_ids_.end(); ++iter) {
+      lpf_torque_ids_.push_back(pin_model_->idx_vs[*iter] -
+                                pin_model_->joints[1].nv());
+    }
   }
   // // Get non lpf joint ids
-  // for(std::vector<std::string>::iterator joint_names_iter = pin_model_->names.begin(); joint_names_iter != pin_model_->names.end();  ++joint_names_iter){
-  //   std::vector<std::string>::iterator it = std::find(lpf_joint_names.begin(), lpf_joint_names.end(), *joint_names_iter);
-  //   if (it == lpf_joint_names.end()){
+  // for(std::vector<std::string>::iterator joint_names_iter =
+  // pin_model_->names.begin(); joint_names_iter != pin_model_->names.end();
+  // ++joint_names_iter){
+  //   std::vector<std::string>::iterator it =
+  //   std::find(lpf_joint_names.begin(), lpf_joint_names.end(),
+  //   *joint_names_iter); if (it == lpf_joint_names.end()){
   //     nonlpf_joint_ids_.push_back(pin_model_->getJointId(*joint_names_iter));
   //   }
   // }
   lpf_joint_names_ = lpf_joint_names;
   // Instantiate stateLPF using pinocchio model of DAM state
-  state_ = boost::make_shared<StateLPF>(pin_model_, lpf_joint_ids_); 
+  state_ = boost::make_shared<StateLPF>(pin_model_, lpf_joint_ids_);
   // Check stuff
   if (time_step_ < Scalar(0.)) {
     time_step_ = Scalar(1e-3);
@@ -88,7 +97,9 @@ IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
   VectorXs wub = state_->get_ub().tail(ntau_);
   // Base::set_u_lb(wlb);
   // Base::set_u_ub(wub);
-  activation_model_tauLim_ = boost::make_shared<ActivationModelQuadraticBarrier>(ActivationBounds(wlb, wub));
+  activation_model_tauLim_ =
+      boost::make_shared<ActivationModelQuadraticBarrier>(
+          ActivationBounds(wlb, wub));
   // cost weights are zero by default
   tauReg_weight_ = Scalar(0.);
   tauLim_weight_ = Scalar(0.);
@@ -121,16 +132,16 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
   // Extract x=(q,v) and tau from augmented state y
-  const Eigen::Ref<const VectorXs>& x = y.head(nx);    // get q,v_q
-  d->tau_tmp = w;  
-  
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-    d->tau_tmp(lpf_torque_ids_) = y.tail(ntau_);         // LPF dimensions
+  const Eigen::Ref<const VectorXs>& x = y.head(nx);  // get q,v_q
+  d->tau_tmp = w;
+
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+  d->tau_tmp(lpf_torque_ids_) = y.tail(ntau_);  // LPF dimensions
 #else
-    for(int i=0; i<lpf_torque_ids_.size();i++){
-      d->tau_tmp(lpf_torque_ids_[i]) = y.tail(ntau_)(i);
-    }
-#endif 
+  for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+    d->tau_tmp(lpf_torque_ids_[i]) = y.tail(ntau_)(i);
+  }
+#endif
 
   const Eigen::Ref<const VectorXs>& tau = d->tau_tmp;
 
@@ -164,17 +175,16 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
                ")");
   }
   if (static_cast<std::size_t>(d->Fw.cols()) != nw_) {
-    throw_pretty(
-        "Invalid argument: "
-        << "Fw.cols() has wrong dimension (it should be " +
-               std::to_string(nw_) + ")");
+    throw_pretty("Invalid argument: "
+                 << "Fw.cols() has wrong dimension (it should be " +
+                        std::to_string(nw_) + ")");
   }
   if (static_cast<std::size_t>(d->r.size()) !=
-      differential_->get_nr() + 2*ntau_) {
-    throw_pretty(
-        "Invalid argument: "
-        << "r has wrong dimension (it should be " +
-               std::to_string(differential_->get_nr() + 2*ntau_) +")");
+      differential_->get_nr() + 2 * ntau_) {
+    throw_pretty("Invalid argument: "
+                 << "r has wrong dimension (it should be " +
+                        std::to_string(differential_->get_nr() + 2 * ntau_) +
+                        ")");
   }
   if (static_cast<std::size_t>(d->Ly.size()) !=
       boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) {
@@ -187,60 +197,74 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   }
   if (static_cast<std::size_t>(d->Lw.size()) != nw_) {
     throw_pretty("Invalid argument: "
-        << "Lw has wrong dimension (it should be " +
-               std::to_string(nw_) + ")");
+                 << "Lw has wrong dimension (it should be " +
+                        std::to_string(nw_) + ")");
   }
 
   // Compute acceleration and cost (DAM, i.e. CT model)
   if (!tau_plus_integration_) {  // TAU INTEGRATION
     // a,cost = DAM(x,tau)
-    differential_->calc(d->differential, x, tau);  // get a_q, cost = DAM(q, v_q, tau_q)
+    differential_->calc(d->differential, x,
+                        tau);  // get a_q, cost = DAM(q, v_q, tau_q)
   } else {                     // TAU PLUS INTEGRATION
     // a,cost = DAM(x,tau+)
-    const Eigen::Ref<const VectorXs>& tau_plus = alpha_ * tau + (1 - alpha_) * w;  // get tau_q+ from (tau_q, w)
-    differential_->calc(d->differential, x, tau_plus);                             // get a_q, cost = DAM(q, v_q, tau_q+)
-  }                                 
+    const Eigen::Ref<const VectorXs>& tau_plus =
+        alpha_ * tau + (1 - alpha_) * w;  // get tau_q+ from (tau_q, w)
+    differential_->calc(d->differential, x,
+                        tau_plus);  // get a_q, cost = DAM(q, v_q, tau_q+)
+  }
 
   // INTEGRATE (only for running nodes)
   if (!is_terminal_) {
     // Computing the next state x+ = x + dx and cost+ = dt*cost
-    const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
+    const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic>
+        v = x.tail(nv);
     const VectorXs& a = d->differential->xout;
-    d->dy.head(nv).noalias() = v * time_step_ + a * time_step2_;              // get     dq(a_q, dt)
-    d->dy.segment(nq, nv).noalias() = a * time_step_;                         // get   dv_q(a_q, dt)
-    // Update dtau from LPF ids 
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
+    d->dy.head(nv).noalias() =
+        v * time_step_ + a * time_step2_;              // get     dq(a_q, dt)
+    d->dy.segment(nq, nv).noalias() = a * time_step_;  // get   dv_q(a_q, dt)
+    // Update dtau from LPF ids
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
     d->dy.tail(ntau_) = ((1 - alpha_) * (w - tau))(lpf_torque_ids_);
 #else
-    for(int i=0; i<lpf_torque_ids_.size();i++){
+    for (int i = 0; i < lpf_torque_ids_.size(); i++) {
       d->dy.tail(ntau_)(i) = ((1 - alpha_) * (w - tau))(lpf_torque_ids_[i]);
     }
-#endif 
-    state_->integrate(y, d->dy, d->ynext);         // integrate using stateLPF rule : tau+ = tau + dtau(tau, w)
+#endif
+    state_->integrate(
+        y, d->dy,
+        d->ynext);  // integrate using stateLPF rule : tau+ = tau + dtau(tau, w)
     d->cost = time_step_ * d->differential->cost;  // get cost+ from cost
-    // Add hard-coded cost on unfiltered torque a[r(w)] only at LPF joints 
+    // Add hard-coded cost on unfiltered torque a[r(w)] only at LPF joints
     if (tauReg_weight_ != 0) {
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
       tauReg_residual_ = w(lpf_torque_ids_) - tauReg_reference_;
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
         tauReg_residual_(i) = w(lpf_torque_ids_[i]) - tauReg_reference_(i);
       }
-#endif 
-      d->cost += Scalar(0.5 * time_step_ * tauReg_weight_ * tauReg_residual_.transpose() * tauReg_residual_);  // tau reg
+#endif
+      d->cost +=
+          Scalar(0.5 * time_step_ * tauReg_weight_ *
+                 tauReg_residual_.transpose() * tauReg_residual_);  // tau reg
     }
     if (tauLim_weight_ != 0) {
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      activation_model_tauLim_->calc(d->activation, w(lpf_torque_ids_));  // Compute limit cost torque residual of w
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      activation_model_tauLim_->calc(
+          d->activation,
+          w(lpf_torque_ids_));  // Compute limit cost torque residual of w
       tauLim_residual_ = w(lpf_torque_ids_);
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
         tauLim_residual_(i) = w(lpf_torque_ids_[i]);
       }
-      activation_model_tauLim_->calc(d->activation, tauLim_residual_);  // Compute limit cost torque residual of w
+      activation_model_tauLim_->calc(
+          d->activation,
+          tauLim_residual_);  // Compute limit cost torque residual of w
 
-#endif 
-      d->cost += Scalar(0.5 * time_step_ * tauLim_weight_ * d->activation->a_value);  // tau lim
+#endif
+      d->cost += Scalar(0.5 * time_step_ * tauLim_weight_ *
+                        d->activation->a_value);  // tau lim
     }
   }  // running model
 
@@ -257,13 +281,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
     // Add unfiltered torque RESIDUAL(w) for RUNNING MODELS
     if (!is_terminal_) {
       if (tauReg_weight_ != 0) {
-        d->r.segment(differential_->get_nr(), ntau_) = tauReg_residual_;  // tau reg
-      }                                                         // tauReg_weight_ != 0
+        d->r.segment(differential_->get_nr(), ntau_) =
+            tauReg_residual_;  // tau reg
+      }                        // tauReg_weight_ != 0
       if (tauLim_weight_ != 0) {
         d->r.tail(ntau_) = tauLim_residual_;  // tau lim
-      }                             // tauLim_weight_ != 0
-    }                               // running residual
-  }                                 // update residual
+      }                                       // tauLim_weight_ != 0
+    }                                         // running residual
+  }                                           // update residual
 }  // calc
 
 template <typename Scalar>
@@ -292,15 +317,15 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
   // Computing the derivatives for the time-continuous model (i.e. differential
   // model)
   // Extract x=(q,v) and tau from augmented state y
-  const Eigen::Ref<const VectorXs>& x = y.head(nx);    // get q,v_q
-  d->tau_tmp = w;                              // Initialize torques from unfiltered input 
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-  d->tau_tmp(lpf_torque_ids_) = y.tail(ntau_);         // LPF dimensions
+  const Eigen::Ref<const VectorXs>& x = y.head(nx);  // get q,v_q
+  d->tau_tmp = w;  // Initialize torques from unfiltered input
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+  d->tau_tmp(lpf_torque_ids_) = y.tail(ntau_);  // LPF dimensions
 #else
-  for(int i=0; i<lpf_torque_ids_.size();i++){
+  for (int i = 0; i < lpf_torque_ids_.size(); i++) {
     d->tau_tmp(lpf_torque_ids_[i]) = y.tail(ntau_)(i);
   }
-#endif 
+#endif
   const Eigen::Ref<const VectorXs>& tau = d->tau_tmp;
 
   // TAU INTEGRATION
@@ -310,14 +335,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
     // Get cost lim w derivatives
     if (!is_terminal_) {
       if (tauLim_weight_ != 0) {
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
         activation_model_tauLim_->calcDiff(d->activation, w(lpf_torque_ids_));
 #else
-        for(int i=0; i<lpf_torque_ids_.size();i++){
+        for (int i = 0; i < lpf_torque_ids_.size(); i++) {
           tauLim_residual_(i) = w(lpf_torque_ids_[i]);
         }
         activation_model_tauLim_->calcDiff(d->activation, tauLim_residual_);
-#endif 
+#endif
       }  // tauLim_weight_ != 0
     }
 
@@ -330,15 +355,19 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
       d->Fy.block(0, nv, nv, nv).diagonal().array() += Scalar(time_step_);
 
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      d->Fy.block(0, ndx, nv, ntau_).noalias() = da_du(Eigen::all, lpf_torque_ids_) * time_step2_;
-      d->Fy.block(nv, ndx, nv, ntau_).noalias() = da_du(Eigen::all, lpf_torque_ids_) * time_step_;
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      d->Fy.block(0, ndx, nv, ntau_).noalias() =
+          da_du(Eigen::all, lpf_torque_ids_) * time_step2_;
+      d->Fy.block(nv, ndx, nv, ntau_).noalias() =
+          da_du(Eigen::all, lpf_torque_ids_) * time_step_;
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Fy.block(0, ndx, nv, ntau_).col(i).noalias() = da_du.col(lpf_torque_ids_[i]) * time_step2_;
-        d->Fy.block(nv, ndx, nv, ntau_).col(i).noalias() = da_du.col(lpf_torque_ids_[i]) * time_step_;
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+        d->Fy.block(0, ndx, nv, ntau_).col(i).noalias() =
+            da_du.col(lpf_torque_ids_[i]) * time_step2_;
+        d->Fy.block(nv, ndx, nv, ntau_).col(i).noalias() =
+            da_du.col(lpf_torque_ids_[i]) * time_step_;
       }
-#endif 
+#endif
 
       d->Fy.bottomRightCorner(ntau_, ntau_).diagonal().array() = Scalar(alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);
@@ -353,70 +382,101 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       state_->JintegrateTransport(y, d->dy, d->Fw, second);
       // d(cost+)/dy
       d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      d->Ly.tail(ntau_).noalias() = time_step_ * d->differential->Lu(lpf_torque_ids_);
-      d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
-      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
-      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = time_step_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
-      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() = time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      d->Ly.tail(ntau_).noalias() =
+          time_step_ * d->differential->Lu(lpf_torque_ids_);
+      d->Lyy.topLeftCorner(ndx, ndx).noalias() =
+          time_step_ * d->differential->Lxx;
+      d->Lyy.block(0, ndx, ndx, ntau_).noalias() =
+          time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() =
+          time_step_ *
+          d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() =
+          time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Ly.tail(ntau_)(i) = time_step_ * d->differential->Lu(lpf_torque_ids_[i]);
-        d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
-        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() = time_step_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
-        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() = time_step_ * d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
-        for(int j=0; j<lpf_torque_ids_.size(); j++){
-          d->Lyy.bottomRightCorner(ntau_, ntau_)(i,j) = time_step_ * d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+        d->Ly.tail(ntau_)(i) =
+            time_step_ * d->differential->Lu(lpf_torque_ids_[i]);
+        d->Lyy.topLeftCorner(ndx, ndx).noalias() =
+            time_step_ * d->differential->Lxx;
+        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() =
+            time_step_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
+        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() =
+            time_step_ *
+            d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
+        for (int j = 0; j < lpf_torque_ids_.size(); j++) {
+          d->Lyy.bottomRightCorner(ntau_, ntau_)(i, j) =
+              time_step_ *
+              d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
         }
       }
-#endif 
+#endif
 
       // Partials of hard-coded cost+(tauReg) & cost+(tauLim) w.r.t. (y,w)
       if (tauReg_weight_ != 0) {
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-        d->Lw(lpf_torque_ids_) = time_step_ * tauReg_weight_ * d->r.segment(differential_->get_nr(), ntau_);  // tau reg
-        d->Lww.diagonal().array()(lpf_torque_ids_) = Scalar(time_step_ * tauReg_weight_);                     // tau reg
-#else 
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Lw(lpf_torque_ids_[i]) = time_step_ * tauReg_weight_ * d->r(differential_->get_nr()+i);  // tau reg
-        d->Lww.diagonal().array()(lpf_torque_ids_[i]) = Scalar(time_step_ * tauReg_weight_);                     // tau reg
-      }
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+        d->Lw(lpf_torque_ids_) =
+            time_step_ * tauReg_weight_ *
+            d->r.segment(differential_->get_nr(), ntau_);  // tau reg
+        d->Lww.diagonal().array()(lpf_torque_ids_) =
+            Scalar(time_step_ * tauReg_weight_);  // tau reg
+#else
+        for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+          d->Lw(lpf_torque_ids_[i]) =
+              time_step_ * tauReg_weight_ *
+              d->r(differential_->get_nr() + i);  // tau reg
+          d->Lww.diagonal().array()(lpf_torque_ids_[i]) =
+              Scalar(time_step_ * tauReg_weight_);  // tau reg
+        }
 #endif
       }  // tauReg !=0
       if (tauLim_weight_ != 0) {
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-        d->Lw(lpf_torque_ids_) += time_step_ * tauLim_weight_ * d->activation->Ar;  // tau lim
-        d->Lww.diagonal()(lpf_torque_ids_, lpf_torque_ids_) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal();  // tau lim
-#else 
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Lw(lpf_torque_ids_[i]) += time_step_ * tauLim_weight_ * d->activation->Ar(i);  // tau lim
-        for(int j=0; j<lpf_torque_ids_.size();j++){
-          d->Lww.diagonal()(lpf_torque_ids_[i], lpf_torque_ids_[j]) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal()(i,j);  // tau lim
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+        d->Lw(lpf_torque_ids_) +=
+            time_step_ * tauLim_weight_ * d->activation->Ar;  // tau lim
+        d->Lww.diagonal()(lpf_torque_ids_, lpf_torque_ids_) +=
+            time_step_ * tauLim_weight_ *
+            d->activation->Arr.diagonal();  // tau lim
+#else
+        for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+          d->Lw(lpf_torque_ids_[i]) +=
+              time_step_ * tauLim_weight_ * d->activation->Ar(i);  // tau lim
+          for (int j = 0; j < lpf_torque_ids_.size(); j++) {
+            d->Lww.diagonal()(lpf_torque_ids_[i], lpf_torque_ids_[j]) +=
+                time_step_ * tauLim_weight_ *
+                d->activation->Arr.diagonal()(i, j);  // tau lim
+          }
         }
-      }
 #endif
-      }                                                          // tauLim !=0
-    }  // !is_terminal // running model
+      }  // tauLim !=0
+    }    // !is_terminal // running model
 
     // Fill TERMINAL MODEL partials of ( a(yT), cost(yT) ) w.r.t. y
     else {
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy);
       d->Fw.setZero();
       d->Ly.head(ndx).noalias() = d->differential->Lx;
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
       d->Ly.tail(ntau_).noalias() = d->differential->Lu(lpf_torque_ids_);
       d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
-      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = d->differential->Lxu(Eigen::all, lpf_torque_ids_);
-      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
-      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() = d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
-#else 
-      for(int i=0; i<lpf_torque_ids_.size();i++){
+      d->Lyy.block(0, ndx, ndx, ntau_).noalias() =
+          d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() =
+          d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() =
+          d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
+#else
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
         d->Ly.tail(ntau_)(i) = d->differential->Lu(lpf_torque_ids_[i]);
         d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
-        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() = d->differential->Lxu.col(lpf_torque_ids_[i]);
-        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() = d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
-        for(int j=0; j<lpf_torque_ids_.size();j++){
-          d->Lyy.bottomRightCorner(ntau_, ntau_)(i,j) = d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
+        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() =
+            d->differential->Lxu.col(lpf_torque_ids_[i]);
+        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() =
+            d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
+        for (int j = 0; j < lpf_torque_ids_.size(); j++) {
+          d->Lyy.bottomRightCorner(ntau_, ntau_)(i, j) =
+              d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
         }
       }
 #endif
@@ -444,26 +504,33 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       const MatrixXs& da_du = d->differential->Fu;
       d->Fy.block(0, 0, nv, ndx).noalias() = da_dx * time_step2_;
       d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      d->Fy.block(0, ndx, nv, ntau_).noalias() = alpha_ * alpha_ * da_du(Eigen::all, lpf_torque_ids_) * time_step2_;
-      d->Fy.block(nv, ndx, nv, ntau_).noalias() = alpha_ * da_du(Eigen::all, lpf_torque_ids_) * time_step_;
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      d->Fy.block(0, ndx, nv, ntau_).noalias() =
+          alpha_ * alpha_ * da_du(Eigen::all, lpf_torque_ids_) * time_step2_;
+      d->Fy.block(nv, ndx, nv, ntau_).noalias() =
+          alpha_ * da_du(Eigen::all, lpf_torque_ids_) * time_step_;
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Fy.block(0, ndx, nv, ntau_).col(i).noalias() = alpha_ * alpha_ * da_du.col(lpf_torque_ids_[i]) * time_step2_;
-        d->Fy.block(nv, ndx, nv, ntau_).col(i).noalias() = alpha_ * da_du.col(lpf_torque_ids_[i]) * time_step_;
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+        d->Fy.block(0, ndx, nv, ntau_).col(i).noalias() =
+            alpha_ * alpha_ * da_du.col(lpf_torque_ids_[i]) * time_step2_;
+        d->Fy.block(nv, ndx, nv, ntau_).col(i).noalias() =
+            alpha_ * da_du.col(lpf_torque_ids_[i]) * time_step_;
       }
 #endif
-      d->Fy.block(0, nq, nv, nv).diagonal().array() += Scalar(time_step_);  // dt*identity top row middle col (eq.
+      d->Fy.block(0, nq, nv, nv).diagonal().array() +=
+          Scalar(time_step_);  // dt*identity top row middle col (eq.
                                // Jsecond = d(xnext)/d(dx))
       // d->Fy.topLeftCorner(nx, nx).diagonal().array() += Scalar(1.);     //
       // managed by Jintegrate (eq. Jsecond = d(xnext)/d(dx))
       d->Fy.bottomRightCorner(ntau_, ntau_).diagonal().array() = Scalar(alpha_);
       d->Fw.topRows(nv).noalias() = da_du * time_step2_ * (1 - alpha_);
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      d->Fw.block(nv, 0, nv, ntau_).noalias() = da_du(Eigen::all, lpf_torque_ids_) * time_step_ * (1 - alpha_);
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      d->Fw.block(nv, 0, nv, ntau_).noalias() =
+          da_du(Eigen::all, lpf_torque_ids_) * time_step_ * (1 - alpha_);
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Fw.block(nv, 0, nv, ntau_).col(i).noalias() = da_du.col(lpf_torque_ids_[i]) * time_step_ * (1 - alpha_);
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+        d->Fw.block(nv, 0, nv, ntau_).col(i).noalias() =
+            da_du.col(lpf_torque_ids_[i]) * time_step_ * (1 - alpha_);
       }
 #endif
       d->Fw.bottomRows(nv).diagonal().array() = Scalar(1 - alpha_);
@@ -474,43 +541,69 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
           Scalar(1.);  // remove identity from Ftau (due to stateLPF.Jintegrate)
       state_->JintegrateTransport(y, d->dy, d->Fw, second);  // it this correct?
       d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      d->Ly.tail(ntau_).noalias() = alpha_ * time_step_ * d->differential->Lu(lpf_torque_ids_);
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      d->Ly.tail(ntau_).noalias() =
+          alpha_ * time_step_ * d->differential->Lu(lpf_torque_ids_);
 
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Ly.tail(ntau_)(i) = alpha_ * time_step_ * d->differential->Lu(lpf_torque_ids_[i]);
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+        d->Ly.tail(ntau_)(i) =
+            alpha_ * time_step_ * d->differential->Lu(lpf_torque_ids_[i]);
       }
 #endif
       d->Lw.noalias() = (1 - alpha_) * time_step_ * d->differential->Lu;
-      d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = alpha_ * time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
-      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = alpha_ * time_step_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
-      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() = alpha_ * alpha_ * time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
-      d->Lyw.topRows(ndx).noalias() = (1 - alpha_) * time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
-      d->Lyw.bottomRows(ntau_).noalias() = (1 - alpha_) * alpha_ * time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
+      d->Lyy.topLeftCorner(ndx, ndx).noalias() =
+          time_step_ * d->differential->Lxx;
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      d->Lyy.block(0, ndx, ndx, ntau_).noalias() =
+          alpha_ * time_step_ *
+          d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() =
+          alpha_ * time_step_ *
+          d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() =
+          alpha_ * alpha_ * time_step_ *
+          d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
+      d->Lyw.topRows(ndx).noalias() =
+          (1 - alpha_) * time_step_ *
+          d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+      d->Lyw.bottomRows(ntau_).noalias() =
+          (1 - alpha_) * alpha_ * time_step_ *
+          d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
-        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() = alpha_ * time_step_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
-        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() = alpha_ * time_step_ * d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
-        d->Lyw.topRows(ndx).col(i).noalias() = (1 - alpha_) * time_step_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
-        for(int j=0; j<lpf_torque_ids_.size(); j++){
-          d->Lyy.bottomRightCorner(ntau_, ntau_)(i,j) = alpha_ * alpha_ * time_step_ * d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
-          d->Lyw.bottomRows(ntau_)(i,j) = (1 - alpha_) * alpha_ * time_step_ * d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
+        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() =
+            alpha_ * time_step_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
+        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() =
+            alpha_ * time_step_ *
+            d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
+        d->Lyw.topRows(ndx).col(i).noalias() =
+            (1 - alpha_) * time_step_ *
+            d->differential->Lxu.col(lpf_torque_ids_[i]);
+        for (int j = 0; j < lpf_torque_ids_.size(); j++) {
+          d->Lyy.bottomRightCorner(ntau_, ntau_)(i, j) =
+              alpha_ * alpha_ * time_step_ *
+              d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
+          d->Lyw.bottomRows(ntau_)(i, j) =
+              (1 - alpha_) * alpha_ * time_step_ *
+              d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
         }
       }
 #endif
-      d->Lww.noalias() = (1 - alpha_) * (1 - alpha_) * time_step_ * d->differential->Luu;
+      d->Lww.noalias() =
+          (1 - alpha_) * (1 - alpha_) * time_step_ * d->differential->Luu;
       // Add partials related to unfiltered torque costs w_reg, w_lim (only for
       // running models)
       if (!is_terminal_) {
         // Torque reg and lim
-        d->Lw.noalias() = time_step_ * tauReg_weight_ *
-                          d->r.segment(differential_->get_nr(), nw_);  // tau reg
-        d->Lw.noalias() += time_step_ * tauLim_weight_ * d->activation->Ar;    // tau lim
-        d->Lww.diagonal().array() = Scalar(time_step_ * tauReg_weight_);       // reg
-        d->Lww.diagonal() += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal();  // lim
+        d->Lw.noalias() =
+            time_step_ * tauReg_weight_ *
+            d->r.segment(differential_->get_nr(), nw_);  // tau reg
+        d->Lw.noalias() +=
+            time_step_ * tauLim_weight_ * d->activation->Ar;  // tau lim
+        d->Lww.diagonal().array() = Scalar(time_step_ * tauReg_weight_);  // reg
+        d->Lww.diagonal() +=
+            time_step_ * tauLim_weight_ * d->activation->Arr.diagonal();  // lim
       }
 
     } else {
@@ -518,26 +611,40 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Fw.setZero();
       d->Ly.head(ndx).noalias() = d->differential->Lx;
 
-#if EIGEN_VERSION_AT_LEAST(3,4,0)
-      d->Ly.tail(ntau_).noalias() = alpha_ * d->differential->Lu(lpf_torque_ids_);
+#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
+      d->Ly.tail(ntau_).noalias() =
+          alpha_ * d->differential->Lu(lpf_torque_ids_);
       d->Lw.noalias() = (1 - alpha_) * d->differential->Lu;
       d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
-      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = alpha_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
-      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = alpha_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
-      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() = alpha_ * alpha_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
+      d->Lyy.block(0, ndx, ndx, ntau_).noalias() =
+          alpha_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() =
+          alpha_ *
+          d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+      d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() =
+          alpha_ * alpha_ *
+          d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
       d->Lyw.topRows(ndx).noalias() = (1 - alpha_) * d->differential->Lxu;
-      d->Lyw.bottomRows(ntau_).noalias() = (1 - alpha_) * alpha_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
+      d->Lyw.bottomRows(ntau_).noalias() =
+          (1 - alpha_) * alpha_ *
+          d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
 #else
-      for(int i=0; i<lpf_torque_ids_.size();i++){
+      for (int i = 0; i < lpf_torque_ids_.size(); i++) {
         d->Ly.tail(ntau_)(i) = alpha_ * d->differential->Lu(lpf_torque_ids_[i]);
         d->Lw.noalias() = (1 - alpha_) * d->differential->Lu;
         d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
-        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() = alpha_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
-        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() = alpha_ * d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
+        d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() =
+            alpha_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
+        d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() =
+            alpha_ * d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
         d->Lyw.topRows(ndx).noalias() = (1 - alpha_) * d->differential->Lxu;
-        for(int j=0; j<lpf_torque_ids_.size(); j++){
-          d->Lyy.bottomRightCorner(ntau_, ntau_)(i,j) = alpha_ * alpha_ * d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
-          d->Lyw.bottomRows(ntau_)(i,j) = (1 - alpha_) * alpha_ * d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
+        for (int j = 0; j < lpf_torque_ids_.size(); j++) {
+          d->Lyy.bottomRightCorner(ntau_, ntau_)(i, j) =
+              alpha_ * alpha_ *
+              d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
+          d->Lyw.bottomRows(ntau_)(i, j) =
+              (1 - alpha_) * alpha_ *
+              d->differential->Luu(lpf_torque_ids_[i], lpf_torque_ids_[j]);
         }
       }
 #endif
@@ -545,11 +652,12 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       // Add partials related to unfiltered torque costs w_reg, w_lim (only for
       // running models)
       if (!is_terminal_) {
-        d->Lw.noalias() +=
-            tauReg_weight_ * d->r.segment(differential_->get_nr(), ntau_);       // reg
-        d->Lw.noalias() += tauLim_weight_ * d->activation->Ar;                // lim
-        d->Lww.diagonal().array() += Scalar(tauReg_weight_);                  // tau reg
-        d->Lww.diagonal() += tauLim_weight_ * d->activation->Arr.diagonal();  // tau lim
+        d->Lw.noalias() += tauReg_weight_ *
+                           d->r.segment(differential_->get_nr(), ntau_);  // reg
+        d->Lw.noalias() += tauLim_weight_ * d->activation->Ar;            // lim
+        d->Lww.diagonal().array() += Scalar(tauReg_weight_);  // tau reg
+        d->Lww.diagonal() +=
+            tauLim_weight_ * d->activation->Arr.diagonal();  // tau lim
       }
     }
   }  // tau_plus_integration
@@ -656,7 +764,7 @@ void IntegratedActionModelLPFTpl<Scalar>::set_control_reg_cost(
     throw_pretty("cost weight is positive ");
   }
   if (ref.size() != ntau_) {
-    throw_pretty("cost ref must have size " << ntau_ );
+    throw_pretty("cost ref must have size " << ntau_);
   }
   tauReg_weight_ = weight;
   tauReg_reference_ = ref;

@@ -39,12 +39,7 @@ struct StateLPFModelTypes {
   static const std::vector<Type> all;
 };
 
-
-enum LPFJointMaskType {
-  ALL, 
-  NONE, 
-  RAND
-};
+enum LPFJointMaskType { ALL, NONE, RAND };
 
 class LPFJointListFactory {
  public:
@@ -53,11 +48,12 @@ class LPFJointListFactory {
   explicit LPFJointListFactory();
   ~LPFJointListFactory();
 
-  std::vector<std::string> create_names(boost::shared_ptr<pinocchio::Model> model, LPFJointMaskType lpf_mask_type) const;
-  std::vector<int> create_ids(boost::shared_ptr<pinocchio::Model> model, LPFJointMaskType lpf_mask_type) const;
+  std::vector<std::string> create_names(
+      boost::shared_ptr<pinocchio::Model> model,
+      LPFJointMaskType lpf_mask_type) const;
+  std::vector<int> create_ids(boost::shared_ptr<pinocchio::Model> model,
+                              LPFJointMaskType lpf_mask_type) const;
 };
-
-
 
 const std::map<StateLPFModelTypes::Type, StateModelTypes::Type>
     mapStateLPFToStateMultibody{
@@ -78,8 +74,9 @@ class StateLPFModelFactory {
   explicit StateLPFModelFactory();
   ~StateLPFModelFactory();
 
-  boost::shared_ptr<sobec::StateLPF> create(StateLPFModelTypes::Type state_type,
-                                            LPFJointMaskType lpf_mask_type = LPFJointMaskType::ALL) const;
+  boost::shared_ptr<sobec::StateLPF> create(
+      StateLPFModelTypes::Type state_type,
+      LPFJointMaskType lpf_mask_type = LPFJointMaskType::ALL) const;
 };
 
 }  // namespace unittest

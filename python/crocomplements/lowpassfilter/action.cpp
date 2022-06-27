@@ -31,9 +31,11 @@ void exposeIntegratedActionLPF() {
       "  [q+, v+, tau+] = StateLPF.integrate([q, v], [v + a * dt, a * dt] * "
       "dt, [alpha*tau + (1-alpha)*w]).",
       bp::init<boost::shared_ptr<DifferentialActionModelAbstract>,
-               bp::optional<std::vector<std::string>, double, bool, double, bool, int, bool> >(
-          bp::args("self", "diffModel", "LPFJointNames", "stepTime", "withCostResidual", "fc",
-                   "tau_plus_integration", "filter", "is_terminal"),
+               bp::optional<std::vector<std::string>, double, bool, double,
+                            bool, int, bool> >(
+          bp::args("self", "diffModel", "LPFJointNames", "stepTime",
+                   "withCostResidual", "fc", "tau_plus_integration", "filter",
+                   "is_terminal"),
           "Initialize the sympletic Euler integrator.\n\n"
           ":param diffModel: differential action model\n"
           ":param LPFJointNames: names of joints that are low-pass filtered\n"
@@ -102,22 +104,22 @@ void exposeIntegratedActionLPF() {
           &IntegratedActionModelLPF::set_fc,
           "cut-off frequency of low-pass filter")
 
-    //   .add_property(
-    //       "nw",
-    //       bp::make_getter(&IntegratedActionModelLPF::get_nw,
-    //                         bp::return_value_policy<bp::return_by_value>()),
-    //       "Dimension of the unfiltered input")
-    //   .add_property(
-    //       "ntau",
-    //       bp::make_getter(&IntegratedActionModelLPF::get_ntau,
-    //                         bp::return_value_policy<bp::return_by_value>()),
-    //       "Dimension of filtered torques")
-    //   .add_property(
-    //       "ny",
-    //       bp::make_getter(&IntegratedActionModelLPF::get_ny,
-    //                         bp::return_value_policy<bp::return_by_value>()),
-    //       "Dimension of augmented state (position, velocity and filtered torque)")
-
+      //   .add_property(
+      //       "nw",
+      //       bp::make_getter(&IntegratedActionModelLPF::get_nw,
+      //                         bp::return_value_policy<bp::return_by_value>()),
+      //       "Dimension of the unfiltered input")
+      //   .add_property(
+      //       "ntau",
+      //       bp::make_getter(&IntegratedActionModelLPF::get_ntau,
+      //                         bp::return_value_policy<bp::return_by_value>()),
+      //       "Dimension of filtered torques")
+      //   .add_property(
+      //       "ny",
+      //       bp::make_getter(&IntegratedActionModelLPF::get_ny,
+      //                         bp::return_value_policy<bp::return_by_value>()),
+      //       "Dimension of augmented state (position, velocity and filtered
+      //       torque)")
 
       .def("set_control_reg_cost",
            &IntegratedActionModelLPF::set_control_reg_cost,

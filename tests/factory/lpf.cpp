@@ -44,7 +44,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
                               DifferentialActionModelTypes::Type dam_type,
                               PinocchioReferenceTypes::Type ref_type,
                               ContactModelMaskTypes::Type mask_type) const {
-                              // LPFJointMaskType lpf_mask_type) const {
+  // LPFJointMaskType lpf_mask_type) const {
   boost::shared_ptr<sobec::IntegratedActionModelLPF> iam;
   boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam =
       DifferentialActionModelFactory().create(dam_type, ref_type, mask_type);
@@ -55,20 +55,18 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       double fc = 5;
       bool tau_plus_integration = false;
       int filter = 1;
-      bool is_terminal = false;  
+      bool is_terminal = false;
       // Select LPF joints
-      boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody = boost::static_pointer_cast<crocoddyl::StateMultibody>(dam->get_state());
-      boost::shared_ptr<pinocchio::Model> model = stateMultibody->get_pinocchio();
-      std::vector<std::string> lpf_joint_names = LPFJointListFactory().create_names(model, LPFJointMaskType::ALL);
+      boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody =
+          boost::static_pointer_cast<crocoddyl::StateMultibody>(
+              dam->get_state());
+      boost::shared_ptr<pinocchio::Model> model =
+          stateMultibody->get_pinocchio();
+      std::vector<std::string> lpf_joint_names =
+          LPFJointListFactory().create_names(model, LPFJointMaskType::ALL);
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, 
-          lpf_joint_names,
-          time_step, 
-          with_cost_residual, 
-          fc, 
-          tau_plus_integration, 
-          filter,
-          is_terminal);
+          dam, lpf_joint_names, time_step, with_cost_residual, fc,
+          tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
       double tauReg_weight = 0.02;
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
@@ -83,20 +81,18 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       double fc = 5;
       bool tau_plus_integration = false;
       int filter = 1;
-      bool is_terminal = false;  
+      bool is_terminal = false;
       // Select LPF joints
-      boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody = boost::static_pointer_cast<crocoddyl::StateMultibody>(dam->get_state());
-      boost::shared_ptr<pinocchio::Model> model = stateMultibody->get_pinocchio();
-      std::vector<std::string> lpf_joint_names = LPFJointListFactory().create_names(model, LPFJointMaskType::RAND);
+      boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody =
+          boost::static_pointer_cast<crocoddyl::StateMultibody>(
+              dam->get_state());
+      boost::shared_ptr<pinocchio::Model> model =
+          stateMultibody->get_pinocchio();
+      std::vector<std::string> lpf_joint_names =
+          LPFJointListFactory().create_names(model, LPFJointMaskType::RAND);
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, 
-          lpf_joint_names,
-          time_step, 
-          with_cost_residual, 
-          fc, 
-          tau_plus_integration, 
-          filter,
-          is_terminal);
+          dam, lpf_joint_names, time_step, with_cost_residual, fc,
+          tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
       double tauReg_weight = 0.02;
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
@@ -111,20 +107,18 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       double fc = 5;
       bool tau_plus_integration = false;
       int filter = 1;
-      bool is_terminal = false;  
+      bool is_terminal = false;
       // Select LPF joints
-      boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody = boost::static_pointer_cast<crocoddyl::StateMultibody>(dam->get_state());
-      boost::shared_ptr<pinocchio::Model> model = stateMultibody->get_pinocchio();
-      std::vector<std::string> lpf_joint_names = LPFJointListFactory().create_names(model, LPFJointMaskType::NONE);
+      boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody =
+          boost::static_pointer_cast<crocoddyl::StateMultibody>(
+              dam->get_state());
+      boost::shared_ptr<pinocchio::Model> model =
+          stateMultibody->get_pinocchio();
+      std::vector<std::string> lpf_joint_names =
+          LPFJointListFactory().create_names(model, LPFJointMaskType::NONE);
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, 
-          lpf_joint_names,
-          time_step, 
-          with_cost_residual, 
-          fc, 
-          tau_plus_integration, 
-          filter,
-          is_terminal);
+          dam, lpf_joint_names, time_step, with_cost_residual, fc,
+          tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
       double tauReg_weight = 0.02;
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());

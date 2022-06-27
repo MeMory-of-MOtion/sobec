@@ -24,27 +24,29 @@ namespace sobec {
 namespace unittest {
 using namespace crocoddyl;
 
-
 LPFJointListFactory::LPFJointListFactory() {}
 LPFJointListFactory::~LPFJointListFactory() {}
-std::vector<std::string> LPFJointListFactory::create_names(boost::shared_ptr<pinocchio::Model> model, 
-                                                    LPFJointMaskType lpf_mask_type) const {
+std::vector<std::string> LPFJointListFactory::create_names(
+    boost::shared_ptr<pinocchio::Model> model,
+    LPFJointMaskType lpf_mask_type) const {
   std::vector<std::string> lpf_joint_names = {};
   switch (lpf_mask_type) {
     case LPFJointMaskType::ALL: {
-      for(std::vector<std::string>::iterator iter = model->names.begin(); iter != model->names.end();  ++iter){
-        if(model->getJointId(*iter) < model->njoints && model->nvs[model->getJointId(*iter)] == 1){
+      for (std::vector<std::string>::iterator iter = model->names.begin();
+           iter != model->names.end(); ++iter) {
+        if (model->getJointId(*iter) < model->njoints &&
+            model->nvs[model->getJointId(*iter)] == 1) {
           lpf_joint_names.push_back(*iter);
         }
       }
       break;
-    } 
-    case LPFJointMaskType::NONE:{
+    }
+    case LPFJointMaskType::NONE: {
       break;
     }
-    case LPFJointMaskType::RAND:{
-      int maxJointId(model->njoints-1), minJointId(2);
-      int randJointId = rand()%(maxJointId-minJointId+1) + minJointId;
+    case LPFJointMaskType::RAND: {
+      int maxJointId(model->njoints - 1), minJointId(2);
+      int randJointId = rand() % (maxJointId - minJointId + 1) + minJointId;
       lpf_joint_names.push_back(model->names[randJointId]);
       break;
     }
@@ -52,31 +54,33 @@ std::vector<std::string> LPFJointListFactory::create_names(boost::shared_ptr<pin
   return lpf_joint_names;
 }
 
-std::vector<int> LPFJointListFactory::create_ids(boost::shared_ptr<pinocchio::Model> model, 
-                                                        LPFJointMaskType lpf_mask_type) const {
+std::vector<int> LPFJointListFactory::create_ids(
+    boost::shared_ptr<pinocchio::Model> model,
+    LPFJointMaskType lpf_mask_type) const {
   std::vector<int> lpf_joint_ids = {};
   switch (lpf_mask_type) {
     case LPFJointMaskType::ALL: {
-      for(std::vector<std::string>::iterator iter = model->names.begin(); iter != model->names.end();  ++iter){
-        if(model->getJointId(*iter) < model->njoints && model->nvs[model->getJointId(*iter)] == 1){
+      for (std::vector<std::string>::iterator iter = model->names.begin();
+           iter != model->names.end(); ++iter) {
+        if (model->getJointId(*iter) < model->njoints &&
+            model->nvs[model->getJointId(*iter)] == 1) {
           lpf_joint_ids.push_back(model->getJointId(*iter));
         }
       }
       break;
-    } 
-    case LPFJointMaskType::NONE:{
+    }
+    case LPFJointMaskType::NONE: {
       break;
     }
-    case LPFJointMaskType::RAND:{
-      int maxJointId(model->njoints-1), minJointId(2);
-      int randJointId = rand()%(maxJointId-minJointId+1) + minJointId;
+    case LPFJointMaskType::RAND: {
+      int maxJointId(model->njoints - 1), minJointId(2);
+      int randJointId = rand() % (maxJointId - minJointId + 1) + minJointId;
       lpf_joint_ids.push_back(randJointId);
       break;
     }
   }
   return lpf_joint_ids;
 }
-
 
 const std::vector<StateLPFModelTypes::Type> StateLPFModelTypes::all(
     StateLPFModelTypes::init_all());
@@ -108,8 +112,7 @@ StateLPFModelFactory::StateLPFModelFactory() {}
 StateLPFModelFactory::~StateLPFModelFactory() {}
 
 boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
-    StateLPFModelTypes::Type state_type, 
-    LPFJointMaskType lpf_mask_type) const {
+    StateLPFModelTypes::Type state_type, LPFJointMaskType lpf_mask_type) const {
   boost::shared_ptr<pinocchio::Model> model;
   boost::shared_ptr<sobec::StateLPF> state;
   switch (state_type) {
@@ -119,8 +122,9 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
           boost::make_shared<crocoddyl::ActuationModelFull>(
               StateModelFactory().create(
                   StateModelTypes::StateMultibody_TalosArm));
-      std::vector<int> lpf_joint_ids = LPFJointListFactory().create_ids(model, lpf_mask_type);
-      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);  
+      std::vector<int> lpf_joint_ids =
+          LPFJointListFactory().create_ids(model, lpf_mask_type);
+      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);
 
       break;
     }
@@ -131,8 +135,9 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
               boost::static_pointer_cast<crocoddyl::StateMultibody>(
                   StateModelFactory().create(
                       StateModelTypes::StateMultibody_HyQ)));
-      std::vector<int> lpf_joint_ids = LPFJointListFactory().create_ids(model, lpf_mask_type);       
-      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);  
+      std::vector<int> lpf_joint_ids =
+          LPFJointListFactory().create_ids(model, lpf_mask_type);
+      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);
       break;
     }
     case StateLPFModelTypes::StateLPF_Talos: {
@@ -142,8 +147,9 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
               boost::static_pointer_cast<crocoddyl::StateMultibody>(
                   StateModelFactory().create(
                       StateModelTypes::StateMultibody_Talos)));
-      std::vector<int> lpf_joint_ids = LPFJointListFactory().create_ids(model, lpf_mask_type);
-      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);  
+      std::vector<int> lpf_joint_ids =
+          LPFJointListFactory().create_ids(model, lpf_mask_type);
+      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);
       break;
     }
     case StateLPFModelTypes::StateLPF_RandomHumanoid: {
@@ -154,8 +160,9 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
               boost::static_pointer_cast<crocoddyl::StateMultibody>(
                   StateModelFactory().create(
                       StateModelTypes::StateMultibody_RandomHumanoid)));
-      std::vector<int> lpf_joint_ids = LPFJointListFactory().create_ids(model, lpf_mask_type);
-      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);  
+      std::vector<int> lpf_joint_ids =
+          LPFJointListFactory().create_ids(model, lpf_mask_type);
+      state = boost::make_shared<sobec::StateLPF>(model, lpf_joint_ids);
       break;
     }
     default:
@@ -164,7 +171,6 @@ boost::shared_ptr<sobec::StateLPF> StateLPFModelFactory::create(
   }
   return state;
 }
-
 
 }  // namespace unittest
 }  // namespace sobec
