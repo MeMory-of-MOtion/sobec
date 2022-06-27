@@ -435,18 +435,16 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
         d->Lw(lpf_torque_ids_) +=
             time_step_ * tauLim_weight_ * d->activation->Ar;  // tau lim
-        d->Lww.diagonal()(lpf_torque_ids_, lpf_torque_ids_) +=
+        d->Lww.diagonal()(lpf_torque_ids_) +=
             time_step_ * tauLim_weight_ *
             d->activation->Arr.diagonal();  // tau lim
 #else
         for (int i = 0; i < lpf_torque_ids_.size(); i++) {
           d->Lw(lpf_torque_ids_[i]) +=
               time_step_ * tauLim_weight_ * d->activation->Ar(i);  // tau lim
-          for (int j = 0; j < lpf_torque_ids_.size(); j++) {
-            d->Lww.diagonal()(lpf_torque_ids_[i], lpf_torque_ids_[j]) +=
-                time_step_ * tauLim_weight_ *
-                d->activation->Arr.diagonal()(i, j);  // tau lim
-          }
+          d->Lww.diagonal()(lpf_torque_ids_[i]) +=
+              time_step_ * tauLim_weight_ *
+              d->activation->Arr.diagonal()(i);  // tau lim
         }
 #endif
       }  // tauLim !=0
