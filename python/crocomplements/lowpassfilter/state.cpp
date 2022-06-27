@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/lowpassfilter/statelpf.hpp"
+#include "sobec/crocomplements/lowpassfilter/state.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
