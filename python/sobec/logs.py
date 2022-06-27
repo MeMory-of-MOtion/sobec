@@ -11,7 +11,7 @@ def logsToDict(logs):
     return dlogs
 
 
-def save(dlogs: dict, filename="/tmp/logs.npy", verbose=True):
+def save(dlogs, filename="/tmp/logs.npy", verbose=True):
     with open(filename, "wb") as f:
         np.save(f, dlogs, allow_pickle=True)
     print('Logs save in "%s"!' % filename)
