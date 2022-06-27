@@ -288,8 +288,8 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Fy.block(0, 0, nv, ndx).noalias() = da_dx * time_step2_;
       d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
       d->Fy.block(0, nv, nv, nv).diagonal().array() += Scalar(time_step_);
-      d->Fy.block(0, ndx, nv, ntau_).noalias() = da_du(Eigen::all, lpf_torque_ids_) * time_step2_;
-      d->Fy.block(nv, ndx, nv, ntau_).noalias() = da_du(Eigen::all, lpf_torque_ids_) * time_step_;
+      d->Fy.block(0, ndx, nv, ntau_).noalias() = da_du(Eigen::placeholders::all, lpf_torque_ids_) * time_step2_;
+      d->Fy.block(nv, ndx, nv, ntau_).noalias() = da_du(Eigen::placeholders::all, lpf_torque_ids_) * time_step_;
       d->Fy.bottomRightCorner(ntau_, ntau_).diagonal().array() = Scalar(alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);
       state_->Jintegrate(
@@ -305,8 +305,8 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
       d->Ly.tail(ntau_).noalias() = time_step_ * d->differential->Lu(lpf_torque_ids_);
       d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
-      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
-      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = time_step_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = time_step_ * d->differential->Lxu(Eigen::placeholders::all, lpf_torque_ids_);
+      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = time_step_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::placeholders::all);
       d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() = time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
       // Partials of hard-coded cost+(tauReg) & cost+(tauLim) w.r.t. (y,w)
       if (tauReg_weight_ != 0) {
@@ -326,8 +326,8 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Ly.head(ndx).noalias() = d->differential->Lx;
       d->Ly.tail(ntau_).noalias() = d->differential->Lu(lpf_torque_ids_);
       d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
-      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = d->differential->Lxu(Eigen::all, lpf_torque_ids_);
-      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = d->differential->Lxu(Eigen::placeholders::all, lpf_torque_ids_);
+      d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::placeholders::all);
       d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() = d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
       d->Lw.setZero();
       d->Lww.setZero();
@@ -354,8 +354,8 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Fy.block(0, 0, nv, ndx).noalias() = da_dx * time_step2_;
       d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
       d->Fy.block(0, ndx, nv, ntau_).noalias() =
-          alpha_ * alpha_ * da_du(Eigen::all, lpf_torque_ids_) * time_step2_;
-      d->Fy.block(nv, ndx, nv, ntau_).noalias() = alpha_ * da_du(Eigen::all, lpf_torque_ids_) * time_step_;
+          alpha_ * alpha_ * da_du(Eigen::placeholders::all, lpf_torque_ids_) * time_step2_;
+      d->Fy.block(nv, ndx, nv, ntau_).noalias() = alpha_ * da_du(Eigen::placeholders::all, lpf_torque_ids_) * time_step_;
       d->Fy.block(0, nq, nv, nv).diagonal().array() +=
           Scalar(time_step_);  // dt*identity top row middle col (eq.
                                // Jsecond = d(xnext)/d(dx))
@@ -363,7 +363,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       // managed by Jintegrate (eq. Jsecond = d(xnext)/d(dx))
       d->Fy.bottomRightCorner(ntau_, ntau_).diagonal().array() = Scalar(alpha_);
       d->Fw.topRows(nv).noalias() = da_du * time_step2_ * (1 - alpha_);
-      d->Fw.block(nv, 0, nv, ntau_).noalias() = da_du(Eigen::all, lpf_torque_ids_) * time_step_ * (1 - alpha_);
+      d->Fw.block(nv, 0, nv, ntau_).noalias() = da_du(Eigen::placeholders::all, lpf_torque_ids_) * time_step_ * (1 - alpha_);
       d->Fw.bottomRows(nv).diagonal().array() = Scalar(1 - alpha_);
       state_->JintegrateTransport(y, d->dy, d->Fy, second);  // it this correct?
       state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first,
@@ -377,13 +377,13 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Lyy.topLeftCorner(ndx, ndx).noalias() =
           time_step_ * d->differential->Lxx;
       d->Lyy.block(0, ndx, ndx, ntau_).noalias() =
-          alpha_ * time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+          alpha_ * time_step_ * d->differential->Lxu(Eigen::placeholders::all, lpf_torque_ids_);
       d->Lyy.block(ndx, 0, ntau_, ndx).noalias() =
-          alpha_ * time_step_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+          alpha_ * time_step_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::placeholders::all);
       d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() =
           alpha_ * alpha_ * time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
       d->Lyw.topRows(ndx).noalias() =
-          (1 - alpha_) * time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+          (1 - alpha_) * time_step_ * d->differential->Lxu(Eigen::placeholders::all, lpf_torque_ids_);
       d->Lyw.bottomRows(ntau_).noalias() =
           (1 - alpha_) * alpha_ * time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
       d->Lww.noalias() =
@@ -406,9 +406,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       d->Ly.tail(ntau_).noalias() = alpha_ * d->differential->Lu(lpf_torque_ids_);
       d->Lw.noalias() = (1 - alpha_) * d->differential->Lu;
       d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
-      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = alpha_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
+      d->Lyy.block(0, ndx, ndx, ntau_).noalias() = alpha_ * d->differential->Lxu(Eigen::placeholders::all, lpf_torque_ids_);
       d->Lyy.block(ndx, 0, ntau_, ndx).noalias() =
-          alpha_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
+          alpha_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::placeholders::all);
       d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() =
           alpha_ * alpha_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
       d->Lyw.topRows(ndx).noalias() = (1 - alpha_) * d->differential->Lxu;
