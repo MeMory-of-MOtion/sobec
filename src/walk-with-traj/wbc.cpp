@@ -29,7 +29,6 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
   x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
   x0_ << shapeState(q0, v0);
-  std::cout << x0_.size() << std::endl;
   designer_.updateReducedModel(x0_);
   designer_.updateCompleteModel(q0);
 
@@ -47,9 +46,10 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   Eigen::VectorXd zero_u = Eigen::VectorXd::Zero(designer_.get_rModel().nv - 6);
 
   for (std::size_t i = 0; i < horizon_.size(); i++) {
+    ///@todo: Remove this from the initialization and provide it as a method.
     xs_init.push_back(x0_);
     us_init.push_back(zero_u);
-    horizon_.setBalancingTorque(i, actuationCostName, x0_);  // sets ref torqs.
+    horizon_.setBalancingTorque(i, actuationCostName, x0_);
   }
   xs_init.push_back(x0_);
 
@@ -57,14 +57,6 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
   initializeSupportTiming();
   initialized_ = true;
-
-  // timing deprecated soon:
-  t_takeoff_RF_.setLinSpaced(settings_.horizonSteps, 0,
-                             2 * settings_.horizonSteps * settings_.Tstep);
-  t_takeoff_RF_.array() += (int)settings_.T;
-  t_takeoff_LF_ = t_takeoff_RF_.array() + settings_.Tstep;
-  t_land_RF_ = t_takeoff_RF_.array() + settings_.TsingleSupport;
-  t_land_LF_ = t_takeoff_LF_.array() + settings_.TsingleSupport;
 }
 
 void WBC::generateWalkingCycle(ModelMaker &mm) {
@@ -103,18 +95,6 @@ void WBC::generateStandingCycle(ModelMaker &mm) {
                                   cyclicModels[2 * settings_.Tstep - 1]);
 }
 
-void WBC::updateStepCycleTiming() {
-  t_takeoff_RF_.array() -= 1;
-  t_takeoff_LF_.array() -= 1;
-  t_land_RF_.array() -= 1;
-  t_land_LF_.array() -= 1;
-
-  if (t_land_LF_(0) < 0) t_land_LF_.array() += 2 * settings_.Tstep;
-  if (t_land_RF_(0) < 0) t_land_RF_.array() += 2 * settings_.Tstep;
-  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
-  if (t_takeoff_LF_(0) < 0) t_takeoff_LF_.array() += 2 * settings_.Tstep;
-}
-
 bool WBC::timeToSolveDDP(int iteration) {
   time_to_solve_ddp_ = !(iteration % settings_.Nc);
   return time_to_solve_ddp_;
@@ -124,7 +104,6 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
   // ~~TIMING~~ //
-  updateStepCycleTiming();
   updateSupportTiming();
   recedeWithCycle();
 
@@ -132,8 +111,8 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   designer_.updateReducedModel(x0_);
   switch (settings_.typeOfCommand) {
     case StepTracker:
-      // updateStepTrackerLastReference();
-      updateStepTrackerReferences();
+      updateStepTrackerLastReference();
+      // updateStepTrackerReferences();
       break;
     case NonThinking:
       updateNonThinkingReferences();
@@ -178,8 +157,7 @@ void WBC::updateNonThinkingReferences() {
     ///@todo: the names must be provided by the user
   }
 }
-///@todo: Correct the condition on the else if and consider adding here a
-/// condition based on DCM
+
 void WBC::recedeWithCycle() {
   if (now_ == WALKING) {
     recedeWithCycle(walkingCycle_);
@@ -242,7 +220,6 @@ const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q,
 void WBC::initializeSupportTiming() {
   for (unsigned int i = 0; i < horizon_.size() - 1; i++) {
     getSwitches(i, i + 1);
-    std::cout << switch_ << std::endl;
     if (switch_ == LAND_LF)
       land_LF_.push_back(i + 1);
     else if (switch_ == LAND_RF)
@@ -282,8 +259,8 @@ void WBC::updateSupportTiming() {
     takeoff_RF_.push_back(horizon_end_ - 1);
 }
 
-const supportSwitch &WBC::getSwitches(const unsigned long &before,
-                                      const unsigned long &after) {
+const supportSwitch &WBC::getSwitches(const unsigned long before,
+                                      const unsigned long after) {
   contacts_before_ = horizon_.get_contacts(before);
   contacts_after_ = horizon_.get_contacts(after);
 

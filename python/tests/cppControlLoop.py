@@ -22,7 +22,6 @@ import numpy as np
 
 
 def foot_trajectory(T, time_to_land, translation, trajectory="sine"):
-    print(time_to_land)
     """Functions to generate steps."""
     tmax = conf.T1contact
     landing_advance = 3
@@ -201,28 +200,42 @@ for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
 
-        landing_LF = mpc.land_LF()[0] if mpc.land_LF() else 2 * mpc.horizon.size()
-        landing_RF = mpc.land_RF()[0] if mpc.land_RF() else 2 * mpc.horizon.size()
+        landing_LF = (
+            mpc.land_LF()[0]
+            if mpc.land_LF()
+            else (
+                mpc.takeoff_LF()[0] + conf.T1contact
+                if mpc.takeoff_LF()
+                else 2 * mpc.horizon.size()
+            )
+        )
+        landing_RF = (
+            mpc.land_RF()[0]
+            if mpc.land_RF()
+            else (
+                mpc.takeoff_RF()[0] + conf.T1contact
+                if mpc.takeoff_RF()
+                else 2 * mpc.horizon.size()
+            )
+        )
+
         LF_refs = foot_trajectory(
             len(mpc.ref_LF_poses),
             landing_LF,
             mpc.ref_LF_poses[0].translation,
             "cosine",
-        )
+        )[len(mpc.ref_LF_poses) - 1]
         RF_refs = foot_trajectory(
             len(mpc.ref_RF_poses),
             landing_RF,
             mpc.ref_RF_poses[0].translation,
             "cosine",
-        )[len(mpc.ref_LF_poses) - 1]
+        )[len(mpc.ref_RF_poses) - 1]
 
-        #        for t in range(len(mpc.ref_LF_poses)):
-        #            mpc.ref_LF_poses[t] = pin.SE3(np.eye(3), LF_refs[t])
-        #            mpc.ref_RF_poses[t] = pin.SE3(np.eye(3), RF_refs[t])
         mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
-        mpc.ref_RF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
+        mpc.ref_RF_poses[len(mpc.ref_RF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
 
-    #        print_trajectory(mpc.ref_LF_poses)
+        print_trajectory(mpc.ref_LF_poses)
 
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
