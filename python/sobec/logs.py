@@ -5,7 +5,7 @@ from numpy.linalg import norm
 def logsToDict(logs):
     dlogs = {}
     for k in dir(logs):
-        if k[:2] == "__":
+        if k.startswith("__"):
             continue
         dlogs[k] = np.array(getattr(logs, k))
     return dlogs
