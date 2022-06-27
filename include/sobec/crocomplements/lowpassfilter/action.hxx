@@ -222,7 +222,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
     const VectorXs& a = d->differential->xout;
     d->dy.head(nv).noalias() =
         v * time_step_ + a * time_step2_;              // get     dq(a_q, dt)
-    d->dy.segment(nq, nv).noalias() = a * time_step_;  // get   dv_q(a_q, dt)
+    d->dy.segment(nv, nv).noalias() = a * time_step_;  // get   dv_q(a_q, dt)
     // Update dtau from LPF ids
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
     d->dy.tail(ntau_) = ((1 - alpha_) * (w - tau))(lpf_torque_ids_);
