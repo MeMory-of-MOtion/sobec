@@ -79,8 +79,13 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
     return lpf_joint_names_;
   };
 
+  const std::vector<int>& get_lpf_torque_ids() const {
+    return lpf_torque_ids_;
+  };
+
   void set_dt(const Scalar& dt);
   void set_fc(const Scalar& fc);
+  void set_alpha(const Scalar& alpha);
   void set_differential(
       boost::shared_ptr<DifferentialActionModelAbstract> model);
 
@@ -112,9 +117,9 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   boost::shared_ptr<DifferentialActionModelAbstract> differential_;
   Scalar time_step_;
   Scalar time_step2_;
-  Scalar fc_;
   Scalar alpha_;
   bool with_cost_residual_;
+  Scalar fc_;
   bool enable_integration_;
   Scalar tauReg_weight_;  //!< Cost weight for unfiltered torque regularization
   VectorXs tauReg_reference_;  //!< Cost reference for unfiltered torque

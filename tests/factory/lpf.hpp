@@ -24,7 +24,7 @@ struct ActionModelLPFTypes {
     IntegratedActionModelLPF_ALL,
     IntegratedActionModelLPF_RAND,
     IntegratedActionModelLPF_NONE,
-    // IntegratedActionModelLPF_zero_costs,
+    IntegratedActionModelLPF_alpha0,
     // IntegratedActionModelLPF_terminal,
     NbActionModelLPFTypes
   };
