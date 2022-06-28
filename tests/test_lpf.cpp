@@ -185,10 +185,20 @@ void test_calc_alpha0_equivalent_euler(
   std::size_t nv = modelEuler->get_state()->get_nv();
   // std::size_t nq = nx - nv;
   std::size_t ntau = boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)->get_ntau();
+  std::size_t ntau_state = boost::static_pointer_cast<sobec::StateLPF>(modelLPF->get_state())->get_ntau();
   const Eigen::VectorXd y = modelLPF->get_state()->rand();
   const Eigen::VectorXd& w = Eigen::VectorXd::Random(modelLPF->get_nw());
   const Eigen::VectorXd x = y.head(nx);
   const Eigen::VectorXd tau = y.tail(ntau);
+  // Check stuff
+  BOOST_CHECK(ntau == modelEuler->get_nu());
+  BOOST_CHECK(ntau_state == modelEuler->get_nu());
+  const std::vector<int>& lpf_torque_ids = modelLPF->get_lpf_torque_ids();
+  const std::vector<int>& non_lpf_torque_ids = modelLPF->get_non_lpf_torque_ids();
+  BOOST_CHECK(lpf_torque_ids.size() == modelEuler->get_nu());
+  BOOST_CHECK(non_lpf_torque_ids.size() == 0);
+  BOOST_CHECK(non_lpf_torque_ids.size() + lpf_torque_ids.size() == modelEuler->get_nu());
+
   // Checking the partial derivatives against NumDiff
   double tol = 1e-6;
   // Computing the action 
@@ -197,6 +207,9 @@ void test_calc_alpha0_equivalent_euler(
   // Test perfect actuation and state integration
   BOOST_CHECK((dataLPF->xnext.tail(ntau) - w).isZero(tol));
   BOOST_CHECK((dataLPF->xnext.head(nx) - dataEuler->xnext).isZero(tol));
+  BOOST_CHECK((dataLPF->r.head(modelEuler->get_nr()) - dataEuler->r).isZero(tol));
+  std::cout << dataLPF->cost - dataEuler->cost << std::endl;
+  BOOST_CHECK( (dataLPF->cost - dataEuler->cost) <= tol);
 }
 
 
@@ -229,11 +242,16 @@ void test_calc_NONE_equivalent_euler(
   BOOST_CHECK(ntau == 0);
   BOOST_CHECK(ntau_state == 0);
   const std::vector<int>& lpf_torque_ids = modelLPF->get_lpf_torque_ids();
+  const std::vector<int>& non_lpf_torque_ids = modelLPF->get_non_lpf_torque_ids();
   BOOST_CHECK(lpf_torque_ids.size() == 0);
+  BOOST_CHECK(non_lpf_torque_ids.size() + lpf_torque_ids.size() == modelEuler->get_nu());
+  BOOST_CHECK(non_lpf_torque_ids.size() == modelEuler->get_nu() );
+
   const Eigen::VectorXd y = modelLPF->get_state()->rand();
   BOOST_CHECK(y.size() == nx);
   const Eigen::VectorXd& w = Eigen::VectorXd::Random(modelLPF->get_nw());
   BOOST_CHECK(w.size() == modelEuler->get_nu());
+
   // Checking the partial derivatives against NumDiff
   double tol = 1e-6;
   // Computing the action 
@@ -241,6 +259,8 @@ void test_calc_NONE_equivalent_euler(
   modelEuler->calc(dataEuler, y, w);
   // Test perfect actuation and state integration
   BOOST_CHECK((dataLPF->xnext - dataEuler->xnext).isZero(tol));
+  BOOST_CHECK((dataLPF->r - dataEuler->r).isZero(tol));
+  BOOST_CHECK( (dataLPF->cost - dataEuler->cost) <= tol);
 }
 
 
@@ -280,22 +300,26 @@ void test_calcDiff_explicit_equivalent_euler(
     tau(lpf_torque_ids[i]) = y.tail(ntau)[i];
   }
   BOOST_CHECK(non_lpf_torque_ids.size() + lpf_torque_ids.size() == nu );
+
   // Checking the partial derivatives against NumDiff
   double tol = 1e-5; //1e-3
 
+  // BOOST_CHECK((tau-w).isZero(tol));
+
+
   // Computing the action 
   modelLPF->calc(dataLPF, y, w);
-  modelEuler->calc(dataEuler, x, tau);
+  modelEuler->calc(dataEuler, x, w); // careful put w here if alpha = 0
 
   // Computing the derivatives
   modelLPF->calcDiff(dataLPF, y, w);
-  modelEuler->calcDiff(dataEuler, x, tau);
+  modelEuler->calcDiff(dataEuler, x, w); // same
 
   BOOST_CHECK((dataLPF->Fx - dataEuler->Fx).isZero(tol));
   BOOST_CHECK((dataLPF->Fu - dataEuler->Fu).isZero(tol));
 
-  if(!  (dataLPF->Lx - dataEuler->Lx).isZero(tol) ){
-    std::cout << dataLPF->Lx - dataEuler->Lx << std::endl;
+  if(!  (dataLPF->Lu - dataEuler->Lu).isZero(tol) ){
+    std::cout << dataLPF->Lu - dataEuler->Lu << std::endl;
   }
 
   BOOST_CHECK((dataLPF->Lx - dataEuler->Lx).isZero(tol));
@@ -382,10 +406,10 @@ void register_action_model_unit_tests(
   if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_NONE){
     ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_NONE_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
   }
-  if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_NONE ){ //|
-    //  iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ){
-    ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
-  }
+  // if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ){ //|
+  //   //  iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ){
+  //   ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
+  // }
   framework::master_test_suite().add(ts);
 }
 
