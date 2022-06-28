@@ -3,16 +3,17 @@ from numpy.linalg import norm
 import example_robot_data as robex
 import sobec
 import sobec.walk_without_think
-from sobec.walk_without_think.robot_wrapper import RobotWrapper as pyRobotWrapper
-from sobec.walk_without_think.params import WalkParams as pyWalkParams
-import sobec.walk_without_think.ocp as pyOCPWalk
-from sobec.walk_without_think.miscdisp import reprProblem
-from sobec.walk_without_think.yaml_params import yamlWriteParams
+
+# from sobec.walk_without_think import RobotWrapper as pyRobotWrapper
+# from sobec.walk_without_think.params import WalkParams as pyWalkParams
+# import sobec.walk_without_think.ocp as pyOCPWalk
+# from sobec.walk_without_think.miscdisp import reprProblem
+# from sobec.walk_without_think.yaml_params import yamlWriteParams
 
 # --- ROBOT WRAPPER
 pyurdf = robex.load("talos_legs")
 pyurdf.model.name = "talos"
-pyrobot = pyRobotWrapper(pyurdf.model, contactKey="sole_link")
+pyrobot = sobec.wwt.RobotWrapper(pyurdf.model, contactKey="sole_link")
 urdf = robex.load("talos_legs")
 urdf.model.name = "talos"
 robot = sobec.OCPRobotWrapper(urdf.model, "sole_link", "half_sitting")
@@ -22,7 +23,7 @@ assert norm(pyrobot.x0 - robot.x0) < 1e-9
 
 # --- PARAMS
 
-pyparams = pyWalkParams(pyrobot.name)
+pyparams = sobec.wwt.WalkParams(pyrobot.name)
 params = sobec.OCPWalkParams()
 
 pyparams.minimalNormalForce = 50
@@ -81,7 +82,7 @@ for k, v in pyparams.__class__.__dict__.items():
     else:
         print(k, " is not a field of params")
 """
-yamlWriteParams("/tmp/test_ocpcpp.yml", pyparams)
+sobec.wwt.yaml_params.yamlWriteParams("/tmp/test_ocpcpp.yml", pyparams)
 params.readFromYaml("/tmp/test_ocpcpp.yml")
 
 # --- CONTACT PATTERN
@@ -95,7 +96,7 @@ pycontactPattern = (
 contactPattern = np.array(pycontactPattern).T
 
 # --- OCP
-pyocp = pyOCPWalk.buildSolver(pyrobot, pycontactPattern, pyparams)
+pyocp = sobec.wwt.buildSolver(pyrobot, pycontactPattern, pyparams)
 ocp = sobec.OCPWalk(robot, params, contactPattern)
 ocp.buildSolver()
 
@@ -103,15 +104,15 @@ ocp.buildSolver()
 # with open('/tmp/cpp.txt', 'w') as f: f.write(reprProblem(ocp.problem))
 # print('*** You can now run: \n\t\tdiff /tmp/py.txt /tmp/cpp.txt')
 
-pyserial = reprProblem(pyocp.problem)
-cppserial = reprProblem(ocp.problem)
+pyserial = sobec.reprProblem(pyocp.problem)
+cppserial = sobec.reprProblem(ocp.problem)
 
 fs = np.array([np.concatenate(f) for f in ocp.referenceForces])
 import matplotlib.pylab as plt  # noqa: E402,F401
 
 if pyserial != cppserial:
     with open("/tmp/cpp.txt", "w") as f:
-        f.write(reprProblem(ocp.problem))
+        f.write(sobec.reprProblem(ocp.problem))
     with open("/tmp/py.txt", "w") as f:
-        f.write(reprProblem(pyocp.problem))
+        f.write(sobec.reprProblem(pyocp.problem))
 assert pyserial == cppserial

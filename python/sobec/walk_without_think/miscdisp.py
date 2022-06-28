@@ -8,35 +8,6 @@ from __future__ import print_function
 import crocoddyl as croc
 
 
-def reprAction(amodel):
-    """Save all the action details in a text file."""
-    str = ""
-    dmodel = amodel.differential
-    str += "=== Contact\n"
-    for citem in dmodel.contacts.contacts:
-        str += "  - %s: %s\n" % (citem.key(), citem.data())
-    str += "=== Cost\n"
-    for citem in dmodel.costs.costs:
-        str += "  - %s: %s\n" % (citem.key(), citem.data())
-        cost = citem.data().cost
-        if isinstance(cost.activation, croc.ActivationModelWeightedQuad):
-            str += "\t\twact = %s\n" % cost.activation.weights
-        if isinstance(cost.activation, croc.ActivationModelQuadraticBarrier):
-            str += "\t\tlower = %s\n" % cost.activation.bounds.lb
-            str += "\t\tupper = %s\n" % cost.activation.bounds.lb
-        try:
-            str += "\t\tref = %s\n" % cost.residual.reference
-        except AttributeError:
-            pass
-    return str
-
-
-def reprProblem(problem):
-    return "".join(
-        "*t=%s\n%s" % (t, reprAction(r)) for t, r in enumerate(problem.runningModels)
-    ) + "*TERMINAL\n%s" % reprAction(problem.terminalModel)
-
-
 def contact2car(model, contactIds, contacts, costs):
     """Represent an ocp as one line of ASCII caracters for contacts and impacts"""
     left = "⎻"
@@ -88,10 +59,3 @@ class CallbackMPCWalk(croc.CallbackAbstract):
 
     def __call__(self, solver):
         print(dispocp(solver.problem, self.contactIds))
-
-
-def printReprProblem(problem, out="/tmp/disp-pb-from-cpp.txt"):
-    ret = reprProblem(problem)
-    print(ret)
-    with open(out, "w") as f:
-        print(ret, file=f)

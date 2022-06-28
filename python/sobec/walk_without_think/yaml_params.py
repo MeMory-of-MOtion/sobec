@@ -110,7 +110,7 @@ def yamlReadToParams(filename, params):
 # ################################################################################
 
 if __name__ == "__main__":
-    import sobec.walk.params
+    import sobec.walk_without_think.params
 
     params = sobec.walk.params.WalkParams("talos_low")
     pdict = paramsToDict(params)

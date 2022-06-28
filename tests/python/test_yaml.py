@@ -10,8 +10,6 @@ except ImportError:  # Python 2
 import numpy as np
 
 import sobec
-from sobec.walk_without_think.yaml_params import yamlWriteParams, yamlReadToParams
-from sobec.walk_without_think.params import WalkParams
 import sobec.walk_without_think.yaml_params as yaml_params
 
 
@@ -41,7 +39,7 @@ class TestYaml(unittest.TestCase):
     def test_1(self):
         with NamedTemporaryFile() as yamlFile:
             ocpparams = sobec.OCPWalkParams()
-            yamlWriteParams(yamlFile.name, ocpparams)
+            sobec.wwt.yamlWriteParams(yamlFile.name, ocpparams)
 
             ocpparams_pyread = sobec.OCPWalkParams()
             # Check direct read from file is ok
@@ -53,18 +51,18 @@ class TestYaml(unittest.TestCase):
     def test_2(self):
         """Read complex param from yaml."""
         with NamedTemporaryFile() as yamlFile:
-            pyparams = WalkParams("talos_low")
-            yamlWriteParams(yamlFile.name, pyparams)
+            pyparams = sobec.wwt.WalkParams("talos_low")
+            sobec.wwt.yamlWriteParams(yamlFile.name, pyparams)
 
             ocpparams_pyread = sobec.OCPWalkParams()
-            yamlReadToParams(yamlFile.name, ocpparams_pyread)
+            sobec.wwt.yamlReadToParams(yamlFile.name, ocpparams_pyread)
             self.compareTwoParams(pyparams, ocpparams_pyread, sobec.OCPWalkParams)
 
     def test_3(self):
         """Use c++ yaml read."""
         with NamedTemporaryFile() as yamlFile:
-            pyparams = WalkParams("talos_low")
-            yamlWriteParams(yamlFile.name, pyparams)
+            pyparams = sobec.wwt.WalkParams("talos_low")
+            sobec.wwt.yamlWriteParams(yamlFile.name, pyparams)
 
             ocpparams_cppread = sobec.OCPWalkParams()
             ocpparams_cppread.readFromYaml(yamlFile.name)
