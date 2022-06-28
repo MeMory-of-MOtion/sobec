@@ -62,7 +62,7 @@ std::vector<int> LPFJointListFactory::create_ids(
     case LPFJointMaskType::ALL: {
       for (std::vector<std::string>::iterator iter = model->names.begin();
            iter != model->names.end(); ++iter) {
-        if ((int)model->getJointId(*iter) < model->njoints &&
+        if (static_cast<int>(model->getJointId(*iter)) < model->njoints &&
             model->nvs[model->getJointId(*iter)] == 1) {
           lpf_joint_ids.push_back((int)model->getJointId(*iter));
         }
