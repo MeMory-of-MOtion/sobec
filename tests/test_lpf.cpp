@@ -275,11 +275,13 @@ void test_calcDiff_explicit_equivalent_euler(
   const Eigen::VectorXd x = y.head(nx);
   Eigen::VectorXd tau = w; 
   const std::vector<int>& lpf_torque_ids = modelLPF->get_lpf_torque_ids();
+  const std::vector<int>& non_lpf_torque_ids = modelLPF->get_non_lpf_torque_ids();
   for(std::size_t i=0; i<lpf_torque_ids.size();i++){
     tau(lpf_torque_ids[i]) = y.tail(ntau)[i];
   }
+  BOOST_CHECK(non_lpf_torque_ids.size() + lpf_torque_ids.size() == nu );
   // Checking the partial derivatives against NumDiff
-  double tol = 1e-3;
+  double tol = 1e-3; //1e-3
 
   // Computing the action 
   modelLPF->calc(dataLPF, y, w);
@@ -303,13 +305,33 @@ void test_calcDiff_explicit_equivalent_euler(
   const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
   const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
   const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
-  if(!  (Lxx_LPF - dataEuler->Lxx).isZero(tol) ){
-    std::cout << Lxx_LPF - dataEuler->Lxx << std::endl;
-  }
+  // if(!  (Lxx_LPF - dataEuler->Lxx).isZero(tol) ){
+  //   std::cout << Lxx_LPF - dataEuler->Lxx << std::endl;
+  // }
   // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
   BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
   BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
   BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
+
+  // // Non LPF dimensions
+  // // Size varying stuff  
+  // const Eigen::MatrixXd& Fu_nonLPF = dataLPF->Fu.topRows(ndx);
+  // // const Eigen::MatrixXd& Lu_nonLPF = dataLPF->Lw;
+  // // const Eigen::MatrixXd& Lxu_nonLPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
+  // // const Eigen::MatrixXd& Luu_nonLPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
+  // for(std::size_t i=0; i<lpf_torque_ids.size();i++){
+  //   BOOST_CHECK((Fu_nonLPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
+  //   // BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
+  //   // BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
+  // }
+  // // Fixed size stuff
+  // const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
+  // const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
+  // const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
+  // // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
+  // BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
+  // BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
+  // BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
 }
 
 
