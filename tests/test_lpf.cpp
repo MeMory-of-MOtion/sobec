@@ -281,7 +281,7 @@ void test_calcDiff_explicit_equivalent_euler(
   }
   BOOST_CHECK(non_lpf_torque_ids.size() + lpf_torque_ids.size() == nu );
   // Checking the partial derivatives against NumDiff
-  double tol = 1e-3; //1e-3
+  double tol = 1e-5; //1e-3
 
   // Computing the action 
   modelLPF->calc(dataLPF, y, w);
@@ -291,27 +291,40 @@ void test_calcDiff_explicit_equivalent_euler(
   modelLPF->calcDiff(dataLPF, y, w);
   modelEuler->calcDiff(dataEuler, x, tau);
 
-  // Size varying stuff  
-  const Eigen::MatrixXd& Fu_LPF = dataLPF->Fx.topRightCorner(ndx, ntau);
-  const Eigen::MatrixXd& Lu_LPF = dataLPF->Lx.tail(ntau);
-  const Eigen::MatrixXd& Lxu_LPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
-  const Eigen::MatrixXd& Luu_LPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
-  for(std::size_t i=0; i<lpf_torque_ids.size();i++){
-    BOOST_CHECK((Fu_LPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
-    BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
-    BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
+  BOOST_CHECK((dataLPF->Fx - dataEuler->Fx).isZero(tol));
+  BOOST_CHECK((dataLPF->Fu - dataEuler->Fu).isZero(tol));
+
+  if(!  (dataLPF->Lx - dataEuler->Lx).isZero(tol) ){
+    std::cout << dataLPF->Lx - dataEuler->Lx << std::endl;
   }
-  // Fixed size stuff
-  const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
-  const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
-  const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
-  // if(!  (Lxx_LPF - dataEuler->Lxx).isZero(tol) ){
-  //   std::cout << Lxx_LPF - dataEuler->Lxx << std::endl;
+
+  BOOST_CHECK((dataLPF->Lx - dataEuler->Lx).isZero(tol));
+  BOOST_CHECK((dataLPF->Lu - dataEuler->Lu).isZero(tol));
+  BOOST_CHECK((dataLPF->Lxx - dataEuler->Lxx).isZero(tol));
+  BOOST_CHECK((dataLPF->Lxu - dataEuler->Lxu).isZero(tol));
+  BOOST_CHECK((dataLPF->Luu - dataEuler->Luu).isZero(tol));
+  
+  // // Size varying stuff  
+  // const Eigen::MatrixXd& Fu_LPF = dataLPF->Fx.topRightCorner(ndx, ntau);
+  // const Eigen::MatrixXd& Lu_LPF = dataLPF->Lx.tail(ntau);
+  // const Eigen::MatrixXd& Lxu_LPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
+  // const Eigen::MatrixXd& Luu_LPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
+  // for(std::size_t i=0; i<lpf_torque_ids.size();i++){
+  //   BOOST_CHECK((Fu_LPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
+  //   BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
+  //   BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
   // }
-  // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
-  BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
-  BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
-  BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
+  // // Fixed size stuff
+  // const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
+  // const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
+  // const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
+  // // if(!  (Lxx_LPF - dataEuler->Lxx).isZero(tol) ){
+  // //   std::cout << Lxx_LPF - dataEuler->Lxx << std::endl;
+  // // }
+  // // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
+  // BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
+  // BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
+  // BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
 
   // // Non LPF dimensions
   // // Size varying stuff  
@@ -369,7 +382,10 @@ void register_action_model_unit_tests(
   if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_NONE){
     ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_NONE_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
   }
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
+  if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_NONE ){ //|
+    //  iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ){
+    ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
+  }
   framework::master_test_suite().add(ts);
 }
 

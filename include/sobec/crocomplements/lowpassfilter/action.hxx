@@ -151,7 +151,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
     d->tau_tmp(lpf_torque_ids_[i]) = y.tail(ntau_)(i);
   }
   for (std::size_t i = 0; i < non_lpf_torque_ids_.size(); i++) {
-    d->tau_tmp(non_lpf_torque_ids_[i]) = w(i);
+    d->tau_tmp(non_lpf_torque_ids_[i]) = w(non_lpf_torque_ids_[i]);
   }
 #endif
 
@@ -167,7 +167,6 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
                  << "tau has wrong dimension (it should be " +
                         std::to_string(nw_) + ")");
   }
-
   if (static_cast<std::size_t>(d->Fy.rows()) !=
       boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) {
     throw_pretty(
@@ -359,7 +358,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
     d->tau_tmp(lpf_torque_ids_[i]) = y.tail(ntau_)(i);
   }
   for (std::size_t i = 0; i < non_lpf_torque_ids_.size(); i++) {
-    d->tau_tmp(non_lpf_torque_ids_[i]) = w(i);
+    d->tau_tmp(non_lpf_torque_ids_[i]) = w(non_lpf_torque_ids_[i]);
   }
 #endif
   const Eigen::Ref<const VectorXs>& tau = d->tau_tmp;

@@ -53,7 +53,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       DifferentialActionModelFactory().create(dam_type, ref_type, mask_type);
   switch (iam_type) {
     case ActionModelLPFTypes::IntegratedActionModelLPF_ALL: {
-      double time_step = 1e-6;
+      double time_step = 1e-3;
       bool with_cost_residual = true;
       double fc = 5;
       bool tau_plus_integration = false;
@@ -79,7 +79,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       break;
     }
     case ActionModelLPFTypes::IntegratedActionModelLPF_RAND: {
-      double time_step = 1e-6;
+      double time_step = 1e-3;
       bool with_cost_residual = true;
       double fc = 5;
       bool tau_plus_integration = false;
@@ -105,7 +105,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       break;
     }
     case ActionModelLPFTypes::IntegratedActionModelLPF_NONE: {
-      double time_step = 1e-6;
+      double time_step = 1e-3;
       bool with_cost_residual = true;
       double fc = 5;
       bool tau_plus_integration = false;
@@ -131,7 +131,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       break;
     }
     case ActionModelLPFTypes::IntegratedActionModelLPF_alpha0: {
-      double time_step = 1e-6;
+      double time_step = 1e-3;
       bool with_cost_residual = true;
       double alpha = 0.;
       double fc = 50000;
