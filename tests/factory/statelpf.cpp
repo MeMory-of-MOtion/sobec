@@ -64,7 +64,7 @@ std::vector<int> LPFJointListFactory::create_ids(
            iter != model->names.end(); ++iter) {
         if (static_cast<int>(model->getJointId(*iter)) < model->njoints &&
             model->nvs[model->getJointId(*iter)] == 1) {
-          lpf_joint_ids.push_back((int)model->getJointId(*iter));
+          lpf_joint_ids.push_back(static_cast<int>(model->getJointId(*iter)));
         }
       }
       break;
