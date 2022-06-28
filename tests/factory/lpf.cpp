@@ -150,9 +150,9 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
           dam, lpf_joint_names, time_step, with_cost_residual, fc,
           tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
-      double tauReg_weight = 0.001;
+      double tauReg_weight = 0.;
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
-      double tauLim_weight = 0.1;
+      double tauLim_weight = 0.;
       iam->set_control_reg_cost(tauReg_weight, tauReg_ref);
       iam->set_control_lim_cost(tauLim_weight);
       iam->set_alpha(alpha);

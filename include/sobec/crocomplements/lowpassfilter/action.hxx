@@ -28,9 +28,8 @@ IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
       time_step2_(time_step * time_step),
       with_cost_residual_(with_cost_residual),
       fc_(fc),
-      tau_plus_integration_(tau_plus_integration),
       nw_(model->get_nu()),
-      ntau_(lpf_joint_names.size()),
+      tau_plus_integration_(tau_plus_integration),
       ny_(model->get_state()->get_nx() + lpf_joint_names.size()),
       enable_integration_(true),
       filter_(filter),
@@ -41,6 +40,7 @@ IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
   pin_model_ = state->get_pinocchio();
   // Check that used-specified LPF joints are valid (no free-flyer) and collect
   // ids
+  ntau_ = lpf_joint_names.size();
   for (std::vector<std::string>::iterator iter = lpf_joint_names.begin();
        iter != lpf_joint_names.end(); ++iter) {
     std::size_t jointId = pin_model_->getJointId(*iter);
