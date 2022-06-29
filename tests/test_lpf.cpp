@@ -129,6 +129,16 @@ void test_partial_derivatives_against_numdiff(
 
   BOOST_CHECK((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Fu - data_num_diff->Fu).isZero(NUMDIFF_MODIFIER * tol));
+  if(!(data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol)){
+    std::cout << " Lx - Lx_nd : " << std::endl;
+    // std::cout << (data->Lx - data_num_diff->Lx).lpNorm<Eigen::Infinity>() << std::endl;
+    std::cout << (data->Lx - data_num_diff->Lx) << std::endl;
+  }
+  if(!(data->Lu - data_num_diff->Lu).isZero(NUMDIFF_MODIFIER * tol)){
+    std::cout << " Lu - Lu_nd : " << std::endl;
+    // std::cout << (data->Lu - data_num_diff->Lu).lpNorm<Eigen::Infinity>() << std::endl;
+    std::cout << (data->Lu - data_num_diff->Lu) << std::endl;
+  }
   BOOST_CHECK((data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Lu - data_num_diff->Lu).isZero(NUMDIFF_MODIFIER * tol));
   if (model_num_diff.get_with_gauss_approx()) {

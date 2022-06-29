@@ -46,7 +46,8 @@ boost::shared_ptr<sobec::IntegratedActionModelLPF>
 ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
                               DifferentialActionModelTypes::Type dam_type,
                               PinocchioReferenceTypes::Type ref_type,
-                              ContactModelMaskTypes::Type mask_type) const {
+                              ContactModelMaskTypes::Type mask_type,
+                              bool is_terminal) const {
   // LPFJointMaskType lpf_mask_type) const {
   boost::shared_ptr<sobec::IntegratedActionModelLPF> iam;
   boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam =
@@ -55,10 +56,9 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
     case ActionModelLPFTypes::IntegratedActionModelLPF_ALL: {
       double time_step = 1e-3;
       bool with_cost_residual = true;
-      double fc = 5;
+      double fc = 1 + (double) (rand()) /( (double)(RAND_MAX/(50-1)));
       bool tau_plus_integration = false;
       int filter = 1;
-      bool is_terminal = false;
       // Select LPF joints
       boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody =
           boost::static_pointer_cast<crocoddyl::StateMultibody>(
@@ -71,9 +71,9 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
           dam, lpf_joint_names, time_step, with_cost_residual, fc,
           tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
-      double tauReg_weight = 0.02;
+      double tauReg_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
-      double tauLim_weight = 1.;
+      double tauLim_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
       iam->set_control_reg_cost(tauReg_weight, tauReg_ref);
       iam->set_control_lim_cost(tauLim_weight);
       break;
@@ -81,10 +81,10 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
     case ActionModelLPFTypes::IntegratedActionModelLPF_RAND: {
       double time_step = 1e-3;
       bool with_cost_residual = true;
-      double fc = 5;
+      // double r3 = 1 + static_cast <double> (rand()) /( static_cast <double> (RAND_MAX/(50-1)));
+      double fc = 1 + (double) (rand()) /( (double)(RAND_MAX/(50-1)));
       bool tau_plus_integration = false;
       int filter = 1;
-      bool is_terminal = false;
       // Select LPF joints
       boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody =
           boost::static_pointer_cast<crocoddyl::StateMultibody>(
@@ -97,9 +97,9 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
           dam, lpf_joint_names, time_step, with_cost_residual, fc,
           tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
-      double tauReg_weight = 0.02;
+      double tauReg_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
-      double tauLim_weight = 1.;
+      double tauLim_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
       iam->set_control_reg_cost(tauReg_weight, tauReg_ref);
       iam->set_control_lim_cost(tauLim_weight);
       break;
@@ -107,10 +107,9 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
     case ActionModelLPFTypes::IntegratedActionModelLPF_NONE: {
       double time_step = 1e-3;
       bool with_cost_residual = true;
-      double fc = 5;
+      double fc = rand() % (50) + 1;
       bool tau_plus_integration = false;
       int filter = 1;
-      bool is_terminal = false;
       // Select LPF joints
       boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody =
           boost::static_pointer_cast<crocoddyl::StateMultibody>(
@@ -122,22 +121,19 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
           dam, lpf_joint_names, time_step, with_cost_residual, fc,
           tau_plus_integration, filter, is_terminal);
-      // set hard-coded costs on unfiltered torque
-      // double tauReg_weight = 0.;
-      // Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
-      // double tauLim_weight = 0.;
-      // iam->set_control_reg_cost(tauReg_weight, tauReg_ref);
-      // iam->set_control_lim_cost(tauLim_weight);
+      double tauReg_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
+      Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
+      double tauLim_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
+      iam->set_control_reg_cost(tauReg_weight, tauReg_ref);
+      iam->set_control_lim_cost(tauLim_weight);
       break;
     }
     case ActionModelLPFTypes::IntegratedActionModelLPF_alpha0: {
       double time_step = 1e-3;
       bool with_cost_residual = true;
-      double alpha = 0.;
       double fc = 50000;
       bool tau_plus_integration = false;
       int filter = 1;
-      bool is_terminal = false;
       // Select LPF joints
       boost::shared_ptr<crocoddyl::StateMultibody> stateMultibody =
           boost::static_pointer_cast<crocoddyl::StateMultibody>(
@@ -150,12 +146,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
           dam, lpf_joint_names, time_step, with_cost_residual, fc,
           tau_plus_integration, filter, is_terminal);
       // set hard-coded costs on unfiltered torque
-      // double tauReg_weight = 0.;
-      // Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
-      // double tauLim_weight = 0.;
-      // iam->set_control_reg_cost(tauReg_weight, tauReg_ref);
-      // iam->set_control_lim_cost(tauLim_weight);
-      iam->set_alpha(alpha);
+      iam->set_alpha(0.);
       break;
     }
     default:

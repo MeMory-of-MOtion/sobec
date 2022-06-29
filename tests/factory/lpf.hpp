@@ -52,7 +52,8 @@ class ActionModelLPFFactory {
       ActionModelLPFTypes::Type iam_type,
       DifferentialActionModelTypes::Type dam_type,
       PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
-      ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) const;
+      ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z,
+      bool is_terminal = false) const;
   // LPFJointMaskType lpf_mask_type = LPFJointMaskType::ALL) const;
 };
 

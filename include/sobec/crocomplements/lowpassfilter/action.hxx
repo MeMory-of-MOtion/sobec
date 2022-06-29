@@ -247,7 +247,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
 
   // Add hard-coded cost on unfiltered torque a[r(w)] only at LPF joints
   // Torque REG
-  if (tauReg_weight_ != 0) {
+  if (tauReg_weight_ > 0) {
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
     tauReg_residual_ = w(lpf_torque_ids_) - tauReg_reference_;
 #else
@@ -259,7 +259,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
     d->cost += Scalar(0.5 * time_step_ * tauReg_weight_ * tauReg_residual_.transpose() * tauReg_residual_);  
   }
   // Torque LIM 
-  if (tauLim_weight_ != 0) {
+  if (tauLim_weight_ > 0) {
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
     activation_model_tauLim_->calc(
         d->activation,
@@ -280,11 +280,11 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
     d->r.head(differential_->get_nr()) = d->differential->r;
     
     // Add unfiltered torque residuals
-    if (tauReg_weight_ != 0) {
+    if (tauReg_weight_ > 0) {
       d->r.segment(differential_->get_nr(), ntau_) =
           tauReg_residual_;  
     }                        
-    if (tauLim_weight_ != 0) {
+    if (tauLim_weight_ > 0) {
       d->r.tail(ntau_) = tauLim_residual_;  
     }                                       
   }                                           
@@ -369,7 +369,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
     differential_->calcDiff(d->differential, x, tau);
     
     // Get cost lim w derivatives
-    if (tauLim_weight_ != 0) {
+    if (tauLim_weight_ > 0) {
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
       activation_model_tauLim_->calcDiff(d->activation, w(lpf_torque_ids_));
 #else
@@ -469,7 +469,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
 #endif
 
     // Partials of hard-coded cost+(tauReg) & cost+(tauLim) w.r.t. (y,w)
-    if (tauReg_weight_ != 0) {
+    if (tauReg_weight_ > 0) {
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
       d->Lw(lpf_torque_ids_) += time_step_ * tauReg_weight_ * d->r.segment(differential_->get_nr(), ntau_);  // tau reg
       d->Lww.diagonal().array()(lpf_torque_ids_) += Scalar(time_step_ * tauReg_weight_);  // tau reg
@@ -480,18 +480,17 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       }
 #endif
     }  // tauReg !=0
-    if (tauLim_weight_ != 0) {
+    if (tauLim_weight_ > 0) {
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
-        d->Lw(lpf_torque_ids_) += time_step_ * tauLim_weight_ * d->activation->Ar;  // tau lim
-        d->Lww.diagonal()(lpf_torque_ids_) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal();  // tau lim
+      d->Lw(lpf_torque_ids_) += time_step_ * tauLim_weight_ * d->activation->Ar;  // tau lim
+      d->Lww.diagonal()(lpf_torque_ids_) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal();  // tau lim
 #else
-        for (std::size_t i = 0; i < lpf_torque_ids_.size(); i++) {
-          d->Lw(lpf_torque_ids_[i]) += time_step_ * tauLim_weight_ * d->activation->Ar(i);  // tau lim
-          d->Lww.diagonal()(lpf_torque_ids_[i]) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal()(i);  // tau lim
-        }
+      for (std::size_t i = 0; i < lpf_torque_ids_.size(); i++) {
+        d->Lw(lpf_torque_ids_[i]) += time_step_ * tauLim_weight_ * d->activation->Ar(i);  // tau lim
+        d->Lww.diagonal()(lpf_torque_ids_[i]) += time_step_ * tauLim_weight_ * d->activation->Arr.diagonal()(i);  // tau lim
+      }
 #endif
-      }  // tauLim !=0
-
+    }  // tauLim !=0
   }  // tau integration
 
 //   // TAU PLUS INTEGRATION
