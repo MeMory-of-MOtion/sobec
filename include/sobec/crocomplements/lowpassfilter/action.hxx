@@ -453,15 +453,17 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
     d->Lw(non_lpf_torque_ids_).noalias() = time_step_ * d->differential->Lu(non_lpf_torque_ids_);
     d->Lyw.topRows(ndx)(Eigen::all, non_lpf_torque_ids_).noalias() = time_step_ * d->differential->Lxu(Eigen::all, non_lpf_torque_ids_);
-    // d->Lyw.bottomRows(ntau_)(Eigen::all, non_lpf_torque_ids_).noalias() = time_step_ * d->differential->Luu(non_lpf_torque_ids_, non_lpf_torque_ids_);
+    d->Lyw.bottomRows(ntau_)(Eigen::all, non_lpf_torque_ids_).noalias() = time_step_ * d->differential->Luu(lpf_torque_ids_, non_lpf_torque_ids_);
     d->Lww(non_lpf_torque_ids_, non_lpf_torque_ids_).noalias() = time_step_ * d->differential->Luu(non_lpf_torque_ids_, non_lpf_torque_ids_);
 #else
     for (std::size_t i = 0; i < non_lpf_torque_ids_.size(); i++) {
       d->Lw(non_lpf_torque_ids_[i]) = time_step_ * d->differential->Lu(non_lpf_torque_ids_[i]);
       d->Lyw.topRows(ndx).col(non_lpf_torque_ids_[i]).noalias() = time_step_ * d->differential->Lxu.col(non_lpf_torque_ids_[i]);
-      // d->Lyw.bottomRows(ntau_).col(non_lpf_torque_ids_[i]).noalias() = time_step_ * d->differential->Luu.col(non_lpf_torque_ids_[i]);
       for (std::size_t j = 0; j < non_lpf_torque_ids_.size(); j++) {
         d->Lww(non_lpf_torque_ids_[i], non_lpf_torque_ids_[j]) = time_step_ * d->differential->Luu(non_lpf_torque_ids_[i], non_lpf_torque_ids_[j]);
+      }
+      for (std::size_t j = 0; j < lpf_torque_ids_.size(); j++) {
+        d->Lyw.bottomRows(ntau_)(j, non_lpf_torque_ids_[i]) = time_step_ * d->differential->Luu(lpf_torque_ids_[j], non_lpf_torque_ids_[i]);
       }
     }
 #endif
@@ -719,17 +721,19 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
   d->Lyw.setZero();
   d->Lww.setZero();
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
-  d->Lw(non_lpf_torque_ids_).noalias() = d->differential->Lu(non_lpf_torque_ids_);
-  d->Lyw.topRows(ndx)(Eigen::all, non_lpf_torque_ids_).noalias() = d->differential->Lxu(Eigen::all, non_lpf_torque_ids_);
-  // d->Lyw.bottomRows(ntau_)(Eigen::all, non_lpf_torque_ids_).noalias() =  d->differential->Luu(non_lpf_torque_ids_, non_lpf_torque_ids_);
+  d->Lw(non_lpf_torque_ids_).noalias() =  d->differential->Lu(non_lpf_torque_ids_);
+  d->Lyw.topRows(ndx)(Eigen::all, non_lpf_torque_ids_).noalias() =  d->differential->Lxu(Eigen::all, non_lpf_torque_ids_);
+  d->Lyw.bottomRows(ntau_)(Eigen::all, non_lpf_torque_ids_).noalias() =  d->differential->Luu(lpf_torque_ids_, non_lpf_torque_ids_);
   d->Lww(non_lpf_torque_ids_, non_lpf_torque_ids_).noalias() =  d->differential->Luu(non_lpf_torque_ids_, non_lpf_torque_ids_);
 #else
   for (std::size_t i = 0; i < non_lpf_torque_ids_.size(); i++) {
     d->Lw(non_lpf_torque_ids_[i]) =  d->differential->Lu(non_lpf_torque_ids_[i]);
     d->Lyw.topRows(ndx).col(non_lpf_torque_ids_[i]).noalias() =  d->differential->Lxu.col(non_lpf_torque_ids_[i]);
-    // d->Lyw.bottomRows(ntau_).row(i).noalias() =  d->differential->Luu.row(non_lpf_torque_ids_[i]);
     for (std::size_t j = 0; j < non_lpf_torque_ids_.size(); j++) {
       d->Lww(non_lpf_torque_ids_[i], non_lpf_torque_ids_[j]) =  d->differential->Luu(non_lpf_torque_ids_[i], non_lpf_torque_ids_[j]);
+    }
+    for (std::size_t j = 0; j < lpf_torque_ids_.size(); j++) {
+      d->Lyw.bottomRows(ntau_)(j, non_lpf_torque_ids_[i]) =  d->differential->Luu(lpf_torque_ids_[j], non_lpf_torque_ids_[i]);
     }
   }
 #endif

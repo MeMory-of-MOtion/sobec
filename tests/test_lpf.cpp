@@ -397,14 +397,17 @@ void test_calcDiff_explicit_equivalent_euler(
   // Size varying stuff  
   const Eigen::MatrixXd& Fu_nonLPF = dataLPF->Fu.topRows(ndx);
   const Eigen::MatrixXd& Lu_nonLPF = dataLPF->Lu;
-  // const Eigen::MatrixXd& Lxu_nonLPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
+  const Eigen::MatrixXd& Lxu_nonLPF = dataLPF->Lxu;
   const Eigen::MatrixXd& Luu_nonLPF = dataLPF->Luu;
   for(std::size_t i=0; i<non_lpf_torque_ids.size();i++){
     BOOST_CHECK((Fu_nonLPF.col(non_lpf_torque_ids[i]) - dataEuler->Fu.col(non_lpf_torque_ids[i])).isZero(tol));
     BOOST_CHECK((Lu_nonLPF(non_lpf_torque_ids[i]) - dataEuler->Lu(non_lpf_torque_ids[i])) <= tol);
-    // BOOST_CHECK((Lxu_nonLPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
-    for(std::size_t j=0; j<lpf_torque_ids.size();j++){
+    BOOST_CHECK((Lxu_nonLPF.topRows(ndx).col(non_lpf_torque_ids[i]) - dataEuler->Lxu.col(non_lpf_torque_ids[i])).isZero(tol));
+    for(std::size_t j=0; j<non_lpf_torque_ids.size();j++){
       BOOST_CHECK((Luu_nonLPF(non_lpf_torque_ids[i],non_lpf_torque_ids[j]) - dataEuler->Luu(non_lpf_torque_ids[i], non_lpf_torque_ids[j])) <= tol );
+    }
+    for(std::size_t j=0; j<lpf_torque_ids.size();j++){
+      BOOST_CHECK((Lxu_nonLPF.bottomRows(ntau)(j, non_lpf_torque_ids[i]) - dataEuler->Luu(lpf_torque_ids[j], non_lpf_torque_ids[i])) <= tol );
     }
   }
 }
