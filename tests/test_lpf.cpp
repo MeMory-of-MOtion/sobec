@@ -268,7 +268,7 @@ void test_calc_alpha0_equivalent_euler(
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEulerTerminal = modelEuler->createData();
   modelLPF->calc(dataLPFTerminal, y);
   modelEuler->calc(dataEulerTerminal, x);
-  BOOST_CHECK((dataLPFTerminal->r - dataEulerTerminal->r).isZero(tol));
+  BOOST_CHECK((dataLPFTerminal->r.head(modelEuler->get_nr()) - dataEulerTerminal->r).isZero(tol));
   BOOST_CHECK((dataLPFTerminal->cost - dataEulerTerminal->cost) <= tol);
 }
 
