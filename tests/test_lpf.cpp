@@ -171,12 +171,9 @@ void test_calc_alpha0_equivalent_euler(
       factory_iam.create(iam_type, dam_type, ref_type, mask_type);
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF = modelLPF->createData();
 
-  // Create IAM Euler from DAM and iamLPF.dt (with cost residual)
-  DifferentialActionModelFactory factory_dam;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam = 
-      factory_dam.create(dam_type, ref_type, mask_type);
+  // Create IAM Euler from iamLPF.DAM and iamLPF.dt (with cost residual)
   boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> modelEuler = 
-    boost::make_shared<crocoddyl::IntegratedActionModelEuler>(dam, modelLPF->get_dt(), true);
+    boost::make_shared<crocoddyl::IntegratedActionModelEuler>(modelLPF->get_differential(), modelLPF->get_dt(), true);
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEuler = modelEuler->createData();
 
   // Generating random values for the state and control
@@ -190,6 +187,7 @@ void test_calc_alpha0_equivalent_euler(
   const Eigen::VectorXd& w = Eigen::VectorXd::Random(modelLPF->get_nw());
   const Eigen::VectorXd x = y.head(nx);
   const Eigen::VectorXd tau = y.tail(ntau);
+
   // Check stuff
   BOOST_CHECK(ntau == modelEuler->get_nu());
   BOOST_CHECK(ntau_state == modelEuler->get_nu());
@@ -201,6 +199,13 @@ void test_calc_alpha0_equivalent_euler(
 
   // Checking the partial derivatives against NumDiff
   double tol = 1e-6;
+
+  // // Test DAM calc 
+  // modelLPF->get_differential()->calc(boost::static_pointer_cast<sobec::IntegratedActionDataLPF>(dataLPF)->differential, x, tau);
+  // modelEuler->get_differential()->calc(boost::static_pointer_cast<crocoddyl::IntegratedActionDataEuler>(dataEuler)->differential, x, tau);
+  // std::cout << "euler->dam->cost = " << boost::static_pointer_cast<crocoddyl::IntegratedActionDataEuler>(dataEuler)->differential->cost << std::endl;
+  // std::cout << "lpf->dam->cost   = " << boost::static_pointer_cast<sobec::IntegratedActionDataLPF>(dataLPF)->differential->cost << std::endl;
+
   // Computing the action 
   modelLPF->calc(dataLPF, y, w);
   modelEuler->calc(dataEuler, x, tau);
@@ -208,7 +213,6 @@ void test_calc_alpha0_equivalent_euler(
   BOOST_CHECK((dataLPF->xnext.tail(ntau) - w).isZero(tol));
   BOOST_CHECK((dataLPF->xnext.head(nx) - dataEuler->xnext).isZero(tol));
   BOOST_CHECK((dataLPF->r.head(modelEuler->get_nr()) - dataEuler->r).isZero(tol));
-  std::cout << dataLPF->cost - dataEuler->cost << std::endl;
   BOOST_CHECK( (dataLPF->cost - dataEuler->cost) <= tol);
 }
 
@@ -226,11 +230,8 @@ void test_calc_NONE_equivalent_euler(
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF = modelLPF->createData();
 
   // Create IAM Euler from DAM and iamLPF.dt (with cost residual)
-  DifferentialActionModelFactory factory_dam;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam = 
-      factory_dam.create(dam_type, ref_type, mask_type);
   boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> modelEuler = 
-    boost::make_shared<crocoddyl::IntegratedActionModelEuler>(dam, modelLPF->get_dt(), true);
+    boost::make_shared<crocoddyl::IntegratedActionModelEuler>(modelLPF->get_differential(), modelLPF->get_dt(), true);
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEuler = modelEuler->createData();
 
   // Generating random values for the state and control
@@ -277,11 +278,8 @@ void test_calcDiff_explicit_equivalent_euler(
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF = modelLPF->createData();
 
   // Create IAM Euler from DAM and iamLPF.dt (with cost residual)
-  DifferentialActionModelFactory factory_dam;
-  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam = 
-      factory_dam.create(dam_type, ref_type, mask_type);
   boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> modelEuler = 
-    boost::make_shared<crocoddyl::IntegratedActionModelEuler>(dam, modelLPF->get_dt(), true);
+    boost::make_shared<crocoddyl::IntegratedActionModelEuler>(modelLPF->get_differential(), modelLPF->get_dt(), true);
   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEuler = modelEuler->createData();
 
   // Generating random values for the state and control
@@ -296,79 +294,74 @@ void test_calcDiff_explicit_equivalent_euler(
   Eigen::VectorXd tau = w; 
   const std::vector<int>& lpf_torque_ids = modelLPF->get_lpf_torque_ids();
   const std::vector<int>& non_lpf_torque_ids = modelLPF->get_non_lpf_torque_ids();
+  BOOST_CHECK(ntau == lpf_torque_ids.size());
   for(std::size_t i=0; i<lpf_torque_ids.size();i++){
     tau(lpf_torque_ids[i]) = y.tail(ntau)[i];
   }
   BOOST_CHECK(non_lpf_torque_ids.size() + lpf_torque_ids.size() == nu );
 
   // Checking the partial derivatives against NumDiff
-  double tol = 1e-5; //1e-3
-
-  // BOOST_CHECK((tau-w).isZero(tol));
-
+  double tol = 1e-6; //1e-3
 
   // Computing the action 
   modelLPF->calc(dataLPF, y, w);
-  modelEuler->calc(dataEuler, x, w); // careful put w here if alpha = 0
-
+  modelEuler->calc(dataEuler, x, w); 
   // Computing the derivatives
   modelLPF->calcDiff(dataLPF, y, w);
-  modelEuler->calcDiff(dataEuler, x, w); // same
+  modelEuler->calcDiff(dataEuler, x, w); 
 
-  BOOST_CHECK((dataLPF->Fx - dataEuler->Fx).isZero(tol));
-  BOOST_CHECK((dataLPF->Fu - dataEuler->Fu).isZero(tol));
+  // Case no joint is LPF
+  if(ntau == 0){
+    BOOST_CHECK((dataLPF->Fx - dataEuler->Fx).isZero(tol));
+    BOOST_CHECK((dataLPF->Fu - dataEuler->Fu).isZero(tol));
+    BOOST_CHECK((dataLPF->Lx - dataEuler->Lx).isZero(tol));
+    BOOST_CHECK((dataLPF->Lu - dataEuler->Lu).isZero(tol));
+    BOOST_CHECK((dataLPF->Lxx - dataEuler->Lxx).isZero(tol));
+    BOOST_CHECK((dataLPF->Lxu - dataEuler->Lxu).isZero(tol));
+    BOOST_CHECK((dataLPF->Luu - dataEuler->Luu).isZero(tol));
+  }
+  // All or some joint are LPF
+  else{
+    // Size varying stuff  
+    const Eigen::MatrixXd& Fu_LPF = dataLPF->Fx.topRightCorner(ndx, ntau);
+    const Eigen::MatrixXd& Lu_LPF = dataLPF->Lx.tail(ntau);
+    const Eigen::MatrixXd& Lxu_LPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
+    const Eigen::MatrixXd& Luu_LPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
+    for(std::size_t i=0; i<lpf_torque_ids.size();i++){
+      BOOST_CHECK((Fu_LPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
+      BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
+      BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
+    }
+    // Fixed size stuff
+    const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
+    const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
+    const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
+    // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
+    BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
+    BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
+    BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
 
-  if(!  (dataLPF->Lu - dataEuler->Lu).isZero(tol) ){
-    std::cout << dataLPF->Lu - dataEuler->Lu << std::endl;
+    // // Non LPF dimensions
+    // // Size varying stuff  
+    // const Eigen::MatrixXd& Fu_nonLPF = dataLPF->Fu.topRows(ndx);
+    // // const Eigen::MatrixXd& Lu_nonLPF = dataLPF->Lw;
+    // // const Eigen::MatrixXd& Lxu_nonLPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
+    // // const Eigen::MatrixXd& Luu_nonLPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
+    // for(std::size_t i=0; i<lpf_torque_ids.size();i++){
+    //   BOOST_CHECK((Fu_nonLPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
+    //   // BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
+    //   // BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
+    // }
+    // // Fixed size stuff
+    // const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
+    // const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
+    // const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
+    // // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
+    // BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
+    // BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
+    // BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
   }
 
-  BOOST_CHECK((dataLPF->Lx - dataEuler->Lx).isZero(tol));
-  BOOST_CHECK((dataLPF->Lu - dataEuler->Lu).isZero(tol));
-  BOOST_CHECK((dataLPF->Lxx - dataEuler->Lxx).isZero(tol));
-  BOOST_CHECK((dataLPF->Lxu - dataEuler->Lxu).isZero(tol));
-  BOOST_CHECK((dataLPF->Luu - dataEuler->Luu).isZero(tol));
-  
-  // // Size varying stuff  
-  // const Eigen::MatrixXd& Fu_LPF = dataLPF->Fx.topRightCorner(ndx, ntau);
-  // const Eigen::MatrixXd& Lu_LPF = dataLPF->Lx.tail(ntau);
-  // const Eigen::MatrixXd& Lxu_LPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
-  // const Eigen::MatrixXd& Luu_LPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
-  // for(std::size_t i=0; i<lpf_torque_ids.size();i++){
-  //   BOOST_CHECK((Fu_LPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
-  //   BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
-  //   BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
-  // }
-  // // Fixed size stuff
-  // const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
-  // const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
-  // const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
-  // // if(!  (Lxx_LPF - dataEuler->Lxx).isZero(tol) ){
-  // //   std::cout << Lxx_LPF - dataEuler->Lxx << std::endl;
-  // // }
-  // // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
-  // BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
-  // BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
-  // BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
-
-  // // Non LPF dimensions
-  // // Size varying stuff  
-  // const Eigen::MatrixXd& Fu_nonLPF = dataLPF->Fu.topRows(ndx);
-  // // const Eigen::MatrixXd& Lu_nonLPF = dataLPF->Lw;
-  // // const Eigen::MatrixXd& Lxu_nonLPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
-  // // const Eigen::MatrixXd& Luu_nonLPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
-  // for(std::size_t i=0; i<lpf_torque_ids.size();i++){
-  //   BOOST_CHECK((Fu_nonLPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
-  //   // BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
-  //   // BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
-  // }
-  // // Fixed size stuff
-  // const Eigen::MatrixXd& Fx_LPF = dataLPF->Fx.topLeftCorner(ndx, ndx);
-  // const Eigen::MatrixXd& Lx_LPF = dataLPF->Lx.head(ndx);
-  // const Eigen::MatrixXd& Lxx_LPF = dataLPF->Lxx.topLeftCorner(ndx, ndx);
-  // // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
-  // BOOST_CHECK((Fx_LPF - dataEuler->Fx).isZero(tol));
-  // BOOST_CHECK((Lx_LPF - dataEuler->Lx).isZero(tol));
-  // BOOST_CHECK((Lxx_LPF - dataEuler->Lxx).isZero(tol));
 }
 
 
@@ -394,22 +387,23 @@ void register_action_model_unit_tests(
   // ts->add(BOOST_TEST_CASE(
   //     boost::bind(&test_check_data, iam_type, dam_type, ref_type,
   //     mask_type)));
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_state, iam_type,
-                                      dam_type, ref_type, mask_type)));
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, iam_type,
-                                      dam_type, ref_type, mask_type)));
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
-                                  iam_type, dam_type, ref_type, mask_type)));
+  
+  // ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_state, iam_type,
+  //                                     dam_type, ref_type, mask_type)));
+  // ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, iam_type,
+  //                                     dam_type, ref_type, mask_type)));
+  // ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
+  //                                 iam_type, dam_type, ref_type, mask_type)));
   if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0){
     ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_alpha0_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
   }
   if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_NONE){
     ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_NONE_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
   }
-  // if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ){ //|
-  //   //  iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ){
-  //   ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
-  // }
+  if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_NONE ){ //|
+    //  iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0 ){
+    ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
+  }
   framework::master_test_suite().add(ts);
 }
 

@@ -156,7 +156,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
 #endif
 
   const Eigen::Ref<const VectorXs>& tau = d->tau_tmp;
-
+  // std::cout << "[lpf.calc] tau = " << tau << std::endl;
   if (static_cast<std::size_t>(x.size()) != nx) {
     throw_pretty("Invalid argument: "
                  << "x has wrong dimension (it should be " +
@@ -429,16 +429,15 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
     // d(cost+)/dy
     d->Ly.head(ndx).noalias() = time_step_ * d->differential->Lx;
     // Partial blocks for LPF dimensions
+    d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
     d->Ly.tail(ntau_).noalias() = time_step_ * d->differential->Lu(lpf_torque_ids_);
-    d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
     d->Lyy.block(0, ndx, ndx, ntau_).noalias() = time_step_ * d->differential->Lxu(Eigen::all, lpf_torque_ids_);
     d->Lyy.block(ndx, 0, ntau_, ndx).noalias() = time_step_ * d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
     d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() = time_step_ * d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
 #else
     for (std::size_t i = 0; i < lpf_torque_ids_.size(); i++) {
       d->Ly.tail(ntau_)(i) = time_step_ * d->differential->Lu(lpf_torque_ids_[i]);
-      d->Lyy.topLeftCorner(ndx, ndx).noalias() = time_step_ * d->differential->Lxx;
       d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() = time_step_ * d->differential->Lxu.col(lpf_torque_ids_[i]);
       d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() = time_step_ * d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
       for (std::size_t j = 0; j < lpf_torque_ids_.size(); j++) {
