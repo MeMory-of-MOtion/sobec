@@ -11,11 +11,11 @@
 #define BOOST_TEST_NO_MAIN
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 
+#include <crocoddyl/core/integrator/euler.hpp>
+
 #include "common.hpp"
 #include "factory/diff-action.hpp"
 #include "factory/lpf.hpp"
-
-#include <crocoddyl/core/integrator/euler.hpp>
 
 using namespace boost::unit_test;
 using namespace sobec::unittest;
@@ -157,19 +157,17 @@ void test_partial_derivatives_action_model(
   test_partial_derivatives_against_numdiff(model);
 }
 
-
-
-void test_calc_alpha0_equivalent_euler( 
+void test_calc_alpha0_equivalent_euler(
     ActionModelLPFTypes::Type iam_type,
     DifferentialActionModelTypes::Type dam_type,
     PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
-    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z){
-    
+    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) {
   // Create IAM LPF
   ActionModelLPFFactory factory_iam;
   const boost::shared_ptr<sobec::IntegratedActionModelLPF>& modelLPF =
       factory_iam.create(iam_type, dam_type, ref_type, mask_type);
-  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF = modelLPF->createData();
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF =
+      modelLPF->createData();
 
   // Create IAM Euler from iamLPF.DAM and iamLPF.dt (with cost residual)
   boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> modelEuler = 
@@ -216,18 +214,17 @@ void test_calc_alpha0_equivalent_euler(
   BOOST_CHECK( (dataLPF->cost - dataEuler->cost) <= tol);
 }
 
-
-void test_calc_NONE_equivalent_euler( 
+void test_calc_NONE_equivalent_euler(
     ActionModelLPFTypes::Type iam_type,
     DifferentialActionModelTypes::Type dam_type,
     PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
-    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z){
-    
+    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) {
   // Create IAM LPF
   ActionModelLPFFactory factory_iam;
   const boost::shared_ptr<sobec::IntegratedActionModelLPF>& modelLPF =
       factory_iam.create(iam_type, dam_type, ref_type, mask_type);
-  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF = modelLPF->createData();
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF =
+      modelLPF->createData();
 
   // Create IAM Euler from DAM and iamLPF.dt (with cost residual)
   boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> modelEuler = 
@@ -238,8 +235,12 @@ void test_calc_NONE_equivalent_euler(
   std::size_t nx = modelEuler->get_state()->get_nx();
   std::size_t ndx = modelEuler->get_state()->get_ndx();
   std::size_t nv = modelEuler->get_state()->get_nv();
-  std::size_t ntau = boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)->get_ntau();
-  std::size_t ntau_state = boost::static_pointer_cast<sobec::StateLPF>(modelLPF->get_state())->get_ntau();
+  std::size_t ntau =
+      boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)
+          ->get_ntau();
+  std::size_t ntau_state =
+      boost::static_pointer_cast<sobec::StateLPF>(modelLPF->get_state())
+          ->get_ntau();
   BOOST_CHECK(ntau == 0);
   BOOST_CHECK(ntau_state == 0);
   const std::vector<int>& lpf_torque_ids = modelLPF->get_lpf_torque_ids();
@@ -255,7 +256,7 @@ void test_calc_NONE_equivalent_euler(
 
   // Checking the partial derivatives against NumDiff
   double tol = 1e-6;
-  // Computing the action 
+  // Computing the action
   modelLPF->calc(dataLPF, y, w);
   modelEuler->calc(dataEuler, y, w);
   // Test perfect actuation and state integration
@@ -325,13 +326,13 @@ void test_calcDiff_explicit_equivalent_euler(
     ActionModelLPFTypes::Type iam_type,
     DifferentialActionModelTypes::Type dam_type,
     PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
-    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z){
-    
+    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) {
   // Create IAM LPF
   ActionModelLPFFactory factory_iam;
   const boost::shared_ptr<sobec::IntegratedActionModelLPF>& modelLPF =
       factory_iam.create(iam_type, dam_type, ref_type, mask_type);
-  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF = modelLPF->createData();
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPF =
+      modelLPF->createData();
 
   // Create IAM Euler from DAM and iamLPF.dt (with cost residual)
   boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> modelEuler = 
@@ -342,12 +343,14 @@ void test_calcDiff_explicit_equivalent_euler(
   std::size_t nx = modelEuler->get_state()->get_nx();
   std::size_t ndx = modelEuler->get_state()->get_ndx();
   std::size_t nv = modelEuler->get_state()->get_nv();
-  std::size_t ntau = boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)->get_ntau();
+  std::size_t ntau =
+      boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)
+          ->get_ntau();
   std::size_t nu = modelEuler->get_nu();
   const Eigen::VectorXd y = modelLPF->get_state()->rand();
   const Eigen::VectorXd& w = Eigen::VectorXd::Random(modelLPF->get_nw());
   const Eigen::VectorXd x = y.head(nx);
-  Eigen::VectorXd tau = w; 
+  Eigen::VectorXd tau = w;
   const std::vector<int>& lpf_torque_ids = modelLPF->get_lpf_torque_ids();
   const std::vector<int>& non_lpf_torque_ids = modelLPF->get_non_lpf_torque_ids();
   BOOST_CHECK(ntau == lpf_torque_ids.size());
@@ -359,7 +362,7 @@ void test_calcDiff_explicit_equivalent_euler(
   // Checking the partial derivatives against NumDiff
   double tol = 1e-6; 
 
-  // Computing the action 
+  // Computing the action
   modelLPF->calc(dataLPF, y, w);
   modelEuler->calc(dataEuler, x, tau); 
   // Computing the derivatives
@@ -372,8 +375,9 @@ void test_calcDiff_explicit_equivalent_euler(
   const Eigen::MatrixXd& Lu_LPF = dataLPF->Lx.tail(ntau);
   const Eigen::MatrixXd& Lxu_LPF = dataLPF->Lxx.topRightCorner(ndx, ntau);
   const Eigen::MatrixXd& Luu_LPF = dataLPF->Lxx.bottomRightCorner(ntau, ntau);
-  for(std::size_t i=0; i<lpf_torque_ids.size();i++){
-    BOOST_CHECK((Fu_LPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
+  for (std::size_t i = 0; i < lpf_torque_ids.size(); i++) {
+    BOOST_CHECK(
+        (Fu_LPF.col(i) - dataEuler->Fu.col(lpf_torque_ids[i])).isZero(tol));
     BOOST_CHECK((Lu_LPF(i) - dataEuler->Lu(lpf_torque_ids[i])) <= tol);
     BOOST_CHECK((Lxu_LPF.col(i) - dataEuler->Lxu.col(lpf_torque_ids[i])).isZero(tol));
     for(std::size_t j=0; j<lpf_torque_ids.size();j++){
@@ -405,7 +409,6 @@ void test_calcDiff_explicit_equivalent_euler(
   }
 }
 
-
 //----------------------------------------------------------------------------//
 
 void register_action_model_unit_tests(
@@ -433,7 +436,8 @@ void register_action_model_unit_tests(
                                       dam_type, ref_type, mask_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, iam_type,
                                       dam_type, ref_type, mask_type)));
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
+  ts->add(
+      BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
                                   iam_type, dam_type, ref_type, mask_type)));
   // Equivalence with Euler when alpha=0 or ntau=0
   if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0){
@@ -443,7 +447,9 @@ void register_action_model_unit_tests(
     ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_NONE_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
     // ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_NONE_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
   }
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));
+  ts->add(
+      BOOST_TEST_CASE(boost::bind(&test_calcDiff_explicit_equivalent_euler,
+                                  iam_type, dam_type, ref_type, mask_type)));
   framework::master_test_suite().add(ts);
 }
 

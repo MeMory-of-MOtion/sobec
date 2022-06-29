@@ -6,7 +6,7 @@ OCP.
 import numpy as np
 import example_robot_data as robex
 import sobec
-from .talos_collections import jointNamesToIds, jointToLockCollection
+from sobec.talos_collections import jointNamesToIds, jointToLockCollection
 
 
 class StateRelatedParams:

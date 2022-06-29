@@ -6,8 +6,6 @@ import example_robot_data as robex
 
 # Local imports
 import sobec
-from sobec.walk_without_think.robot_wrapper import RobotWrapper
-import sobec.walk_without_think.ocp as walk
 from sobec.walk_without_think.config_mpc import configureMPCWalk
 
 # #####################################################################################
@@ -18,7 +16,7 @@ from sobec.walk_without_think.config_mpc import configureMPCWalk
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
 urdf = robex.load("talos_legs")
-robot = RobotWrapper(urdf.model, contactKey="sole_link")
+robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="sole_link")
 
 # #####################################################################################
 # ## TUNING ###########################################################################
@@ -139,9 +137,9 @@ contactPattern = (
 # ### DDP #############################################################################
 # #####################################################################################
 
-ddp = walk.buildSolver(robot, contactPattern, walkParams)
+ddp = sobec.wwt.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = walk.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 
 ddp.solve(x0s, u0s, 200)
