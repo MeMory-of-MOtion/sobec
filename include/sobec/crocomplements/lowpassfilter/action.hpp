@@ -46,10 +46,8 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
       boost::shared_ptr<DifferentialActionModelAbstract> model,
       std::vector<std::string> lpf_joint_names = {},
       const Scalar& time_step = Scalar(1e-3),
-      const bool& with_cost_residual = true, 
-      const Scalar& fc = 0,
-      const bool& tau_plus_integration = true, 
-      const int& filter = 0);
+      const bool& with_cost_residual = true, const Scalar& fc = 0,
+      const bool& tau_plus_integration = true, const int& filter = 0);
   virtual ~IntegratedActionModelLPFTpl();
 
   virtual void calc(const boost::shared_ptr<ActionDataAbstract>& data,
@@ -148,13 +146,19 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   boost::shared_ptr<PinocchioModel> pin_model_;  //!< for reg cost
   bool is_terminal_;  //!< is it a terminal model or not ? (deactivate cost on w
                       //!< if true)
-  std::vector<std::string> lpf_joint_names_;  //!< Vector of joint names that are low-pass filtered
-  std::vector<int> lpf_joint_ids_;  //!< Vector of joint ids that are low-pass filtered
-  std::vector<int> lpf_torque_ids_;  //!< Vector of torque ids that are low-passs filtered
+  std::vector<std::string>
+      lpf_joint_names_;  //!< Vector of joint names that are low-pass filtered
+  std::vector<int>
+      lpf_joint_ids_;  //!< Vector of joint ids that are low-pass filtered
+  std::vector<int>
+      lpf_torque_ids_;  //!< Vector of torque ids that are low-passs filtered
 
-//   std::vector<std::string> non_lpf_joint_names_;  //!< Vector of joint names that are NOT low-pass filtered
-  std::vector<int> non_lpf_joint_ids_;    //!< Vector of joint ids that are NOT low-pass filtered
-  std::vector<int> non_lpf_torque_ids_;  //!< Vector of torque ids that are NOT low-passs filtered
+  //   std::vector<std::string> non_lpf_joint_names_;  //!< Vector of joint
+  //   names that are NOT low-pass filtered
+  std::vector<int> non_lpf_joint_ids_;   //!< Vector of joint ids that are NOT
+                                         //!< low-pass filtered
+  std::vector<int> non_lpf_torque_ids_;  //!< Vector of torque ids that are NOT
+                                         //!< low-passs filtered
 };
 
 template <typename _Scalar>

@@ -138,7 +138,8 @@ void exposeIntegratedActionLPF() {
           "non_lpf_torque_ids",
           bp::make_function(&IntegratedActionModelLPF::get_non_lpf_torque_ids,
                             bp::return_value_policy<bp::return_by_value>()),
-          "ids in the torque vector of dimensions that are NOT low-pass filtered (perfect actuators)")
+          "ids in the torque vector of dimensions that are NOT low-pass "
+          "filtered (perfect actuators)")
 
       .def("set_control_reg_cost",
            &IntegratedActionModelLPF::set_control_reg_cost,
