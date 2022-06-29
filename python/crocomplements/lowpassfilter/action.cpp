@@ -32,10 +32,9 @@ void exposeIntegratedActionLPF() {
       "dt, [alpha*tau + (1-alpha)*w]).",
       bp::init<boost::shared_ptr<DifferentialActionModelAbstract>,
                bp::optional<std::vector<std::string>, double, bool, double,
-                            bool, int, bool> >(
+                            bool, int> >(
           bp::args("self", "diffModel", "LPFJointNames", "stepTime",
-                   "withCostResidual", "fc", "tau_plus_integration", "filter",
-                   "is_terminal"),
+                   "withCostResidual", "fc", "tau_plus_integration", "filter"),
           "Initialize the sympletic Euler integrator.\n\n"
           ":param diffModel: differential action model\n"
           ":param LPFJointNames: names of joints that are low-pass filtered\n"
@@ -47,8 +46,7 @@ void exposeIntegratedActionLPF() {
           ":param tau_plus_integration: use tau+=LPF(tau,w) in acceleration "
           "computation, or tau\n"
           ":param filter: type of low-pass filter (0 = Expo Moving Avg, 1 = "
-          "Classical, 2 = Exact)\n"
-          ":param is_terminal: terminal model or not."))
+          "Classical, 2 = Exact)"))
       .def<void (IntegratedActionModelLPF::*)(
           const boost::shared_ptr<ActionDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&,
@@ -103,23 +101,44 @@ void exposeIntegratedActionLPF() {
                             bp::return_value_policy<bp::return_by_value>()),
           &IntegratedActionModelLPF::set_fc,
           "cut-off frequency of low-pass filter")
+      .add_property(
+          "alpha",
+          bp::make_function(&IntegratedActionModelLPF::get_alpha,
+                            bp::return_value_policy<bp::return_by_value>()),
+          &IntegratedActionModelLPF::set_alpha,
+          "discrete parameter of the low-pass filter")
 
-      //   .add_property(
-      //       "nw",
-      //       bp::make_getter(&IntegratedActionModelLPF::get_nw,
-      //                         bp::return_value_policy<bp::return_by_value>()),
-      //       "Dimension of the unfiltered input")
-      //   .add_property(
-      //       "ntau",
-      //       bp::make_getter(&IntegratedActionModelLPF::get_ntau,
-      //                         bp::return_value_policy<bp::return_by_value>()),
-      //       "Dimension of filtered torques")
-      //   .add_property(
-      //       "ny",
-      //       bp::make_getter(&IntegratedActionModelLPF::get_ny,
-      //                         bp::return_value_policy<bp::return_by_value>()),
-      //       "Dimension of augmented state (position, velocity and filtered
-      //       torque)")
+      .add_property(
+          "nw",
+          bp::make_function(&IntegratedActionModelLPF::get_nw,
+                            bp::return_value_policy<bp::return_by_value>()),
+          "torque actuation dimension (nu)")
+      .add_property(
+          "ntau",
+          bp::make_function(&IntegratedActionModelLPF::get_ntau,
+                            bp::return_value_policy<bp::return_by_value>()),
+          "low-pass filtered actuation dimension")
+      .add_property(
+          "ny",
+          bp::make_function(&IntegratedActionModelLPF::get_ny,
+                            bp::return_value_policy<bp::return_by_value>()),
+          "augmented state dimension (nx+ntau)")
+
+      .add_property(
+          "lpf_joint_names",
+          bp::make_function(&IntegratedActionModelLPF::get_lpf_joint_names,
+                            bp::return_value_policy<bp::return_by_value>()),
+          "names of the joints that are low-pass filtered")
+      .add_property(
+          "lpf_torque_ids",
+          bp::make_function(&IntegratedActionModelLPF::get_lpf_torque_ids,
+                            bp::return_value_policy<bp::return_by_value>()),
+          "ids in the torque vector of dimensions that are low-pass filtered")
+      .add_property(
+          "non_lpf_torque_ids",
+          bp::make_function(&IntegratedActionModelLPF::get_non_lpf_torque_ids,
+                            bp::return_value_policy<bp::return_by_value>()),
+          "ids in the torque vector of dimensions that are NOT low-pass filtered (perfect actuators)")
 
       .def("set_control_reg_cost",
            &IntegratedActionModelLPF::set_control_reg_cost,

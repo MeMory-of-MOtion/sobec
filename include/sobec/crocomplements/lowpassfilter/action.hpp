@@ -46,9 +46,10 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
       boost::shared_ptr<DifferentialActionModelAbstract> model,
       std::vector<std::string> lpf_joint_names = {},
       const Scalar& time_step = Scalar(1e-3),
-      const bool& with_cost_residual = true, const Scalar& fc = 0,
-      const bool& tau_plus_integration = true, const int& filter = 0,
-      const bool& is_terminal = false);
+      const bool& with_cost_residual = true, 
+      const Scalar& fc = 0,
+      const bool& tau_plus_integration = true, 
+      const int& filter = 0);
   virtual ~IntegratedActionModelLPFTpl();
 
   virtual void calc(const boost::shared_ptr<ActionDataAbstract>& data,

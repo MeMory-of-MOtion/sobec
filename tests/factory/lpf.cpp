@@ -46,8 +46,7 @@ boost::shared_ptr<sobec::IntegratedActionModelLPF>
 ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
                               DifferentialActionModelTypes::Type dam_type,
                               PinocchioReferenceTypes::Type ref_type,
-                              ContactModelMaskTypes::Type mask_type,
-                              bool is_terminal) const {
+                              ContactModelMaskTypes::Type mask_type) const {
   // LPFJointMaskType lpf_mask_type) const {
   boost::shared_ptr<sobec::IntegratedActionModelLPF> iam;
   boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dam =
@@ -68,8 +67,13 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       std::vector<std::string> lpf_joint_names =
           LPFJointListFactory().create_names(model, LPFJointMaskType::ALL);
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, lpf_joint_names, time_step, with_cost_residual, fc,
-          tau_plus_integration, filter, is_terminal);
+          dam, 
+          lpf_joint_names, 
+          time_step, 
+          with_cost_residual, 
+          fc,
+          tau_plus_integration, 
+          filter);
       // set hard-coded costs on unfiltered torque
       double tauReg_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
@@ -78,6 +82,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       iam->set_control_lim_cost(tauLim_weight);
       break;
     }
+
     case ActionModelLPFTypes::IntegratedActionModelLPF_RAND: {
       double time_step = 1e-3;
       bool with_cost_residual = true;
@@ -94,8 +99,13 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       std::vector<std::string> lpf_joint_names =
           LPFJointListFactory().create_names(model, LPFJointMaskType::RAND);
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, lpf_joint_names, time_step, with_cost_residual, fc,
-          tau_plus_integration, filter, is_terminal);
+          dam, 
+          lpf_joint_names, 
+          time_step, 
+          with_cost_residual, 
+          fc,
+          tau_plus_integration, 
+          filter);
       // set hard-coded costs on unfiltered torque
       double tauReg_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
@@ -104,6 +114,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       iam->set_control_lim_cost(tauLim_weight);
       break;
     }
+
     case ActionModelLPFTypes::IntegratedActionModelLPF_NONE: {
       double time_step = 1e-3;
       bool with_cost_residual = true;
@@ -119,8 +130,13 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       std::vector<std::string> lpf_joint_names =
           LPFJointListFactory().create_names(model, LPFJointMaskType::NONE);
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, lpf_joint_names, time_step, with_cost_residual, fc,
-          tau_plus_integration, filter, is_terminal);
+          dam, 
+          lpf_joint_names, 
+          time_step, 
+          with_cost_residual, 
+          fc,
+          tau_plus_integration, 
+          filter);
       double tauReg_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
       Eigen::VectorXd tauReg_ref = Eigen::VectorXd::Zero(iam->get_ntau());
       double tauLim_weight = 1e-6 + (double) (rand()) /( (double)(RAND_MAX/(1e-1-1e-3)));
@@ -128,6 +144,7 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       iam->set_control_lim_cost(tauLim_weight);
       break;
     }
+    
     case ActionModelLPFTypes::IntegratedActionModelLPF_alpha0: {
       double time_step = 1e-3;
       bool with_cost_residual = true;
@@ -143,8 +160,13 @@ ActionModelLPFFactory::create(ActionModelLPFTypes::Type iam_type,
       std::vector<std::string> lpf_joint_names =
           LPFJointListFactory().create_names(model, LPFJointMaskType::ALL);
       iam = boost::make_shared<sobec::IntegratedActionModelLPF>(
-          dam, lpf_joint_names, time_step, with_cost_residual, fc,
-          tau_plus_integration, filter, is_terminal);
+          dam, 
+          lpf_joint_names, 
+          time_step, 
+          with_cost_residual, 
+          fc,
+          tau_plus_integration, 
+          filter);
       // set hard-coded costs on unfiltered torque
       iam->set_alpha(0.);
       break;

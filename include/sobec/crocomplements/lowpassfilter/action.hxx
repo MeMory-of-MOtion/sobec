@@ -17,10 +17,12 @@ using namespace crocoddyl;
 template <typename Scalar>
 IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
     boost::shared_ptr<DifferentialActionModelAbstract> model,
-    std::vector<std::string> lpf_joint_names, const Scalar& time_step,
-    const bool& with_cost_residual, const Scalar& fc,
-    const bool& tau_plus_integration, const int& filter,
-    const bool& is_terminal)
+    std::vector<std::string> lpf_joint_names, 
+    const Scalar& time_step,
+    const bool& with_cost_residual, 
+    const Scalar& fc,
+    const bool& tau_plus_integration, 
+    const int& filter)
     : Base(model->get_state(), model->get_nu(),
            model->get_nr() + 2 * lpf_joint_names.size()),
       differential_(model),
@@ -30,10 +32,8 @@ IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
       fc_(fc),
       nw_(model->get_nu()),
       tau_plus_integration_(tau_plus_integration),
-      // ny_(model->get_state()->get_nx() + lpf_joint_names.size()),
-      // enable_integration_(true),
-      filter_(filter),
-      is_terminal_(is_terminal) {
+      filter_(filter)
+      {
   // Downcast DAM state (abstract --> multibody)
   boost::shared_ptr<StateMultibody> state =
       boost::static_pointer_cast<StateMultibody>(model->get_state());
