@@ -129,16 +129,6 @@ void test_partial_derivatives_against_numdiff(
 
   BOOST_CHECK((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Fu - data_num_diff->Fu).isZero(NUMDIFF_MODIFIER * tol));
-  if(!(data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol)){
-    std::cout << " Lx - Lx_nd : " << std::endl;
-    // std::cout << (data->Lx - data_num_diff->Lx).lpNorm<Eigen::Infinity>() << std::endl;
-    std::cout << (data->Lx - data_num_diff->Lx) << std::endl;
-  }
-  if(!(data->Lu - data_num_diff->Lu).isZero(NUMDIFF_MODIFIER * tol)){
-    std::cout << " Lu - Lu_nd : " << std::endl;
-    // std::cout << (data->Lu - data_num_diff->Lu).lpNorm<Eigen::Infinity>() << std::endl;
-    std::cout << (data->Lu - data_num_diff->Lu) << std::endl;
-  }
   BOOST_CHECK((data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Lu - data_num_diff->Lu).isZero(NUMDIFF_MODIFIER * tol));
   if (model_num_diff.get_with_gauss_approx()) {
@@ -167,6 +157,62 @@ void test_partial_derivatives_action_model(
   test_partial_derivatives_against_numdiff(model);
 }
 
+
+
+void test_partial_derivatives_against_numdiff_terminal(
+    const boost::shared_ptr<sobec::IntegratedActionModelLPF>& model) {
+  // create the corresponding data object and set the cost to nan
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& data =
+      model->createData();
+
+  crocoddyl::ActionModelNumDiff model_num_diff(model);
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& data_num_diff =
+      model_num_diff.createData();
+
+  // Generating random values for the state and control
+  Eigen::VectorXd x = model->get_state()->rand();
+
+  // Computing the action derivatives
+  model->calc(data, x);
+  model->calcDiff(data, x);
+  model_num_diff.calc(data_num_diff, x);
+  model_num_diff.calcDiff(data_num_diff, x);
+
+  // Checking the partial derivatives against NumDiff
+  double tol = sqrt(model_num_diff.get_disturbance());
+  // Checking the partial derivatives against NumDiff
+  BOOST_CHECK((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol));
+  BOOST_CHECK((data->Fu - data_num_diff->Fu).isZero(NUMDIFF_MODIFIER * tol));
+  BOOST_CHECK((data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol));
+  BOOST_CHECK((data->Lu - data_num_diff->Lu).isZero(NUMDIFF_MODIFIER * tol));
+  if (model_num_diff.get_with_gauss_approx()) {
+    BOOST_CHECK(
+        (data->Lxx - data_num_diff->Lxx).isZero(NUMDIFF_MODIFIER * tol));
+    BOOST_CHECK(
+        (data->Lxu - data_num_diff->Lxu).isZero(NUMDIFF_MODIFIER * tol));
+    BOOST_CHECK(
+        (data->Luu - data_num_diff->Luu).isZero(NUMDIFF_MODIFIER * tol));
+  } else {
+    BOOST_CHECK((data_num_diff->Lxx).isZero(tol));
+    BOOST_CHECK((data_num_diff->Lxu).isZero(tol));
+    BOOST_CHECK((data_num_diff->Luu).isZero(tol));
+  }
+}
+
+void test_partial_derivatives_action_model_terminal(
+    ActionModelLPFTypes::Type iam_type,
+    DifferentialActionModelTypes::Type dam_type,
+    PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
+    ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) {
+  // create the model
+  ActionModelLPFFactory factory;
+  const boost::shared_ptr<sobec::IntegratedActionModelLPF>& model =
+      factory.create(iam_type, dam_type, ref_type, mask_type);
+  model->set_dt(0);
+  test_partial_derivatives_against_numdiff_terminal(model);
+}
+
+
 void test_calc_alpha0_equivalent_euler(
     ActionModelLPFTypes::Type iam_type,
     DifferentialActionModelTypes::Type dam_type,
@@ -187,8 +233,6 @@ void test_calc_alpha0_equivalent_euler(
   // Generating random values for the state and control
   std::size_t nx = modelEuler->get_state()->get_nx();
   std::size_t ndx = modelEuler->get_state()->get_ndx();
-  std::size_t nv = modelEuler->get_state()->get_nv();
-  // std::size_t nq = nx - nv;
   std::size_t ntau = boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)->get_ntau();
   std::size_t ntau_state = boost::static_pointer_cast<sobec::StateLPF>(modelLPF->get_state())->get_ntau();
   const Eigen::VectorXd y = modelLPF->get_state()->rand();
@@ -208,12 +252,6 @@ void test_calc_alpha0_equivalent_euler(
   // Checking the partial derivatives against NumDiff
   double tol = 1e-6;
 
-  // // Test DAM calc 
-  // modelLPF->get_differential()->calc(boost::static_pointer_cast<sobec::IntegratedActionDataLPF>(dataLPF)->differential, x, tau);
-  // modelEuler->get_differential()->calc(boost::static_pointer_cast<crocoddyl::IntegratedActionDataEuler>(dataEuler)->differential, x, tau);
-  // std::cout << "euler->dam->cost = " << boost::static_pointer_cast<crocoddyl::IntegratedActionDataEuler>(dataEuler)->differential->cost << std::endl;
-  // std::cout << "lpf->dam->cost   = " << boost::static_pointer_cast<sobec::IntegratedActionDataLPF>(dataLPF)->differential->cost << std::endl;
-
   // Computing the action 
   modelLPF->calc(dataLPF, y, w);
   modelEuler->calc(dataEuler, x, tau);
@@ -222,6 +260,16 @@ void test_calc_alpha0_equivalent_euler(
   BOOST_CHECK((dataLPF->xnext.head(nx) - dataEuler->xnext).isZero(tol));
   BOOST_CHECK((dataLPF->r.head(modelEuler->get_nr()) - dataEuler->r).isZero(tol));
   BOOST_CHECK( (dataLPF->cost - dataEuler->cost) <= tol);
+
+  // Test terminal calc
+  modelLPF->set_dt(0.);
+  modelEuler->set_dt(0.);
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPFTerminal = modelLPF->createData();
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEulerTerminal = modelEuler->createData();
+  modelLPF->calc(dataLPFTerminal, y);
+  modelEuler->calc(dataEulerTerminal, x);
+  BOOST_CHECK((dataLPFTerminal->r - dataEulerTerminal->r).isZero(tol));
+  BOOST_CHECK((dataLPFTerminal->cost - dataEulerTerminal->cost) <= tol);
 }
 
 void test_calc_NONE_equivalent_euler(
@@ -244,7 +292,7 @@ void test_calc_NONE_equivalent_euler(
   // Generating random values for the state and control
   std::size_t nx = modelEuler->get_state()->get_nx();
   std::size_t ndx = modelEuler->get_state()->get_ndx();
-  std::size_t nv = modelEuler->get_state()->get_nv();
+  // std::size_t nv = modelEuler->get_state()->get_nv();
   std::size_t ntau =
       boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)
           ->get_ntau();
@@ -273,6 +321,16 @@ void test_calc_NONE_equivalent_euler(
   BOOST_CHECK((dataLPF->xnext - dataEuler->xnext).isZero(tol));
   BOOST_CHECK((dataLPF->r - dataEuler->r).isZero(tol));
   BOOST_CHECK( (dataLPF->cost - dataEuler->cost) <= tol);
+
+  // Test terminal calc
+  modelLPF->set_dt(0.);
+  modelEuler->set_dt(0.);
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPFTerminal = modelLPF->createData();
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEulerTerminal = modelEuler->createData();
+  modelLPF->calc(dataLPFTerminal, y);
+  modelEuler->calc(dataEulerTerminal, y);
+  BOOST_CHECK((dataLPFTerminal->r - dataEulerTerminal->r).isZero(tol));
+  BOOST_CHECK((dataLPFTerminal->cost - dataEulerTerminal->cost) <= tol);
 }
 
 
@@ -352,7 +410,7 @@ void test_calcDiff_explicit_equivalent_euler(
   // Generating random values for the state and control
   std::size_t nx = modelEuler->get_state()->get_nx();
   std::size_t ndx = modelEuler->get_state()->get_ndx();
-  std::size_t nv = modelEuler->get_state()->get_nv();
+  // std::size_t nv = modelEuler->get_state()->get_nv();
   std::size_t ntau =
       boost::static_pointer_cast<sobec::IntegratedActionModelLPF>(modelLPF)
           ->get_ntau();
@@ -420,6 +478,63 @@ void test_calcDiff_explicit_equivalent_euler(
       BOOST_CHECK((Lxu_nonLPF.bottomRows(ntau)(j, non_lpf_torque_ids[i]) - dataEuler->Luu(lpf_torque_ids[j], non_lpf_torque_ids[i])) <= tol );
     }
   }
+
+
+  // Test terminal calcDiff
+  // Computing the action
+  modelLPF->set_dt(0.);
+  modelEuler->set_dt(0.);
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataLPFTerminal = modelLPF->createData();
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& dataEulerTerminal = modelEuler->createData();
+  modelLPF->calc(dataLPFTerminal, y);
+  modelEuler->calc(dataEulerTerminal, x); 
+  modelLPF->calcDiff(dataLPFTerminal, y);
+  modelEuler->calcDiff(dataEulerTerminal, x); 
+  // All or some joint are LPF
+  // Size varying stuff  
+  const Eigen::MatrixXd& Fu_LPF_term = dataLPFTerminal->Fx.topRightCorner(ndx, ntau);
+  const Eigen::MatrixXd& Lu_LPF_term = dataLPFTerminal->Lx.tail(ntau);
+  const Eigen::MatrixXd& Lxu_LPF_term = dataLPFTerminal->Lxx.topRightCorner(ndx, ntau);
+  const Eigen::MatrixXd& Luu_LPF_term = dataLPFTerminal->Lxx.bottomRightCorner(ntau, ntau);
+  for (std::size_t i = 0; i < lpf_torque_ids.size(); i++) {
+    BOOST_CHECK(
+        (Fu_LPF_term.col(i) - dataEulerTerminal->Fu.col(lpf_torque_ids[i])).isZero(tol));
+    BOOST_CHECK((Lu_LPF_term(i) - dataEulerTerminal->Lu(lpf_torque_ids[i])) <= tol);
+    BOOST_CHECK((Lxu_LPF_term.col(i) - dataEulerTerminal->Lxu.col(lpf_torque_ids[i])).isZero(tol));
+    for(std::size_t j=0; j<lpf_torque_ids.size();j++){
+      BOOST_CHECK( (Luu_LPF_term(i,j)- dataEulerTerminal->Luu(lpf_torque_ids[i], lpf_torque_ids[j]) ) <= tol );
+    }
+  }
+  // Fixed size stuff
+  const Eigen::MatrixXd& Fx_LPF_term = dataLPFTerminal->Fx.topLeftCorner(ndx, ndx);
+  const Eigen::MatrixXd& Lx_LPF_term = dataLPFTerminal->Lx.head(ndx);
+  const Eigen::MatrixXd& Lxx_LPF_term = dataLPFTerminal->Lxx.topLeftCorner(ndx, ndx);
+  // Testing the partials w.r.t. u match blocks in partial w.r.t. augmented state y
+  // if(!(Fx_LPF_term - dataEulerTerminal->Fx).isZero(tol)){
+  //   std::cout << " Fx_lpf - Fx_euler terminal = " << std::endl;
+  //   std::cout << (Fx_LPF_term - dataEulerTerminal->Fx) << std::endl;
+  // }
+  BOOST_CHECK((Fx_LPF_term - dataEulerTerminal->Fx).isZero(tol));
+  BOOST_CHECK((Lx_LPF_term - dataEulerTerminal->Lx).isZero(tol));
+  BOOST_CHECK((Lxx_LPF_term - dataEulerTerminal->Lxx).isZero(tol));
+
+  // Non LPF dimensions
+  // Size varying stuff  
+  const Eigen::MatrixXd& Fu_nonLPF_term = dataLPFTerminal->Fu.topRows(ndx);
+  const Eigen::MatrixXd& Lu_nonLPF_term = dataLPFTerminal->Lu;
+  const Eigen::MatrixXd& Lxu_nonLPF_term = dataLPFTerminal->Lxu;
+  const Eigen::MatrixXd& Luu_nonLPF_term = dataLPFTerminal->Luu;
+  for(std::size_t i=0; i<non_lpf_torque_ids.size();i++){
+    BOOST_CHECK((Fu_nonLPF_term.col(non_lpf_torque_ids[i]) - dataEulerTerminal->Fu.col(non_lpf_torque_ids[i])).isZero(tol));
+    BOOST_CHECK((Lu_nonLPF_term(non_lpf_torque_ids[i]) - dataEulerTerminal->Lu(non_lpf_torque_ids[i])) <= tol);
+    BOOST_CHECK((Lxu_nonLPF_term.topRows(ndx).col(non_lpf_torque_ids[i]) - dataEulerTerminal->Lxu.col(non_lpf_torque_ids[i])).isZero(tol));
+    for(std::size_t j=0; j<non_lpf_torque_ids.size();j++){
+      BOOST_CHECK((Luu_nonLPF_term(non_lpf_torque_ids[i],non_lpf_torque_ids[j]) - dataEulerTerminal->Luu(non_lpf_torque_ids[i], non_lpf_torque_ids[j])) <= tol );
+    }
+    for(std::size_t j=0; j<lpf_torque_ids.size();j++){
+      BOOST_CHECK((Lxu_nonLPF_term.bottomRows(ntau)(j, non_lpf_torque_ids[i]) - dataEulerTerminal->Luu(lpf_torque_ids[j], non_lpf_torque_ids[i])) <= tol );
+    }
+  }
 }
 
 //----------------------------------------------------------------------------//
@@ -452,6 +567,10 @@ void register_action_model_unit_tests(
   ts->add(
       BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
                                   iam_type, dam_type, ref_type, mask_type)));
+  // seems incompatible with euler equivalence test
+  // ts->add(
+  //     BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model_terminal,
+  //                                 iam_type, dam_type, ref_type, mask_type))); 
   // Equivalence with Euler when alpha=0 or ntau=0
   if(iam_type == ActionModelLPFTypes::Type::IntegratedActionModelLPF_alpha0){
     ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_alpha0_equivalent_euler, iam_type, dam_type, ref_type, mask_type)));

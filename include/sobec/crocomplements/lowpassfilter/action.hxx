@@ -313,7 +313,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   // Compute acceleration and cost (DAM, i.e. CT model)
   differential_->calc(d->differential, x);  
   d->dy.setZero();
-  d->ynext = y;
+  // d->ynext = y;
   d->cost = d->differential->cost;
   // Update RESIDUAL
   if (with_cost_residual_) {
@@ -694,20 +694,19 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
   differential_->calcDiff(d->differential, x);
 
   state_->Jintegrate(y, d->dy, d->Fy, d->Fy);
-  d->Fw.setZero();
+  // d->Fw.setZero();
   // d(cost+)/dy
   d->Ly.head(ndx).noalias() =  d->differential->Lx;
+  d->Lyy.topLeftCorner(ndx, ndx).noalias() =  d->differential->Lxx;
   // Partial blocks for LPF dimensions
 #if EIGEN_VERSION_AT_LEAST(3, 4, 0)
   d->Ly.tail(ntau_).noalias() =  d->differential->Lu(lpf_torque_ids_);
-  d->Lyy.topLeftCorner(ndx, ndx).noalias() =  d->differential->Lxx;
   d->Lyy.block(0, ndx, ndx, ntau_).noalias() =  d->differential->Lxu(Eigen::all, lpf_torque_ids_);
   d->Lyy.block(ndx, 0, ntau_, ndx).noalias() =  d->differential->Lxu.transpose()(lpf_torque_ids_, Eigen::all);
   d->Lyy.bottomRightCorner(ntau_, ntau_).noalias() =  d->differential->Luu(lpf_torque_ids_, lpf_torque_ids_);
 #else
   for (std::size_t i = 0; i < lpf_torque_ids_.size(); i++) {
     d->Ly.tail(ntau_)(i) =  d->differential->Lu(lpf_torque_ids_[i]);
-    d->Lyy.topLeftCorner(ndx, ndx).noalias() =  d->differential->Lxx;
     d->Lyy.block(0, ndx, ndx, ntau_).col(i).noalias() =  d->differential->Lxu.col(lpf_torque_ids_[i]);
     d->Lyy.block(ndx, 0, ntau_, ndx).row(i).noalias() =  d->differential->Lxu.transpose().row(lpf_torque_ids_[i]);
     for (std::size_t j = 0; j < lpf_torque_ids_.size(); j++) {
@@ -715,28 +714,6 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
     }
   }
 #endif
-  // Partials blocks for non-LPF dimensions
-  d->Lw.setZero();
-  d->Lyw.setZero();
-  d->Lww.setZero();
-#if EIGEN_VERSION_AT_LEAST(3, 4, 0)
-  d->Lw(non_lpf_torque_ids_).noalias() =  d->differential->Lu(non_lpf_torque_ids_);
-  d->Lyw.topRows(ndx)(Eigen::all, non_lpf_torque_ids_).noalias() =  d->differential->Lxu(Eigen::all, non_lpf_torque_ids_);
-  d->Lyw.bottomRows(ntau_)(Eigen::all, non_lpf_torque_ids_).noalias() =  d->differential->Luu(lpf_torque_ids_, non_lpf_torque_ids_);
-  d->Lww(non_lpf_torque_ids_, non_lpf_torque_ids_).noalias() =  d->differential->Luu(non_lpf_torque_ids_, non_lpf_torque_ids_);
-#else
-  for (std::size_t i = 0; i < non_lpf_torque_ids_.size(); i++) {
-    d->Lw(non_lpf_torque_ids_[i]) =  d->differential->Lu(non_lpf_torque_ids_[i]);
-    d->Lyw.topRows(ndx).col(non_lpf_torque_ids_[i]).noalias() =  d->differential->Lxu.col(non_lpf_torque_ids_[i]);
-    for (std::size_t j = 0; j < non_lpf_torque_ids_.size(); j++) {
-      d->Lww(non_lpf_torque_ids_[i], non_lpf_torque_ids_[j]) =  d->differential->Luu(non_lpf_torque_ids_[i], non_lpf_torque_ids_[j]);
-    }
-    for (std::size_t j = 0; j < lpf_torque_ids_.size(); j++) {
-      d->Lyw.bottomRows(ntau_)(j, non_lpf_torque_ids_[i]) =  d->differential->Luu(lpf_torque_ids_[j], non_lpf_torque_ids_[i]);
-    }
-  }
-#endif
-
 }
 
 
