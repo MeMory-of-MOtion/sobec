@@ -78,6 +78,7 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
       const;
   const Scalar& get_dt() const;
   const Scalar& get_fc() const;
+  const Scalar& get_alpha() const { return alpha_; };
 
   const std::size_t& get_nw() const { return nw_; };
   const std::size_t& get_ntau() const { return ntau_; };
