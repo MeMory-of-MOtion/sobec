@@ -47,16 +47,23 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
       std::vector<std::string> lpf_joint_names = {},
       const Scalar& time_step = Scalar(1e-3),
       const bool& with_cost_residual = true, const Scalar& fc = 0,
-      const bool& tau_plus_integration = true, const int& filter = 0,
-      const bool& is_terminal = false);
+      const bool& tau_plus_integration = true, const int& filter = 0);
   virtual ~IntegratedActionModelLPFTpl();
 
   virtual void calc(const boost::shared_ptr<ActionDataAbstract>& data,
                     const Eigen::Ref<const VectorXs>& y,
                     const Eigen::Ref<const VectorXs>& w);
+
+  virtual void calc(const boost::shared_ptr<ActionDataAbstract>& data,
+                    const Eigen::Ref<const VectorXs>& y);
+
   virtual void calcDiff(const boost::shared_ptr<ActionDataAbstract>& data,
                         const Eigen::Ref<const VectorXs>& y,
                         const Eigen::Ref<const VectorXs>& w);
+
+  virtual void calcDiff(const boost::shared_ptr<ActionDataAbstract>& data,
+                        const Eigen::Ref<const VectorXs>& y);
+
   virtual boost::shared_ptr<ActionDataAbstract> createData();
   virtual bool checkData(const boost::shared_ptr<ActionDataAbstract>& data);
 
@@ -70,6 +77,7 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
       const;
   const Scalar& get_dt() const;
   const Scalar& get_fc() const;
+  const Scalar& get_alpha() const { return alpha_; };
 
   const std::size_t& get_nw() const { return nw_; };
   const std::size_t& get_ntau() const { return ntau_; };
@@ -81,6 +89,9 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
 
   const std::vector<int>& get_lpf_torque_ids() const {
     return lpf_torque_ids_;
+  };
+  const std::vector<int>& get_non_lpf_torque_ids() const {
+    return non_lpf_torque_ids_;
   };
 
   void set_dt(const Scalar& dt);
@@ -120,7 +131,7 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   Scalar alpha_;
   bool with_cost_residual_;
   Scalar fc_;
-  bool enable_integration_;
+  // bool enable_integration_;
   Scalar tauReg_weight_;  //!< Cost weight for unfiltered torque regularization
   VectorXs tauReg_reference_;  //!< Cost reference for unfiltered torque
                                //!< regularization
@@ -139,10 +150,15 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
       lpf_joint_names_;  //!< Vector of joint names that are low-pass filtered
   std::vector<int>
       lpf_joint_ids_;  //!< Vector of joint ids that are low-pass filtered
-  //   std::vector<int> nonlpf_joint_ids_;    //!< Vector of joint ids that are
-  //   NOT low-pass filtered
   std::vector<int>
       lpf_torque_ids_;  //!< Vector of torque ids that are low-passs filtered
+
+  //   std::vector<std::string> non_lpf_joint_names_;  //!< Vector of joint
+  //   names that are NOT low-pass filtered
+  std::vector<int> non_lpf_joint_ids_;   //!< Vector of joint ids that are NOT
+                                         //!< low-pass filtered
+  std::vector<int> non_lpf_torque_ids_;  //!< Vector of torque ids that are NOT
+                                         //!< low-passs filtered
 };
 
 template <typename _Scalar>
