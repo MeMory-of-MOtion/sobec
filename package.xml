@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>sobec</name>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
   <description>Sandbox for optimal control explicitely for bipeds</description>
   <maintainer email="guilhem.saurel@laas.fr">Guilhem Saurel</maintainer>
   <author email="guilhem.saurel@laas.fr">Nicolas Mansard, Ewen Dantec, Sebastien Kleff and others</author>

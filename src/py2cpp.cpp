@@ -2,7 +2,7 @@
 
 #include <boost/python.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
-#include <sobec/mpc-walk.hpp>
+#include <sobec/walk-without-think/mpc.hpp>
 
 namespace bp = boost::python;
 

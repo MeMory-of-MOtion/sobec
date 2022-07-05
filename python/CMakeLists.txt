@@ -1,25 +1,26 @@
 set(${PY_NAME}_SOURCES
   main.cpp
-  residual-com-velocity.cpp
-  residual-vel-collision.cpp
-  residual-cop.cpp
-  residual-feet-collision.cpp
-  residual-fly-high.cpp
-  activation-quad-ref.cpp
-  designer.cpp
-  horizon_manager.cpp
-  model_factory.cpp
-  lpf.cpp
-  contact3d.cpp
-  contact1d.cpp
-  multiple-contacts.cpp
-  contact-fwddyn.cpp
-  contact-force.cpp
-  wbc.cpp
-  flexibility_compensation.cpp
-  ocp-walk.cpp
-  mpc-walk.cpp
   std-containers.cpp
+  flexibility_compensation.cpp
+  crocomplements/residual-com-velocity.cpp
+  crocomplements/residual-vel-collision.cpp
+  crocomplements/residual-cop.cpp
+  crocomplements/residual-center-of-friction.cpp
+  crocomplements/residual-feet-collision.cpp
+  crocomplements/residual-fly-high.cpp
+  crocomplements/activation-quad-ref.cpp
+  crocomplements/lowpassfilter/action.cpp
+  crocomplements/contact/contact3d.cpp
+  crocomplements/contact/contact1d.cpp
+  crocomplements/contact/multiple-contacts.cpp
+  crocomplements/contact/contact-fwddyn.cpp
+  crocomplements/contact/contact-force.cpp
+  walk-with-traj/designer.cpp
+  walk-with-traj/horizon_manager.cpp
+  walk-with-traj/model_factory.cpp
+  walk-with-traj/wbc.cpp
+  walk-without-think/ocp.cpp
+  walk-without-think/mpc.cpp
   )
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
@@ -35,6 +36,8 @@ install(TARGETS ${PY_NAME}_pywrap DESTINATION ${${PY_NAME}_INSTALL_DIR})
 
 set(${PY_NAME}_PYTHON
   __init__.py
+  pinbullet.py
+  viewer_multiple.py
   )
 
 foreach(python ${${PY_NAME}_PYTHON})
@@ -51,8 +54,11 @@ set(${PY_WALK_NAME}_PYTHON
   params.py
   yaml_params.py
   talos_collections.py
+  plotter.py
+  talos_low.py
+  save_traj.py
   )
 
 foreach(python ${${PY_WALK_NAME}_PYTHON})
-  PYTHON_INSTALL_ON_SITE(${PY_NAME}/walk ${python})
+  PYTHON_INSTALL_ON_SITE(${PY_NAME}/walk_without_think ${python})
 endforeach()

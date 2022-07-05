@@ -5,8 +5,8 @@ from numpy.linalg import norm, pinv, inv, svd, eig  # noqa: F401
 import example_robot_data as robex
 
 # Local imports
-from sobec.walk.robot_wrapper import RobotWrapper
-import sobec.walk.ocp as walk
+from sobec.walk_without_think.robot_wrapper import RobotWrapper
+import sobec.walk_without_think.ocp as walk
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
@@ -105,6 +105,7 @@ class WalkParams:
     transitionDuration = -1
     withNormalForceBoundOnly = False
     minimalNormalForce = 0.0
+    centerOfFrictionWeight = 0
 
 
 walkParams = WalkParams()

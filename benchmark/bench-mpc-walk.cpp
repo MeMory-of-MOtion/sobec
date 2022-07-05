@@ -3,9 +3,9 @@
 #include <pinocchio/parsers/srdf.hpp>
 #include <pinocchio/parsers/urdf.hpp>
 #include <sobec/fwd.hpp>
-#include <sobec/mpc-walk.hpp>
-#include <sobec/ocp-walk.hpp>
 #include <sobec/py2cpp.hpp>
+#include <sobec/walk-without-think/mpc.hpp>
+#include <sobec/walk-without-think/ocp.hpp>
 
 #include "automaticallygeneratedinit/mpc-walk-default.hpp"
 #include "crocoddyl/core/utils/callbacks.hpp"
