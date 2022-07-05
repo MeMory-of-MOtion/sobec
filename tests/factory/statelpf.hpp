@@ -14,7 +14,7 @@
 #include <crocoddyl/core/utils/exception.hpp>
 
 #include "pinocchio_model.hpp"
-#include "sobec/lowpassfilter/statelpf.hpp"
+#include "sobec/crocomplements/lowpassfilter/state.hpp"
 #include "state.hpp"
 
 namespace sobec {

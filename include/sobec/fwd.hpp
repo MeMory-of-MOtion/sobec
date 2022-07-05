@@ -43,8 +43,8 @@
 #include <pinocchio/multibody/data.hpp>
 #include <pinocchio/multibody/model.hpp>
 
-#include "sobec/activation-quad-ref.hpp"
-#include "sobec/residual-com-velocity.hpp"
+#include "sobec/crocomplements/activation-quad-ref.hpp"
+#include "sobec/crocomplements/residual-com-velocity.hpp"
 
 namespace sobec {
 
@@ -63,6 +63,14 @@ template <typename Scalar>
 struct ResidualDataCenterOfPressureTpl;
 typedef ResidualModelCenterOfPressureTpl<double> ResidualModelCenterOfPressure;
 typedef ResidualDataCenterOfPressureTpl<double> ResidualDataCenterOfPressure;
+
+// Cost CenterOfFriction
+template <typename Scalar>
+class ResidualModelCenterOfFrictionTpl;
+template <typename Scalar>
+struct ResidualDataCenterOfFrictionTpl;
+typedef ResidualModelCenterOfFrictionTpl<double> ResidualModelCenterOfFriction;
+typedef ResidualDataCenterOfFrictionTpl<double> ResidualDataCenterOfFriction;
 
 // Cost velocity collision
 template <typename Scalar>

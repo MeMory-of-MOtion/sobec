@@ -14,8 +14,8 @@
 #include <crocoddyl/multibody/residuals/control-gravity.hpp>
 #include <crocoddyl/multibody/residuals/state.hpp>
 
-#include "sobec/residual-com-velocity.hpp"
-#include "sobec/residual-fly-high.hpp"
+#include "sobec/crocomplements/residual-com-velocity.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
 // #include "crocoddyl/multibody/residuals/centroidal-momentum.hpp"
 #include <crocoddyl/core/costs/cost-sum.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
