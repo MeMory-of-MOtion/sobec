@@ -24,6 +24,7 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeWBC();
   sobec::python::exposeOCPWalk();
   sobec::python::exposeMPCWalk();
+  sobec::python::exposeFootTrajectory();
 
   sobec::newcontacts::python::exposeContact3D();
   sobec::newcontacts::python::exposeContact1D();
