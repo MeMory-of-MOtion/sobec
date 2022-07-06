@@ -61,19 +61,18 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
 void WBC::generateWalkingCycle(ModelMaker &mm) {
   std::vector<Support> cycle;
-  int takeoff_RF, land_RF, takeoff_LF, land_LF;
 
-  land_LF = 0;
-  takeoff_RF = land_LF + settings_.TdoubleSupport;
-  land_RF = land_LF + settings_.Tstep;
-  takeoff_LF = takeoff_RF + settings_.Tstep;
+  land_LF_cycle_ = 0;
+  takeoff_RF_cycle_ = land_LF_cycle_ + settings_.TdoubleSupport;
+  land_RF_cycle_ = land_LF_cycle_ + settings_.Tstep;
+  takeoff_LF_cycle_ = takeoff_RF_cycle_ + settings_.Tstep;
 
   for (int i = 0; i < 2 * settings_.Tstep; i++) {
-    if (i < takeoff_RF)
+    if (i < takeoff_RF_cycle_)
       cycle.push_back(DOUBLE);
-    else if (i < land_RF)
+    else if (i < land_RF_cycle_)
       cycle.push_back(LEFT);
-    else if (i < takeoff_LF)
+    else if (i < takeoff_LF_cycle_)
       cycle.push_back(DOUBLE);
     else
       cycle.push_back(RIGHT);
@@ -111,8 +110,8 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   designer_.updateReducedModel(x0_);
   switch (settings_.typeOfCommand) {
     case StepTracker:
-      updateStepTrackerLastReference();
-      // updateStepTrackerReferences();
+      //updateStepTrackerLastReference();
+      updateStepTrackerReferences();
       break;
     case NonThinking:
       updateNonThinkingReferences();
@@ -236,6 +235,15 @@ void WBC::updateSupportTiming() {
   for (unsigned long i = 0; i < land_RF_.size(); i++) land_RF_[i] -= 1;
   for (unsigned long i = 0; i < takeoff_LF_.size(); i++) takeoff_LF_[i] -= 1;
   for (unsigned long i = 0; i < takeoff_RF_.size(); i++) takeoff_RF_[i] -= 1;
+  
+  land_RF_cycle_ -= 1;
+  land_LF_cycle_ -= 1;
+  takeoff_LF_cycle_ -= 1;
+  takeoff_RF_cycle_ -= 1;
+  if (land_RF_cycle_ < 0) land_RF_cycle_ = 2 * settings_.Tstep - 1; 
+  if (land_LF_cycle_ < 0) land_LF_cycle_ = 2 * settings_.Tstep - 1; 
+  if (takeoff_LF_cycle_ < 0) takeoff_LF_cycle_ = 2 * settings_.Tstep - 1; 
+  if (takeoff_RF_cycle_ < 0) takeoff_RF_cycle_ = 2 * settings_.Tstep - 1; 
 
   if (land_LF_.size() > 0 && land_LF_[0] < 0) land_LF_.erase(land_LF_.begin());
 

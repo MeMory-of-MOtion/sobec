@@ -89,7 +89,7 @@ void exposeWBC() {
                bp::return_value_policy<
                    bp::reference_existing_object>()))  //, bp::args("self", "q",
                                                        //"v")
-      .def("generateWalkigCycle", &WBC::generateWalkingCycle,
+      .def("generateWalkingCycle", &WBC::generateWalkingCycle,
            bp::args("self", "modelMaker"))
       .def("generateStandingCycle", &WBC::generateStandingCycle,
            bp::args("self", "modelMaker"))
@@ -179,7 +179,23 @@ void exposeWBC() {
       .def("takeoff_RF",
            make_function(
                &WBC::get_takeoff_RF,
-               bp::return_value_policy<bp::reference_existing_object>()));
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("land_LF_cycle",
+           make_function(
+               &WBC::get_land_LF_cycle,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("land_RF_cycle",
+           make_function(
+               &WBC::get_land_RF_cycle,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("takeoff_LF_cycle",
+           make_function(
+               &WBC::get_takeoff_LF_cycle,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("takeoff_RF_cycle",
+           make_function(
+               &WBC::get_takeoff_RF_cycle,
+               bp::return_value_policy<bp::copy_const_reference>()));
 }
 }  // namespace python
 }  // namespace sobec

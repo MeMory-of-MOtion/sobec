@@ -258,6 +258,7 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   definePostureTask(costs);
   defineActuationTask(costs);
   defineFeetWrenchCost(costs, support);
+  defineCoPTask(costs, support);
   defineFeetTracking(costs);
 
   DAM runningDAM =

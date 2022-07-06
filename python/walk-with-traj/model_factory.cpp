@@ -43,6 +43,7 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.maxNforce = bp::extract<double>(settings["maxNforce"]);
   conf.comHeight = bp::extract<double>(settings["comHeight"]);
   conf.omega = bp::extract<double>(settings["omega"]);
+  conf.footSize = bp::extract<double>(settings["footSize"]);
 
   // gains
   conf.wFootPlacement = bp::extract<double>(settings["wFootPlacement"]);
@@ -55,6 +56,7 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wFootXYTrans = bp::extract<double>(settings["wFootXYTrans"]);
   conf.wFootRot = bp::extract<double>(settings["wFootRot"]);
   conf.wGroundCol = bp::extract<double>(settings["wGroundCol"]);
+  conf.wCoP = bp::extract<double>(settings["wCoP"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights =
       bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
@@ -75,6 +77,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["maxNforce"] = conf.maxNforce;
   settings["comHeight"] = conf.comHeight;
   settings["omega"] = conf.omega;
+  settings["footSize"] = conf.footSize;
   settings["wFootPlacement"] = conf.wFootPlacement;
   settings["wStateReg"] = conf.wStateReg;
   settings["wControlReg"] = conf.wControlReg;
@@ -85,6 +88,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wFootXYTrans"] = conf.wFootXYTrans;
   settings["wFootRot"] = conf.wFootRot;
   settings["wGroundCol"] = conf.wGroundCol;
+  settings["wCoP"] = conf.wCoP;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
   settings["th_grad"] = conf.th_grad;
@@ -163,6 +167,14 @@ void defineCoMVelocity(ModelMaker &self,
   costCollector = *costs;
 }
 
+void defineCoPTask(ModelMaker &self,
+                   crocoddyl::CostModelSum &costCollector,
+                   const Support &supports = Support::DOUBLE) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineCoPTask(costs, supports);
+  costCollector = *costs;
+}
+
 void exposeModelFactory() {
   bp::enum_<Support>("Support")
       .value("LEFT", Support::LEFT)
@@ -189,6 +201,8 @@ void exposeModelFactory() {
       .def("defineJointLimits", &defineJointLimits,
            bp::args("self", "costCollector"))
       .def("defineCoMVelocity", &defineCoMVelocity,
+           bp::args("self", "costCollector"))
+      .def("defineCoPTask", &defineCoPTask,
            bp::args("self", "costCollector"))
       .def("formulateStepTracker", &ModelMaker::formulateStepTracker,
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE))
