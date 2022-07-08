@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 # Project properties
 set(PROJECT_NAMESPACE memory-of-motion)
 set(PROJECT_NAME sobec)
-set(PROJECT_DESCRIPTION "Sandbox for optimal control explicitely for bipeds")
+set(PROJECT_DESCRIPTION "Sandbox for optimal control explicitly for bipeds")
 set(PROJECT_URL https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME})
 
 # Project options
