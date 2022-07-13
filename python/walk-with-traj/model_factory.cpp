@@ -133,9 +133,10 @@ void defineFeetWrenchCost(ModelMaker &self,
 }
 
 void defineFeetTracking(ModelMaker &self,
-                        crocoddyl::CostModelSum &costCollector) {
+                        crocoddyl::CostModelSum &costCollector,
+                        const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.defineFeetTracking(costs);
+  self.defineFeetTracking(costs,supports);
   costCollector = *costs;
 }
 

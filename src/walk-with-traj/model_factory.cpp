@@ -106,12 +106,16 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
           state_, activation_RF_Wrench, residual_RF_Wrench);
 
   costCollector.get()->addCost("wrench_LF", wrenchModel_LF,
-                               settings_.wWrenchCone, true);
+                               settings_.wWrenchCone, false);
   costCollector.get()->addCost("wrench_RF", wrenchModel_RF,
-                               settings_.wWrenchCone, true);
+                               settings_.wWrenchCone, false);
+  if (support == Support::LEFT || support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("wrench_LF",true);
+  if (support == Support::RIGHT || support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("wrench_RF",true);
 }
 
-void ModelMaker::defineFeetTracking(Cost &costCollector) {
+void ModelMaker::defineFeetTracking(Cost &costCollector, const Support &support ) {
   boost::shared_ptr<crocoddyl::ActivationModelQuadFlatLog> activationQF =
       boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(6, 0.01);
 
@@ -133,11 +137,15 @@ void ModelMaker::defineFeetTracking(Cost &costCollector) {
   boost::shared_ptr<crocoddyl::CostModelAbstract> trackingModel_RF =
       boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF,
                                                        residual_RF_Tracking);
-
+  
   costCollector.get()->addCost("placement_LF", trackingModel_LF,
-                               settings_.wFootTrans, true);
+                               settings_.wFootTrans, false);
   costCollector.get()->addCost("placement_RF", trackingModel_RF,
-                               settings_.wFootTrans, true);
+                               settings_.wFootTrans, false);
+  if (support == Support::LEFT || support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("placement_RF",true);
+  if (support == Support::RIGHT || support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("placement_LF",true);
 }
 
 void ModelMaker::definePostureTask(Cost &costCollector) {
@@ -259,7 +267,7 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   defineActuationTask(costs);
   defineFeetWrenchCost(costs, support);
   defineCoPTask(costs, support);
-  defineFeetTracking(costs);
+  defineFeetTracking(costs, support);
 
   DAM runningDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(

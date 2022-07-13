@@ -61,18 +61,18 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
 void WBC::generateWalkingCycle(ModelMaker &mm) {
   std::vector<Support> cycle;
-
-  land_LF_cycle_ = 0;
-  takeoff_RF_cycle_ = land_LF_cycle_ + settings_.TdoubleSupport;
-  land_RF_cycle_ = land_LF_cycle_ + settings_.Tstep;
-  takeoff_LF_cycle_ = takeoff_RF_cycle_ + settings_.Tstep;
+  
+  takeoff_RF_cycle_ = settings_.TdoubleSupport;
+  land_RF_cycle_ = takeoff_RF_cycle_ + settings_.TsingleSupport;
+  takeoff_LF_cycle_ = land_RF_cycle_ + settings_.TdoubleSupport;
+  land_LF_cycle_ = takeoff_LF_cycle_ + settings_.TsingleSupport;
 
   for (int i = 0; i < 2 * settings_.Tstep; i++) {
-    if (i < takeoff_RF_cycle_)
+    if (i < takeoff_RF_cycle_ - 1)
       cycle.push_back(DOUBLE);
-    else if (i < land_RF_cycle_)
+    else if (i < land_RF_cycle_ - 1)
       cycle.push_back(LEFT);
-    else if (i < takeoff_LF_cycle_)
+    else if (i < takeoff_LF_cycle_ - 1)
       cycle.push_back(DOUBLE);
     else
       cycle.push_back(RIGHT);
@@ -240,10 +240,10 @@ void WBC::updateSupportTiming() {
   land_LF_cycle_ -= 1;
   takeoff_LF_cycle_ -= 1;
   takeoff_RF_cycle_ -= 1;
-  if (land_RF_cycle_ < 0) land_RF_cycle_ = 2 * settings_.Tstep - 1; 
-  if (land_LF_cycle_ < 0) land_LF_cycle_ = 2 * settings_.Tstep - 1; 
-  if (takeoff_LF_cycle_ < 0) takeoff_LF_cycle_ = 2 * settings_.Tstep - 1; 
-  if (takeoff_RF_cycle_ < 0) takeoff_RF_cycle_ = 2 * settings_.Tstep - 1; 
+  if (land_RF_cycle_ < 0) land_RF_cycle_ = 2 * settings_.Tstep ; 
+  if (land_LF_cycle_ < 0) land_LF_cycle_ = 2 * settings_.Tstep ; 
+  if (takeoff_LF_cycle_ < 0) takeoff_LF_cycle_ = 2 * settings_.Tstep; 
+  if (takeoff_RF_cycle_ < 0) takeoff_RF_cycle_ = 2 * settings_.Tstep; 
 
   if (land_LF_.size() > 0 && land_LF_[0] < 0) land_LF_.erase(land_LF_.begin());
 
