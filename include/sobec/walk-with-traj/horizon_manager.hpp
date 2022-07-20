@@ -51,10 +51,13 @@ class HorizonManager {
 
   AMA ama(const unsigned long time);
   IAM iam(const unsigned long time);
+  IAM terminaliam();
   DAM dam(const unsigned long time);
+  DAM terminaldam();
   ADA ada(const unsigned long time);
   IAD iad(const unsigned long time);
   Cost costs(const unsigned long time);
+  Cost terminalCosts();
   Contact contacts(const unsigned long time);
   boost::shared_ptr<crocoddyl::StateMultibody> state(const unsigned long time);
   boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation(
@@ -69,14 +72,15 @@ class HorizonManager {
   void setBalancingTorque(const unsigned long time,
                           const std::string &nameCostActuation,
                           const std::string &nameCostState);
-  void setPoseReferenceLF(const unsigned long time,
-                          const std::string &nameCostLF,
-                          const pinocchio::SE3 &ref_placement);
-  void setPoseReferenceRF(const unsigned long time,
-                          const std::string &nameCostRF,
-                          const pinocchio::SE3 &ref_placement);
+  void setPoseReference(const unsigned long time,
+                        const std::string &nameCost,
+                        const pinocchio::SE3 &ref_placement);
+  void setTerminalPoseReference(const std::string &nameCost,
+                                const pinocchio::SE3 &ref_placement);
   const pinocchio::SE3 &getFootPoseReference(
       const unsigned long time, const std::string &nameCostFootPose);
+  const pinocchio::SE3 &getTerminalFootPoseReference(
+      const std::string &nameCostFootPose);
   void setVelocityRefCOM(const unsigned long time, const std::string &nameCost,
                          const eVector3 &ref_placement);
   void activateContactLF(const unsigned long time,

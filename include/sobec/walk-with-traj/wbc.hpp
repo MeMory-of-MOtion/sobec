@@ -63,6 +63,8 @@ class WBC {
 
   // timings
   std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;
+  
+  int takeoff_RF_cycle_, takeoff_LF_cycle_, land_RF_cycle_, land_LF_cycle_;
 
   // INTERNAL UPDATING functions
   void updateStepTrackerReferences();
@@ -150,7 +152,12 @@ class WBC {
   const std::vector<int> &get_land_RF() { return land_RF_; }
   const std::vector<int> &get_takeoff_LF() { return takeoff_LF_; }
   const std::vector<int> &get_takeoff_RF() { return takeoff_RF_; }
-
+  
+  const int &get_land_LF_cycle() { return land_LF_cycle_; }
+  const int &get_land_RF_cycle() { return land_RF_cycle_; }
+  const int &get_takeoff_LF_cycle() { return takeoff_LF_cycle_; }
+  const int &get_takeoff_RF_cycle() { return takeoff_RF_cycle_; }
+  
   // USER REFERENCE SETTERS AND GETTERS
   const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
   const pinocchio::SE3 &getPoseRef_LF(unsigned long time) {

@@ -9,7 +9,7 @@ import numpy as np
 
 # PATHS
 
-URDF_FILENAME = "talos_reduced_corrected.urdf"
+URDF_FILENAME = "talos_reduced.urdf"
 SRDF_FILENAME = "talos.srdf"
 SRDF_SUBPATH = "/talos_data/srdf/" + SRDF_FILENAME
 URDF_SUBPATH = "/talos_data/robots/" + URDF_FILENAME
@@ -19,17 +19,17 @@ modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
 blocked_joints = [
     "universe",
-    # "arm_left_1_joint",
-    # "arm_left_2_joint",
-    # "arm_left_3_joint",
-    # "arm_left_4_joint",
+    "arm_left_1_joint",
+    "arm_left_2_joint",
+    "arm_left_3_joint",
+    "arm_left_4_joint",
     "arm_left_5_joint",
     "arm_left_6_joint",
     "arm_left_7_joint",
-    # "arm_right_1_joint",
-    # "arm_right_2_joint",
-    # "arm_right_3_joint",
-    # "arm_right_4_joint",
+    "arm_right_1_joint",
+    "arm_right_2_joint",
+    "arm_right_3_joint",
+    "arm_right_4_joint",
     "arm_right_5_joint",
     "arm_right_6_joint",
     "arm_right_7_joint",
@@ -44,24 +44,24 @@ preview_steps = 2
 total_steps = 8
 T_total = 2000  # Total number of nodes of the simulation
 DT = 1e-2  # Time step of the DDP
-T = 100  # Time horizon of the DDP (number of nodes)
-T2contact = 10  # Double support time  # TODO: (check with 20)
+T = 150  # Time horizon of the DDP (number of nodes)
+TdoubleSupport = 20  # Double support time  # TODO: (check with 20)
 simu_step = simu_period = 1e-3  #
 
 Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
 
 # TODO: landing_advance and takeoff_delay are missing
 
-T1contact = 70  # Single support time
+TsingleSupport = 110  # Single support time
 ddpIteration = 1  # Number of DDP iterations
 
-Tstep = T2contact + T1contact
+Tstep = TsingleSupport + TdoubleSupport
 
 # #### PHYSICS #####
 
 simulator = (
-    #    "bullet"
-    "pinocchio"
+    "bullet"
+    #"pinocchio"
 )
 
 
@@ -106,10 +106,10 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 
 # ###### WALKING GEOMETRY #########
-xForward = 0.15 * 0  # step size
-foot_height = 0.03  # foot height
+xForward = 0.15 # step size
+swingApex = 0.2  # foot height
 TFootDepth = 220  # Foot depth in ground (#TODO: what is this?)
-yCorrection = 0.0  # 0.005 # Correction in y to push the feet away from each other
+footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
 
 normal_height = 0.87
 omega = np.sqrt(-gravity[2] / normal_height)
@@ -135,6 +135,7 @@ wFootTrans = 10000
 wFootXYTrans = 0
 wFootRot = 100
 wGroundCol = 0.05
+wCoP = 10
 
 weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
@@ -148,18 +149,21 @@ stateWeights = np.array(
     weightBasePos
     + weightLegPos * 2
     + weightTorsoPos
-    + weightArmPos * 2
+    #+ weightArmPos * 2
     + weightBaseVel
     + weightLegVel * 2
     + weightTorsoVel
-    + weightArmVel * 2
+    #+ weightArmVel * 2
 )
 
 weightuBase = "not actuated"
 weightuLeg = [1, 0, 0, 1, 1, 1]
 weightuArm = [10, 10, 10, 10]
 weightuTorso = [1, 1]
-controlWeight = np.array(weightuLeg * 2 + weightuTorso + weightuArm * 2)
+controlWeight = np.array(weightuLeg * 2 
+                        + weightuTorso 
+                        #+ weightuArm * 2
+)
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.

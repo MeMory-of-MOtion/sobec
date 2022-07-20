@@ -55,6 +55,7 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wFootXYTrans = bp::extract<double>(settings["wFootXYTrans"]);
   conf.wFootRot = bp::extract<double>(settings["wFootRot"]);
   conf.wGroundCol = bp::extract<double>(settings["wGroundCol"]);
+  conf.wCoP = bp::extract<double>(settings["wCoP"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights =
       bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
@@ -85,6 +86,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wFootXYTrans"] = conf.wFootXYTrans;
   settings["wFootRot"] = conf.wFootRot;
   settings["wGroundCol"] = conf.wGroundCol;
+  settings["wCoP"] = conf.wCoP;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
   settings["th_grad"] = conf.th_grad;
@@ -129,9 +131,10 @@ void defineFeetWrenchCost(ModelMaker &self,
 }
 
 void defineFeetTracking(ModelMaker &self,
-                        crocoddyl::CostModelSum &costCollector) {
+                        crocoddyl::CostModelSum &costCollector,
+                        const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.defineFeetTracking(costs);
+  self.defineFeetTracking(costs, supports);
   costCollector = *costs;
 }
 
@@ -181,7 +184,8 @@ void exposeModelFactory() {
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetTracking", &defineFeetTracking,
-           bp::args("self", "costCollector"))
+           (bp::arg("self"), bp::arg("costCollector"),
+            bp::arg("supports") = Support::DOUBLE))
       .def("definePostureTask", &definePostureTask,
            bp::args("self", "costCollector"))
       .def("defineActuationTask", &defineActuationTask,

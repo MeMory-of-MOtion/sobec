@@ -80,7 +80,8 @@ class ModelMaker {
                          const Support &support = Support::DOUBLE);
   void defineFeetWrenchCost(Cost &costCollector,
                             const Support &support = Support::DOUBLE);
-  void defineFeetTracking(Cost &costCollector);
+  void defineFeetTracking(Cost &costCollector,
+                          const Support &support = Support::DOUBLE);
   void definePostureTask(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
