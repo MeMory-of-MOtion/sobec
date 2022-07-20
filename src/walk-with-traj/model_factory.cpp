@@ -115,7 +115,7 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
     costCollector.get()->changeCostStatus("wrench_RF",true);
 }
 
-void ModelMaker::defineFeetTracking(Cost &costCollector, const Support &support ) {
+void ModelMaker::defineFeetTracking(Cost &costCollector, const Support &support) {
   boost::shared_ptr<crocoddyl::ActivationModelQuadFlatLog> activationQF =
       boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(6, 0.01);
 
@@ -242,15 +242,15 @@ void ModelMaker::defineCoPTask(Cost &costCollector, const Support &support) {
           boost::make_shared<ResidualModelCenterOfPressure>(
               state_, designer_.get_RF_id(), actuation_->get_nu()));
 
-  costCollector->addCost(designer_.get_LF_name() + "_cop", copCostLF,
+  costCollector.get()->addCost(designer_.get_LF_name() + "_cop", copCostLF,
                          settings_.wCoP, false);
-  costCollector->addCost(designer_.get_RF_name() + "_cop", copCostRF,
+  costCollector.get()->addCost(designer_.get_RF_name() + "_cop", copCostRF,
                          settings_.wCoP, false);
   if (support == Support::LEFT || support == Support::DOUBLE)
-    costCollector->changeCostStatus(designer_.get_LF_name() + "_cop", true);
+    costCollector.get()->changeCostStatus(designer_.get_LF_name() + "_cop", true);
 
   if (support == Support::RIGHT || support == Support::DOUBLE)
-    costCollector->changeCostStatus(designer_.get_RF_name() + "_cop", true);
+    costCollector.get()->changeCostStatus(designer_.get_RF_name() + "_cop", true);
 }
 
 AMA ModelMaker::formulateStepTracker(const Support &support) {

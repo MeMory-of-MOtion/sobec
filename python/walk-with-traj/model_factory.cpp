@@ -136,7 +136,7 @@ void defineFeetTracking(ModelMaker &self,
                         crocoddyl::CostModelSum &costCollector,
                         const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.defineFeetTracking(costs,supports);
+  self.defineFeetTracking(costs, supports);
   costCollector = *costs;
 }
 
@@ -194,7 +194,8 @@ void exposeModelFactory() {
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetTracking", &defineFeetTracking,
-           bp::args("self", "costCollector"))
+           (bp::arg("self"), bp::arg("costCollector"),
+            bp::arg("supports") = Support::DOUBLE))
       .def("definePostureTask", &definePostureTask,
            bp::args("self", "costCollector"))
       .def("defineActuationTask", &defineActuationTask,

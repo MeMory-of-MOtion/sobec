@@ -75,6 +75,17 @@ class BulletTalos:
             p.resetJointState(
                 self.robotId, self.JointIndicesComplete[i], initial_joint_positions[i]
             )
+    
+    def resetState(self, q0Start):
+        # Initialize position in pyBullet
+        p.resetBasePositionAndOrientation(self.robotId, posObj=[q0Start[0] + self.localInertiaPos[0],
+            q0Start[1] + self.localInertiaPos[1], 
+            q0Start[2] + self.localInertiaPos[2]], 
+            ornObj=q0Start[3:7])
+        for i in range(len(self.bulletControlledJoints)):
+            p.resetJointState(
+                self.robotId, self.bulletControlledJoints[i], q0Start[i+7]
+            )
 
     def execute(self, torques):
         p.setJointMotorControlArray(

@@ -57,17 +57,20 @@ void exposeHorizonManager() {
            bp::args("self", "settings", "x0", "runningModels", "terminalModel"))
       .def("ama", &HorizonManager::ama, bp::args("self", "time"))
       .def("iam", &HorizonManager::iam, bp::args("self", "time"))
+      .def("terminaliam", &HorizonManager::terminaliam, bp::args("self"))
       .def("dam", &HorizonManager::dam, bp::args("self", "time"))
+      .def("terminaldam", &HorizonManager::terminaldam, bp::args("self"))
       .def("costs", &HorizonManager::costs, bp::args("self", "time"))
+      .def("terminalCosts", &HorizonManager::terminalCosts, bp::args("self"))
       .def("contacts", &HorizonManager::contacts, bp::args("self", "time"))
       .def("state", &HorizonManager::state, bp::args("self", "time"))
       .def("actuation", &HorizonManager::actuation, bp::args("self", "time"))
       .def("ada", &HorizonManager::ada, bp::args("self", "time"))
       .def("iad", &HorizonManager::iad, bp::args("self", "time"))
-      .def("setPoseReferenceLF", &HorizonManager::setPoseReferenceLF,
+      .def("setPoseReference", &HorizonManager::setPoseReference,
            bp::args("self", "time", "pose", "costName"))
-      .def("setPoseReferenceRF", &HorizonManager::setPoseReferenceRF,
-           bp::args("self", "time", "pose", "costName"))
+      .def("setTerminalPoseReference", &HorizonManager::setTerminalPoseReference,
+           bp::args("self", "pose", "costName"))
       .def("activateContactLF", &HorizonManager::activateContactLF,
            bp::args("self", "time", "contactName"))
       .def("activateContactRF", &HorizonManager::activateContactRF,
@@ -91,6 +94,10 @@ void exposeHorizonManager() {
       .def("getFootPoseReference",
            bp::make_function(
                &HorizonManager::getFootPoseReference,
+               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("getTerminalFootPoseReference",
+           bp::make_function(
+               &HorizonManager::getTerminalFootPoseReference,
                bp::return_value_policy<bp::reference_existing_object>()))
       .def<void (HorizonManager::*)(const AMA &, const ADA &)>(
           "recede", &HorizonManager::recede, bp::args("self", "IAM", "IAD"))

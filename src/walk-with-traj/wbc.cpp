@@ -32,10 +32,10 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   designer_.updateReducedModel(x0_);
   designer_.updateCompleteModel(q0);
 
-  ref_LF_poses_.reserve(horizon_.size());
-  ref_RF_poses_.reserve(horizon_.size());
+  ref_LF_poses_.reserve(horizon_.size() + 1);
+  ref_RF_poses_.reserve(horizon_.size() + 1);
 
-  for (unsigned long i = 0; i < horizon_.size(); i++) {
+  for (unsigned long i = 0; i < horizon_.size() + 1; i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
     ref_RF_poses_.push_back(designer_.get_RF_frame());
   }
@@ -68,11 +68,11 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
   land_LF_cycle_ = takeoff_LF_cycle_ + settings_.TsingleSupport;
 
   for (int i = 0; i < 2 * settings_.Tstep; i++) {
-    if (i < takeoff_RF_cycle_ - 1)
+    if (i < takeoff_RF_cycle_)
       cycle.push_back(DOUBLE);
-    else if (i < land_RF_cycle_ - 1)
+    else if (i < land_RF_cycle_)
       cycle.push_back(LEFT);
-    else if (i < takeoff_LF_cycle_ - 1)
+    else if (i < takeoff_LF_cycle_)
       cycle.push_back(DOUBLE);
     else
       cycle.push_back(RIGHT);
@@ -103,8 +103,8 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
   // ~~TIMING~~ //
-  updateSupportTiming();
   recedeWithCycle();
+  updateSupportTiming();
 
   // ~~REFERENCES~~ //
   designer_.updateReducedModel(x0_);
@@ -133,17 +133,23 @@ void WBC::iterate(int iteration, const Eigen::VectorXd &q_current,
 
 void WBC::updateStepTrackerReferences() {
   for (unsigned long time = 0; time < horizon_.size(); time++) {
-    horizon_.setPoseReferenceLF(time, "placement_LF", getPoseRef_LF(time));
-    horizon_.setPoseReferenceRF(time, "placement_RF", getPoseRef_RF(time));
+    horizon_.setPoseReference(time, "placement_LF", getPoseRef_LF(time));
+    horizon_.setPoseReference(time, "placement_RF", getPoseRef_RF(time));
     ///@todo: the names must be provided by the user
   }
+  horizon_.setTerminalPoseReference("placement_LF", getPoseRef_LF(horizon_.size()));
+  horizon_.setTerminalPoseReference("placement_RF", getPoseRef_RF(horizon_.size()));
 }
 
 void WBC::updateStepTrackerLastReference() {
-  horizon_.setPoseReferenceLF(horizon_.size() - 1, "placement_LF",
+  horizon_.setPoseReference(horizon_.size() - 1, "placement_LF",
                               getPoseRef_LF(horizon_.size() - 1));
-  horizon_.setPoseReferenceRF(horizon_.size() - 1, "placement_RF",
+  horizon_.setPoseReference(horizon_.size() - 1, "placement_RF",
                               getPoseRef_RF(horizon_.size() - 1));
+  horizon_.setTerminalPoseReference("placement_LF",
+                              getPoseRef_LF(horizon_.size()));
+  horizon_.setTerminalPoseReference("placement_RF",
+                              getPoseRef_RF(horizon_.size()));
   ref_LF_poses_.erase(ref_LF_poses_.begin());
   ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size() - 1]);
   ref_RF_poses_.erase(ref_RF_poses_.begin());

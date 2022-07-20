@@ -42,14 +42,29 @@ IAM HorizonManager::iam(const unsigned long time) {
       ama(time));
 }
 
+IAM HorizonManager::terminaliam() {
+  return boost::static_pointer_cast<crocoddyl::IntegratedActionModelEuler>(
+      ddp_->get_problem()->get_terminalModel());
+}
+
 DAM HorizonManager::dam(const unsigned long time) {
   return boost::static_pointer_cast<
       crocoddyl::DifferentialActionModelContactFwdDynamics>(
       iam(time)->get_differential());
 }
 
+DAM HorizonManager::terminaldam() {
+  return boost::static_pointer_cast<
+      crocoddyl::DifferentialActionModelContactFwdDynamics>(
+      terminaliam()->get_differential());
+}
+
 Cost HorizonManager::costs(const unsigned long time) {
   return dam(time)->get_costs();
+}
+
+Cost HorizonManager::terminalCosts() {
+  return terminaldam()->get_costs();
 }
 
 Contact HorizonManager::contacts(const unsigned long time) {
@@ -125,19 +140,18 @@ void HorizonManager::setActuationReference(const unsigned long time,
       ->set_reference(reference);
 }
 
-void HorizonManager::setPoseReferenceLF(const unsigned long time,
-                                        const std::string &nameCostLF,
+void HorizonManager::setPoseReference(const unsigned long time,
+                                        const std::string &nameCost,
                                         const pinocchio::SE3 &ref_placement) {
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
-      costs(time)->get_costs().at(nameCostLF)->cost->get_residual())
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
       ->set_reference(ref_placement);
 }
-///@todo:fuse these two functions and any other redundant funtion.
-void HorizonManager::setPoseReferenceRF(const unsigned long time,
-                                        const std::string &nameCostRF,
-                                        const pinocchio::SE3 &ref_placement) {
+
+void HorizonManager::setTerminalPoseReference(const std::string &nameCost,
+                                              const pinocchio::SE3 &ref_placement) {
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
-      costs(time)->get_costs().at(nameCostRF)->cost->get_residual())
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
       ->set_reference(ref_placement);
 }
 
@@ -146,6 +160,15 @@ const pinocchio::SE3 &HorizonManager::getFootPoseReference(
   pose_ =
       boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
           costs(time)->get_costs().at(nameCostFootPose)->cost->get_residual())
+          ->get_reference();
+  return pose_;
+}
+
+const pinocchio::SE3 &HorizonManager::getTerminalFootPoseReference(
+    const std::string &nameCostFootPose) {
+  pose_ =
+      boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
+          terminalCosts()->get_costs().at(nameCostFootPose)->cost->get_residual())
           ->get_reference();
   return pose_;
 }

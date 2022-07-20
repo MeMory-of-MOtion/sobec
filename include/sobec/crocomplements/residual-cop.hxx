@@ -33,7 +33,7 @@ void ResidualModelCenterOfPressureTpl<Scalar>::calc(
     const Eigen::Ref<const VectorXs> &) {
   Data *d = static_cast<Data *>(data.get());
   Force f = d->contact->jMf.actInv(d->contact->f);
-  
+
   if (f.linear()[2] != 0.0){
 	  data->r[0] = f.angular()[1] / f.linear()[2];
 	  data->r[1] = -f.angular()[0] / f.linear()[2];
