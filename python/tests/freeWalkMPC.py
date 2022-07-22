@@ -6,7 +6,7 @@ Created on Sat Jun 11 17:42:39 2022
 """
 import matplotlib.pyplot as plt
 
-import configuration as conf
+import configurationFree as conf
 
 from bullet_Talos import BulletTalos
 #from cricket.virtual_talos import VirtualPhysics
@@ -19,49 +19,6 @@ from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex, Support
 import ndcurves
 import numpy as np
 import time
-
-
-# from time import time
-def defineBezier(height, time_init,time_final,placement_init,placement_final):
-	wps = np.zeros([3, 9])
-	for i in range(4):  # init position. init vel,acc and jerk == 0
-		wps[:, i] = placement_init.translation
-	# compute mid point (average and offset along z)
-	wps[:, 4] = (placement_init.translation + placement_final.translation) / 2.
-	wps[2, 4] += height
-	for i in range(5, 9):  # final position. final vel,acc and jerk == 0
-		wps[:, i] = placement_final.translation
-	translation = ndcurves.bezier(wps, time_init, time_final)
-	pBezier = ndcurves.piecewise_SE3(ndcurves.SE3Curve(translation, placement_init.rotation, placement_final.rotation))
-	return pBezier
-
-def foot_trajectory(T, time_to_land, initial_pose,final_pose, trajectory_swing):
-	"""Functions to generate steps."""
-	tmax = conf.TsingleSupport
-	landing_advance = 0
-	takeoff_delay = 0
-	placement = []
-	for t in range(time_to_land - landing_advance, time_to_land - landing_advance - T, -1):
-		if (t < 0):
-			placement.append(final_pose)
-		elif (t > conf.TsingleSupport - landing_advance - takeoff_delay):
-			placement.append(initial_pose)
-		else:
-			swing_pose = initial_pose.copy()
-			swing_pose.translation[0] = float(trajectory_swing.translation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[0])
-			swing_pose.translation[1] = float(trajectory_swing.translation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[1])
-			swing_pose.translation[2] = float(trajectory_swing.translation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[2])
-			placement.append(swing_pose)
-
-	return placement
-
-def print_trajectory(ref):
-    u = [y.translation for y in ref]
-    t = np.array([z[2] for z in u])
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.plot(t)
-    ax.set_ylim(0, 0.05)
 
 
 # ####### CONFIGURATION  ############
@@ -112,6 +69,8 @@ MM_conf = dict(
     comHeight=conf.normal_height,
     omega=conf.omega,
     footSize = conf.footSize,
+    flyHighSlope = conf.flyHighSlope,
+    footMinimalDistance = conf.footMinimalDistance,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
@@ -124,6 +83,9 @@ MM_conf = dict(
     wFootRot=conf.wFootRot,
     wGroundCol=conf.wGroundCol,
     wCoP = conf.wCoP,
+    wFlyHigh = conf.wFlyHigh,
+    wVelFoot = conf.wVelFoot,
+    wColFeet = conf.wColFeet,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
     th_grad=conf.th_grad,
@@ -132,8 +94,8 @@ MM_conf = dict(
 
 formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
-all_models = formuler.formulateHorizon(length=conf.T,no_thinking=False)
-ter_model = formuler.formulateStepTracker(Support.DOUBLE)
+all_models = formuler.formulateHorizon(length=conf.T,no_thinking=True)
+ter_model = formuler.formulateNoThinkingTerminalTracker(Support.DOUBLE)
 
 # Horizon
 
@@ -178,7 +140,7 @@ mpc.initialize(
     horizon,
     design.get_q0Complete(),
     design.get_v0Complete(),
-    "actuationTask"
+    "actuationTask",
 )
 mpc.generateWalkingCycle(formuler)
 mpc.generateStandingCycle(formuler)
@@ -202,25 +164,6 @@ elif conf.simulator == "pinocchio":
 
 # ### SIMULATION LOOP ###
 moyenne = 0
-steps = 0
-
-starting_position_right = mpc.designer.get_RF_frame().copy()
-final_position_right = mpc.designer.get_LF_frame().copy()
-final_position_right.translation[0] = final_position_right.translation[0] + conf.xForward
-final_position_right.translation[1] = final_position_right.translation[1] - conf.footSeparation
-
-xForward = conf.xForward
-
-starting_position_left = mpc.designer.get_LF_frame().copy()
-final_position_left = mpc.designer.get_RF_frame().copy()
-final_position_left.translation[0] = final_position_left.translation[0] + 2 * conf.xForward
-final_position_left.translation[1] = final_position_left.translation[1] + conf.footSeparation
-
-swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
-swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
-
-ref_pose_right = [swing_trajectory_right for i in range(conf.T)]
-ref_pose_left = [swing_trajectory_left for i in range(conf.T)]
 
 fz_ref_1contact = -design.getRobotMass() * conf.gravity[2];
 fz_ref_2contact = fz_ref_1contact / 2.;
@@ -235,11 +178,12 @@ wrench_reference_2contact_right = np.array([0,0,fz_ref_2contact,0,0,0])
 wrench_reference_2contact_left = np.array([0,0,fz_ref_2contact,0,0,0])
 wrench_reference_1contact = np.array([0,0,fz_ref_1contact,0,0,0])
 ref_force = fz_ref_2contact
+comRef = mpc.designer.get_com_position().copy()
 
-T_total = conf.total_steps * conf.Tstep + 5 * conf.T
-xForward = conf.xForward
+comRef[0] += 0.2
 
-for s in range(T_total * conf.Nc):
+mpc.ref_com = comRef
+for s in range(conf.T_total * conf.Nc):
 	#    time.sleep(0.001)
 	if mpc.timeToSolveDDP(s):
 
@@ -272,39 +216,6 @@ for s in range(T_total * conf.Nc):
 			)
 		)
 		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
-		if land_RF == 0:
-			steps += 1
-		if land_LF == 0:
-			steps += 1
-		if steps == conf.total_steps:
-			mpc.switchToStand()
-			xForward = 0
-		if (takeoff_RF < conf.TdoubleSupport):
-			#print("Update right trajectory")
-			final_position_right = mpc.designer.get_LF_frame().copy()
-			final_position_right.translation[0] += xForward
-			final_position_right.translation[1] -= conf.footSeparation
-			starting_position_right = mpc.designer.get_RF_frame().copy()
-			
-			starting_position_left = mpc.designer.get_LF_frame().copy()
-			final_position_left = final_position_right.copy()
-			final_position_left.translation[0] += xForward
-			final_position_left.translation[1] += conf.footSeparation
-			swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
-			swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
-		if (takeoff_LF < conf.TdoubleSupport):
-			#print("Update left trajectory")
-			final_position_left = mpc.designer.get_RF_frame().copy()
-			final_position_left.translation[0] += xForward
-			final_position_left.translation[1] += conf.footSeparation
-			starting_position_left = mpc.designer.get_LF_frame().copy()
-			
-			starting_position_right = mpc.designer.get_RF_frame().copy()
-			final_position_right = final_position_left.copy()
-			final_position_right.translation[0] += xForward
-			final_position_right.translation[1] -= conf.footSeparation
-			swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
-			swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 		
 		if (mpc.walkingCycle.contacts(0).getContactStatus("leg_left_sole_fix_joint")):
 			if (mpc.walkingCycle.contacts(0).getContactStatus("leg_right_sole_fix_joint")):
@@ -332,24 +243,6 @@ for s in range(T_total * conf.Nc):
 				TdoubleSupport = 1
 		else:
 			TdoubleSupport = 1
-		LF_refs = foot_trajectory(
-			len(mpc.ref_LF_poses),
-			land_LF,
-			starting_position_left,
-			final_position_left,
-			swing_trajectory_left
-		)
-		RF_refs = foot_trajectory(
-			len(mpc.ref_RF_poses),
-			land_RF,
-			starting_position_right,
-			final_position_right,
-			swing_trajectory_right
-		)
-
-		for i in range(len(mpc.ref_LF_poses)):
-			mpc.ref_LF_poses[i] = LF_refs[i]
-			mpc.ref_RF_poses[i] = RF_refs[i]
 
 		#print_trajectory(mpc.ref_LF_poses)
 

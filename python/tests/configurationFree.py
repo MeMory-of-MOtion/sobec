@@ -41,18 +41,18 @@ blocked_joints = [
 
 # #### TIMING #####
 preview_steps = 2
-total_steps = 6
+total_steps = 8
 T_total = 2000  # Total number of nodes of the simulation
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 10  # Double support time  # TODO: (check with 20)
+TdoubleSupport = 100  # Double support time  # TODO: (check with 20)
 simu_step = simu_period = 1e-3  #
 
 Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
 
 # TODO: landing_advance and takeoff_delay are missing
 
-TsingleSupport = 60  # Single support time
+TsingleSupport = 100  # Single support time
 ddpIteration = 1  # Number of DDP iterations
 
 Tstep = TsingleSupport + TdoubleSupport
@@ -109,6 +109,8 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 # ###### WALKING GEOMETRY #########
 xForward = 0.15 # step size
 swingApex = 0.2  # foot height
+footMinimalDistance = 0.3
+flyHighSlope = 2
 footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
 
 normal_height = 0.87
@@ -116,7 +118,7 @@ omega = np.sqrt(-gravity[2] / normal_height)
 
 
 # ##### CROCO - CONFIGURATION ########
-typeOfCommand= 0 # 0 for StepTracker, 1 for NonThinking
+typeOfCommand= 1 # 0 for StepTracker, 1 for NonThinking
 # relevant frame names
 
 rightFoot = rf_frame_name = "leg_right_sole_fix_joint"
@@ -130,13 +132,16 @@ wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
 wVCoM = 0
-wCoM = 0
+wCoM = 10000
 wWrenchCone = 0.05
 wFootTrans = 10000
 wFootXYTrans = 0
 wFootRot = 100
 wGroundCol = 0.05
 wCoP = 10
+wFlyHigh = 1
+wVelFoot = 100
+wColFeet = 0
 
 weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]

@@ -88,7 +88,7 @@ struct ResidualDataFlyHighTpl;
 typedef ResidualModelFlyHighTpl<double> ResidualModelFlyHigh;
 typedef ResidualDataFlyHighTpl<double> ResidualDataFlyHigh;
 
-// Cost fly high
+// Cost feet collision
 template <typename Scalar>
 class ResidualModelFeetCollisionTpl;
 template <typename Scalar>

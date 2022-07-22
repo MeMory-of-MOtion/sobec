@@ -31,6 +31,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   x0_ << shapeState(q0, v0);
   designer_.updateReducedModel(x0_);
   designer_.updateCompleteModel(q0);
+  ref_com_ = designer_.get_com_position();
 
   ref_LF_poses_.reserve(horizon_.size() + 1);
   ref_RF_poses_.reserve(horizon_.size() + 1);
@@ -77,7 +78,18 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
     else
       cycle.push_back(RIGHT);
   }
-  std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
+  std::vector<AMA> cyclicModels;
+  switch (settings_.typeOfCommand) {
+	  case STEPTRACKER:
+      //updateStepTrackerLastReference();
+      cyclicModels = mm.formulateHorizon(cycle, false);
+      break;
+    case NONTHINKING:
+      cyclicModels = mm.formulateHorizon(cycle, true);
+      break;
+    default:
+      break;
+  }
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
@@ -87,7 +99,18 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
 void WBC::generateStandingCycle(ModelMaker &mm) {
   ///@todo: bind it
   std::vector<Support> cycle(2 * settings_.Tstep, DOUBLE);
-  std::vector<AMA> cyclicModels = mm.formulateHorizon(cycle);
+  std::vector<AMA> cyclicModels;
+  switch (settings_.typeOfCommand) {
+	  case STEPTRACKER:
+      //updateStepTrackerLastReference();
+      cyclicModels = mm.formulateHorizon(cycle, false);
+      break;
+    case NONTHINKING:
+      cyclicModels = mm.formulateHorizon(cycle, true);
+      break;
+    default:
+      break;
+  }
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   standingCycle_ = HorizonManager(names, x0_, cyclicModels,
@@ -109,11 +132,11 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   // ~~REFERENCES~~ //
   designer_.updateReducedModel(x0_);
   switch (settings_.typeOfCommand) {
-    case StepTracker:
+    case STEPTRACKER:
       //updateStepTrackerLastReference();
       updateStepTrackerReferences();
       break;
-    case NonThinking:
+    case NONTHINKING:
       updateNonThinkingReferences();
       break;
     default:
@@ -157,10 +180,8 @@ void WBC::updateStepTrackerLastReference() {
 }
 
 void WBC::updateNonThinkingReferences() {
-  for (unsigned long time = 0; time < horizon_.size(); time++) {
-    horizon_.setVelocityRefCOM(time, "comVelocity", ref_com_vel_[time]);
+  horizon_.setTerminalPoseCoM("comTask", ref_com_);
     ///@todo: the names must be provided by the user
-  }
 }
 
 void WBC::recedeWithCycle() {

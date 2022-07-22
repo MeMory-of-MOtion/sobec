@@ -83,6 +83,8 @@ void exposeHorizonManager() {
            bp::args("self", "time", "costName", "ref_wrench"))
       .def("setForceReferenceRF", &HorizonManager::setForceReferenceRF,
            bp::args("self", "time", "costName", "ref_wrench"))
+      .def("setTerminalPoseCoM", &HorizonManager::setTerminalPoseCoM,
+           bp::args("self", "costName", "ref_placement"))
       .def("setSwingingLF", &HorizonManager::setSwingingLF,
            bp::args("self", "time", "contactNameLF", "contactNameRF",
                     "forceCostName"))

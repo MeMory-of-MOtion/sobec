@@ -155,6 +155,13 @@ void HorizonManager::setTerminalPoseReference(const std::string &nameCost,
       ->set_reference(ref_placement);
 }
 
+void HorizonManager::setTerminalPoseCoM(const std::string &nameCost,
+                                        const eVector3 &ref_placement) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelCoMPosition>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_placement);
+}
+
 const pinocchio::SE3 &HorizonManager::getFootPoseReference(
     const unsigned long time, const std::string &nameCostFootPose) {
   pose_ =

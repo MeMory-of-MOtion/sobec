@@ -9,6 +9,8 @@
 
 #include "sobec/fwd.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
+#include "sobec/crocomplements/residual-feet-collision.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
 
 namespace sobec {
 
@@ -32,6 +34,8 @@ struct ModelMakerSettings {
 
   double comHeight = 0.87;
   double omega = -comHeight / gravity(2);
+  double flyHighSlope = 2;
+  double footMinimalDistance = 0.2;
 
   // Croco configuration
   double wFootPlacement = 0;  // 1000;
@@ -45,6 +49,10 @@ struct ModelMakerSettings {
   double wFootRot = 0;        // 100;
   double wGroundCol = 0;      // 0.05;
   double wCoP = 0;            // 1;
+  double wCoM = 0;
+  double wFlyHigh = 0;
+  double wVelfoot = 0;
+  double wColFeet = 0;
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
@@ -70,9 +78,11 @@ class ModelMaker {
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
   AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
+  AMA formulateNoThinkingTracker(const Support &support = Support::DOUBLE);
+  AMA formulateNoThinkingTerminalTracker(const Support &support = Support::DOUBLE);
 
-  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
-  std::vector<AMA> formulateHorizon(const int &T);
+  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports, const bool no_thinking);
+  std::vector<AMA> formulateHorizon(const int &T, const bool no_thinking);
   ModelMakerSettings &get_settings() { return settings_; }
 
   // formulation parts:
@@ -87,8 +97,14 @@ class ModelMaker {
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
+  void defineVelFootTask(Cost &costCollector); 
+  void defineCoMTask(Cost &costCollector); 
   void defineCoPTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
+  void defineFootCollisionTask(Cost &costCollector, 
+                          const Support &support = Support::DOUBLE);
+  void defineFlyHighTask(Cost &costCollector, 
+                          const Support &support = Support::DOUBLE);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {

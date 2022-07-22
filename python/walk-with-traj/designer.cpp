@@ -134,6 +134,10 @@ void exposeDesigner() {
            bp::make_function(
                &RobotDesigner::get_RF_id,
                bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_com_position",
+           bp::make_function(
+               &RobotDesigner::get_com_position,
+               bp::return_value_policy<bp::copy_const_reference>()))
       .def("get_settings",
            bp::make_function(
                &RobotDesigner::get_settings,

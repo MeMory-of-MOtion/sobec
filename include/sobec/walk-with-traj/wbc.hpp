@@ -20,7 +20,7 @@ namespace sobec {
 /// @todo: in order to switch between locomotions safely, incorporate a terminal
 /// constraint
 /// @todo: bind these enumerations
-enum ControlForm { StepTracker, NonThinking, StairClimber };
+enum ControlForm { STEPTRACKER, NONTHINKING, STAIRCLIMBER };
 enum LocomotionType { WALKING, STANDING };
 enum supportSwitch { NO_SWITCH, LAND_LF, LAND_RF, TAKEOFF_LF, TAKEOFF_RF };
 
@@ -40,7 +40,7 @@ struct WBCSettings {
   double simu_step = 1e-3;
 
   int Nc = (int)round(Dt / simu_step);
-  ControlForm typeOfCommand = StepTracker;
+  ControlForm typeOfCommand = STEPTRACKER;
 };
 class WBC {
   /**
@@ -58,6 +58,7 @@ class WBC {
   HorizonManager standingCycle_;
 
   Eigen::VectorXd x0_;
+  eVector3 ref_com_;
 
   LocomotionType now_ = WALKING;
 
@@ -180,7 +181,10 @@ class WBC {
   void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) {
     ref_RF_poses_[time] = ref_RF_pose;
   }
-
+  
+  const eVector3 &getCoMRef() { return ref_com_;}
+  void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com;}
+  
   const std::vector<eVector3> &getVelRef_COM() { return ref_com_vel_; }
   const eVector3 &getVelRef_COM(unsigned long time) {
     return ref_com_vel_[time];
@@ -194,6 +198,7 @@ class WBC {
   // For the python bindings:
   std::vector<pinocchio::SE3> &ref_LF_poses() { return ref_LF_poses_; }
   std::vector<pinocchio::SE3> &ref_RF_poses() { return ref_RF_poses_; }
+  eVector3 &ref_com() { return ref_com_; }
   std::vector<eVector3> &ref_com_vel() { return ref_com_vel_; }
 
   void switchToWalk() { now_ = WALKING; }

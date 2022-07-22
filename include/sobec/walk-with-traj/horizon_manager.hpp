@@ -97,7 +97,8 @@ class HorizonManager {
   void setForceReferenceRF(const unsigned long time,
                            const std::string &nameCostRF,
                            const eVector6 &reference);
-
+  void setTerminalPoseCoM(const std::string &nameCost,
+                          const eVector3 &ref_placement);
   void setSwingingLF(const unsigned long time, const std::string &nameContactLF,
                      const std::string &nameContactRF,
                      const std::string &nameForceContactLF);
