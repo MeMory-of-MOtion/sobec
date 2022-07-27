@@ -270,8 +270,8 @@ void ModelMaker::defineVelFootTask(Cost &costCollector) {
   boost::shared_ptr<crocoddyl::CostModelAbstract> verticalFootVelCostLeft = 
       boost::make_shared<crocoddyl::CostModelResidual>(
       state_, verticalFootVelAct, verticalFootVelResidualLeft);
-  costCollector.get()->addCost("velFoot_RF", verticalFootVelCostRight, settings_.wVelfoot,true);
-  costCollector.get()->addCost("velFoot_LF", verticalFootVelCostLeft, settings_.wVelfoot,true);
+  costCollector.get()->addCost("velFoot_RF", verticalFootVelCostRight, settings_.wVelFoot,true);
+  costCollector.get()->addCost("velFoot_LF", verticalFootVelCostLeft, settings_.wVelFoot,true);
 }
 
 void ModelMaker::defineFootCollisionTask(Cost &costCollector, const Support &support) {

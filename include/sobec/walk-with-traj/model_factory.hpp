@@ -51,7 +51,7 @@ struct ModelMakerSettings {
   double wCoP = 0;            // 1;
   double wCoM = 0;
   double wFlyHigh = 0;
-  double wVelfoot = 0;
+  double wVelFoot = 0;
   double wColFeet = 0;
 
   Eigen::VectorXd stateWeights;
