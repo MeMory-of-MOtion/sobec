@@ -69,8 +69,12 @@ void exposeHorizonManager() {
       .def("iad", &HorizonManager::iad, bp::args("self", "time"))
       .def("setPoseReference", &HorizonManager::setPoseReference,
            bp::args("self", "time", "pose", "costName"))
+      .def("setTranslationReference", &HorizonManager::setTranslationReference,
+           bp::args("self", "time", "translation", "costName"))
       .def("setTerminalPoseReference", &HorizonManager::setTerminalPoseReference,
            bp::args("self", "pose", "costName"))
+      .def("setTerminalTranslationReference", &HorizonManager::setTerminalTranslationReference,
+           bp::args("self", "translation", "costName"))
       .def("activateContactLF", &HorizonManager::activateContactLF,
            bp::args("self", "time", "contactName"))
       .def("activateContactRF", &HorizonManager::activateContactRF,
@@ -85,6 +89,8 @@ void exposeHorizonManager() {
            bp::args("self", "time", "costName", "ref_wrench"))
       .def("setTerminalPoseCoM", &HorizonManager::setTerminalPoseCoM,
            bp::args("self", "costName", "ref_placement"))
+      .def("setVelocityRefCOM", &HorizonManager::setVelocityRefCOM,
+           bp::args("self", "time", "costName", "ref_velocity"))
       .def("setSwingingLF", &HorizonManager::setSwingingLF,
            bp::args("self", "time", "contactNameLF", "contactNameRF",
                     "forceCostName"))

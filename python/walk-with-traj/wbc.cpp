@@ -179,7 +179,7 @@ void exposeWBC() {
           bp::make_function(
               &WBC::ref_com_vel,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(const std::vector<eVector3> &)>(
+          static_cast<void (WBC::*)(eVector3)>(
               &WBC::setVelRef_COM))
       .def("switchToWalk", &WBC::switchToWalk)
       .def("switchToStand", &WBC::switchToStand)

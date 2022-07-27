@@ -75,8 +75,13 @@ class HorizonManager {
   void setPoseReference(const unsigned long time,
                         const std::string &nameCost,
                         const pinocchio::SE3 &ref_placement);
+  void setTranslationReference(const unsigned long time,
+                        const std::string &nameCost,
+                        const eVector3 &ref_translation);
   void setTerminalPoseReference(const std::string &nameCost,
                                 const pinocchio::SE3 &ref_placement);
+  void setTerminalTranslationReference(const std::string &nameCost,
+                                const eVector3 &ref_translation);
   const pinocchio::SE3 &getFootPoseReference(
       const unsigned long time, const std::string &nameCostFootPose);
   const pinocchio::SE3 &getTerminalFootPoseReference(

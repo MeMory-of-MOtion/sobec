@@ -44,6 +44,8 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.comHeight = bp::extract<double>(settings["comHeight"]);
   conf.omega = bp::extract<double>(settings["omega"]);
   conf.footSize = bp::extract<double>(settings["footSize"]);
+  conf.footMinimalDistance = bp::extract<double>(settings["footMinimalDistance"]);
+  conf.flyHighSlope = bp::extract<double>(settings["flyHighSlope"]);
 
   // gains
   conf.wFootPlacement = bp::extract<double>(settings["wFootPlacement"]);
@@ -54,10 +56,12 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wCoM = bp::extract<double>(settings["wCoM"]);
   conf.wWrenchCone = bp::extract<double>(settings["wWrenchCone"]);
   conf.wFootTrans = bp::extract<double>(settings["wFootTrans"]);
-  conf.wFootXYTrans = bp::extract<double>(settings["wFootXYTrans"]);
   conf.wFootRot = bp::extract<double>(settings["wFootRot"]);
   conf.wGroundCol = bp::extract<double>(settings["wGroundCol"]);
   conf.wCoP = bp::extract<double>(settings["wCoP"]);
+  conf.wVelFoot = bp::extract<double>(settings["wVelFoot"]);
+  conf.wColFeet = bp::extract<double>(settings["wColFeet"]);
+  conf.wFlyHigh = bp::extract<double>(settings["wFlyHigh"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights =
       bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
@@ -79,6 +83,8 @@ bp::dict get_settings(ModelMaker &self) {
   settings["comHeight"] = conf.comHeight;
   settings["omega"] = conf.omega;
   settings["footSize"] = conf.footSize;
+  settings["footMinimalDistance"] = conf.footMinimalDistance;
+  settings["flyHighSlope"] = conf.flyHighSlope;
   settings["wFootPlacement"] = conf.wFootPlacement;
   settings["wStateReg"] = conf.wStateReg;
   settings["wControlReg"] = conf.wControlReg;
@@ -87,10 +93,12 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wCoM"] = conf.wCoM;
   settings["wWrenchCone"] = conf.wWrenchCone;
   settings["wFootTrans"] = conf.wFootTrans;
-  settings["wFootXYTrans"] = conf.wFootXYTrans;
   settings["wFootRot"] = conf.wFootRot;
   settings["wGroundCol"] = conf.wGroundCol;
   settings["wCoP"] = conf.wCoP;
+  settings["wVelFoot"] = conf.wVelFoot;
+  settings["wColFeet"] = conf.wColFeet;
+  settings["wFlyHigh"] = conf.wFlyHigh;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
   settings["th_grad"] = conf.th_grad;
@@ -142,6 +150,20 @@ void defineFeetTracking(ModelMaker &self,
   self.defineFeetTracking(costs, supports);
   costCollector = *costs;
 }
+void defineZFeetTracking(ModelMaker &self,
+                        crocoddyl::CostModelSum &costCollector,
+                        const Support &supports = Support::DOUBLE) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineZFeetTracking(costs, supports);
+  costCollector = *costs;
+}
+
+void defineFeetRotation(ModelMaker &self,
+                       crocoddyl::CostModelSum &costCollector) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineFeetRotation(costs);
+  costCollector = *costs;
+}
 
 void definePostureTask(ModelMaker &self,
                        crocoddyl::CostModelSum &costCollector) {
@@ -185,6 +207,13 @@ void defineVelFootTask(ModelMaker &self,
   costCollector = *costs;
 }
 
+void defineGroundCollisionTask(ModelMaker &self,
+                   crocoddyl::CostModelSum &costCollector) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineGroundCollisionTask(costs);
+  costCollector = *costs;
+}
+
 void defineCoPTask(ModelMaker &self,
                    crocoddyl::CostModelSum &costCollector,
                    const Support &supports = Support::DOUBLE) {
@@ -194,10 +223,9 @@ void defineCoPTask(ModelMaker &self,
 }
 
 void defineFootCollisionTask(ModelMaker &self,
-                   crocoddyl::CostModelSum &costCollector,
-                   const Support &supports = Support::DOUBLE) {
+                   crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.defineFootCollisionTask(costs, supports);
+  self.defineFootCollisionTask(costs);
   costCollector = *costs;
 }
 
@@ -229,6 +257,11 @@ void exposeModelFactory() {
       .def("defineFeetTracking", &defineFeetTracking,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
+      .def("defineZFeetTracking", &defineZFeetTracking,
+           (bp::arg("self"), bp::arg("costCollector"),
+            bp::arg("supports") = Support::DOUBLE))
+      .def("defineFeetRotation", &defineFeetRotation,
+           bp::args("self", "costCollector"))
       .def("definePostureTask", &definePostureTask,
            bp::args("self", "costCollector"))
       .def("defineCoMTask", &defineCoMTask,
@@ -244,12 +277,13 @@ void exposeModelFactory() {
             bp::arg("supports") = Support::DOUBLE))
       .def("defineVelFootTask", &defineVelFootTask,
            bp::args("self", "costCollector"))
+      .def("defineGroundCollisionTask", &defineGroundCollisionTask,
+           bp::args("self", "costCollector"))
       .def("defineFlyHighTask", &defineFlyHighTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFootCollisionTask", &defineFootCollisionTask,
-           (bp::arg("self"), bp::arg("costCollector"),
-            bp::arg("supports") = Support::DOUBLE))
+           bp::args("self", "costCollector"))
       .def("formulateStepTracker", &ModelMaker::formulateStepTracker,
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE))
       .def("formulateNoThinkingTracker", &ModelMaker::formulateNoThinkingTracker,

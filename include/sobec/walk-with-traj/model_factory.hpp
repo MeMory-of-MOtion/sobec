@@ -92,17 +92,20 @@ class ModelMaker {
                             const Support &support = Support::DOUBLE);
   void defineFeetTracking(Cost &costCollector,
                           const Support &support = Support::DOUBLE);
+  void defineZFeetTracking(Cost &costCollector,
+                          const Support &support = Support::DOUBLE);
 
   void definePostureTask(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
   void defineVelFootTask(Cost &costCollector); 
-  void defineCoMTask(Cost &costCollector); 
+  void defineCoMTask(Cost &costCollector);
+  void defineFeetRotation(Cost &costCollector); 
+  void defineGroundCollisionTask(Cost &costCollector);
   void defineCoPTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
-  void defineFootCollisionTask(Cost &costCollector, 
-                          const Support &support = Support::DOUBLE);
+  void defineFootCollisionTask(Cost &costCollector);
   void defineFlyHighTask(Cost &costCollector, 
                           const Support &support = Support::DOUBLE);
 

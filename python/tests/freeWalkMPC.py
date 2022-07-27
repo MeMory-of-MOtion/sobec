@@ -19,7 +19,40 @@ from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex, Support
 import ndcurves
 import numpy as np
 import time
+import ndcurves
 
+
+def defineBezier(height, time_init,time_final,translation_init,translation_final):
+	wps = np.zeros([3, 9])
+	for i in range(4):  # init position. init vel,acc and jerk == 0
+		wps[:, i] = translation_init
+	# compute mid point (average and offset along z)
+	wps[:, 4] = (translation_init + translation_final) / 2.
+	wps[2, 4] += height
+	for i in range(5, 9):  # final position. final vel,acc and jerk == 0
+		wps[:, i] = translation_final
+	translation = ndcurves.bezier(wps, time_init, time_final)
+	return translation
+
+def foot_trajectory(T, time_to_land, translation_init,translation_final, trajectory_swing):
+	"""Functions to generate steps."""
+	tmax = conf.TsingleSupport
+	landing_advance = 0
+	takeoff_delay = 0
+	translation = []
+	for t in range(time_to_land - landing_advance, time_to_land - landing_advance - T, -1):
+		if (t < 0):
+			translation.append(translation_final)
+		elif (t > conf.TsingleSupport - landing_advance - takeoff_delay):
+			translation.append(translation_init)
+		else:
+			swing_pose = translation_init.copy()
+			swing_pose[0] = trajectory_swing(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[0]
+			swing_pose[1] = trajectory_swing(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[1]
+			swing_pose[2] = trajectory_swing(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[2]
+			translation.append(swing_pose)
+
+	return translation
 
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
@@ -57,7 +90,9 @@ design_conf = dict(
 )
 design = RobotDesigner()
 design.initialize(design_conf)
-
+print("Model ok")
+design.addToeAndHeel(0.1,0.1)
+print("Added heel")
 # Vector of Formulations
 MM_conf = dict(
     timeStep=conf.DT,
@@ -79,7 +114,6 @@ MM_conf = dict(
     wCoM=conf.wCoM,
     wWrenchCone=conf.wWrenchCone,
     wFootTrans=conf.wFootTrans,
-    wFootXYTrans=conf.wFootXYTrans,
     wFootRot=conf.wFootRot,
     wGroundCol=conf.wGroundCol,
     wCoP = conf.wCoP,
@@ -96,13 +130,13 @@ formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
 all_models = formuler.formulateHorizon(length=conf.T,no_thinking=True)
 ter_model = formuler.formulateNoThinkingTerminalTracker(Support.DOUBLE)
-
+print("horizon formulated")
 # Horizon
 
 H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
 horizon = HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), all_models, ter_model)
-
+print("horizon initialized")
 # MPC
 wbc_conf = dict(
     horizonSteps=conf.preview_steps,
@@ -144,7 +178,7 @@ mpc.initialize(
 )
 mpc.generateWalkingCycle(formuler)
 mpc.generateStandingCycle(formuler)
-
+print("mpc generated")
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
     device.initializeJoints(design.get_q0Complete().copy())
@@ -180,9 +214,11 @@ wrench_reference_1contact = np.array([0,0,fz_ref_1contact,0,0,0])
 ref_force = fz_ref_2contact
 comRef = mpc.designer.get_com_position().copy()
 
-comRef[0] += 0.2
-
+comRef[0] += 0.5
+comRef[1] += 0
 mpc.ref_com = comRef
+mpc.ref_com_vel = np.array([0.2,0,0])
+
 for s in range(conf.T_total * conf.Nc):
 	#    time.sleep(0.001)
 	if mpc.timeToSolveDDP(s):
@@ -216,6 +252,7 @@ for s in range(conf.T_total * conf.Nc):
 			)
 		)
 		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
+		
 		
 		if (mpc.walkingCycle.contacts(0).getContactStatus("leg_left_sole_fix_joint")):
 			if (mpc.walkingCycle.contacts(0).getContactStatus("leg_right_sole_fix_joint")):
@@ -253,7 +290,12 @@ for s in range(conf.T_total * conf.Nc):
 		print(end-start)
 		moyenne += end - start
 	torques = horizon.currentTorques(mpc.x0)
-	
+	'''if (s == 150 * 10):
+		for t in range(conf.T):
+			print("t = " + str(t))
+			time.sleep(0.1)
+			device.resetState(mpc.horizon.ddp.xs[t])
+		exit()'''
 	if conf.simulator == "bullet":
 		device.execute(torques)
 		q_current, v_current = device.measureState()

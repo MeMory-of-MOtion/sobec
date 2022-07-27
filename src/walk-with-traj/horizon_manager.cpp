@@ -148,11 +148,26 @@ void HorizonManager::setPoseReference(const unsigned long time,
       ->set_reference(ref_placement);
 }
 
+void HorizonManager::setTranslationReference(const unsigned long time,
+                                        const std::string &nameCost,
+                                        const eVector3 &ref_translation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameTranslation>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_translation);
+}
+
 void HorizonManager::setTerminalPoseReference(const std::string &nameCost,
                                               const pinocchio::SE3 &ref_placement) {
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
       terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
       ->set_reference(ref_placement);
+}
+
+void HorizonManager::setTerminalTranslationReference(const std::string &nameCost,
+                                              const eVector3 &ref_translation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameTranslation>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_translation);
 }
 
 void HorizonManager::setTerminalPoseCoM(const std::string &nameCost,

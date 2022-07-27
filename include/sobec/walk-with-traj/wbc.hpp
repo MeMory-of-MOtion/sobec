@@ -74,7 +74,7 @@ class WBC {
 
   // References for costs:
   std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
-  std::vector<eVector3> ref_com_vel_;
+  eVector3 ref_com_vel_;
 
   // Security management
   bool initialized_ = false;
@@ -185,21 +185,17 @@ class WBC {
   const eVector3 &getCoMRef() { return ref_com_;}
   void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com;}
   
-  const std::vector<eVector3> &getVelRef_COM() { return ref_com_vel_; }
-  const eVector3 &getVelRef_COM(unsigned long time) {
-    return ref_com_vel_[time];
+  const eVector3 &getVelRef_COM() {
+    return ref_com_vel_;
   }
-  void setVelRef_COM(const std::vector<eVector3> &ref_com_vel) {
+  void setVelRef_COM(eVector3 ref_com_vel) {
     ref_com_vel_ = ref_com_vel;
-  }
-  void setVelRef_COM(const eVector3 &ref_com_vel, unsigned long time) {
-    ref_com_vel_[time] = ref_com_vel;
   }
   // For the python bindings:
   std::vector<pinocchio::SE3> &ref_LF_poses() { return ref_LF_poses_; }
   std::vector<pinocchio::SE3> &ref_RF_poses() { return ref_RF_poses_; }
   eVector3 &ref_com() { return ref_com_; }
-  std::vector<eVector3> &ref_com_vel() { return ref_com_vel_; }
+  eVector3 &ref_com_vel() { return ref_com_vel_; }
 
   void switchToWalk() { now_ = WALKING; }
   void switchToStand() { now_ = STANDING; }

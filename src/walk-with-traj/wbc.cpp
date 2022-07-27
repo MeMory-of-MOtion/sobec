@@ -35,7 +35,8 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
   ref_LF_poses_.reserve(horizon_.size() + 1);
   ref_RF_poses_.reserve(horizon_.size() + 1);
-
+  ref_com_vel_ = eVector3::Zero();
+  
   for (unsigned long i = 0; i < horizon_.size() + 1; i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
     ref_RF_poses_.push_back(designer_.get_RF_frame());
@@ -181,6 +182,13 @@ void WBC::updateStepTrackerLastReference() {
 
 void WBC::updateNonThinkingReferences() {
   horizon_.setTerminalPoseCoM("comTask", ref_com_);
+  for (unsigned long time = 0; time < horizon_.size(); time++) {
+	  horizon_.setVelocityRefCOM(time,"comVelocity",ref_com_vel_);
+	  horizon_.setTranslationReference(time, "Z_translation_LF", getPoseRef_LF(time).translation());
+	  horizon_.setTranslationReference(time, "Z_translation_RF", getPoseRef_RF(time).translation());
+  }
+  horizon_.setTerminalTranslationReference("Z_translation_LF", getPoseRef_LF(horizon_.size()).translation());
+  horizon_.setTerminalTranslationReference("Z_translation_RF", getPoseRef_RF(horizon_.size()).translation());
     ///@todo: the names must be provided by the user
 }
 

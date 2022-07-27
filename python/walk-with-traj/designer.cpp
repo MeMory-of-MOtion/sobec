@@ -73,6 +73,7 @@ void exposeDesigner() {
       .def("initialize", &initialize)
       .def("updateReducedModel", &RobotDesigner::updateReducedModel)
       .def("updateCompleteModel", &RobotDesigner::updateCompleteModel)
+      .def("addToeAndHeel", &RobotDesigner::addToeAndHeel)
       .def("get_LF_frame",
            bp::make_function(
                &RobotDesigner::get_LF_frame,
@@ -133,6 +134,22 @@ void exposeDesigner() {
       .def("get_RF_id",
            bp::make_function(
                &RobotDesigner::get_RF_id,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_LF_heel_id",
+           bp::make_function(
+               &RobotDesigner::get_LF_heel_id,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_RF_heel_id",
+           bp::make_function(
+               &RobotDesigner::get_RF_heel_id,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_LF_toe_id",
+           bp::make_function(
+               &RobotDesigner::get_LF_toe_id,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("get_RF_toe_id",
+           bp::make_function(
+               &RobotDesigner::get_RF_toe_id,
                bp::return_value_policy<bp::copy_const_reference>()))
       .def("get_com_position",
            bp::make_function(
