@@ -45,7 +45,7 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
   typedef crocoddyl::ActuationModelAbstractTpl<Scalar> ActuationModelAbstract;
   typedef crocoddyl::DifferentialActionDataAbstractTpl<Scalar> DifferentialActionDataAbstract;
-  typedef crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<Scalar> DifferentialActionDataFreeFwdDynamics;
+  // typedef crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<Scalar> DifferentialActionDataFreeFwdDynamics;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::Vector3s Vector3s;
   typedef typename MathBase::MatrixXs MatrixXs;
@@ -135,13 +135,6 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
   std::size_t get_nc() {return nc_;};
 
   protected:
-    using Base::get_state;
-    using Base::get_actuation;
-    using Base::get_costs;
-    using Base::get_armature;
-    using Base::get_pinocchio;
-    using Base::get_nu;
-    
     Scalar Kp_;                             //!< Contact model stiffness
     Scalar Kv_;                             //!< Contact model damping
     Vector3s oPc_;                          //!< Contact model anchor point
@@ -159,11 +152,11 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
 };
 
 template <typename _Scalar>
-struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public DifferentialActionDataFreeFwdDynamicsTpl<_Scalar> {
+struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<_Scalar> {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   typedef _Scalar Scalar;
   typedef MathBaseTpl<Scalar> MathBase;
-  typedef DifferentialActionDataFreeFwdDynamicsTpl<Scalar> Base;
+  typedef crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<Scalar> Base;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::Vector3s Vector3s;
   typedef typename MathBase::MatrixXs MatrixXs;
@@ -172,13 +165,6 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public DifferentialAc
   template <template <typename Scalar> class Model>
   explicit DifferentialActionDataSoftContact3DFwdDynamicsTpl(Model<Scalar>* const model)
       : Base(model),
-        // pinocchio(pinocchio::DataTpl<Scalar>(model->get_pinocchio())),
-        // multibody(&pinocchio, model->get_actuation()->createData()),
-        // costs(model->get_costs()->createData(&multibody)),
-        // Minv(model->get_state()->get_nv(), model->get_state()->get_nv()),
-        // u_drift(model->get_nu()),
-        // dtau_dx(model->get_nu(), model->get_state()->get_ndx()),
-        // tmp_xstatic(model->get_state()->get_nx()),
         lJ(6, model->get_state()->get_nv()),
         oJ(6, model->get_state()->get_nv()),
         lv_partial_dq(6, model->get_state()->get_ndx()),
@@ -191,8 +177,8 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public DifferentialAc
         // f(model->get_nc(), model->get_state()->get_ndx()),
         // f_copy(model->get_nc(), model->get_state()->get_ndx()),
         pinForce(pinocchio::ForceTpl<Scalar>::Zero()),
-        fext(model->get_state()->get_pinocchio()->njoints, pinocchio::ForceTpl<Scalar>::Zero()),
-        fext_copy(model->get_state()->get_pinocchio()->njoints, pinocchio::ForceTpl<Scalar>::Zero()) {
+        fext(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()),
+        fext_copy(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()) {
     costs->shareMemory(this);
     Minv.setZero();
     u_drift.setZero();
@@ -206,14 +192,6 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public DifferentialAc
     lv.setZero();
     f_residual.setZero();
   }
-
-  // pinocchio::DataTpl<Scalar> pinocchio;
-  // DataCollectorActMultibodyTpl<Scalar> multibody;
-  // boost::shared_ptr<CostDataSumTpl<Scalar> > costs;
-  // MatrixXs Minv;
-  // VectorXs u_drift;
-  // MatrixXs dtau_dx;
-  // VectorXs tmp_xstatic;
 
   using Base::pinocchio;
   using Base::multibody;
