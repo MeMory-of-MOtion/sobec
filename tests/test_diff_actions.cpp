@@ -266,6 +266,10 @@ void register_action_model_unit_tests(
         DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed:
       test_name << "test_" << action_type;
       break;
+    case DifferentialActionModelTypes::
+        DifferentialActionModelSoftContact3DFwdDynamics_TalosArm:
+      test_name << "test_" << action_type << "_" << ref_type;
+      break;
     default:
       throw_pretty(__FILE__ ": Wrong DifferentialActionModelTypes::Type given");
       break;
@@ -330,6 +334,19 @@ bool init_function() {
       }
     }
   }
+
+  // 3D soft contact
+  for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
+    if (DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::
+                DifferentialActionModelSoftContact3DFwdDynamics_TalosArm) {
+      for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j) {
+        register_action_model_unit_tests(DifferentialActionModelTypes::all[i],
+                                         PinocchioReferenceTypes::all[j]);
+      }
+    }
+  }
+
 
   return true;
 }
