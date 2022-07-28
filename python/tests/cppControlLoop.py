@@ -116,18 +116,8 @@ MM_conf = dict(
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
     wLimit=conf.wLimit,
-    wVCoM=conf.wVCoM,
-    wCoM=conf.wCoM,
     wWrenchCone=conf.wWrenchCone,
-    wFootTrans=conf.wFootTrans,
-    wFootRot=conf.wFootRot,
-    wGroundCol=conf.wGroundCol,
     wCoP = conf.wCoP,
-    footMinimalDistance = 0,
-    flyHighSlope = 0,
-    wVelFoot = 0,
-    wColFeet = 0,
-    wFlyHigh = 0,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
     th_grad=conf.th_grad,
@@ -136,7 +126,7 @@ MM_conf = dict(
 
 formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
-all_models = formuler.formulateHorizon(length=conf.T,no_thinking=False)
+all_models = formuler.formulateHorizon(length=conf.T)
 ter_model = formuler.formulateStepTracker(Support.DOUBLE)
 
 # Horizon
@@ -156,8 +146,7 @@ wbc_conf = dict(
     ddpIteration=conf.ddpIteration,
     Dt=conf.DT,
     simu_step=conf.simu_period,
-    Nc=conf.Nc,
-    typeOfCommand=conf.typeOfCommand,
+    Nc=conf.Nc
 )
 
 # Flex

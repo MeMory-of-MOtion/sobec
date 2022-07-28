@@ -32,16 +32,6 @@ void initialize(WBC &self, const bp::dict &settings,
   conf.Dt = bp::extract<double>(settings["Dt"]);
   conf.simu_step = bp::extract<double>(settings["simu_step"]);
   conf.Nc = bp::extract<int>(settings["Nc"]);
-  switch (bp::extract<int>(settings["typeOfCommand"])) {
-	  case 0:
-	    conf.typeOfCommand  = ControlForm::STEPTRACKER;
-	    break;
-	  case 1:
-	    conf.typeOfCommand  = ControlForm::NONTHINKING;
-	    break;
-	  default:
-	    break;
-	}
 
   self.initialize(conf, designer, horizon, q0, v0, actuationCostName);
 }
@@ -75,10 +65,6 @@ void exposeWBC() {
   bp::enum_<LocomotionType>("LocomotionType")
       .value("WALKING", LocomotionType::WALKING)
       .value("STANDING", LocomotionType::STANDING);
-  bp::enum_<ControlForm>("ControlForm")
-      .value("STEPTRACKER", ControlForm::STEPTRACKER)
-      .value("NONTHINKING", ControlForm::NONTHINKING)
-      .value("STAIRCLIMBER", ControlForm::STAIRCLIMBER);
   bp::class_<std::vector<pinocchio::SE3>>("vector_pinocchio_se3_")
       .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3>>())
       .def("__init__",
@@ -167,20 +153,6 @@ void exposeWBC() {
               bp::return_value_policy<bp::reference_existing_object>()),
           static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(
               &WBC::setPoseRef_RF))
-      .add_property(
-          "ref_com",
-          bp::make_function(
-              &WBC::ref_com,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(
-              &WBC::setCoMRef))
-      .add_property(
-          "ref_com_vel",
-          bp::make_function(
-              &WBC::ref_com_vel,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(
-              &WBC::setVelRef_COM))
       .def("switchToWalk", &WBC::switchToWalk)
       .def("switchToStand", &WBC::switchToStand)
       .def("current_motion_type", &WBC::currentLocomotion)

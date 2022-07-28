@@ -31,11 +31,9 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   x0_ << shapeState(q0, v0);
   designer_.updateReducedModel(x0_);
   designer_.updateCompleteModel(q0);
-  ref_com_ = designer_.get_com_position();
 
   ref_LF_poses_.reserve(horizon_.size() + 1);
   ref_RF_poses_.reserve(horizon_.size() + 1);
-  ref_com_vel_ = eVector3::Zero();
   
   for (unsigned long i = 0; i < horizon_.size() + 1; i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
@@ -80,17 +78,7 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
       cycle.push_back(RIGHT);
   }
   std::vector<AMA> cyclicModels;
-  switch (settings_.typeOfCommand) {
-	  case STEPTRACKER:
-      //updateStepTrackerLastReference();
-      cyclicModels = mm.formulateHorizon(cycle, false);
-      break;
-    case NONTHINKING:
-      cyclicModels = mm.formulateHorizon(cycle, true);
-      break;
-    default:
-      break;
-  }
+  cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
@@ -101,17 +89,7 @@ void WBC::generateStandingCycle(ModelMaker &mm) {
   ///@todo: bind it
   std::vector<Support> cycle(2 * settings_.Tstep, DOUBLE);
   std::vector<AMA> cyclicModels;
-  switch (settings_.typeOfCommand) {
-	  case STEPTRACKER:
-      //updateStepTrackerLastReference();
-      cyclicModels = mm.formulateHorizon(cycle, false);
-      break;
-    case NONTHINKING:
-      cyclicModels = mm.formulateHorizon(cycle, true);
-      break;
-    default:
-      break;
-  }
+  cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   standingCycle_ = HorizonManager(names, x0_, cyclicModels,
@@ -132,17 +110,8 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
 
   // ~~REFERENCES~~ //
   designer_.updateReducedModel(x0_);
-  switch (settings_.typeOfCommand) {
-    case STEPTRACKER:
-      //updateStepTrackerLastReference();
-      updateStepTrackerReferences();
-      break;
-    case NONTHINKING:
-      updateNonThinkingReferences();
-      break;
-    default:
-      break;
-  }
+  //updateStepTrackerLastReference();
+  updateStepTrackerReferences();
   // ~~SOLVER~~ //
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
@@ -178,18 +147,6 @@ void WBC::updateStepTrackerLastReference() {
   ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size() - 1]);
   ref_RF_poses_.erase(ref_RF_poses_.begin());
   ref_RF_poses_.push_back(ref_RF_poses_[horizon_.size() - 1]);
-}
-
-void WBC::updateNonThinkingReferences() {
-  horizon_.setTerminalPoseCoM("comTask", ref_com_);
-  for (unsigned long time = 0; time < horizon_.size(); time++) {
-	  horizon_.setVelocityRefCOM(time,"comVelocity",ref_com_vel_);
-	  horizon_.setTranslationReference(time, "Z_translation_LF", getPoseRef_LF(time).translation());
-	  horizon_.setTranslationReference(time, "Z_translation_RF", getPoseRef_RF(time).translation());
-  }
-  horizon_.setTerminalTranslationReference("Z_translation_LF", getPoseRef_LF(horizon_.size()).translation());
-  horizon_.setTerminalTranslationReference("Z_translation_RF", getPoseRef_RF(horizon_.size()).translation());
-    ///@todo: the names must be provided by the user
 }
 
 void WBC::recedeWithCycle() {
