@@ -47,6 +47,10 @@ std::ostream& operator<<(std::ostream& os,
       os << "DifferentialActionModelContact3DFwdDynamics_TalosArm";
       break;
     case DifferentialActionModelTypes::
+        DifferentialActionModelSoftContact3DFwdDynamics_TalosArm:
+      os << "DifferentialActionModelSoftContact3DFwdDynamics_TalosArm";
+      break;
+    case DifferentialActionModelTypes::
         DifferentialActionModelContact1DFwdDynamics_HyQ:
       os << "DifferentialActionModelContact1DFwdDynamics_HyQ";
       break;
@@ -93,12 +97,19 @@ DifferentialActionModelFactory::create(
           ActuationModelTypes::ActuationModelFull, ref_type);
       break;
     case DifferentialActionModelTypes::
+        DifferentialActionModelSoftContact3DFwdDynamics_TalosArm:
+      action = create_softContact3DFwdDynamics(
+          StateModelTypes::StateMultibody_TalosArm,
+          ActuationModelTypes::ActuationModelFull, ref_type);
+      break;
+    case DifferentialActionModelTypes::
         DifferentialActionModelContact1DFwdDynamics_TalosArm:
       action = create_contact1DFwdDynamics(
           StateModelTypes::StateMultibody_TalosArm,
           ActuationModelTypes::ActuationModelFull, ref_type, mask_type);
       break;
 
+    // HyQ state 
     case DifferentialActionModelTypes::
         DifferentialActionModelContact3DFwdDynamics_HyQ:
       action = create_contact3DFwdDynamics(
@@ -332,6 +343,43 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(
       state, actuation, contact, cost, 0., true);
   return action;
 }
+
+
+boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics>
+DifferentialActionModelFactory::create_softContact3DFwdDynamics(
+    StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
+    PinocchioReferenceTypes::Type ref_type) const {
+  boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics> action;
+  boost::shared_ptr<crocoddyl::StateMultibody> state;
+  boost::shared_ptr<crocoddyl::ActuationModelAbstract> actuation;
+  boost::shared_ptr<crocoddyl::ContactModelMultiple> contact;
+  boost::shared_ptr<crocoddyl::CostModelSum> cost;
+  state = boost::static_pointer_cast<crocoddyl::StateMultibody>(
+      StateModelFactory().create(state_type));
+  actuation = ActuationModelFactory().create(actuation_type, state_type);
+  cost = boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
+  pinocchio::Force force = pinocchio::Force::Zero();
+
+  cost->addCost(
+      "control",
+      CostModelFactory().create(
+          CostModelTypes::CostModelResidualControl, state_type,
+          ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
+      0.1);
+//   action = boost::make_shared<sobec::DifferentialActionModelSoftContact3DFwdDynamics>(
+//       state, 
+//       actuation, 
+//       cost, 
+//       state->get_pinocchio()->getFrameId("gripper_left_fingertip_1_link"), 
+//       100.,
+//       10.,
+//       Eigen::Vector3d::Zero(),
+//       ref_type);
+//   action->set_force_cost(Eigen::Vector3d::Zero(), 0.01);
+
+  return action;
+}
+
 
 }  // namespace unittest
 }  // namespace sobec

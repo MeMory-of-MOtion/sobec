@@ -18,7 +18,7 @@
 
 #include "soft-contact3d-fwddyn.hpp"
 
-namespace crocoddyl {
+namespace sobec {
 
 template <typename Scalar>
 DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::DifferentialActionModelSoftContact3DFwdDynamicsTpl(
@@ -30,18 +30,13 @@ DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::DifferentialActionMo
     const double Kv,
     const Vector3s& oPc,
     const pinocchio::ReferenceFrame ref)
-    : Base(state, actuation->get_nu(), costs->get_nr()),
-      actuation_(actuation),
-      costs_(costs),
-      pinocchio_(*state->get_pinocchio().get()),
-      without_armature_(true),
-      armature_(VectorXs::Zero(state->get_nv())) {
-  if (costs_->get_nu() != nu_) {
+    : Base(state, actuation, costs) {
+  if (this->get_costs()->get_nu() != this->get_nu()) {
     throw_pretty("Invalid argument: "
-                 << "Costs doesn't have the same control dimension (it should be " + std::to_string(nu_) + ")");
+                 << "Costs doesn't have the same control dimension (it should be " + std::to_string(this->get_nu()) + ")");
   }
-  Base::set_u_lb(Scalar(-1.) * pinocchio_.effortLimit.tail(nu_));
-  Base::set_u_ub(Scalar(+1.) * pinocchio_.effortLimit.tail(nu_));
+  Base::set_u_lb(Scalar(-1.) * this->get_pinocchio().effortLimit.tail(this->get_nu()));
+  Base::set_u_ub(Scalar(+1.) * this->get_pinocchio().effortLimit.tail(this->get_nu()));
   // Soft contact model parameters
   if(Kp < 0.){
      throw_pretty("Invalid argument: "
@@ -59,8 +54,8 @@ DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::DifferentialActionMo
   with_force_cost_ = false;
   active_contact_ = true;
   nc_ = 3;
-  parentId_ = pinocchio_.frames[frameId_].parent();
-  jMf_ = pinocchio_.frames[frameId_].placement();
+  parentId_ = this->get_pinocchio().frames[frameId_].parent();
+  jMf_ = this->get_pinocchio().frames[frameId_].placement();
 }
 
 template <typename Scalar>
@@ -71,29 +66,29 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calc(
             const boost::shared_ptr<DifferentialActionDataAbstract>& data, 
             const Eigen::Ref<const VectorXs>& x,
             const Eigen::Ref<const VectorXs>& u) {
-  if (static_cast<std::size_t>(x.size()) != state_->get_nx()) {
+  if (static_cast<std::size_t>(x.size()) != this->get_state()->get_nx()) {
     throw_pretty("Invalid argument: "
-                 << "x has wrong dimension (it should be " + std::to_string(state_->get_nx()) + ")");
+                 << "x has wrong dimension (it should be " + std::to_string(this->get_state()->get_nx()) + ")");
   }
-  if (static_cast<std::size_t>(u.size()) != nu_) {
+  if (static_cast<std::size_t>(u.size()) != this->get_nu()) {
     throw_pretty("Invalid argument: "
-                 << "u has wrong dimension (it should be " + std::to_string(nu_) + ")");
+                 << "u has wrong dimension (it should be " + std::to_string(this->get_nu()) + ")");
   }
 
-  Data* d = static_cast<Data*>(d->get());
-  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(state_->get_nq());
-  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(state_->get_nv());
+  Data* d = static_cast<Data*>(data.get());
+  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
+  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(this->get_state()->get_nv());
   d->oRf = d->pinocchio.oMf[frameId_].rotation();
 
   // Actuation calc
-  actuation_->calc(d->multibody.actuation, x, u);
+  this->get_actuation()->calc(d->multibody.actuation, x, u);
   
   // If contact is active, compute aq = ABA(q,v,tau,fext)
   if(active_contact_){
     // Computing the dynamics using ABA or manually for armature case
-    // if (without_armature_) {
+    // if (!with_armature_) {
     // Compute spring damper force expressed at joint level 
-    d->lv = pinocchio::getFrameVelocity(pinocchio_, d->pinocchio, frameId_, pinocchio::LOCAL).linear();
+    d->lv = pinocchio::getFrameVelocity(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL).linear();
     d->f = -Kp_ * d->oRf.transpose() * ( d->pinocchio.oMf[frameId_].translation() - oPc_ ) - Kv_*d->lv;
     d->pinForce = pinocchio::ForceTpl<Scalar>(d->f, Vector3s::Zero());
     d->fext[parentId_] = jMf_.act(d->pinForce);
@@ -106,15 +101,15 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calc(
         d->pinForce = pinocchio::ForceTpl<Scalar>(d->oRf.transpose() * d->f, Vector3s::Zero());
         d->fext[parentId_] = jMf_.act(d->pinForce);
     }
-    d->xout = pinocchio::aba(pinocchio_, d->pinocchio, q, v, d->multibody.actuation->tau, d->fext);
-    pinocchio::updateGlobalPlacements(pinocchio_, d->pinocchio);
+    d->xout = pinocchio::aba(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext);
+    pinocchio::updateGlobalPlacements(this->get_pinocchio(), d->pinocchio);
     // } 
     // else {
-    //     pinocchio::computeAllTerms(pinocchio_, d->pinocchio, q, v);
-    //     d->pinocchio.M.diagonal() += armature_;
-    //     pinocchio::cholesky::decompose(pinocchio_, d->pinocchio);
+    //     pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
+    //     d->pinocchio.M.diagonal() += this->get_armature();
+    //     pinocchio::cholesky::decompose(this->get_pinocchio(), d->pinocchio);
     //     d->Minv.setZero();
-    //     pinocchio::cholesky::computeMinv(pinocchio_, d->pinocchio, d->Minv);
+    //     pinocchio::cholesky::computeMinv(this->get_pinocchio(), d->pinocchio, d->Minv);
     //     d->u_drift = d->multibody.actuation->tau - d->pinocchio.nle;
     //     d->xout.noalias() = d->Minv * d->u_drift;
     // }
@@ -122,22 +117,22 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calc(
   // If contact NOT active : compute aq = ABA(q,v,tau)
   else {
     // Computing the dynamics using ABA or manually for armature case
-    if (without_armature_) {
-        d->xout = pinocchio::aba(pinocchio_, d->pinocchio, q, v, d->multibody.actuation->tau);
-        pinocchio::updateGlobalPlacements(pinocchio_, d->pinocchio);
+    if (!with_armature_) {
+        d->xout = pinocchio::aba(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau);
+        pinocchio::updateGlobalPlacements(this->get_pinocchio(), d->pinocchio);
     } else {
-        pinocchio::computeAllTerms(pinocchio_, d->pinocchio, q, v);
-        d->pinocchio.M.diagonal() += armature_;
-        pinocchio::cholesky::decompose(pinocchio_, d->pinocchio);
+        pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
+        d->pinocchio.M.diagonal() += this->get_armature();
+        pinocchio::cholesky::decompose(this->get_pinocchio(), d->pinocchio);
         d->Minv.setZero();
-        pinocchio::cholesky::computeMinv(pinocchio_, d->pinocchio, d->Minv);
+        pinocchio::cholesky::computeMinv(this->get_pinocchio(), d->pinocchio, d->Minv);
         d->u_drift = d->multibody.actuation->tau - d->pinocchio.nle;
         d->xout.noalias() = d->Minv * d->u_drift;
     }
   }
 
   // Computing the cost value and residuals
-  costs_->calc(d->costs, x, u);
+  this->get_costs()->calc(d->costs, x, u);
   d->cost = d->costs->cost;
 
   // Add hard-coded cost on contact force
@@ -149,63 +144,83 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calc(
 
 
 template <typename Scalar>
+void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calc(
+            const boost::shared_ptr<DifferentialActionDataAbstract>& data, 
+            const Eigen::Ref<const VectorXs>& x) {
+  if (static_cast<std::size_t>(x.size()) != this->get_state()->get_nx()) {
+    throw_pretty("Invalid argument: "
+                 << "x has wrong dimension (it should be " + std::to_string(this->get_state()->get_nx()) + ")");
+  }
+  Data* d = static_cast<Data*>(data.get());
+  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
+  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(this->get_state()->get_nv());
+  pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
+  this->get_costs()->calc(d->costs, x);
+  d->cost = d->costs->cost;
+}
+
+
+
+template <typename Scalar>
 void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
     const boost::shared_ptr<DifferentialActionDataAbstract>& data, 
     const Eigen::Ref<const VectorXs>& x,
     const Eigen::Ref<const VectorXs>& u) {
-  if (static_cast<std::size_t>(x.size()) != state_->get_nx()) {
+  if (static_cast<std::size_t>(x.size()) != this->get_state()->get_nx()) {
     throw_pretty("Invalid argument: "
-                 << "x has wrong dimension (it should be " + std::to_string(state_->get_nx()) + ")");
+                 << "x has wrong dimension (it should be " + std::to_string(this->get_state()->get_nx()) + ")");
   }
-  if (static_cast<std::size_t>(u.size()) != nu_) {
+  if (static_cast<std::size_t>(u.size()) != this->get_nu()) {
     throw_pretty("Invalid argument: "
-                 << "u has wrong dimension (it should be " + std::to_string(nu_) + ")");
+                 << "u has wrong dimension (it should be " + std::to_string(this->get_nu()) + ")");
   }
 
-  const std::size_t nv = state_->get_nv();
-  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(state_->get_nq());
+  const std::size_t nv = this->get_state()->get_nv();
+  const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
-  d->oRf = d->pinocchio.oMf[frameId_].rotation();
   
   Data* d = static_cast<Data*>(data.get());
-  
+
+  d->oRf = d->pinocchio.oMf[frameId_].rotation();
+
   // Actuation calcDiff
-  actuation_->calcDiff(d->multibody.actuation, x, u);
+  this->get_actuation()->calcDiff(d->multibody.actuation, x, u);
   
   // If contact is active, compute ABA derivatives + force
   if(active_contact_){
     // Compute spring damper force derivatives in LOCAL
-    d->lJ = pinocchio::getFrameJacobian(pinocchio_, d->pinocchio, frameId_, pinocchio::LOCAL);
-    d->oJ = pinocchio::getFrameJacobian(pinocchio_, d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED);
-    d->lv_partial_dq, d->lv_partial_dv = pinocchio::getFrameVelocityDerivatives(pinocchio_, d->pinocchio, frameId_, pinocchio::LOCAL);
+    pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
+    pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED, d->oJ);
+    d->lv_partial_dq, d->lv_partial_dv = pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL);
     d->df_dx.leftCols(nv) = 
         -Kp_ * (d->lJ.topRows(3) + pinocchio::skew(d->oRf.transpose() * (d->pinocchio.oMf[frameId_].translation() - oPc_)) * d->lJ.bottomRows(3)) - Kv_* d->lv_partial_dq.topRows(3);
     d->df_dx.rightCols(nv) = 
-        -Kv_ * d->lv_partial_dv.topRows();
+        -Kv_ * d->lv_partial_dv.topRows(3);
     // copy for later
     d->df_dx_copy = d->df_dx;
     // rotate force derivatives if not local 
-    if(ref_ != pinocchio::LOCAL):
-        d->df_dx.leftCols(nv) = d->oRf * d->df_dx_copy.leftCols(nv) - pinocchio::skew(d->oRf * d->f_copy) * oJ.bottomRows(3);
+    if(ref_ != pinocchio::LOCAL){
+        d->df_dx.leftCols(nv) = d->oRf * d->df_dx_copy.leftCols(nv) - pinocchio::skew(d->oRf * d->f_copy) * d->oJ.bottomRows(3);
         d->df_dx.rightCols(nv) = d->oRf * d->df_dx_copy.rightCols(nv);
+    }
     // Compute ABA derivatives (same in LOCAL and LWA for 3D contact)
-    d->aba_dq, d->aba_dv, d->aba_dtau = pinocchio::computeABADerivatives(pinocchio_, d->pinocchio, q, v, d->multibody.actuation.tau, d->fext_copy);
+    d->aba_dq, d->aba_dv, d->aba_dtau = pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation.tau, d->fext_copy);
     d->Fx.leftCols(nv) = d->aba_dq + d->pinocchio.Minv * d->lJ.topRows(3).transpose() * d->df_dx_copy.leftCols(nv);
     d->Fx.rightCols(nv) = d->aba_dv + d->pinocchio.Minv * d->lJ.topRows(3).transpose() * d->df_dx_copy.rightCols(nv);
-    d->Fx += d->pinocchio.Minv * d->multibody.actuation.dtau_dx;
+    d->Fx += d->pinocchio.Minv * d->multibody.actuation->dtau_dx;
     d->Fu = d->aba_dtau * d->multibody.actuation.dtau_du;
   }
 
   // Else ABA Derivatives
   else{
     // Computing the dynamics derivatives
-    if (without_armature_) {
-        pinocchio::computeABADerivatives(pinocchio_, d->pinocchio, q, v, d->multibody.actuation->tau, d->Fx.leftCols(nv),
+    if (!with_armature_) {
+        pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->Fx.leftCols(nv),
                                         d->Fx.rightCols(nv), d->pinocchio.Minv);
         d->Fx.noalias() += d->pinocchio.Minv * d->multibody.actuation->dtau_dx;
         d->Fu.noalias() = d->pinocchio.Minv * d->multibody.actuation->dtau_du;
     } else {
-        pinocchio::computeRNEADerivatives(pinocchio_, d->pinocchio, q, v, d->xout);
+        pinocchio::computeRNEADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->xout);
         d->dtau_dx.leftCols(nv) = d->multibody.actuation->dtau_dx.leftCols(nv) - d->pinocchio.dtau_dq;
         d->dtau_dx.rightCols(nv) = d->multibody.actuation->dtau_dx.rightCols(nv) - d->pinocchio.dtau_dv;
         d->Fx.noalias() = d->Minv * d->dtau_dx;
@@ -215,7 +230,7 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
 
 
   // Computing the cost derivatives
-  costs_->calcDiff(d->costs, x, u);
+  this->get_costs()->calcDiff(d->costs, x, u);
   
   // Add costs on force 
   d->Lx = d->costs->Lx;
@@ -223,23 +238,26 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
   d->Lxx = d->costs->Lxx;
   d->Lxu = d->costs->Lxu;
   d->Luu = d->costs->Luu;
-  if(active_contact_ && with_force_cost_):
+  if(active_contact_ && with_force_cost_){
       d->f_residual = d->f - force_des_;
       d->Lx += force_weight_ * d->f_residual.transpose() * d->df_dx;
       d->Lxx += force_weight_ * d->df_dx.transpose() * d->df_dx;
+  }
 }
+
 
 template <typename Scalar>
 void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
-    const boost::shared_ptr<DifferentialActionDataAbstract>& data, const Eigen::Ref<const VectorXs>& x) {
-  if (static_cast<std::size_t>(x.size()) != state_->get_nx()) {
+    const boost::shared_ptr<DifferentialActionDataAbstract>& data, 
+    const Eigen::Ref<const VectorXs>& x) {
+  if (static_cast<std::size_t>(x.size()) != this->get_state()->get_nx()) {
     throw_pretty("Invalid argument: "
-                 << "x has wrong dimension (it should be " + std::to_string(state_->get_nx()) + ")");
+                 << "x has wrong dimension (it should be " + std::to_string(this->get_state()->get_nx()) + ")");
   }
   Data* d = static_cast<Data*>(data.get());
-
-  costs_->calcDiff(d->costs, x);
+  this->get_costs()->calcDiff(d->costs, x);
 }
+
 
 template <typename Scalar>
 boost::shared_ptr<DifferentialActionDataAbstractTpl<Scalar> >
@@ -259,4 +277,4 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::set_force_cost(
   with_force_cost_ = true;
 }
 
-}  // namespace crocoddyl
+}  // namespace sobec

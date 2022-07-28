@@ -17,6 +17,7 @@
 #include "contact1d.hpp"
 #include "contact3d.hpp"
 #include "sobec/crocomplements/contact/contact-fwddyn.hpp"
+#include "sobec/crocomplements/softcontact/soft-contact3d-fwddyn.hpp"
 #include "state.hpp"
 
 namespace sobec {
@@ -28,6 +29,7 @@ struct DifferentialActionModelTypes {
     DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed,
     DifferentialActionModelContact1DFwdDynamics_TalosArm,
     DifferentialActionModelContact3DFwdDynamics_TalosArm,
+    DifferentialActionModelSoftContact3DFwdDynamics_TalosArm,
     DifferentialActionModelContact1DFwdDynamics_HyQ,
     DifferentialActionModelContact3DFwdDynamics_HyQ,
     NbDifferentialActionModelTypes
@@ -58,20 +60,29 @@ class DifferentialActionModelFactory {
       PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::X) const;
 
+  // Free forward dynamics
   boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics>
   create_freeFwdDynamics(StateModelTypes::Type state_type,
                          ActuationModelTypes::Type actuation_type) const;
-
+  
+  // Rigid contact 3D dynamics
   boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
   create_contact3DFwdDynamics(StateModelTypes::Type state_type,
                               ActuationModelTypes::Type actuation_type,
                               PinocchioReferenceTypes::Type ref_type) const;
 
+  // Rigid contact 1D dynamics
   boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
   create_contact1DFwdDynamics(StateModelTypes::Type state_type,
                               ActuationModelTypes::Type actuation_type,
                               PinocchioReferenceTypes::Type ref_type,
                               ContactModelMaskTypes::Type mask_type) const;
+
+  // Soft contact 3D dynamics
+  boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics>
+  create_softContact3DFwdDynamics(StateModelTypes::Type state_type,
+                                  ActuationModelTypes::Type actuation_type,
+                                  PinocchioReferenceTypes::Type ref_type) const;
 };
 
 }  // namespace unittest

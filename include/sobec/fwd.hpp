@@ -45,6 +45,7 @@
 
 #include "sobec/crocomplements/activation-quad-ref.hpp"
 #include "sobec/crocomplements/residual-com-velocity.hpp"
+// #include "sobec/crocomplements/softcontact/soft-contact3d-fwddyn.hpp"
 
 namespace sobec {
 
@@ -139,6 +140,15 @@ class OCPWalkParam;
 class OCPWalk;
 // MPC
 class MPCWalk;
+
+
+// Soft contact3D DAM
+template <typename Scalar>
+class DifferentialActionModelSoftContact3DFwdDynamicsTpl;
+typedef DifferentialActionModelSoftContact3DFwdDynamicsTpl<double> DifferentialActionModelSoftContact3DFwdDynamics;
+template <typename Scalar>
+class DifferentialActionDataSoftContact3DFwdDynamicsTpl;
+typedef DifferentialActionDataSoftContact3DFwdDynamicsTpl<double> DifferentialActionDataSoftContact3DFwdDynamics;
 
 }  // namespace sobec
 
