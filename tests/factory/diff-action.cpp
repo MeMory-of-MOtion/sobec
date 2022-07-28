@@ -358,24 +358,40 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
       StateModelFactory().create(state_type));
   actuation = ActuationModelFactory().create(actuation_type, state_type);
   cost = boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
-  pinocchio::Force force = pinocchio::Force::Zero();
-
+  pinocchio::Force force = pinocchio::Force::Zero();    
+  
+  pinocchio::ReferenceFrame pinRefFrame;
+  switch(ref_type){
+    case PinocchioReferenceTypes::Type::LOCAL:
+      pinRefFrame = pinocchio::LOCAL;
+      break;
+    case PinocchioReferenceTypes::Type::LOCAL_WORLD_ALIGNED:
+      pinRefFrame = pinocchio::LOCAL_WORLD_ALIGNED;
+      break;
+    case PinocchioReferenceTypes::Type::WORLD:
+      pinRefFrame = pinocchio::LOCAL_WORLD_ALIGNED;
+      break;
+    default:
+      throw_pretty(__FILE__ ": Wrong PinocchioReferenceTypes::Type given");
+      break;
+  }
+  
   cost->addCost(
       "control",
       CostModelFactory().create(
           CostModelTypes::CostModelResidualControl, state_type,
           ActivationModelTypes::ActivationModelQuad, actuation->get_nu()),
       0.1);
-//   action = boost::make_shared<sobec::DifferentialActionModelSoftContact3DFwdDynamics>(
-//       state, 
-//       actuation, 
-//       cost, 
-//       state->get_pinocchio()->getFrameId("gripper_left_fingertip_1_link"), 
-//       100.,
-//       10.,
-//       Eigen::Vector3d::Zero(),
-//       ref_type);
-//   action->set_force_cost(Eigen::Vector3d::Zero(), 0.01);
+  double Kp = 100;
+  double Kv = 10;
+  Eigen::Vector3d oPc = Eigen::Vector3d::Zero();
+  action = boost::make_shared<sobec::DifferentialActionModelSoftContact3DFwdDynamics>(
+      state, 
+      actuation, 
+      cost, 
+      state->get_pinocchio()->getFrameId("gripper_left_fingertip_1_link"), 
+      Kp, Kv, oPc, pinRefFrame);
+  action->set_force_cost(Eigen::Vector3d::Zero(), 0.01);
 
   return action;
 }

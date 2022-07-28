@@ -54,8 +54,8 @@ DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::DifferentialActionMo
   with_force_cost_ = false;
   active_contact_ = true;
   nc_ = 3;
-  parentId_ = this->get_pinocchio().frames[frameId_].parent();
-  jMf_ = this->get_pinocchio().frames[frameId_].placement();
+  parentId_ = this->get_pinocchio().frames[frameId_].parent;
+  jMf_ = this->get_pinocchio().frames[frameId_].placement;
 }
 
 template <typename Scalar>
@@ -191,7 +191,7 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
     // Compute spring damper force derivatives in LOCAL
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED, d->oJ);
-    d->lv_partial_dq, d->lv_partial_dv = pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL);
+    pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lv_partial_dq, d->lv_partial_dv);
     d->df_dx.leftCols(nv) = 
         -Kp_ * (d->lJ.topRows(3) + pinocchio::skew(d->oRf.transpose() * (d->pinocchio.oMf[frameId_].translation() - oPc_)) * d->lJ.bottomRows(3)) - Kv_* d->lv_partial_dq.topRows(3);
     d->df_dx.rightCols(nv) = 
@@ -204,11 +204,12 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
         d->df_dx.rightCols(nv) = d->oRf * d->df_dx_copy.rightCols(nv);
     }
     // Compute ABA derivatives (same in LOCAL and LWA for 3D contact)
-    d->aba_dq, d->aba_dv, d->aba_dtau = pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation.tau, d->fext_copy);
+    pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext_copy, 
+                                                              d->aba_dq, d->aba_dv, d->aba_dtau);
     d->Fx.leftCols(nv) = d->aba_dq + d->pinocchio.Minv * d->lJ.topRows(3).transpose() * d->df_dx_copy.leftCols(nv);
     d->Fx.rightCols(nv) = d->aba_dv + d->pinocchio.Minv * d->lJ.topRows(3).transpose() * d->df_dx_copy.rightCols(nv);
     d->Fx += d->pinocchio.Minv * d->multibody.actuation->dtau_dx;
-    d->Fu = d->aba_dtau * d->multibody.actuation.dtau_du;
+    d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
   }
 
   // Else ABA Derivatives

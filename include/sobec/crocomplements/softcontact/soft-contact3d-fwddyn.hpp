@@ -141,7 +141,7 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
     using Base::get_armature;
     using Base::get_pinocchio;
     using Base::get_nu;
-
+    
     Scalar Kp_;                             //!< Contact model stiffness
     Scalar Kv_;                             //!< Contact model damping
     Vector3s oPc_;                          //!< Contact model anchor point
@@ -172,13 +172,13 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public DifferentialAc
   template <template <typename Scalar> class Model>
   explicit DifferentialActionDataSoftContact3DFwdDynamicsTpl(Model<Scalar>* const model)
       : Base(model),
-        pinocchio(pinocchio::DataTpl<Scalar>(model->get_pinocchio())),
-        multibody(&pinocchio, model->get_actuation()->createData()),
-        costs(model->get_costs()->createData(&multibody)),
-        Minv(model->get_state()->get_nv(), model->get_state()->get_nv()),
-        u_drift(model->get_nu()),
-        dtau_dx(model->get_nu(), model->get_state()->get_ndx()),
-        tmp_xstatic(model->get_state()->get_nx()),
+        // pinocchio(pinocchio::DataTpl<Scalar>(model->get_pinocchio())),
+        // multibody(&pinocchio, model->get_actuation()->createData()),
+        // costs(model->get_costs()->createData(&multibody)),
+        // Minv(model->get_state()->get_nv(), model->get_state()->get_nv()),
+        // u_drift(model->get_nu()),
+        // dtau_dx(model->get_nu(), model->get_state()->get_ndx()),
+        // tmp_xstatic(model->get_state()->get_nx()),
         lJ(6, model->get_state()->get_nv()),
         oJ(6, model->get_state()->get_nv()),
         lv_partial_dq(6, model->get_state()->get_ndx()),
@@ -207,13 +207,21 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public DifferentialAc
     f_residual.setZero();
   }
 
-  pinocchio::DataTpl<Scalar> pinocchio;
-  DataCollectorActMultibodyTpl<Scalar> multibody;
-  boost::shared_ptr<CostDataSumTpl<Scalar> > costs;
-  MatrixXs Minv;
-  VectorXs u_drift;
-  MatrixXs dtau_dx;
-  VectorXs tmp_xstatic;
+  // pinocchio::DataTpl<Scalar> pinocchio;
+  // DataCollectorActMultibodyTpl<Scalar> multibody;
+  // boost::shared_ptr<CostDataSumTpl<Scalar> > costs;
+  // MatrixXs Minv;
+  // VectorXs u_drift;
+  // MatrixXs dtau_dx;
+  // VectorXs tmp_xstatic;
+
+  using Base::pinocchio;
+  using Base::multibody;
+  using Base::costs;
+  using Base::Minv;
+  using Base::u_drift;
+  using Base::dtau_dx;
+  using Base::tmp_xstatic;
 
   Matrix3s oRf;
   Vector3s lv;
