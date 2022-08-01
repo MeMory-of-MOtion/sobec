@@ -8,6 +8,7 @@ set(PROJECT_URL https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME})
 
 # Project options
 option(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
+option(BUILD_PY2CPP_INTERFACE "Build the py2cpp library" OFF)
 option(SUFFIX_SO_VERSION "Suffix library name with its version" ON)
 
 # Project configuration
@@ -30,7 +31,6 @@ ENDIF()
 # JRL-cmakemodule setup
 include("${JRL_CMAKE_MODULES}/base.cmake")
 include("${JRL_CMAKE_MODULES}/boost.cmake")
-include("${JRL_CMAKE_MODULES}/python.cmake")
 
 # Project definition
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
@@ -39,16 +39,15 @@ project(${PROJECT_NAME} ${PROJECT_ARGS})
 ADD_COMPILE_OPTIONS(-Wno-error)
 
 # Project dependencies
+if(BUILD_PYTHON_INTERFACE)
+  ADD_PROJECT_DEPENDENCY(eigenpy 2.7.10 REQUIRED)
+  string(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
+  set(${PY_NAME}_INSTALL_DIR ${PYTHON_SITELIB}/${PY_NAME})
+endif()
+
 ADD_PROJECT_DEPENDENCY(ndcurves REQUIRED)
 ADD_PROJECT_DEPENDENCY(crocoddyl REQUIRED)
 ADD_PROJECT_DEPENDENCY(yaml-cpp REQUIRED)
-
-if(BUILD_PYTHON_INTERFACE)
-  FINDPYTHON()
-  string(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
-  set(${PY_NAME}_INSTALL_DIR ${PYTHON_SITELIB}/${PY_NAME})
-  SEARCH_FOR_BOOST_PYTHON()
-endif()
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
@@ -119,16 +118,18 @@ endif()
 
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
-  add_library(${PROJECT_NAME}_py2cpp SHARED src/py2cpp.cpp include/${PROJECT_NAME}/py2cpp.hpp)
-  if(SUFFIX_SO_VERSION)
-    set_target_properties(${PROJECT_NAME}_py2cpp PROPERTIES SOVERSION ${PROJECT_VERSION})
+  if(BUILD_PY2CPP_INTERFACE)
+    add_library(${PROJECT_NAME}_py2cpp SHARED src/py2cpp.cpp include/${PROJECT_NAME}/py2cpp.hpp)
+    if(SUFFIX_SO_VERSION)
+      set_target_properties(${PROJECT_NAME}_py2cpp PROPERTIES SOVERSION ${PROJECT_VERSION})
+    endif()
+    install(FILES include/${PROJECT_NAME}/py2cpp.hpp DESTINATION include/${PROJECT_NAME})
+    install(TARGETS ${PROJECT_NAME}_py2cpp EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
+    target_link_libraries(${PROJECT_NAME}_py2cpp PUBLIC crocoddyl::crocoddyl)
+    target_link_libraries(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_LIBRARIES})
+    target_include_directories(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_INCLUDE_DIRS})
+    TARGET_LINK_BOOST_PYTHON(${PROJECT_NAME}_py2cpp PRIVATE)
   endif()
-  install(FILES include/${PROJECT_NAME}/py2cpp.hpp DESTINATION include/${PROJECT_NAME})
-  install(TARGETS ${PROJECT_NAME}_py2cpp EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
-  target_link_libraries(${PROJECT_NAME}_py2cpp PUBLIC crocoddyl::crocoddyl)
-  target_link_libraries(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_LIBRARIES})
-  target_include_directories(${PROJECT_NAME}_py2cpp PRIVATE ${PYTHON_INCLUDE_DIRS})
-  TARGET_LINK_BOOST_PYTHON(${PROJECT_NAME}_py2cpp PRIVATE)
 
   add_subdirectory(python)
 endif()
