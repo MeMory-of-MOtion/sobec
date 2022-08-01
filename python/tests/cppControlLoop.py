@@ -15,7 +15,8 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex
+from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker#, Flex
+from flex_joints import Flex
 import numpy as np
 
 # from time import time
@@ -162,6 +163,7 @@ flex.initialize(
         MA_duration=0.01,
         left_hip_indices=np.array([0, 1, 2]),
         right_hip_indices=np.array([6, 7, 8]),
+        filtered=True
     )
 )
 

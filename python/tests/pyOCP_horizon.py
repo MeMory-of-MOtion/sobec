@@ -106,7 +106,7 @@ class ReceidingHorizon:
         self.activate_contact_RF(time)
 
     def get_contacts(self, time):
-        active = self.contacts(time).active
+        active = self.contacts(time).active_set
         return {
             self.conf.leftFoot: self.conf.leftFoot in active,
             self.conf.rightFoot: self.conf.rightFoot in active,
