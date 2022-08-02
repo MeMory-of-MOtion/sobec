@@ -50,6 +50,7 @@ Eigen::MatrixXd computeWeightShareSmoothProfile(
         }
       }
   }
+
   for (Eigen::Index t = T - 1; t >= 1; --t) {
     bool takingoff = false;
     for (Eigen::Index k = 0; k < nc; ++k) {

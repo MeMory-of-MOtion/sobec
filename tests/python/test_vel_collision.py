@@ -1,3 +1,7 @@
+"""
+Test the residual model "VelCollision" inside a basic OCP with finite diff.
+"""
+
 import hppfcl
 import sys
 

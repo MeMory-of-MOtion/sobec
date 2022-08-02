@@ -21,6 +21,7 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeModelFactory();
   sobec::python::exposeFlex();
   sobec::python::exposeIntegratedActionLPF();
+  sobec::python::exposeStateLPF();
   sobec::python::exposeWBC();
   sobec::python::exposeOCPWalk();
   sobec::python::exposeMPCWalk();

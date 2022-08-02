@@ -137,7 +137,7 @@ class ContactModel1DTpl : public crocoddyl::ContactModel1DTpl<_Scalar> {
   /**
    * @brief Get pinocchio::ReferenceFrame
    */
-  const pinocchio::ReferenceFrame get_type() const;
+  const pinocchio::ReferenceFrame& get_type() const;
 
   /**
    * @brief Modify contact 1D mask
@@ -147,7 +147,7 @@ class ContactModel1DTpl : public crocoddyl::ContactModel1DTpl<_Scalar> {
   /**
    * @brief Get contact 1D mask
    */
-  const Vector3MaskType get_mask() const;
+  const Vector3MaskType& get_mask() const;
 
   /**
    * @brief Print relevant information of the 1d contact model

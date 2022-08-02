@@ -18,6 +18,7 @@ void exposeDesigner();
 void exposeHorizonManager();
 void exposeModelFactory();
 void exposeIntegratedActionLPF();
+void exposeStateLPF();
 void exposeDAMContactFwdDyn();
 void exposeResidualContactForce();
 void exposeWBC();

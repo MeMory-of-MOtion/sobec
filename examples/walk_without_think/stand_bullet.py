@@ -8,15 +8,8 @@ import example_robot_data.robots_loader as robex
 
 # Local imports
 import sobec
-from sobec.walk_without_think.save_traj import save_traj
-from sobec.walk_without_think.robot_wrapper import RobotWrapper
-from sobec.walk_without_think import ocp
-import mpcparams
-from sobec.walk_without_think.config_mpc import configureMPCWalk
 from sobec.pinbullet import SimuProxy
-import sobec.viewer_multiple as viewer_multiple
-from sobec.walk_without_think import miscdisp
-from sobec.walk_without_think import talos_collections
+import specific_params
 
 
 class PyreneLoader(robex.RobotLoader):
@@ -83,8 +76,10 @@ q_init = np.array(
     ]
 )
 q_init_robot = np.concatenate([q_init[:19], [q_init[24], q_init[24 + 8]]])
-walkParams = mpcparams.StandParams("talos_legs")
-walkParams.jointNamesToLock = talos_collections.jointToLockCollection["pyrene_legs"]
+walkParams = specific_params.StandParams("talos_legs")
+walkParams.jointNamesToLock = sobec.talos_collections.jointToLockCollection[
+    "pyrene_legs"
+]
 
 
 # ## SIMU #############################################################################
@@ -96,8 +91,6 @@ simu.loadBulletModel()  # pyb.GUI)
 simu.freeze(walkParams.jointNamesToLock)
 simu.setTorqueControlMode()
 simu.setTalosDefaultFriction()
-# ## OCP ########################################################################
-# ## OCP ########################################################################
 
 # Reference model used in Pyrene simulation.
 # Would be nice to add the as a standard parameters in walkParam ... for later.
@@ -144,7 +137,8 @@ pyrene_default_x0 = np.array(
 )
 pyrene_default_x0[simu.rmodel.nq :] = 0
 
-robot = RobotWrapper(simu.rmodel, contactKey="sole_link")
+robot = sobec.wwt.RobotWrapper(simu.rmodel, contactKey="sole_link")
+# robot.x0 = np.concatenate([q_init_robot, np.zeros(simu.rmodel.nv)])
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 assert norm(robot.x0 - simu.getState()) < 1e-6
 
@@ -175,21 +169,24 @@ contactPattern = (
 )
 
 # DDP for a full walk cycle, use as a standard pattern for the MPC.
-ddp = ocp.buildSolver(robot, contactPattern, walkParams)
+ddp = sobec.wwt.buildSolver(robot, contactPattern, walkParams)
 problem = ddp.problem
-x0s, u0s = ocp.buildInitialGuess(ddp.problem, walkParams)
+x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose()])
 # ddp.problem.x0 = pyrene_default_x0
 ddp.solve(x0s, u0s, 200)
+with open("/tmp/stand-bullet-repr.ascii", "w") as f:
+    f.write(sobec.reprProblem(ddp.problem))
+    print("OCP described in /tmp/stand-bullet-repr.ascii")
 
 mpcparams = sobec.MPCWalkParams()
-configureMPCWalk(mpcparams, walkParams)
+sobec.wwt.config_mpc.configureMPCWalk(mpcparams, walkParams)
 mpc = sobec.MPCWalk(mpcparams, ddp.problem)
 mpc.initialize(ddp.xs[: walkParams.Tmpc + 1], ddp.us[: walkParams.Tmpc])
 mpc.solver.setCallbacks(
     [
         croc.CallbackVerbose(),
-        # miscdisp.CallbackMPCWalk(robot.contactIds)
+        # sobec.wwt.CallbackMPCWalk(robot.contactIds)
     ]
 )
 
@@ -253,9 +250,7 @@ try:
     viz.loadViewerModel()
     gv = viz.viewer.gui
     viz.display(simu.getState()[: robot.model.nq])
-    viz0 = viewer_multiple.GepettoGhostViewer(
-        simu.rmodel, simu.gmodel_col, simu.gmodel_vis, 0.8
-    )
+    viz0 = sobec.GepettoGhostViewer(simu.rmodel, simu.gmodel_col, simu.gmodel_vis, 0.8)
     viz0.hide()
 except (ImportError, AttributeError):
     print("No viewer")
@@ -287,7 +282,7 @@ croc.enable_profiler()
 
 # FOR LOOP
 mpcPeriod = int(walkParams.DT / 1e-3)
-for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
+for s in range(walkParams.Tsimu):
 
     # ###############################################################################
     # # For timesteps without MPC updates
@@ -354,15 +349,14 @@ for s in range(walkParams.Tsimu):  # int(20.0 / walkParams.DT)):
     print(
         "{:4d} {} {:4d} reg={:.3} a={:.3} solveTime={:.3}".format(
             s,
-            miscdisp.dispocp(mpc.problem, robot.contactIds),
+            sobec.wwt.dispocp(mpc.problem, robot.contactIds),
             mpc.solver.iter,
             mpc.solver.x_reg,
             mpc.solver.stepLength,
             solve_time,
         )
     )
-    if not s % 10:
-        viz.display(simu.getState()[: robot.model.nq])
+    viz.display(simu.getState()[: robot.model.nq])
 
     # Before each takeoff, the robot display the previewed movement (3 times)
     if (
@@ -386,7 +380,7 @@ croc.stop_watch_report(3)
 # #####################################################################################
 
 if walkParams.saveFile is not None:
-    save_traj(np.array(hx), filename=walkParams.saveFile)
+    sobec.wwt.save_traj(np.array(hx), filename=walkParams.saveFile)
 
 # #####################################################################################
 # #####################################################################################
@@ -394,9 +388,9 @@ if walkParams.saveFile is not None:
 
 # The 2 next import must not be included **AFTER** pyBullet starts.
 import matplotlib.pylab as plt  # noqa: E402,F401
-import sobec.walk_without_think.plotter as walk_plotter  # noqa: E402
+import sobec.walk_without_think.plotter  # noqa: E402,F401
 
-plotter = walk_plotter.WalkPlotter(robot.model, robot.contactIds)
+plotter = sobec.wwt.plotter.WalkPlotter(robot.model, robot.contactIds)
 plotter.setData(
     contactPattern, np.array(hx)[::mpcPeriod], np.array(hu)[::mpcPeriod], np.array(hf)
 )
