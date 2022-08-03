@@ -127,14 +127,13 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 
 # Weights for all costs
 
-wFootPlacement = 0
+wFootPlacement = 1000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
 wVCoM = 0
 wCoM = 1000
 wWrenchCone = 0.05
-wFootTrans = 1000
 wFootRot = 1000
 wGroundCol = 0
 wCoP = 10

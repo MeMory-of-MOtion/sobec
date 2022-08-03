@@ -15,7 +15,7 @@ from bullet_Talos import BulletTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex, Support
+from sobec import RobotDesigner, WBCNoThinking, HorizonManager, ModelMakerNoThinking, Flex, Support
 import ndcurves
 import numpy as np
 import time
@@ -113,7 +113,6 @@ MM_conf = dict(
     wVCoM=conf.wVCoM,
     wCoM=conf.wCoM,
     wWrenchCone=conf.wWrenchCone,
-    wFootTrans=conf.wFootTrans,
     wFootRot=conf.wFootRot,
     wGroundCol=conf.wGroundCol,
     wCoP = conf.wCoP,
@@ -126,9 +125,9 @@ MM_conf = dict(
     th_stop=conf.th_stop,
 )
 
-formuler = ModelMaker()
+formuler = ModelMakerNoThinking()
 formuler.initialize(MM_conf, design)
-all_models = formuler.formulateHorizon(length=conf.T,no_thinking=True)
+all_models = formuler.formulateHorizon(length=conf.T)
 ter_model = formuler.formulateNoThinkingTerminalTracker(Support.DOUBLE)
 print("horizon formulated")
 # Horizon
@@ -167,7 +166,7 @@ flex.initialize(
     )
 )
 
-mpc = WBC()
+mpc = WBCNoThinking()
 mpc.initialize(
     wbc_conf,
     design,
