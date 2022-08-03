@@ -42,7 +42,7 @@ def foot_trajectory(T, time_to_land, initial_pose,final_pose, trajectory_swing):
 	takeoff_delay = 0
 	placement = []
 	for t in range(time_to_land - landing_advance, time_to_land - landing_advance - T, -1):
-		if (t < 0):
+		if (t <= 0):
 			placement.append(final_pose)
 		elif (t > conf.TsingleSupport - landing_advance - takeoff_delay):
 			placement.append(initial_pose)
