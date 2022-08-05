@@ -104,6 +104,7 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 flex_esti_delay = 0.0  # [s]
 flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
+flexToJoint = np.array([0, 0, 0.09])
 
 # ###### WALKING GEOMETRY #########
 xForward = 0.15 * 0  # step size

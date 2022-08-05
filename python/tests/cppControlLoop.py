@@ -159,6 +159,7 @@ flex.initialize(
         right_stiffness=np.array(conf.H_stiff[2:]),
         left_damping=np.array(conf.H_damp[:2]),
         right_damping=np.array(conf.H_damp[2:]),
+        flexToJoint = conf.flexToJoint,
         dt=conf.simu_period,
         MA_duration=0.01,
         left_hip_indices=np.array([0, 1, 2]),
