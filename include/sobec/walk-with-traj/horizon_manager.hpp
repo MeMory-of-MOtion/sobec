@@ -54,6 +54,8 @@ class HorizonManager {
   DAM dam(const unsigned long time);
   ADA ada(const unsigned long time);
   IAD iad(const unsigned long time);
+  DAD dad(const unsigned long time);
+  pinocchio::Data pinData(const unsigned long time);
   Cost costs(const unsigned long time);
   Contact contacts(const unsigned long time);
   boost::shared_ptr<crocoddyl::StateMultibody> state(const unsigned long time);

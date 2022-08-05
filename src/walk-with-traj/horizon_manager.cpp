@@ -65,6 +65,16 @@ IAD HorizonManager::iad(const unsigned long time) {
       ada(time));
 }
 
+DAD HorizonManager::dad(const unsigned long time) {
+  return boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(
+    iad(time)->differential
+  );
+}
+
+pinocchio::Data HorizonManager::pinData(const unsigned long time) {
+  return dad(time)->pinocchio;
+}
+
 boost::shared_ptr<crocoddyl::StateMultibody> HorizonManager::state(
     const unsigned long time) {
   return boost::static_pointer_cast<crocoddyl::StateMultibody>(

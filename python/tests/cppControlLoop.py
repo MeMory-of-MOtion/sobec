@@ -198,7 +198,7 @@ elif conf.simulator == "pinocchio":
     v_current = init_state["dq"]
 
 # ### SIMULATION LOOP ###
-
+    
 for s in range(conf.T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
@@ -238,7 +238,7 @@ for s in range(conf.T_total * conf.Nc):
         mpc.ref_LF_poses[len(mpc.ref_LF_poses) - 1] = pin.SE3(np.eye(3), LF_refs)
         mpc.ref_RF_poses[len(mpc.ref_RF_poses) - 1] = pin.SE3(np.eye(3), RF_refs)
 
-        print_trajectory(mpc.ref_LF_poses)
+#        print_trajectory(mpc.ref_LF_poses)
 
     mpc.iterate(s, q_current, v_current)
     torques = horizon.currentTorques(mpc.x0)
@@ -253,9 +253,42 @@ for s in range(conf.T_total * conf.Nc):
         correct_contacts = mpc.horizon.get_contacts(0)
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
-
+        
+        ######## Generating the forces ########## TODO: cast it in functions.
+        
+        LW = mpc.horizon.pinData(0).f[2].linear
+        RW = mpc.horizon.pinData(0).f[8].linear
+        TW = mpc.horizon.pinData(0).f[1].linear
+        
+        if not all(correct_contacts.values()):
+            Lforce = TW - LW if correct_contacts['leg_left_sole_fix_joint'] else -LW
+            Rforce = TW - RW if correct_contacts['leg_right_sole_fix_joint'] else -RW
+        else:
+            Lforce = TW/2 - LW
+            Rforce = TW/2 - RW
+            
+        
+    ## TEst the resulting flexing torque.          (it results better than not using it.)  
+        left_delta = device.q0[device.flex_qs[:2]]
+        right_delta = device.q0[device.flex_qs[2:]]
+        
+        flex_torque = np.hstack([flex.estimateFlexingTorque(q_current[[7,8,9]], 
+                                                            torques[[0,1,2]], 
+                                                            left_delta,
+                                                            Lforce).copy(),
+                                 flex.estimateFlexingTorque(q_current[[13,14,15]], 
+                                                            torques[[6,7,8]],
+                                                            right_delta,
+                                                            Rforce).copy()])
+            
+        print(device.torque[device.flex_vs]- flex_torque)
+        
+        ##TODO: Pasar a local frame
+        ##########################################
+        
         qc, dqc = flex.correctEstimatedDeflections(
-            torques, real_state["q"][7:], real_state["dq"][6:]
+            torques, real_state["q"][7:], real_state["dq"][6:], 
+            Lforce, Rforce
         )
 
         q_current = np.hstack([real_state["q"][:7], qc])

@@ -112,6 +112,8 @@ typedef boost::shared_ptr<crocoddyl::ActionModelAbstract> AMA;
 typedef boost::shared_ptr<crocoddyl::ActionDataAbstract> ADA;
 typedef boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics>
     DAM;
+typedef boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics>
+    DAD;
 typedef boost::shared_ptr<crocoddyl::CostModelSum> Cost;
 typedef boost::shared_ptr<crocoddyl::ContactModelMultiple> Contact;
 typedef boost::shared_ptr<crocoddyl::SolverFDDP> DDP;

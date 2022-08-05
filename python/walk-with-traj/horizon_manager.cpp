@@ -58,6 +58,8 @@ void exposeHorizonManager() {
       .def("ama", &HorizonManager::ama, bp::args("self", "time"))
       .def("iam", &HorizonManager::iam, bp::args("self", "time"))
       .def("dam", &HorizonManager::dam, bp::args("self", "time"))
+      .def("dad", &HorizonManager::dad, bp::args("self", "time"))
+      .def("pinData", &HorizonManager::pinData, bp::args("self", "time"))
       .def("costs", &HorizonManager::costs, bp::args("self", "time"))
       .def("contacts", &HorizonManager::contacts, bp::args("self", "time"))
       .def("state", &HorizonManager::state, bp::args("self", "time"))
