@@ -197,6 +197,7 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
     pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED, d->oJ);
+    pinocchio::computeForwardKinematicsDerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->xout);
     pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lv_partial_dq, d->lv_partial_dv);
     d->df_dx.leftCols(nv) = 
         -Kp_ * (d->lJ.topRows(3) + pinocchio::skew(d->oRf.transpose() * (d->pinocchio.oMf[frameId_].translation() - oPc_)) * d->lJ.bottomRows(3)) - Kv_* d->lv_partial_dq.topRows(3);

@@ -105,10 +105,10 @@ void test_quasi_static(DifferentialActionModelTypes::Type action_type,
   model->calc(data, x, u);
 
   BOOST_CHECK(data->xout.norm() <= 1e-8);
-  if((data->xout.norm() <= 1e-8) == false) {
-    std::cout << " xout = " << std::endl;
-    std::cout << data->xout << std::endl;
-  }
+  // if((data->xout.norm() <= 1e-8) == false) {
+  //   std::cout << " xout = " << std::endl;
+  //   std::cout << data->xout << std::endl;
+  // }
   // // Check for inactive contacts
   // if (action_type == DifferentialActionModelTypes::
   //                        DifferentialActionModelContact1DFwdDynamics_TalosArm ||
@@ -166,11 +166,23 @@ void test_partial_derivatives_against_numdiff(
   // Checking the partial derivatives against NumDiff
   double tol = sqrt(model_num_diff.get_disturbance());
   if((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol) == false) {
-    std::cout << " dv_dq = " << std::endl;
     boost::shared_ptr<sobec::DifferentialActionDataSoftContact3DFwdDynamics> data_cast = boost::static_pointer_cast<sobec::DifferentialActionDataSoftContact3DFwdDynamics>(data); 
-    std::cout << data_cast->lv_partial_dq << std::endl;
-    std::cout << " dv_dv = " << std::endl;
-    std::cout << data_cast->lv_partial_dv << std::endl;
+    // std::cout << " dv_dq = " << std::endl;
+    // std::cout << data_cast->lv_partial_dq << std::endl;
+    // std::cout << " dv_dv = " << std::endl;
+    // std::cout << data_cast->lv_partial_dv << std::endl;
+    std::cout << " df_dx = " << std::endl;
+    std::cout << data_cast->df_dx << std::endl;
+    std::cout << " aba_dq = " << std::endl;
+    std::cout << data_cast->aba_dq << std::endl;
+    std::cout << " aba_dv = " << std::endl;
+    std::cout << data_cast->aba_dv << std::endl;
+    std::cout << " aba_dtau = " << std::endl;
+    std::cout << data_cast->aba_dtau << std::endl;
+    std::cout << " Minv = " << std::endl;
+    std::cout << data_cast->pinocchio.Minv << std::endl;
+    std::cout << " lJ = " << std::endl;
+    std::cout << data_cast->lJ << std::endl;
     std::cout << " Fx - Fx_ND = " << std::endl;
     std::cout << data->Fx - data_num_diff->Fx << std::endl;
   }
@@ -269,8 +281,10 @@ void register_action_model_unit_tests(
                                       ref_type, mask_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_against_numdiff,
                                       action_type, ref_type, mask_type)));
-  // Exclude 1D contact fwd dyn for Floating Base because quasiStatic not working
-  if(action_type != DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ){
+  // Exclude 1D rigid contact floating base + 3D soft contact floating base because
+  // quasiStatic not implemented yet 
+  if(action_type != DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ &&
+     action_type != DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_HyQ){
     ts->add(BOOST_TEST_CASE(
         boost::bind(&test_quasi_static, action_type, ref_type, mask_type)));
   }
@@ -279,25 +293,25 @@ void register_action_model_unit_tests(
 }
 
 bool init_function() {
-  // // free (no contact)
-  // for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
-  //   if (DifferentialActionModelTypes::all[i] ==
-  //           DifferentialActionModelTypes::
-  //               DifferentialActionModelFreeFwdDynamics_TalosArm ||
-  //       DifferentialActionModelTypes::all[i] ==
-  //           DifferentialActionModelTypes::
-  //               DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed) {
-  //     register_action_model_unit_tests(DifferentialActionModelTypes::all[i]);
-  //   }
-  // }
+  // free (no contact)
+  for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
+    if (DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::
+                DifferentialActionModelFreeFwdDynamics_TalosArm ||
+        DifferentialActionModelTypes::all[i] ==
+            DifferentialActionModelTypes::
+                DifferentialActionModelFreeFwdDynamics_TalosArm_Squashed) {
+      register_action_model_unit_tests(DifferentialActionModelTypes::all[i]);
+    }
+  }
 
   // 3D contact (rigid + soft)
   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
-    // if (DifferentialActionModelTypes::all[i] ==
-    //     DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
-    //     DifferentialActionModelTypes::all[i] ==
-    //     DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ || 
-    if(DifferentialActionModelTypes::all[i] ==
+    if (DifferentialActionModelTypes::all[i] ==
+        DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
+        DifferentialActionModelTypes::all[i] ==
+        DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ || 
+        DifferentialActionModelTypes::all[i] ==
         DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_TalosArm ||
         DifferentialActionModelTypes::all[i] ==
         DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_HyQ) {
@@ -308,22 +322,22 @@ bool init_function() {
     }
   }
 
-  // // 1D contact (rigid)
-  // for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
-  //   if (DifferentialActionModelTypes::all[i] ==
-  //       DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
-  //       DifferentialActionModelTypes::all[i] ==
-  //       DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ)
-  //     {
-  //     for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j) {
-  //       for (size_t k = 0; k < ContactModelMaskTypes::all.size(); ++k) {
-  //         register_action_model_unit_tests(DifferentialActionModelTypes::all[i],
-  //                                          PinocchioReferenceTypes::all[j],
-  //                                          ContactModelMaskTypes::all[k]);
-  //       }
-  //     }
-  //   }
-  // }
+  // 1D contact (rigid)
+  for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
+    if (DifferentialActionModelTypes::all[i] ==
+        DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_TalosArm ||
+        DifferentialActionModelTypes::all[i] ==
+        DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ)
+      {
+      for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j) {
+        for (size_t k = 0; k < ContactModelMaskTypes::all.size(); ++k) {
+          register_action_model_unit_tests(DifferentialActionModelTypes::all[i],
+                                           PinocchioReferenceTypes::all[j],
+                                           ContactModelMaskTypes::all[k]);
+        }
+      }
+    }
+  }
 
   return true;
 }

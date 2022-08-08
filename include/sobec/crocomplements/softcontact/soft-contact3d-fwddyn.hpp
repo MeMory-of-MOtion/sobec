@@ -200,6 +200,8 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::Dif
     aba_dtau.setZero();
     lv_partial_dv.setZero();
     lv_partial_dq.setZero();
+    lJ.setZero();
+    oJ.setZero();
   }
 
   using Base::pinocchio;
