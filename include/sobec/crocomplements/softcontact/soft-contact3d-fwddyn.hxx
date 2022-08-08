@@ -78,7 +78,10 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calc(
   Data* d = static_cast<Data*>(data.get());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(this->get_state()->get_nv());
+  // pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
+  // pinocchio::updateFramePlacements(this->get_pinocchio(), d->pinocchio);
   d->oRf = d->pinocchio.oMf[frameId_].rotation();
+  
 
   // Actuation calc
   this->get_actuation()->calc(d->multibody.actuation, x, u);
@@ -189,6 +192,9 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::calcDiff(
   // If contact is active, compute ABA derivatives + force
   if(active_contact_){
     // Compute spring damper force derivatives in LOCAL
+    // pinocchio::computeJointJacobians(this->get_pinocchio(), d->pinocchio, q);
+    // pinocchio::computeForwardKinematicsDerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->xout);
+    pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED, d->oJ);
     pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lv_partial_dq, d->lv_partial_dv);
@@ -276,6 +282,24 @@ void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::set_force_cost(
   force_des_ = force_des;
   force_weight_ = force_weight;
   with_force_cost_ = true;
+}
+
+template <typename Scalar>
+void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::set_Kp(const Scalar inKp) {
+  if (inKp < 0.) {
+    throw_pretty("Invalid argument: "
+                 << "Stiffness should be positive");
+  }
+  Kp_ = inKp;
+}
+
+template <typename Scalar>
+void DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::set_Kv(const Scalar inKv) {
+  if (inKv < 0.) {
+    throw_pretty("Invalid argument: "
+                 << "Damping should be positive");
+  }
+  Kv_ = inKv;
 }
 
 }  // namespace sobec

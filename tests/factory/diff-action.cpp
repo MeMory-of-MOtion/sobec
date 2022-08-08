@@ -51,6 +51,10 @@ std::ostream& operator<<(std::ostream& os,
       os << "DifferentialActionModelSoftContact3DFwdDynamics_TalosArm";
       break;
     case DifferentialActionModelTypes::
+        DifferentialActionModelSoftContact3DFwdDynamics_HyQ:
+      os << "DifferentialActionModelSoftContact3DFwdDynamics_HyQ";
+      break;
+    case DifferentialActionModelTypes::
         DifferentialActionModelContact1DFwdDynamics_HyQ:
       os << "DifferentialActionModelContact1DFwdDynamics_HyQ";
       break;
@@ -113,6 +117,12 @@ DifferentialActionModelFactory::create(
     case DifferentialActionModelTypes::
         DifferentialActionModelContact3DFwdDynamics_HyQ:
       action = create_contact3DFwdDynamics(
+          StateModelTypes::StateMultibody_HyQ,
+          ActuationModelTypes::ActuationModelFloatingBase, ref_type);
+      break;
+    case DifferentialActionModelTypes::
+        DifferentialActionModelSoftContact3DFwdDynamics_HyQ:
+      action = create_softContact3DFwdDynamics(
           StateModelTypes::StateMultibody_HyQ,
           ActuationModelTypes::ActuationModelFloatingBase, ref_type);
       break;
@@ -359,7 +369,8 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
   actuation = ActuationModelFactory().create(actuation_type, state_type);
   cost = boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
   pinocchio::Force force = pinocchio::Force::Zero();    
-  
+  std::string frameName = "";
+
   pinocchio::ReferenceFrame pinRefFrame;
   switch(ref_type){
     case PinocchioReferenceTypes::Type::LOCAL:
@@ -375,6 +386,21 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
       throw_pretty(__FILE__ ": Wrong PinocchioReferenceTypes::Type given");
       break;
   }
+
+  switch (state_type) {
+    case StateModelTypes::StateMultibody_TalosArm: {
+      frameName = "gripper_left_fingertip_1_link";
+      break;
+    }
+    case StateModelTypes::StateMultibody_HyQ: {
+      frameName = "lf_foot";
+      break;
+    }
+    default:
+      throw_pretty(__FILE__ ": Wrong soft contact frame name given");
+      break;
+  }
+
   
   cost->addCost(
       "control",
@@ -389,7 +415,7 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
       state, 
       actuation, 
       cost, 
-      state->get_pinocchio()->getFrameId("gripper_left_fingertip_1_link"), 
+      state->get_pinocchio()->getFrameId(frameName), 
       Kp, Kv, oPc, pinRefFrame);
   action->set_force_cost(Eigen::Vector3d::Zero(), 0.01);
 

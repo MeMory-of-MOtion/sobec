@@ -30,6 +30,7 @@ struct DifferentialActionModelTypes {
     DifferentialActionModelContact1DFwdDynamics_TalosArm,
     DifferentialActionModelContact3DFwdDynamics_TalosArm,
     DifferentialActionModelSoftContact3DFwdDynamics_TalosArm,
+    DifferentialActionModelSoftContact3DFwdDynamics_HyQ,
     DifferentialActionModelContact1DFwdDynamics_HyQ,
     DifferentialActionModelContact3DFwdDynamics_HyQ,
     NbDifferentialActionModelTypes

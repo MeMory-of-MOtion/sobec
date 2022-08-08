@@ -132,6 +132,10 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
   
   void set_force_cost(const Vector3s& force_des, const Scalar force_weight);
 
+  void set_Kp(const Scalar inKp);
+
+  void set_Kv(const Scalar inKv);
+
   std::size_t get_nc() {return nc_;};
 
   protected:
@@ -167,11 +171,11 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::Dif
       : Base(model),
         lJ(6, model->get_state()->get_nv()),
         oJ(6, model->get_state()->get_nv()),
-        lv_partial_dq(6, model->get_state()->get_ndx()),
-        lv_partial_dv(6, model->get_state()->get_ndx()),
-        aba_dq(model->get_state()->get_nv(), model->get_state()->get_ndx()),
-        aba_dv(model->get_state()->get_nv(), model->get_state()->get_ndx()),
-        aba_dtau(model->get_state()->get_nv(), model->get_state()->get_ndx()),
+        lv_partial_dq(6, model->get_state()->get_nv()),
+        lv_partial_dv(6, model->get_state()->get_nv()),
+        aba_dq(model->get_state()->get_nv(), model->get_state()->get_nv()),
+        aba_dv(model->get_state()->get_nv(), model->get_state()->get_nv()),
+        aba_dtau(model->get_state()->get_nv(), model->get_state()->get_nv()),
         df_dx(model->get_nc(), model->get_state()->get_ndx()),
         df_dx_copy(model->get_nc(), model->get_state()->get_ndx()),
         // f(model->get_nc(), model->get_state()->get_ndx()),
@@ -191,6 +195,11 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::Dif
     oRf.setZero();
     lv.setZero();
     f_residual.setZero();
+    aba_dq.setZero();
+    aba_dv.setZero();
+    aba_dtau.setZero();
+    lv_partial_dv.setZero();
+    lv_partial_dq.setZero();
   }
 
   using Base::pinocchio;
