@@ -265,6 +265,26 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   return runningModel;
 }
 
+AMA ModelMaker::formulateTerminalStepTracker(const Support &support) {
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
+      state_, actuation_->get_nu());
+  Cost costs =
+      boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+
+  defineFeetContact(contacts, support);
+  defineJointLimits(costs);
+  definePostureTask(costs);
+  defineFeetTracking(costs, support);
+
+  DAM terminalDAM =
+      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
+          state_, actuation_, contacts, costs, 0., true);
+  AMA terminalModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(
+      terminalDAM, 0);
+
+  return terminalModel;
+}
+
 std::vector<AMA> ModelMaker::formulateHorizon(
     const std::vector<Support> &supports) {
   // for loop to generate a vector of IAMs

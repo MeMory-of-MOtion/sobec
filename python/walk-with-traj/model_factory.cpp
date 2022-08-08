@@ -190,6 +190,8 @@ void exposeModelFactory() {
             bp::arg("supports") = Support::DOUBLE))
       .def("formulateStepTracker", &ModelMaker::formulateStepTracker,
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE))
+      .def("formulateTerminalStepTracker", &ModelMaker::formulateTerminalStepTracker,
+           (bp::arg("self"), bp::arg("supports") = Support::DOUBLE))
       .def("getState", &ModelMaker::getState, bp::args("self"))
       .def("setState", &ModelMaker::setState, bp::args("self"))
       .def("getActuation", &ModelMaker::getActuation, bp::args("self"))

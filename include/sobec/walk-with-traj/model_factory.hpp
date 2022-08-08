@@ -64,6 +64,7 @@ class ModelMaker {
   bool initialized_ = false;
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
+  AMA formulateTerminalStepTracker(const Support &support = Support::DOUBLE); 
   AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
 
   std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
