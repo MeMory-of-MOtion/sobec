@@ -80,7 +80,7 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
                  << "u has wrong dimension (it should be " + std::to_string(this->get_nu()) + ")");
   }
 
-  Data* d = static_cast<Data*>(d->get());
+  Data* d = static_cast<Data*>(data.get());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(this->get_state()->get_nv());
   pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
@@ -150,12 +150,13 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
     throw_pretty("Invalid argument: "
                  << "f has wrong dimension (it should be 3)");
   }
-  Data* d = static_cast<Data*>(d->get());
+  Data* d = static_cast<Data*>(data.get());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(this->get_state()->get_nv());
   pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
   this->get_costs()->calc(d->costs, x);
   d->cost = d->costs->cost;
+  // Add cost on force here?
 }
 
 
@@ -183,7 +184,7 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
   
-  Data* d = static_cast<Data*>(d->get());
+  Data* d = static_cast<Data*>(data.get());
 
   d->oRf = d->pinocchio.oMf[frameId_].rotation();
 
@@ -271,13 +272,19 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
 template <typename Scalar>
 void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     const boost::shared_ptr<DifferentialActionDataAbstract>& data, 
-    const Eigen::Ref<const VectorXs>& x) {
+    const Eigen::Ref<const VectorXs>& x,
+    const Eigen::Ref<const VectorXs>& f) {
   if (static_cast<std::size_t>(x.size()) != this->get_state()->get_nx()) {
     throw_pretty("Invalid argument: "
                  << "x has wrong dimension (it should be " + std::to_string(this->get_state()->get_nx()) + ")");
   }
-  Data* d = static_cast<Data*>(d->get());
+  if (static_cast<std::size_t>(f.size()) != 3) {
+    throw_pretty("Invalid argument: "
+                 << "f has wrong dimension (it should be 3)");
+  }
+  Data* d = static_cast<Data*>(data.get());
   this->get_costs()->calcDiff(d->costs, x);
+  // Add cost on force here
 }
 
 
