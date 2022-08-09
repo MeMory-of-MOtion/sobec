@@ -53,7 +53,8 @@ void exposeDAMSoftContact3DFwdDyn() {
       .def<void (DifferentialActionModelSoftContact3DFwdDynamics::*)(
           const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calc", &crocoddyl::DifferentialActionModelFreeFwdDynamics::calc, bp::args("self", "data", "x"))
+          "calc", &DifferentialActionModelSoftContact3DFwdDynamics::calc, bp::args("self", "data", "x"))
+      
       .def<void (DifferentialActionModelSoftContact3DFwdDynamics::*)(
           const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&,
@@ -72,7 +73,7 @@ void exposeDAMSoftContact3DFwdDyn() {
       .def<void (DifferentialActionModelSoftContact3DFwdDynamics::*)(
           const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>&, 
           const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calcDiff", &crocoddyl::DifferentialActionModelFreeFwdDynamics::calcDiff, bp::args("self", "data", "x"))
+          "calcDiff", &DifferentialActionModelSoftContact3DFwdDynamics::calcDiff, bp::args("self", "data", "x"))
       .def("createData", &DifferentialActionModelSoftContact3DFwdDynamics::createData,
            bp::args("self"), "Create the Euler integrator data.")
       .def("set_force_cost", &DifferentialActionModelSoftContact3DFwdDynamics::set_force_cost,

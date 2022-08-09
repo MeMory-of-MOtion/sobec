@@ -324,20 +324,16 @@ void register_action_model_unit_tests(
   }
   std::cout << "Running " << test_name.str() << std::endl;
   test_suite* ts = BOOST_TEST_SUITE(test_name.str());
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_check_data, action_type, ref_type, mask_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_calc_returns_state, action_type, ref_type, mask_type)));
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, action_type,
-                                      ref_type, mask_type)));
-  ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_against_numdiff,
-                                      action_type, ref_type, mask_type)));
-  // Exclude 1D rigid contact floating base + 3D soft contact floating base because
-  // quasiStatic not implemented yet 
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_check_data, action_type, ref_type, mask_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_state, action_type, ref_type, mask_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, action_type, ref_type, mask_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_against_numdiff, action_type, ref_type, mask_type)));
+  // Exclude 1D rigid contact floating base and 3D soft contact models from this test
+  // because quasiStatic not implemented yet  
   if(action_type != DifferentialActionModelTypes::DifferentialActionModelContact1DFwdDynamics_HyQ &&
-     action_type != DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_HyQ){
-    ts->add(BOOST_TEST_CASE(
-        boost::bind(&test_quasi_static, action_type, ref_type, mask_type)));
+     action_type != DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_HyQ &&
+     action_type != DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_TalosArm){
+    ts->add(BOOST_TEST_CASE(boost::bind(&test_quasi_static, action_type, ref_type, mask_type)));
   }
   // Test equivalence with Euler for soft contact when Kp, Kv = 0
   if(action_type == DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_TalosArm ||
