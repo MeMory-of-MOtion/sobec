@@ -71,7 +71,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hpp
   include/${PROJECT_NAME}/crocomplements/contact/contact-force.hpp
   include/${PROJECT_NAME}/crocomplements/softcontact/soft-contact3d-fwddyn.hpp
-  # include/${PROJECT_NAME}/crocomplements/softcontact/soft-contact3d-augmented-fwddyn.hpp
+  include/${PROJECT_NAME}/crocomplements/softcontact/soft-contact3d-augmented-fwddyn.hpp
   include/${PROJECT_NAME}/crocomplements/residual-com-velocity.hxx
   include/${PROJECT_NAME}/crocomplements/residual-cop.hxx
   include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hxx
@@ -83,7 +83,7 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/crocomplements/contact/contact-force.hxx
   include/${PROJECT_NAME}/crocomplements/residual-fly-high.hxx
   include/${PROJECT_NAME}/crocomplements/softcontact/soft-contact3d-fwddyn.hxx
-  # include/${PROJECT_NAME}/crocomplements/softcontact/soft-contact3d-augmented-fwddyn.hxx
+  include/${PROJECT_NAME}/crocomplements/softcontact/soft-contact3d-augmented-fwddyn.hxx
   include/${PROJECT_NAME}/walk-without-think/ocp.hpp
   include/${PROJECT_NAME}/walk-without-think/mpc.hpp
   include/${PROJECT_NAME}/walk-without-think/mpc.hxx

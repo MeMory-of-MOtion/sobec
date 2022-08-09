@@ -16,7 +16,7 @@
 #include <pinocchio/algorithm/rnea-derivatives.hpp>
 #include <pinocchio/algorithm/rnea.hpp>
 
-#include "soft-contact3d-fwddyn.hpp"
+#include "soft-contact3d-augmented-fwddyn.hpp"
 
 namespace sobec {
 
@@ -38,13 +38,13 @@ DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::DAMSoftContact3DAugmentedFwdDyn
   Base::set_u_lb(Scalar(-1.) * this->get_pinocchio().effortLimit.tail(this->get_nu()));
   Base::set_u_ub(Scalar(+1.) * this->get_pinocchio().effortLimit.tail(this->get_nu()));
   // Soft contact model parameters
-  if(Kp < 0.){
+  if(Kp_ < 0.){
      throw_pretty("Invalid argument: "
-                << "Kp must be positive "); 
+                << "Kp_ must be positive "); 
   }
-  if(Kv < 0.){
+  if(Kv_ < 0.){
      throw_pretty("Invalid argument: "
-                << "Kv must be positive "); 
+                << "Kv_ must be positive "); 
   }
   Kp_ = Kp;
   Kv_ = Kv;
@@ -112,9 +112,9 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
     d->fout_copy = d->fout;
     // Rotate if not f not in LOCAL
     if(ref_ != pinocchio::LOCAL){
-        d->oa = pinocchio::getFrameAcceleration(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED).linear()
-        d->ov = pinocchio::getFrameVelocity(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED).linear()
-        d->fout = -Kp_* d->ov - Kv_ * d->oa
+        d->oa = pinocchio::getFrameAcceleration(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED).linear();
+        d->ov = pinocchio::getFrameVelocity(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED).linear();
+        d->fout = -Kp_* d->ov - Kv_ * d->oa;
     } 
   }
   // If contact NOT active : compute aq = ABA(q,v,tau)
@@ -131,7 +131,7 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
 
   // Add hard-coded cost on contact force
   if(with_force_cost_){
-    d->f_residual = d->f - force_des_;
+    d->f_residual = f - force_des_;
     d->cost += 0.5* force_weight_ * d->f_residual.transpose() * d->f_residual;
   }
 }
@@ -197,20 +197,20 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
 
     // Derivatives of d->xout (ABA) w.r.t. x and u in LOCAL (same in WORLD)
-    pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation.tau, d->fext, 
+    pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext, 
                                                                 d->aba_dq, d->aba_dv, d->aba_dtau);
     d->Fx.leftCols(nv)= d->aba_dq;
     d->Fx.rightCols(nv) = d->aba_dv; 
-    d->Fx += d->aba_dtau * d->multibody.actuation.dtau_dx;
-    d->Fu = d->aba_dtau * d->multibody.actuation.dtau_du;
+    d->Fx += d->aba_dtau * d->multibody.actuation->dtau_dx;
+    d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
     // Compute derivatives of d->xout (ABA) w.r.t. f in LOCAL 
-    d->aba_df = d->aba_dtau * lJ.topRows(3).transpose() * jMf_.rotation() * np.eye(3);
+    d->aba_df = d->aba_dtau * d->lJ.topRows(3).transpose() * jMf_.rotation() * Matrix3s::Identity();
 
     // Skew term added to RNEA derivatives when force is expressed in LWA
     if(ref_ != pinocchio::LOCAL){
-        d->Fx.leftCols(nv)+= d->aba_dtau * lJ.topRows(3).transpose() * pinocchio::skew(oRf.transpose() * f) * lJ.bottomRows(3);
+        d->Fx.leftCols(nv)+= d->aba_dtau * d->lJ.topRows(3).transpose() * pinocchio::skew(d->oRf.transpose() * f) * d->lJ.bottomRows(3);
         // Rotate dABA/df
-        d->aba_df = d->aba_df * oRf.transpose();
+        d->aba_df = d->aba_df * d->oRf.transpose();
     }
     // Derivatives of d->fout in LOCAL : important >> UPDATE FORWARD KINEMATICS with d->xout
     pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
@@ -218,52 +218,52 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     pinocchio::updateFramePlacements(this->get_pinocchio(), d->pinocchio);
     pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, 
                                                     d->lv_dq, d->lv_dv);
-    lv_dx.leftCols(nv) = d->lv_dq;
-    lv_dx.rightCols(nv) = d->lv_dv;
+    d->lv_dx.leftCols(nv) = d->lv_dq;
+    d->lv_dx.rightCols(nv) = d->lv_dv;
     pinocchio::getFrameAccelerationDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, 
                                                     d->v_dv, d->a_dq, d->a_dv, d->a_da);
-    d->aba_dx = np.zeros((3,2*nv))
-    d->aba_dx.leftCols(nv)= d->a_dq.topRows(3) + d->a_da.topRows(3) * d->Fx[:,:nv]; // same as aba_dq here
+    // d->aba_dx = np.zeros((3,2*nv))
+    d->aba_dx.leftCols(nv)= d->a_dq.topRows(3) + d->a_da.topRows(3) * d->Fx.leftCols(nv); // same as aba_dq here
     d->aba_dx.rightCols(nv) = d->a_dv.topRows(3) + d->a_da.topRows(3) * d->Fx.rightCols(nv); // same as aba_dv here
     d->da_du = d->a_da.topRows(3) * d->Fu;
     d->da_df = d->a_da.topRows(3) * d->aba_df;
     // Deriv of lambda dot
-    d->dfdt_dx = -Kp*d->lv_dx.topRows(3) - Kv*d->aba_dx.topRows(3);
-    d->dfdt_du = -Kv*d->da_du;
-    d->dfdt_df = -Kv*d->da_df;
-    d->ldfdt_dx_copy = d->dfdt_dx;
-    d->ldfdt_du_copy = d->dfdt_du;
-    d->ldfdt_df_copy = d->dfdt_df;
+    d->dfdt_dx = -Kp_*d->lv_dx.topRows(3) - Kv_*d->aba_dx.topRows(3);
+    d->dfdt_du = -Kv_*d->da_du;
+    d->dfdt_df = -Kv_*d->da_df;
+    d->dfdt_dx_copy = d->dfdt_dx;
+    d->dfdt_du_copy = d->dfdt_du;
+    d->dfdt_df_copy = d->dfdt_df;
     //Rotate dfout_dx if not LOCAL 
     if(ref_ != pinocchio::LOCAL){
-        oJ = pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED);
-        d->dfdt_dx.leftCols(nv)= oRf * ldfdt_dx_copy.leftCols(nv)- pinocchio::skew(oRf * d->fout_copy) * oJ.bottomRows(3);
-        d->dfdt_dx.rightCols(nv) = oRf * ldfdt_dx_copy.rightCols(nv);
-        d->dfdt_du = oRf * ldfdt_du_copy;
-        d->dfdt_df = oRf * ldfdt_df_copy;
+        pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED, d->oJ);
+        d->dfdt_dx.leftCols(nv)= d->oRf * d->dfdt_dx_copy.leftCols(nv)- pinocchio::skew(d->oRf * d->fout_copy) * d->oJ.bottomRows(3);
+        d->dfdt_dx.rightCols(nv) = d->oRf * d->dfdt_dx_copy.rightCols(nv);
+        d->dfdt_du = d->oRf * d->dfdt_du_copy;
+        d->dfdt_df = d->oRf * d->dfdt_df_copy;
     }
   }
   else {
     // Computing the free forward dynamics with ABA derivatives
-    pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation.tau, 
+    pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, 
                                                     d->aba_dq, d->aba_dv, d->aba_dtau);
     d->Fx.leftCols(nv)= d->aba_dq;
     d->Fx.rightCols(nv) = d->aba_dv;
-    d->Fx += d->pinocchio.Minv * d->multibody.actuation.dtau_dx;
-    d->Fu = d->aba_dtau * d->multibody.actuation.dtau_du;
+    d->Fx += d->pinocchio.Minv * d->multibody.actuation->dtau_dx;
+    d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
   }
 
   this->get_costs()->calcDiff(d->costs, x, u);
-  d->Lx = d->costs.Lx;
-  d->Lu = d->costs.Lu;
-  d->Lxx = d->costs.Lxx;
-  d->Lxu = d->costs.Lxu;
-  d->Luu = d->costs.Luu;
+  d->Lx = d->costs->Lx;
+  d->Lu = d->costs->Lu;
+  d->Lxx = d->costs->Lxx;
+  d->Lxu = d->costs->Lxu;
+  d->Luu = d->costs->Luu;
   // add hard-coded cost
   if(active_contact_ && with_force_cost_){
       d->f_residual = f - force_des_;
       d->Lf = force_weight_ * d->f_residual.transpose();
-      d->Lff = force_weight_ * np.eye(3);
+      d->Lff = force_weight_ * Matrix3s::Identity();
   }
 }
 

@@ -49,6 +49,7 @@ class DAMSoftContact3DAugmentedFwdDynamicsTpl
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::Vector3s Vector3s;
   typedef typename MathBase::MatrixXs MatrixXs;
+  typedef typename MathBase::Matrix3s Matrix3s;
 
   /**
    * @brief Initialize the soft contact forward-dynamics action model
@@ -205,6 +206,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
         oJ(6, model->get_state()->get_nv()),
         aba_dq(model->get_state()->get_nv(), model->get_state()->get_nv()),
         aba_dv(model->get_state()->get_nv(), model->get_state()->get_nv()),
+        aba_dx(model->get_state()->get_nv(), model->get_state()->get_ndx()),
         aba_dtau(model->get_state()->get_nv(), model->get_state()->get_nv()),
         aba_df(model->get_state()->get_nv(), 3),
         lv_dq(6, model->get_state()->get_nv()),
@@ -216,6 +218,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
         a_da(6, model->get_state()->get_nv()),
         da_dx(model->get_state()->get_nv(), model->get_state()->get_ndx()),
         da_du(model->get_state()->get_nv(), model->get_nu()),
+        da_df(model->get_state()->get_nv(), 3),
         dfdt_dx(3, model->get_state()->get_ndx()),
         dfdt_du(3, model->get_nu()),
         dfdt_dx_copy(3, model->get_state()->get_ndx()),
@@ -233,6 +236,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
     oJ.setZero();
     aba_dq.setZero();
     aba_dv.setZero();
+    aba_dx.setZero();
     aba_dtau.setZero();
     aba_df.setZero();
     lv.setZero();
@@ -248,6 +252,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
     a_da.setZero();
     da_dx.setZero();
     da_du.setZero();
+    da_df.setZero();
     f_copy.setZero();
     fout.setZero();
     fout_copy.setZero();
@@ -277,6 +282,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
   // Partials of ABA w.r.t. state and control
   MatrixXs aba_dq;
   MatrixXs aba_dv;
+  MatrixXs aba_dx;
   MatrixXs aba_dtau;
   MatrixXs aba_df;
   // Frame linear velocity and acceleration in LOCAL and LOCAL_WORLD_ALIGNED frames
@@ -296,6 +302,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
   // Partial of frame spatial acc w.r.t. state 
   MatrixXs da_dx;
   MatrixXs da_du;
+  MatrixXs da_df;
   // Current force and next force
   Vector3s f_copy;
   Vector3s fout;

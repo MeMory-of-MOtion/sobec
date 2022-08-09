@@ -40,26 +40,30 @@ void exposeDAMSoftContact3DAugmentedFwdDyn() {
       .def<void (DAMSoftContact3DAugmentedFwdDynamics::*)(
           const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&,
+          const Eigen::Ref<const Eigen::VectorXd>&,
           const Eigen::Ref<const Eigen::VectorXd>&)>(
           "calc", &DAMSoftContact3DAugmentedFwdDynamics::calc,
-          bp::args("self", "data", "x", "u"),
+          bp::args("self", "data", "x", "f", "u"),
           "Compute the next state and cost value.\n\n"
           "It describes the time-continuous evolution of the multibody system under a visco-elastic contact.\n"
           "Additionally it computes the cost value associated to this state and control pair.\n"
           ":param data: soft contact 3d forward-dynamics action data\n"
           ":param x: continuous-time state vector\n"
+          ":param f: continuous-time force vector\n"
           ":param u: continuous-time control input")
       .def<void (DAMSoftContact3DAugmentedFwdDynamics::*)(
           const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>&,
+          const Eigen::Ref<const Eigen::VectorXd>&, 
           const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calc", &DAMSoftContact3DAugmentedFwdDynamics::calc, bp::args("self", "data", "x"))
+          "calc", &DAMSoftContact3DAugmentedFwdDynamics::calc, bp::args("self", "data", "x", "f"))
       
       .def<void (DAMSoftContact3DAugmentedFwdDynamics::*)(
           const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>&,
           const Eigen::Ref<const Eigen::VectorXd>&,
+          const Eigen::Ref<const Eigen::VectorXd>&,
           const Eigen::Ref<const Eigen::VectorXd>&)>(
           "calcDiff", &DAMSoftContact3DAugmentedFwdDynamics::calcDiff,
-          bp::args("self", "data", "x", "u"),
+          bp::args("self", "data", "x", "f", "u"),
           "Compute the derivatives of the differential multibody system and\n"
           "its cost functions.\n\n"
           "It computes the partial derivatives of the differential multibody system and the\n"
@@ -68,11 +72,13 @@ void exposeDAMSoftContact3DAugmentedFwdDyn() {
           "action model (i.e. dynamical system and cost function).\n"
           ":param data: soft contact 3d differential forward-dynamics action data\n"
           ":param x: time-continuous state vector\n"
+          ":param x: time-continuous force vector\n"
           ":param u: time-continuous control input\n")
       .def<void (DAMSoftContact3DAugmentedFwdDynamics::*)(
           const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>&, 
+          const Eigen::Ref<const Eigen::VectorXd>&, 
           const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calcDiff", &DAMSoftContact3DAugmentedFwdDynamics::calcDiff, bp::args("self", "data", "x"))
+          "calcDiff", &DAMSoftContact3DAugmentedFwdDynamics::calcDiff, bp::args("self", "data", "x", "f"))
       .def("createData", &DAMSoftContact3DAugmentedFwdDynamics::createData,
            bp::args("self"), "Create the Euler integrator data.")
       .def("set_force_cost", &DAMSoftContact3DAugmentedFwdDynamics::set_force_cost,
@@ -140,57 +146,57 @@ void exposeDAMSoftContact3DAugmentedFwdDyn() {
           "oJ",
           bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::oJ,
                           bp::return_internal_reference<>()),
-          "Jacobian of the contact frame in LOCAL_WORLD_ALIGNED")
-      .add_property(
-          "lv_partial_dq",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::lv_partial_dq,
-                          bp::return_internal_reference<>()),
-          "Partial derivative of LOCAL contact frame velocity w.r.t. joint positions")
-      .add_property(
-          "lv_partial_dv",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::lv_partial_dv,
-                          bp::return_internal_reference<>()),
-          "Partial derivative of LOCAL contact frame velocity w.r.t. joint velocities")
-      .add_property(
-          "aba_dq",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::aba_dq,
-                          bp::return_internal_reference<>()),
-          "Partial derivative of joint acceleration w.r.t. joint positions")
-      .add_property(
-          "aba_dv",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::aba_dv,
-                          bp::return_internal_reference<>()),
-          "Partial derivative of joint accelerations w.r.t. joint velocities")
-      .add_property(
-          "aba_dtau",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::aba_dtau,
-                          bp::return_internal_reference<>()),
-          "Partial derivative of joint accelerations w.r.t. joint torques")
-      .add_property(
-          "df_dx",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::df_dx,
-                          bp::return_internal_reference<>()),
-          "Partial derivative of contact force w.r.t. state")
-      .add_property(
-          "df_dx_copy",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::df_dx_copy,
-                          bp::return_internal_reference<>()),
-          "Partial derivative of contact force w.r.t. state (copy)")
-      .add_property(
-          "pinForce",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::pinForce,
-                          bp::return_internal_reference<>()),
-          "Spatial wrench due to visco-elastic contact, expressed in LOCAL frame coordinates")
-      .add_property(
-          "fext",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::fext,
-                          bp::return_internal_reference<>()),
-          "Vector of spatial wrenches due to visco-elastic contact, expressed in LOCAL joint coordinates")
-      .add_property(
-          "fext_copy",
-          bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::fext_copy,
-                          bp::return_internal_reference<>()),
-          "Vector of spatial wrenches due to visco-elastic contact, expressed in LOCAL joint coordinates (copy)");
+          "Jacobian of the contact frame in LOCAL_WORLD_ALIGNED");
+    //   .add_property(
+    //       "lv_partial_dq",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::lv_partial_dq,
+    //                       bp::return_internal_reference<>()),
+    //       "Partial derivative of LOCAL contact frame velocity w.r.t. joint positions")
+    //   .add_property(
+    //       "lv_partial_dv",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::lv_partial_dv,
+    //                       bp::return_internal_reference<>()),
+    //       "Partial derivative of LOCAL contact frame velocity w.r.t. joint velocities")
+    //   .add_property(
+    //       "aba_dq",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::aba_dq,
+    //                       bp::return_internal_reference<>()),
+    //       "Partial derivative of joint acceleration w.r.t. joint positions")
+    //   .add_property(
+    //       "aba_dv",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::aba_dv,
+    //                       bp::return_internal_reference<>()),
+    //       "Partial derivative of joint accelerations w.r.t. joint velocities")
+    //   .add_property(
+    //       "aba_dtau",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::aba_dtau,
+    //                       bp::return_internal_reference<>()),
+    //       "Partial derivative of joint accelerations w.r.t. joint torques")
+    //   .add_property(
+    //       "df_dx",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::df_dx,
+    //                       bp::return_internal_reference<>()),
+    //       "Partial derivative of contact force w.r.t. state")
+    //   .add_property(
+    //       "df_dx_copy",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::df_dx_copy,
+    //                       bp::return_internal_reference<>()),
+    //       "Partial derivative of contact force w.r.t. state (copy)")
+    //   .add_property(
+    //       "pinForce",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::pinForce,
+    //                       bp::return_internal_reference<>()),
+    //       "Spatial wrench due to visco-elastic contact, expressed in LOCAL frame coordinates")
+    //   .add_property(
+    //       "fext",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::fext,
+    //                       bp::return_internal_reference<>()),
+    //       "Vector of spatial wrenches due to visco-elastic contact, expressed in LOCAL joint coordinates")
+    //   .add_property(
+    //       "fext_copy",
+    //       bp::make_getter(&sobec::DADSoftContact3DAugmentedFwdDynamics::fext_copy,
+    //                       bp::return_internal_reference<>()),
+    //       "Vector of spatial wrenches due to visco-elastic contact, expressed in LOCAL joint coordinates (copy)");
 }
 
 }  // namespace python
