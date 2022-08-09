@@ -45,7 +45,6 @@
 
 #include "sobec/crocomplements/activation-quad-ref.hpp"
 #include "sobec/crocomplements/residual-com-velocity.hpp"
-// #include "sobec/crocomplements/softcontact/soft-contact3d-fwddyn.hpp"
 
 namespace sobec {
 
@@ -149,6 +148,15 @@ typedef DifferentialActionModelSoftContact3DFwdDynamicsTpl<double> DifferentialA
 template <typename Scalar>
 class DifferentialActionDataSoftContact3DFwdDynamicsTpl;
 typedef DifferentialActionDataSoftContact3DFwdDynamicsTpl<double> DifferentialActionDataSoftContact3DFwdDynamics;
+
+// Soft contact3D DAM (augmented state)
+template <typename Scalar>
+class DAMSoftContact3DAugmentedFwdDynamicsTpl;
+typedef DAMSoftContact3DAugmentedFwdDynamicsTpl<double> DAMSoftContact3DAugmentedFwdDynamics;
+template <typename Scalar>
+class DADSoftContact3DAugmentedFwdDynamicsTpl;
+typedef DADSoftContact3DAugmentedFwdDynamicsTpl<double> DADSoftContact3DAugmentedFwdDynamics;
+
 
 }  // namespace sobec
 
