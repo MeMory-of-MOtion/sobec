@@ -101,8 +101,25 @@ void exposeDAMSoftContact3DFwdDyn() {
           bp::make_function(&DifferentialActionModelSoftContact3DFwdDynamics::get_force_des,
                             bp::return_value_policy<bp::return_by_value>()),
           &DifferentialActionModelSoftContact3DFwdDynamics::set_force_des,
-          "Desired force in the cost");
-
+          "Desired force in the cost")
+      .add_property(
+          "f_weight",
+          bp::make_function(&DifferentialActionModelSoftContact3DFwdDynamics::get_force_weight,
+                            bp::return_value_policy<bp::return_by_value>()),
+          &DifferentialActionModelSoftContact3DFwdDynamics::set_force_weight,
+          "Force cost weight")
+      .add_property(
+          "ref",
+          bp::make_function(&DifferentialActionModelSoftContact3DFwdDynamics::get_ref,
+                            bp::return_value_policy<bp::return_by_value>()),
+          &DifferentialActionModelSoftContact3DFwdDynamics::set_ref,
+          "Pinocchio reference frame")
+      .add_property(
+          "id",
+          bp::make_function(&DifferentialActionModelSoftContact3DFwdDynamics::get_id,
+                            bp::return_value_policy<bp::return_by_value>()),
+          &DifferentialActionModelSoftContact3DFwdDynamics::set_id,
+          "Contact frame id");
 
 
 

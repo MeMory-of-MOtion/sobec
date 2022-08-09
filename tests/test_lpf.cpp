@@ -619,8 +619,7 @@ void register_action_model_unit_tests(
                                       dam_type, ref_type, mask_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, iam_type,
                                       dam_type, ref_type, mask_type)));
-  ts->add(
-      BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
                                   iam_type, dam_type, ref_type, mask_type)));
   // seems incompatible with euler equivalence test
   // ts->add(
@@ -666,11 +665,13 @@ bool init_function() {
   for (size_t i = 0; i < ActionModelLPFTypes::all.size(); ++i) {
     for (size_t j = 0; j < DifferentialActionModelTypes::all.size(); ++j) {
       if (DifferentialActionModelTypes::all[j] ==
-              DifferentialActionModelTypes::
-                  DifferentialActionModelContact3DFwdDynamics_TalosArm ||
+          DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_TalosArm ||
           DifferentialActionModelTypes::all[j] ==
-              DifferentialActionModelTypes::
-                  DifferentialActionModelContact3DFwdDynamics_HyQ) {
+          DifferentialActionModelTypes::DifferentialActionModelContact3DFwdDynamics_HyQ ||
+          DifferentialActionModelTypes::all[j] ==
+          DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_TalosArm ||
+          DifferentialActionModelTypes::all[j] ==
+          DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_HyQ) {
         for (size_t k = 0; k < PinocchioReferenceTypes::all.size(); ++k) {
           register_action_model_unit_tests(ActionModelLPFTypes::all[i],
                                            DifferentialActionModelTypes::all[j],
