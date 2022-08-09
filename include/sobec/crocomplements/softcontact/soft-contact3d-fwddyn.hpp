@@ -45,7 +45,7 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
   typedef crocoddyl::ActuationModelAbstractTpl<Scalar> ActuationModelAbstract;
   typedef crocoddyl::DifferentialActionDataAbstractTpl<Scalar> DifferentialActionDataAbstract;
-  // typedef crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<Scalar> DifferentialActionDataFreeFwdDynamics;
+  typedef crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<Scalar> DifferentialActionDataFreeFwdDynamics;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::Vector3s Vector3s;
   typedef typename MathBase::MatrixXs MatrixXs;
@@ -132,9 +132,21 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
   
   void set_force_cost(const Vector3s& force_des, const Scalar force_weight);
 
+  void set_force_des(const Vector3s& inForceDes);
+
   void set_Kp(const Scalar inKp);
 
   void set_Kv(const Scalar inKv);
+
+  void set_oPc(const Vector3s& oPc);
+
+  const Scalar get_Kp() const;
+
+  const Scalar get_Kv() const;
+
+  const Vector3s& get_oPc() const;
+
+  const Vector3s& get_force_des() const;
 
   std::size_t get_nc() {return nc_;};
 
