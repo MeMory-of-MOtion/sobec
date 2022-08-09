@@ -105,33 +105,6 @@ void test_quasi_static(DifferentialActionModelTypes::Type action_type,
   model->calc(data, x, u);
 
   BOOST_CHECK(data->xout.norm() <= 1e-8);
-  // if((data->xout.norm() <= 1e-8) == false) {
-  //   std::cout << " xout = " << std::endl;
-  //   std::cout << data->xout << std::endl;
-  // }
-  // // Check for inactive contacts
-  // if (action_type == DifferentialActionModelTypes::
-  //                        DifferentialActionModelContact1DFwdDynamics_TalosArm ||
-  //     action_type == DifferentialActionModelTypes::
-  //                        DifferentialActionModelContact3DFwdDynamics_TalosArm ||
-  //     action_type == DifferentialActionModelTypes::
-  //                        DifferentialActionModelContact1DFwdDynamics_HyQ ||
-  //     action_type == DifferentialActionModelTypes::
-  //                        DifferentialActionModelContact3DFwdDynamics_HyQ) {
-  //   boost::shared_ptr<
-  //       sobec::newcontacts::DifferentialActionModelContactFwdDynamics>
-  //       m = boost::static_pointer_cast<
-  //           sobec::newcontacts::DifferentialActionModelContactFwdDynamics>(
-  //           model);
-  //   m->get_contacts()->changeContactStatus("lf", false);
-
-  //   model->quasiStatic(data, u, x);
-  //   model->calc(data, x, u);
-
-  //   // Checking that the acceleration is zero as supposed to be in a quasi
-  //   // static condition
-  //   BOOST_CHECK(data->xout.norm() <= 1e-8);
-  // }
 }
 
 void test_partial_derivatives_against_numdiff(
@@ -165,31 +138,31 @@ void test_partial_derivatives_against_numdiff(
 
   // Checking the partial derivatives against NumDiff
   double tol = sqrt(model_num_diff.get_disturbance());
-  if((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol) == false) {
-    boost::shared_ptr<sobec::DifferentialActionDataSoftContact3DFwdDynamics> data_cast = boost::static_pointer_cast<sobec::DifferentialActionDataSoftContact3DFwdDynamics>(data); 
-    // std::cout << " dv_dq = " << std::endl;
-    // std::cout << data_cast->lv_partial_dq << std::endl;
-    // std::cout << " dv_dv = " << std::endl;
-    // std::cout << data_cast->lv_partial_dv << std::endl;
-    std::cout << " df_dx = " << std::endl;
-    std::cout << data_cast->df_dx << std::endl;
-    std::cout << " aba_dq = " << std::endl;
-    std::cout << data_cast->aba_dq << std::endl;
-    std::cout << " aba_dv = " << std::endl;
-    std::cout << data_cast->aba_dv << std::endl;
-    std::cout << " aba_dtau = " << std::endl;
-    std::cout << data_cast->aba_dtau << std::endl;
-    std::cout << " Minv = " << std::endl;
-    std::cout << data_cast->pinocchio.Minv << std::endl;
-    std::cout << " lJ = " << std::endl;
-    std::cout << data_cast->lJ << std::endl;
-    std::cout << " Fx - Fx_ND = " << std::endl;
-    std::cout << data->Fx - data_num_diff->Fx << std::endl;
-  }
-  if((data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol) == false) {
-    std::cout << " Lx - Lx_ND = " << std::endl;
-    std::cout << data->Lx - data_num_diff->Lx << std::endl;
-  }
+  // if((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol) == false) {
+  //   boost::shared_ptr<sobec::DifferentialActionDataSoftContact3DFwdDynamics> data_cast = boost::static_pointer_cast<sobec::DifferentialActionDataSoftContact3DFwdDynamics>(data); 
+  //   // std::cout << " dv_dq = " << std::endl;
+  //   // std::cout << data_cast->lv_partial_dq << std::endl;
+  //   // std::cout << " dv_dv = " << std::endl;
+  //   // std::cout << data_cast->lv_partial_dv << std::endl;
+  //   std::cout << " df_dx = " << std::endl;
+  //   std::cout << data_cast->df_dx << std::endl;
+  //   std::cout << " aba_dq = " << std::endl;
+  //   std::cout << data_cast->aba_dq << std::endl;
+  //   std::cout << " aba_dv = " << std::endl;
+  //   std::cout << data_cast->aba_dv << std::endl;
+  //   std::cout << " aba_dtau = " << std::endl;
+  //   std::cout << data_cast->aba_dtau << std::endl;
+  //   std::cout << " Minv = " << std::endl;
+  //   std::cout << data_cast->pinocchio.Minv << std::endl;
+  //   std::cout << " lJ = " << std::endl;
+  //   std::cout << data_cast->lJ << std::endl;
+  //   std::cout << " Fx - Fx_ND = " << std::endl;
+  //   std::cout << data->Fx - data_num_diff->Fx << std::endl;
+  // }
+  // if((data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol) == false) {
+  //   std::cout << " Lx - Lx_ND = " << std::endl;
+  //   std::cout << data->Lx - data_num_diff->Lx << std::endl;
+  // }
   BOOST_CHECK((data->Fx - data_num_diff->Fx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Fu - data_num_diff->Fu).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((data->Lx - data_num_diff->Lx).isZero(NUMDIFF_MODIFIER * tol));
@@ -224,6 +197,84 @@ void test_partial_derivatives_against_numdiff(
     BOOST_CHECK((data_num_diff->Lxx).isZero(tol));
   }
 }
+
+
+
+void test_calc_equivalent_free(DifferentialActionModelTypes::Type action_type,
+                               PinocchioReferenceTypes::Type ref_type,
+                               ContactModelMaskTypes::Type mask_type) {
+  // create the model
+  DifferentialActionModelFactory factory;
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model =
+      factory.create(action_type, ref_type, mask_type);
+  boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics> modelsoft = boost::static_pointer_cast<sobec::DifferentialActionModelSoftContact3DFwdDynamics>(model); 
+  boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract> data = modelsoft->createData();
+  
+  // Create DAM free
+  boost::shared_ptr<crocoddyl::StateMultibody> statemb = boost::static_pointer_cast<crocoddyl::StateMultibody>(modelsoft->get_state()); 
+  boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics> modelfree =
+      boost::make_shared<crocoddyl::DifferentialActionModelFreeFwdDynamics>(
+          statemb, modelsoft->get_actuation(), modelsoft->get_costs());
+  const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>& datafree = modelfree->createData();
+
+  // Generating random state and control vectors
+  const Eigen::VectorXd x = modelsoft->get_state()->rand();
+  const Eigen::VectorXd u = Eigen::VectorXd::Random(modelsoft->get_nu());
+  // Set 0 stiffness and damping
+  modelsoft->set_Kp(0.);
+  modelsoft->set_Kv(0.);
+
+  // Getting the state dimension from calc() call
+  modelsoft->calc(data, x, u);
+  modelfree->calc(datafree, x, u);
+
+  BOOST_CHECK((data->xout - datafree->xout).norm() <= 1e-8);
+  BOOST_CHECK((data->xout - datafree->xout).isZero(1e-6));
+}
+
+
+void test_calcDiff_equivalent_free(DifferentialActionModelTypes::Type action_type,
+                               PinocchioReferenceTypes::Type ref_type,
+                               ContactModelMaskTypes::Type mask_type) {
+  // create the model
+  DifferentialActionModelFactory factory;
+  boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> model =
+      factory.create(action_type, ref_type, mask_type);
+  boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics> modelsoft = boost::static_pointer_cast<sobec::DifferentialActionModelSoftContact3DFwdDynamics>(model); 
+  boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract> data = modelsoft->createData();
+  
+  // Create DAM free
+  boost::shared_ptr<crocoddyl::StateMultibody> statemb = boost::static_pointer_cast<crocoddyl::StateMultibody>(modelsoft->get_state()); 
+  boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics> modelfree =
+      boost::make_shared<crocoddyl::DifferentialActionModelFreeFwdDynamics>(
+          statemb, modelsoft->get_actuation(), modelsoft->get_costs());
+  const boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract>& datafree = modelfree->createData();
+
+  // Generating random state and control vectors
+  const Eigen::VectorXd x = modelsoft->get_state()->rand();
+  const Eigen::VectorXd u = Eigen::VectorXd::Random(modelsoft->get_nu());
+  // Set 0 stiffness and damping
+  modelsoft->set_Kp(0.);
+  modelsoft->set_Kv(0.);
+
+  // Getting the state dimension from calc() call
+  modelsoft->calc(data, x, u);
+  modelsoft->calcDiff(data, x, u);
+  modelfree->calc(datafree, x, u);
+  modelfree->calcDiff(datafree, x, u);
+
+  // Checking the partial derivatives against NumDiff
+  double tol = 1e-6;
+  BOOST_CHECK((data->Fx - datafree->Fx).isZero(tol));
+  BOOST_CHECK((data->Fu - datafree->Fu).isZero(tol));
+  BOOST_CHECK((data->Lx - datafree->Lx).isZero(tol));
+  BOOST_CHECK((data->Lu - datafree->Lu).isZero(tol));
+  BOOST_CHECK((data->Lxx - datafree->Lxx).isZero(tol));
+  BOOST_CHECK((data->Lxu - datafree->Lxu).isZero(tol));
+  BOOST_CHECK((data->Luu - datafree->Luu).isZero(tol));
+}
+
+
 
 //----------------------------------------------------------------------------//
 
@@ -289,6 +340,11 @@ void register_action_model_unit_tests(
         boost::bind(&test_quasi_static, action_type, ref_type, mask_type)));
   }
   // Test equivalence with Euler for soft contact when Kp, Kv = 0
+  if(action_type == DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_TalosArm ||
+     action_type == DifferentialActionModelTypes::DifferentialActionModelSoftContact3DFwdDynamics_HyQ){
+    ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_equivalent_free, action_type, ref_type, mask_type)));
+    ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_equivalent_free, action_type, ref_type, mask_type)));
+  }
   framework::master_test_suite().add(ts);
 }
 
