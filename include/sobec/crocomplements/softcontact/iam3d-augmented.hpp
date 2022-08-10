@@ -17,6 +17,7 @@
 #include <pinocchio/multibody/model.hpp>
 
 #include "state.hpp"
+#include "dam3d-augmented.hpp"
 
 namespace sobec {
 using namespace crocoddyl;
@@ -68,17 +69,17 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
 
   virtual bool checkData(const boost::shared_ptr<ActionDataAbstract>& data);
 
-  virtual void quasiStatic(const boost::shared_ptr<ActionDataAbstract>& data,
-                           Eigen::Ref<VectorXs> u,
-                           const Eigen::Ref<const VectorXs>& x,
-                           const std::size_t& maxiter = 100,
-                           const Scalar& tol = Scalar(1e-9));
+//   virtual void quasiStatic(const boost::shared_ptr<ActionDataAbstract>& data,
+//                            Eigen::Ref<VectorXs> u,
+//                            const Eigen::Ref<const VectorXs>& x,
+//                            const std::size_t& maxiter = 100,
+//                            const Scalar& tol = Scalar(1e-9));
 
   const boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics>& get_differential()
       const;
   const Scalar& get_dt() const;
 
-//   const std::size_t& get_nu() const { return nu_; };
+  const std::size_t& get_nc() const { return nc_; };
   const std::size_t& get_ny() const { return ny_; };
 
   void set_dt(const Scalar& dt);
@@ -122,8 +123,8 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
   typedef pinocchio::DataTpl<Scalar> PinocchioData;
   typedef DifferentialActionDataAbstractTpl<Scalar>
       DifferentialActionDataAbstract;
-  typedef DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar>
-      DADSoftContact3DAugmentedFwdDynamics;
+//   typedef DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar>
+//       DADSoftContact3DAugmentedFwdDynamics;
   typedef ActivationDataQuadraticBarrierTpl<Scalar>
       ActivationDataQuadraticBarrier;  // for lim cost
 
@@ -140,7 +141,7 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
   }
   virtual ~IADSoftContact3DAugmentedTpl() {}
 
-  boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar> > differential;
+  boost::shared_ptr<DifferentialActionDataAbstractTpl<Scalar> > differential;
   VectorXs dy;
 
   // PinocchioData pinocchio;                                       // for reg

@@ -50,17 +50,17 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
     const Eigen::Ref<const VectorXs>& u) {
   const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nx = differential_->get_state()->get_nx();
-  const std::size_t& nu = differential_->get_nu();
+  const std::size_t& nu_ = differential_->get_nu();
 
   if (static_cast<std::size_t>(y.size()) != ny_) {
     throw_pretty("Invalid argument: "
                  << "y has wrong dimension (it should be " +
                         std::to_string(ny_) + ")");
   }
-  if (static_cast<std::size_t>(u.size()) != nu) {
+  if (static_cast<std::size_t>(u.size()) != nu_) {
     throw_pretty("Invalid argument: "
                  << "u has wrong dimension (it should be " +
-                        std::to_string(nu) + ")");
+                        std::to_string(nu_) + ")");
   }
 
   // Static casting the data
@@ -87,10 +87,10 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
                    boost::static_pointer_cast<StateSoftContact>(state_)->get_ndy()) +
                ")");
   }
-  if (static_cast<std::size_t>(d->Fw.cols()) != nu) {
+  if (static_cast<std::size_t>(d->Fw.cols()) != nu_) {
     throw_pretty("Invalid argument: "
                  << "Fw.cols() has wrong dimension (it should be " +
-                        std::to_string(nu) + ")");
+                        std::to_string(nu_) + ")");
   }
   if (static_cast<std::size_t>(d->r.size()) !=
       differential_->get_nr() + nc_) {
@@ -108,10 +108,10 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
                    boost::static_pointer_cast<StateSoftContact>(state_)->get_ndy()) +
                ")");
   }
-  if (static_cast<std::size_t>(d->Lw.size()) != nu) {
+  if (static_cast<std::size_t>(d->Lw.size()) != nu_) {
     throw_pretty("Invalid argument: "
                  << "Lw has wrong dimension (it should be " +
-                        std::to_string(nu) + ")");
+                        std::to_string(nu_) + ")");
   }
 
   // Compute acceleration and cost (DAM, i.e. CT model)
@@ -121,15 +121,15 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
   // Computing the next state x+ = x + dx and cost+ = dt*cost
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
   const VectorXs& a = d->differential->xout;
-  const VectorXs& fdot = d->differential->fout;
+  const VectorXs& fdot = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->fout;
   d->dy.head(nv).noalias() = v * time_step_ + a * time_step2_;
   d->dy.segment(nv, nv).noalias() = a * time_step_;
-  d->dy.tail(nc).noalias() = fdot * time_step_;
+  d->dy.tail(nc_).noalias() = fdot * time_step_;
   state_->integrate(y, d->dy, d->ynext);
   d->cost = time_step_ * d->differential->cost;
   if (with_cost_residual_) {
     d->r.head(differential_->get_nr()) = d->differential->r;
-    d->r.tail(nc_) = d->f_residual;
+    d->r.tail(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->f_residual;
   }
 }  // calc
 
@@ -158,7 +158,7 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
   // Update RESIDUAL
   if (with_cost_residual_) {
     d->r.head(differential_->get_nr()) = d->differential->r;
-    d->r.tail(nc_) = d->f_residual;
+    d->r.tail(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->f_residual;
   }
 }  // calc
 
@@ -176,10 +176,10 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
                  << "y has wrong dimension (it should be " +
                         std::to_string(ny_) + ")");
   }
-  if (static_cast<std::size_t>(u.size()) != nu) {
+  if (static_cast<std::size_t>(u.size()) != nu_) {
     throw_pretty("Invalid argument: "
                  << "u has wrong dimension (it should be " +
-                        std::to_string(nu) + ")");
+                        std::to_string(nu_) + ")");
   }
 
   // Static casting the data
@@ -201,15 +201,15 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
   d->Fw.bottomRows(nv).noalias() = time_step_ * da_du;
 
   // New block from augmented dynamics (top right corner)
-  d->Fy.topRightCorner(nv, nc_) = d->differential.dABA_df * time_step2_;
-  d->Fy.block(nv, ndx, nv, nc_) = d->differential.dABA_df * time_step_;
+  d->Fy.topRightCorner(nv, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->aba_df * time_step2_;
+  d->Fy.block(nv, ndx, nv, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->aba_df * time_step_;
   // New block from augmented dynamics (bottom right corner)
-  d->Fy.bottomRightCorner(nc_, nc_) = d->differential.dfdt_df*time_step_;
+  d->Fy.bottomRightCorner(nc_, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->dfdt_df*time_step_;
   d->Fy.bottomRightCorner(nc_, nc_).diagonal().array() += Scalar(1.);
   // New block from augmented dynamics (bottom left corner)
-  d->Fy.bottomLeftCorner(nc_, ndx) = d->differential.dfdt_dx * time_step_;
+  d->Fy.bottomLeftCorner(nc_, ndx) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->dfdt_dx * time_step_;
 
-  d->Fw.bottomRows(nc_) = d->differential.dfdt_du * time_step_;
+  d->Fw.bottomRows(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->dfdt_du * time_step_;
   state_->JintegrateTransport(y, d->dy, d->Fy, second);
   
   state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);
@@ -218,11 +218,11 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
   state_->JintegrateTransport(y, d->dy, d->Fw, second);
 
   // d->Lx.noalias() = time_step_ * d->differential->Lx;
-  d->Ly[:ndx] = d->differential->Lx*time_step_;
-  d->Ly[-nc:] = d->differential->Lf*time_step_;
-  d->Lyy[:ndx,:ndx] = d->differential->Lxx*time_step_;
-  d->Lyy[-nc:,-nc:] = d->differential->Lff*time_step_;
-  d->Lyw[:ndx, :nu] = d->differential->Lxu*time_step_;
+  d->Ly.head(ndx) = d->differential->Lx*time_step_;
+  d->Ly.tail(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->Lf*time_step_;
+  d->Lyy.topLeftCorner(ndx, ndx) = d->differential->Lxx*time_step_;
+  d->Lyy.bottomRightCorner(nc_, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->Lff*time_step_;
+  d->Lyw.topLeftCorner(ndx, nu_) = d->differential->Lxu*time_step_;
   d->Lw = d->Lu*time_step_;
   d->Lww = d->Luu*time_step_;
 }
@@ -246,7 +246,7 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
   const Eigen::Ref<const VectorXs>& x = y.head(nx);   // get q,v_q
   const Eigen::Ref<const VectorXs>& f = y.tail(nc_);  // get f
   // Get partials of CT model a_q ('f'), cost w.r.t. (q,v,tau)
-  differential_->calcDiff(d->differential, x, f, u);
+  differential_->calcDiff(d->differential, x, f);
   state_->Jintegrate(y, d->dy, d->Fy, d->Fy);
   // d->Fw.setZero();
   // d(cost+)/dy
@@ -282,10 +282,6 @@ const Scalar& IAMSoftContact3DAugmentedTpl<Scalar>::get_dt() const {
   return time_step_;
 }
 
-template <typename Scalar>
-const Scalar& IAMSoftContact3DAugmentedTpl<Scalar>::get_fc() const {
-  return fc_;
-}
 
 template <typename Scalar>
 void IAMSoftContact3DAugmentedTpl<Scalar>::set_dt(const Scalar& dt) {
@@ -297,51 +293,6 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::set_dt(const Scalar& dt) {
   time_step2_ = dt * dt;
 }
 
-template <typename Scalar>
-void IAMSoftContact3DAugmentedTpl<Scalar>::set_fc(const Scalar& fc) {
-  // Set the cut-off frequency
-  if (fc <= 0.) {
-    throw_pretty("Invalid argument: "
-                 << "fc must be positive");
-  } else {
-    fc_ = fc;
-  }
-}
-
-template <typename Scalar>
-void IAMSoftContact3DAugmentedTpl<Scalar>::set_alpha(const Scalar& alpha) {
-  // Set the cut-off frequency
-  if (alpha < 0. || alpha > 1) {
-    throw_pretty("Invalid argument: "
-                 << "alpha must be in [0,1]");
-  } else {
-    alpha_ = alpha;
-  }
-}
-
-template <typename Scalar>
-void IAMSoftContact3DAugmentedTpl<Scalar>::compute_alpha(const Scalar& fc) {
-  // Update alpha parameter
-  if (fc > 0 && time_step_ != 0) {
-    const Scalar& pi = 3.14159;
-    // Exponential Moving Average (EMA) (IIR filter) >> quite sharp
-    if (filter_ == 0) {
-      alpha_ = exp(-2. * pi * fc * time_step_);
-    }
-    // Using the formula "fc = 1/2*pi*RC" ??? >> less sharp
-    if (filter_ == 1) {
-      double omega = 1 / (2. * pi * time_step_ * fc);
-      alpha_ = omega / (omega + 1);
-    }
-    // Exact formula to get fc out of EMA's alpha >> inbetween sharp
-    if (filter_ == 2) {
-      double y = cos(2. * pi * time_step_ * fc);
-      alpha_ = 1 - (y - 1 + sqrt(y * y - 4 * y + 3));
-    }
-  } else {
-    alpha_ = 0;
-  }
-}
 
 template <typename Scalar>
 void IAMSoftContact3DAugmentedTpl<Scalar>::set_differential(
@@ -351,7 +302,7 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::set_differential(
     nu_ = nu;
     unone_ = VectorXs::Zero(nu_);
   }
-  nr_ = model->get_nr() + 2 * nc_;
+  nr_ = model->get_nr() + nc_;
   state_ = boost::static_pointer_cast<StateSoftContact>(
       model->get_state());  // cast StateAbstract from DAM as StateSoftContact for IAM
   differential_ = model;
@@ -359,48 +310,27 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::set_differential(
   Base::set_u_ub(differential_->get_u_ub());
 }
 
-template <typename Scalar>
-void IAMSoftContact3DAugmentedTpl<Scalar>::set_control_reg_cost(
-    const Scalar& weight, const VectorXs& ref) {
-  if (weight < 0.) {
-    throw_pretty("cost weight is positive ");
-  }
-  if ((std::size_t)ref.size() != (std::size_t)(nc_)) {
-    throw_pretty("cost ref must have size " << nc_);
-  }
-  tauReg_weight_ = weight;
-  tauReg_reference_ = ref;
-}
+// template <typename Scalar>
+// void IAMSoftContact3DAugmentedTpl<Scalar>::quasiStatic(
+//     const boost::shared_ptr<ActionDataAbstract>& data, Eigen::Ref<VectorXs> u,
+//     const Eigen::Ref<const VectorXs>& x, 
+//     const std::size_t& maxiter,
+//     const Scalar& tol) {
+//   if (static_cast<std::size_t>(u.size()) != nu_) {
+//     throw_pretty("Invalid argument: "
+//                  << "u has wrong dimension (it should be " +
+//                         std::to_string(nu_) + ")");
+//   }
+//   if (static_cast<std::size_t>(x.size()) != state_->get_nx()) {
+//     throw_pretty("Invalid argument: "
+//                  << "x has wrong dimension (it should be " +
+//                         std::to_string(state_->get_nx()) + ")");
+//   }
 
-template <typename Scalar>
-void IAMSoftContact3DAugmentedTpl<Scalar>::set_control_lim_cost(
-    const Scalar& weight) {
-  if (weight < 0.) {
-    throw_pretty("cost weight is positive ");
-  }
-  tauLim_weight_ = weight;
-}
+//   // Static casting the data
+//   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
 
-template <typename Scalar>
-void IAMSoftContact3DAugmentedTpl<Scalar>::quasiStatic(
-    const boost::shared_ptr<ActionDataAbstract>& data, Eigen::Ref<VectorXs> u,
-    const Eigen::Ref<const VectorXs>& x, const std::size_t& maxiter,
-    const Scalar& tol) {
-  if (static_cast<std::size_t>(u.size()) != nu_) {
-    throw_pretty("Invalid argument: "
-                 << "u has wrong dimension (it should be " +
-                        std::to_string(nu_) + ")");
-  }
-  if (static_cast<std::size_t>(x.size()) != state_->get_nx()) {
-    throw_pretty("Invalid argument: "
-                 << "x has wrong dimension (it should be " +
-                        std::to_string(state_->get_nx()) + ")");
-  }
-
-  // Static casting the data
-  boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
-
-  differential_->quasiStatic(d->differential, u, x, maxiter, tol);
-}
+//   differential_->quasiStatic(d->differential, u, x, maxiter, tol);
+// }
 
 }  // namespace sobec
