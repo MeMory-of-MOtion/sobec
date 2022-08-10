@@ -38,10 +38,14 @@ std::ostream& operator<<(std::ostream& os,
         DAMSoftContact3DAugmentedFwdDynamics_HyQ:
       os << "DAMSoftContact3DAugmentedFwdDynamics_HyQ";
       break;
-    // case DAMSoftContactTypes::
-    //     DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid:
-    //   os << "DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid";
-    //   break;
+    case DAMSoftContactTypes::
+        DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid:
+      os << "DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid";
+      break;
+    case DAMSoftContactTypes::
+        DAMSoftContact3DAugmentedFwdDynamics_Talos:
+      os << "DAMSoftContact3DAugmentedFwdDynamics_Talos";
+      break;
     default:
       break;
   }
@@ -70,14 +74,20 @@ DAMSoftContactFactory::create(DAMSoftContactTypes::Type dam_type,
           StateModelTypes::StateMultibody_HyQ,
           ActuationModelTypes::ActuationModelFloatingBase, ref_type);
       break;
-    // // RandmHumanoid  
-    // case DAMSoftContactTypes::
-    //     DAMSoftContact3DAugmentedFwdDynamics_HyQ:
-    //   action = create_contact3DFwdDynamics(
-    //       StateModelTypes::StateMultibody_HyQ,
-    //       ActuationModelTypes::ActuationModelFloatingBase, ref_type);
-    //   break;
-
+    // RandmHumanoid  
+    case DAMSoftContactTypes::
+        DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid:
+      action = create_augmentedDAMSoft3D(
+          StateModelTypes::StateMultibody_RandomHumanoid,
+          ActuationModelTypes::ActuationModelFloatingBase, ref_type);
+      break;
+    // Talos  
+    case DAMSoftContactTypes::
+        DAMSoftContact3DAugmentedFwdDynamics_Talos:
+      action = create_augmentedDAMSoft3D(
+          StateModelTypes::StateMultibody_Talos,
+          ActuationModelTypes::ActuationModelFloatingBase, ref_type);
+      break;
     default:
       throw_pretty(__FILE__ ": Wrong DAMSoftContactTypes::Type given");
       break;
@@ -123,7 +133,15 @@ DAMSoftContactFactory::create_augmentedDAMSoft3D(StateModelTypes::Type state_typ
       break;
     }
     case StateModelTypes::StateMultibody_HyQ: {
-      frameName = "lf_foot";
+      frameName = "rh_haa_joint";
+      break;
+    }
+    case StateModelTypes::StateMultibody_RandomHumanoid: {
+      frameName = "rleg6_body";
+      break;
+    }
+    case StateModelTypes::StateMultibody_Talos: {
+      frameName = "arm_right_7_link";
       break;
     }
     default:

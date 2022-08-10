@@ -86,7 +86,6 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
   pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
   pinocchio::updateFramePlacements(this->get_pinocchio(), d->pinocchio);
   d->oRf = d->pinocchio.oMf[frameId_].rotation();
-  
   // Actuation calc
   this->get_actuation()->calc(d->multibody.actuation, x, u);
   
@@ -183,24 +182,21 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
   const std::size_t nv = this->get_state()->get_nv();
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q = x.head(this->get_state()->get_nq());
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
-  
   Data* d = static_cast<Data*>(data.get());
-
   d->oRf = d->pinocchio.oMf[frameId_].rotation();
-
   // Actuation calcDiff
   this->get_actuation()->calcDiff(d->multibody.actuation, x, u);
   
   // If contact is active, compute ABA derivatives + force
   if(active_contact_){
     // Compute Jacobian
-    pinocchio::framesForwardKinematics(this->get_pinocchio(), d->pinocchio, q);
+    // pinocchio::framesForwardKinematics(this->get_pinocchio(), d->pinocchio, q);
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
 
     // Derivatives of d->xout (ABA) w.r.t. x and u in LOCAL (same in WORLD)
     pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext, 
                                                                 d->aba_dq, d->aba_dv, d->aba_dtau);
-    d->Fx.leftCols(nv)= d->aba_dq;
+    d->Fx.leftCols(nv) = d->aba_dq;
     d->Fx.rightCols(nv) = d->aba_dv; 
     d->Fx += d->aba_dtau * d->multibody.actuation->dtau_dx;
     d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
@@ -214,16 +210,13 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
         d->aba_df = d->aba_df * d->oRf.transpose();
     }
     // Derivatives of d->fout in LOCAL : important >> UPDATE FORWARD KINEMATICS with d->xout
-    pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
-    pinocchio::forwardKinematics(this->get_pinocchio(), d->pinocchio, q, v, d->xout);
-    pinocchio::updateFramePlacements(this->get_pinocchio(), d->pinocchio);
     pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, 
                                                     d->lv_dq, d->lv_dv);
     d->lv_dx.leftCols(nv) = d->lv_dq;
     d->lv_dx.rightCols(nv) = d->lv_dv;
+    // Derivatives of spatial acc w.r.t. (x, f, u)
     pinocchio::getFrameAccelerationDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, 
                                                     d->v_dv, d->a_dq, d->a_dv, d->a_da);
-    // Derivatives of spatial acc w.r.t. (x, f, u)
     d->da_dx.topRows(3).leftCols(nv) = d->a_dq.topRows(3) + d->a_da.topRows(3) * d->Fx.leftCols(nv); 
     d->da_dx.topRows(3).rightCols(nv) = d->a_dv.topRows(3) + d->a_da.topRows(3) * d->Fx.rightCols(nv); 
     d->da_du.topRows(3) = d->a_da.topRows(3) * d->Fu;
@@ -238,7 +231,7 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     //Rotate dfout_dx if not LOCAL 
     if(ref_ != pinocchio::LOCAL){
         pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED, d->oJ);
-        d->dfdt_dx.leftCols(nv)= d->oRf * d->dfdt_dx_copy.leftCols(nv)- pinocchio::skew(d->oRf * d->fout_copy) * d->oJ.bottomRows(3);
+        d->dfdt_dx.leftCols(nv) = d->oRf * d->dfdt_dx_copy.leftCols(nv)- pinocchio::skew(d->oRf * d->fout_copy) * d->oJ.bottomRows(3);
         d->dfdt_dx.rightCols(nv) = d->oRf * d->dfdt_dx_copy.rightCols(nv);
         d->dfdt_du = d->oRf * d->dfdt_du_copy;
         d->dfdt_df = d->oRf * d->dfdt_df_copy;
@@ -250,7 +243,7 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
                                                     d->aba_dq, d->aba_dv, d->aba_dtau);
     d->Fx.leftCols(nv) = d->aba_dq;
     d->Fx.rightCols(nv) = d->aba_dv;
-    d->Fx += d->pinocchio.Minv * d->multibody.actuation->dtau_dx;
+    d->Fx += d->aba_dtau * d->multibody.actuation->dtau_dx;
     d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
   }
 

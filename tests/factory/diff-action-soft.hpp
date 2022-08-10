@@ -25,7 +25,8 @@ struct DAMSoftContactTypes {
   enum Type {
     DAMSoftContact3DAugmentedFwdDynamics_TalosArm,
     DAMSoftContact3DAugmentedFwdDynamics_HyQ,
-    // DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid,
+    DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid,
+    DAMSoftContact3DAugmentedFwdDynamics_Talos,
     NbDAMSoftContactTypes
   };
   static std::vector<Type> init_all() {

@@ -70,6 +70,7 @@ void test_calc_returns_a_cost(DAMSoftContactTypes::Type action_type,
   BOOST_CHECK(!std::isnan(data->cost));
 }
 
+
 void test_partial_derivatives_against_numdiff(
     DAMSoftContactTypes::Type action_type,
     PinocchioReferenceTypes::Type ref_type) {
@@ -83,7 +84,6 @@ void test_partial_derivatives_against_numdiff(
   std::size_t nx = model->get_state()->get_nx();
   std::size_t nc = model->get_nc();
   std::size_t nu = model->get_nu();
-  //   boost::shared_ptr<sobec::StateSoftContact> stateSoftContact = boost::make_shared<sobec::StateSoftContact>(model->get_pinocchio(), model->get_nc());
   Eigen::VectorXd x = model->get_state()->rand();
   Eigen::VectorXd f = Eigen::VectorXd::Random(nc);
   Eigen::VectorXd u = Eigen::VectorXd::Random(nu);
@@ -141,7 +141,7 @@ void test_partial_derivatives_against_numdiff(
     const Eigen::VectorXd& xn = data_idf_cast->xout;
     const Eigen::VectorXd& fn = data_idf_cast->fout;
     const double c = data_idf_cast->cost;
-    // data_num_diff->Ff.col(idf) = (xn - xn0) / disturbance;
+    data_num_diff_cast->aba_df.col(idf) = (xn - xn0) / disturbance;
     data_num_diff_cast->dfdt_df.col(idf) = (fn - fn0) / disturbance;
     data_num_diff_cast->Lf(idf) = (c - c0) / disturbance;
     df(idf) = 0.0;
@@ -165,8 +165,21 @@ void test_partial_derivatives_against_numdiff(
   // Checking the partial derivatives against NumDiff
   boost::shared_ptr<sobec::DADSoftContact3DAugmentedFwdDynamics> datacast = boost::static_pointer_cast<sobec::DADSoftContact3DAugmentedFwdDynamics>(data);
   double tol = sqrt(disturbance);
+//   if(action_type == DAMSoftContactTypes::DAMSoftContact3DAugmentedFwdDynamics_HyQ){
+//     std::cout << "aba_df" << std::endl;
+//     std::cout << datacast->aba_df << std::endl;
+//     std::cout << "aba_df_nd" << std::endl;
+//     std::cout << data_num_diff_cast->aba_df << std::endl;
+
+//     std::cout << "dfdt_df" << std::endl;
+//     std::cout << datacast->dfdt_df << std::endl;
+//     std::cout << "dfdt_df_nd" << std::endl;
+//     std::cout << data_num_diff_cast->dfdt_df << std::endl;
+//   }
   BOOST_CHECK((datacast->Fx - data_num_diff_cast->Fx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((datacast->Fu - data_num_diff_cast->Fu).isZero(NUMDIFF_MODIFIER * tol));
+  BOOST_CHECK((datacast->aba_df - data_num_diff_cast->aba_df).isZero(NUMDIFF_MODIFIER * tol));
+// //   BOOST_CHECK((datacast->aba_dtau - data_num_diff_cast->aba_dtau).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((datacast->dfdt_dx - data_num_diff_cast->dfdt_dx).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((datacast->dfdt_df - data_num_diff_cast->dfdt_df).isZero(NUMDIFF_MODIFIER * tol));
   BOOST_CHECK((datacast->dfdt_du - data_num_diff_cast->dfdt_du).isZero(NUMDIFF_MODIFIER * tol));
@@ -247,19 +260,7 @@ void test_calcDiff_equivalent_free(DAMSoftContactTypes::Type action_type,
 void register_action_model_unit_tests(DAMSoftContactTypes::Type action_type,
                                       PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL) {
   boost::test_tools::output_test_stream test_name;
-  switch (action_type) {
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_TalosArm:
-      test_name << "test_" << action_type << "_" << ref_type;
-      break;
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_HyQ:
-      test_name << "test_" << action_type << "_" << ref_type;
-      break;
-    default:
-      throw_pretty(__FILE__ ": Wrong DAMSoftContactTypes::Type given");
-      break;
-  }
+  test_name << "test_" << action_type << "_" << ref_type;
   std::cout << "Running " << test_name.str() << std::endl;
   test_suite* ts = BOOST_TEST_SUITE(test_name.str());
   ts->add(BOOST_TEST_CASE(boost::bind(&test_check_data, action_type, ref_type)));
