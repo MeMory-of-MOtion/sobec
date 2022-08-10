@@ -9,6 +9,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
   factory/lpf.hpp
   factory/diff-action-soft.hpp
   factory/diff-action.hpp
+  factory/action-soft.hpp
   factory/actuation.hpp
   factory/contact3d.hpp
   factory/contact1d.hpp
@@ -21,6 +22,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
   factory/lpf.cpp
   factory/diff-action.cpp
   factory/diff-action-soft.cpp
+  factory/action-soft.cpp
   factory/actuation.cpp
   factory/contact3d.cpp
   factory/contact1d.cpp

@@ -123,8 +123,8 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
   typedef pinocchio::DataTpl<Scalar> PinocchioData;
   typedef DifferentialActionDataAbstractTpl<Scalar>
       DifferentialActionDataAbstract;
-//   typedef DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar>
-//       DADSoftContact3DAugmentedFwdDynamics;
+  typedef DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar>
+      DADSoftContact3DAugmentedFwdDynamics;
   typedef ActivationDataQuadraticBarrierTpl<Scalar>
       ActivationDataQuadraticBarrier;  // for lim cost
 
