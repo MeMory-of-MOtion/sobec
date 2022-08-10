@@ -14,7 +14,7 @@
 #include <crocoddyl/core/utils/exception.hpp>
 
 #include "pinocchio_model.hpp"
-#include "sobec/crocomplements/softcontact/state-soft-contact.hpp"
+#include "sobec/crocomplements/softcontact/state.hpp"
 #include "state.hpp"
 
 namespace sobec {

@@ -16,7 +16,7 @@
 #include <pinocchio/algorithm/rnea-derivatives.hpp>
 #include <pinocchio/algorithm/rnea.hpp>
 
-#include "soft-contact3d-fwddyn.hpp"
+#include "dam3d.hpp"
 
 namespace sobec {
 

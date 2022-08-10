@@ -17,7 +17,7 @@
 #include "contact1d.hpp"
 #include "contact3d.hpp"
 #include "sobec/crocomplements/contact/contact-fwddyn.hpp"
-#include "sobec/crocomplements/softcontact/soft-contact3d-fwddyn.hpp"
+#include "sobec/crocomplements/softcontact/dam3d.hpp"
 #include "state.hpp"
 
 namespace sobec {

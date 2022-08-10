@@ -6,8 +6,8 @@
 // individual files. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SOBEC_SOFTCONTACT3D_FWDDYN_HPP_
-#define SOBEC_SOFTCONTACT3D_FWDDYN_HPP_
+#ifndef SOBEC_SOFTCONTACT3D_AUGMENTED_FWDDYN_HPP_
+#define SOBEC_SOFTCONTACT3D_AUGMENTED_FWDDYN_HPP_
 
 #include <stdexcept>
 
@@ -24,7 +24,7 @@ namespace sobec {
 
 /**
  * @brief Differential action model for visco-elastic contact forward dynamics in multibody
- * systems.
+ * systems (augmented dynamics including contact force as a state, designed specifically for force feedback MPC)
  *
  * Maths here : https://www.overleaf.com/read/xdpymjfhqqhn
  *
@@ -32,14 +32,14 @@ namespace sobec {
  * `createData()`
  */
 template <typename _Scalar>
-class DifferentialActionModelSoftContact3DFwdDynamicsTpl
+class DAMSoftContact3DAugmentedFwdDynamicsTpl
     : public crocoddyl::DifferentialActionModelFreeFwdDynamicsTpl<_Scalar> {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;
   typedef crocoddyl::DifferentialActionModelFreeFwdDynamicsTpl<Scalar> Base;
-  typedef DifferentialActionDataSoftContact3DFwdDynamicsTpl<Scalar> Data;
+  typedef DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar> Data;
   typedef crocoddyl::MathBaseTpl<Scalar> MathBase;
   typedef crocoddyl::CostModelSumTpl<Scalar> CostModelSum;
   typedef crocoddyl::StateMultibodyTpl<Scalar> StateMultibody;
@@ -49,6 +49,7 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::Vector3s Vector3s;
   typedef typename MathBase::MatrixXs MatrixXs;
+  typedef typename MathBase::Matrix3s Matrix3s;
 
   /**
    * @brief Initialize the soft contact forward-dynamics action model
@@ -66,7 +67,7 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
    * @param[in] ref              Pinocchio reference frame in which the contact force is to be expressed
    * 
    */
-  DifferentialActionModelSoftContact3DFwdDynamicsTpl(
+  DAMSoftContact3DAugmentedFwdDynamicsTpl(
       boost::shared_ptr<StateMultibody> state,
       boost::shared_ptr<ActuationModelAbstract> actuation,
       boost::shared_ptr<CostModelSum> costs,
@@ -75,7 +76,7 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
       const double Kv,
       const Vector3s& oPc,
       const pinocchio::ReferenceFrame ref = pinocchio::LOCAL);
-  virtual ~DifferentialActionModelSoftContact3DFwdDynamicsTpl();
+  virtual ~DAMSoftContact3DAugmentedFwdDynamicsTpl();
 
   /**
    * @brief Compute the system acceleration, and cost value
@@ -84,10 +85,12 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
    *
    * @param[in] data  Free forward-dynamics data
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
+   * @param[in] f     Force point \f$\mathbf{f}\in\mathbb{R}^{nc}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
   virtual void calc(const boost::shared_ptr<DifferentialActionDataAbstract>& data, 
                     const Eigen::Ref<const VectorXs>& x,
+                    const Eigen::Ref<const VectorXs>& f,
                     const Eigen::Ref<const VectorXs>& u);
 
   /**
@@ -97,20 +100,24 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
    *
    * @param[in] data  Free forward-dynamics data
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
+   * @param[in] f     Force point \f$\mathbf{f}\in\mathbb{R}^{nc}\f$
    */
   virtual void calc(const boost::shared_ptr<DifferentialActionDataAbstract>& data, 
-                    const Eigen::Ref<const VectorXs>& x);
+                    const Eigen::Ref<const VectorXs>& x,
+                    const Eigen::Ref<const VectorXs>& f);
 
   /**
    * @brief Compute the derivatives of the contact dynamics, and cost function
    *
    * @param[in] data  Contact forward-dynamics data
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
+   * @param[in] f     Force point \f$\mathbf{f}\in\mathbb{R}^{nc}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
   virtual void calcDiff(
       const boost::shared_ptr<DifferentialActionDataAbstract>& data,
       const Eigen::Ref<const VectorXs>& x, 
+      const Eigen::Ref<const VectorXs>& f, 
       const Eigen::Ref<const VectorXs>& u);
 
   /**
@@ -118,10 +125,12 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
    *
    * @param[in] data  Contact forward-dynamics data
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
+   * @param[in] f     Force point \f$\mathbf{f}\in\mathbb{R}^{nc}\f$
    */
   virtual void calcDiff(
       const boost::shared_ptr<DifferentialActionDataAbstract>& data,
-      const Eigen::Ref<const VectorXs>& x);
+      const Eigen::Ref<const VectorXs>& x,
+      const Eigen::Ref<const VectorXs>& f);
   
     /**
    * @brief Create the soft contact forward-dynamics data
@@ -180,7 +189,7 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
 };
 
 template <typename _Scalar>
-struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<_Scalar> {
+struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialActionDataFreeFwdDynamicsTpl<_Scalar> {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   typedef _Scalar Scalar;
   typedef MathBaseTpl<Scalar> MathBase;
@@ -191,17 +200,29 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::Dif
   typedef typename MathBase::Matrix3s Matrix3s;
 
   template <template <typename Scalar> class Model>
-  explicit DifferentialActionDataSoftContact3DFwdDynamicsTpl(Model<Scalar>* const model)
+  explicit DADSoftContact3DAugmentedFwdDynamicsTpl(Model<Scalar>* const model)
       : Base(model),
         lJ(6, model->get_state()->get_nv()),
         oJ(6, model->get_state()->get_nv()),
-        lv_partial_dq(6, model->get_state()->get_nv()),
-        lv_partial_dv(6, model->get_state()->get_nv()),
         aba_dq(model->get_state()->get_nv(), model->get_state()->get_nv()),
         aba_dv(model->get_state()->get_nv(), model->get_state()->get_nv()),
+        aba_dx(model->get_state()->get_nv(), model->get_state()->get_ndx()),
         aba_dtau(model->get_state()->get_nv(), model->get_state()->get_nv()),
-        df_dx(model->get_nc(), model->get_state()->get_ndx()),
-        df_dx_copy(model->get_nc(), model->get_state()->get_ndx()),
+        aba_df(model->get_state()->get_nv(), 3),
+        lv_dq(6, model->get_state()->get_nv()),
+        lv_dv(6, model->get_state()->get_nv()),
+        lv_dx(6, model->get_state()->get_ndx()),
+        v_dv(6, model->get_state()->get_nv()),
+        a_dq(6, model->get_state()->get_nv()),
+        a_dv(6, model->get_state()->get_nv()),
+        a_da(6, model->get_state()->get_nv()),
+        da_dx(6,model->get_state()->get_ndx()),
+        da_du(6,model->get_nu()),
+        da_df(6,3),
+        dfdt_dx(3, model->get_state()->get_ndx()),
+        dfdt_du(3, model->get_nu()),
+        dfdt_dx_copy(3, model->get_state()->get_ndx()),
+        dfdt_du_copy(3, model->get_nu()),
         pinForce(pinocchio::ForceTpl<Scalar>::Zero()),
         fext(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()),
         fext_copy(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()) {
@@ -210,20 +231,40 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::Dif
     u_drift.setZero();
     dtau_dx.setZero();
     tmp_xstatic.setZero();
-    df_dx.setZero();
-    df_dx_copy.setZero();
-    f.setZero();
-    f_copy.setZero();
     oRf.setZero();
-    lv.setZero();
-    f_residual.setZero();
-    aba_dq.setZero();
-    aba_dv.setZero();
-    aba_dtau.setZero();
-    lv_partial_dv.setZero();
-    lv_partial_dq.setZero();
     lJ.setZero();
     oJ.setZero();
+    aba_dq.setZero();
+    aba_dv.setZero();
+    aba_dx.setZero();
+    aba_dtau.setZero();
+    aba_df.setZero();
+    lv.setZero();
+    la.setZero();
+    ov.setZero();
+    oa.setZero();
+    lv_dq.setZero();
+    lv_dv.setZero();
+    lv_dx.setZero();
+    v_dv.setZero();
+    a_dq.setZero();
+    a_dv.setZero();
+    a_da.setZero();
+    da_dx.setZero();
+    da_du.setZero();
+    da_df.setZero();
+    f_copy.setZero();
+    fout.setZero();
+    fout_copy.setZero();
+    dfdt_dx.setZero();
+    dfdt_du.setZero();
+    dfdt_df.setZero();
+    dfdt_dx_copy.setZero();
+    dfdt_du_copy.setZero();
+    dfdt_df_copy.setZero();
+    Lf.setZero();
+    Lff.setZero();
+    f_residual.setZero();
   }
 
   using Base::pinocchio;
@@ -234,24 +275,54 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::Dif
   using Base::dtau_dx;
   using Base::tmp_xstatic;
 
+  // Contact frame rotation and Jacobians
   Matrix3s oRf;
-  Vector3s lv;
   MatrixXs lJ;
   MatrixXs oJ;
-  MatrixXs lv_partial_dq;
-  MatrixXs lv_partial_dv;
+  // Partials of ABA w.r.t. state and control
   MatrixXs aba_dq;
   MatrixXs aba_dv;
+  MatrixXs aba_dx;
   MatrixXs aba_dtau;
-  // force cost & derivatives
-  Vector3s f_residual;
-  MatrixXs df_dx; 
-  MatrixXs df_dx_copy;
-  Vector3s f;
+  MatrixXs aba_df;
+  // Frame linear velocity and acceleration in LOCAL and LOCAL_WORLD_ALIGNED frames
+  Vector3s lv;
+  Vector3s la;
+  Vector3s ov;
+  Vector3s oa;
+  // Partials of frame spatial velocity w.r.t. joint pos, vel, acc
+  MatrixXs lv_dq;
+  MatrixXs lv_dv;
+  MatrixXs lv_dx;
+  // Partials of frame spatial acceleration w.r.t. joint pos, vel, acc
+  MatrixXs v_dv;
+  MatrixXs a_dq;
+  MatrixXs a_dv;
+  MatrixXs a_da;
+  // Partial of frame spatial acc w.r.t. state 
+  MatrixXs da_dx;
+  MatrixXs da_du;
+  MatrixXs da_df;
+  // Current force and next force
   Vector3s f_copy;
+  Vector3s fout;
+  Vector3s fout_copy;
+  // Spatial wrench due to contact force
   pinocchio::ForceTpl<Scalar> pinForce;
   pinocchio::container::aligned_vector<pinocchio::ForceTpl<Scalar> > fext;  //!< External spatial forces in body coordinates (joint level)
   pinocchio::container::aligned_vector<pinocchio::ForceTpl<Scalar> > fext_copy;  //!< External spatial forces in body coordinates (joint level)
+  // Partial derivatives of next force w.r.t. augmented state
+  MatrixXs dfdt_dx;
+  MatrixXs dfdt_du;
+  Matrix3s dfdt_df;
+  MatrixXs dfdt_dx_copy;
+  MatrixXs dfdt_du_copy;
+  Matrix3s dfdt_df_copy;
+  // Partials of cost w.r.t. force 
+  Vector3s Lf;
+  Matrix3s Lff;
+  // Force residual for hard coded tracking cost
+  Vector3s f_residual;
 
   using Base::cost;
   using Base::Fu;
@@ -270,6 +341,6 @@ struct DifferentialActionDataSoftContact3DFwdDynamicsTpl : public crocoddyl::Dif
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include <sobec/crocomplements/softcontact/soft-contact3d-fwddyn.hxx>
+#include <sobec/crocomplements/softcontact/dam3d-augmented.hxx>
 
-#endif  // SOBEC_SOFTCONTACT3D_FWDDYN_HPP_
+#endif  // SOBEC_SOFTCONTACT3D_AUGMENTED_FWDDYN_HPP_

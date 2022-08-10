@@ -15,7 +15,7 @@
 
 #include "actuation.hpp"
 #include "contact1d.hpp"
-#include "sobec/crocomplements/softcontact/soft-contact3d-augmented-fwddyn.hpp"
+#include "sobec/crocomplements/softcontact/dam3d-augmented.hpp"
 #include "state.hpp"
 
 namespace sobec {

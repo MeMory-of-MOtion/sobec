@@ -6,7 +6,7 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/crocomplements/softcontact/state-soft-contact.hpp"
+#include "sobec/crocomplements/softcontact/state.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

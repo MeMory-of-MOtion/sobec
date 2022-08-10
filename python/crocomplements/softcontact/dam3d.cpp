@@ -6,7 +6,7 @@
 // individual files. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "sobec/crocomplements/softcontact/soft-contact3d-fwddyn.hpp"
+#include "sobec/crocomplements/softcontact/dam3d.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>

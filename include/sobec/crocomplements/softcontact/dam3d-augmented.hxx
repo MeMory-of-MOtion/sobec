@@ -16,7 +16,7 @@
 #include <pinocchio/algorithm/rnea-derivatives.hpp>
 #include <pinocchio/algorithm/rnea.hpp>
 
-#include "soft-contact3d-augmented-fwddyn.hpp"
+#include "dam3d-augmented.hpp"
 
 namespace sobec {
 
@@ -223,15 +223,15 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     d->lv_dx.rightCols(nv) = d->lv_dv;
     pinocchio::getFrameAccelerationDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, 
                                                     d->v_dv, d->a_dq, d->a_dv, d->a_da);
-    // d->aba_dx = np.zeros((3,2*nv))
-    d->aba_dx.leftCols(nv)= d->a_dq.topRows(3) + d->a_da.topRows(3) * d->Fx.leftCols(nv); // same as aba_dq here
-    d->aba_dx.rightCols(nv) = d->a_dv.topRows(3) + d->a_da.topRows(3) * d->Fx.rightCols(nv); // same as aba_dv here
-    d->da_du = d->a_da.topRows(3) * d->Fu;
-    d->da_df = d->a_da.topRows(3) * d->aba_df;
-    // Deriv of lambda dot
-    d->dfdt_dx = -Kp_*d->lv_dx.topRows(3) - Kv_*d->aba_dx.topRows(3);
-    d->dfdt_du = -Kv_*d->da_du;
-    d->dfdt_df = -Kv_*d->da_df;
+    // Derivatives of spatial acc w.r.t. (x, f, u)
+    d->da_dx.topRows(3).leftCols(nv) = d->a_dq.topRows(3) + d->a_da.topRows(3) * d->Fx.leftCols(nv); 
+    d->da_dx.topRows(3).rightCols(nv) = d->a_dv.topRows(3) + d->a_da.topRows(3) * d->Fx.rightCols(nv); 
+    d->da_du.topRows(3) = d->a_da.topRows(3) * d->Fu;
+    d->da_df.topRows(3) = d->a_da.topRows(3) * d->aba_df;
+    // Derivatives of fdot w.r.t. (x,f,u)
+    d->dfdt_dx = -Kp_*d->lv_dx.topRows(3) - Kv_*d->da_dx.topRows(3);
+    d->dfdt_du = -Kv_*d->da_du.topRows(3);
+    d->dfdt_df = -Kv_*d->da_df.topRows(3);
     d->dfdt_dx_copy = d->dfdt_dx;
     d->dfdt_du_copy = d->dfdt_du;
     d->dfdt_df_copy = d->dfdt_df;
@@ -248,7 +248,7 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     // Computing the free forward dynamics with ABA derivatives
     pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, 
                                                     d->aba_dq, d->aba_dv, d->aba_dtau);
-    d->Fx.leftCols(nv)= d->aba_dq;
+    d->Fx.leftCols(nv) = d->aba_dq;
     d->Fx.rightCols(nv) = d->aba_dv;
     d->Fx += d->pinocchio.Minv * d->multibody.actuation->dtau_dx;
     d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
