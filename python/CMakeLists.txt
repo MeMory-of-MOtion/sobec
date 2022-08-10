@@ -18,6 +18,7 @@ set(${PY_NAME}_SOURCES
   crocomplements/contact/contact-force.cpp
   crocomplements/softcontact/soft-contact3d-fwddyn.cpp
   crocomplements/softcontact/soft-contact3d-augmented-fwddyn.cpp
+  crocomplements/softcontact/state-soft-contact.cpp
   walk-with-traj/designer.cpp
   walk-with-traj/horizon_manager.cpp
   walk-with-traj/model_factory.cpp

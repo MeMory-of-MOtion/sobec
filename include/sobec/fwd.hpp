@@ -156,7 +156,10 @@ typedef DAMSoftContact3DAugmentedFwdDynamicsTpl<double> DAMSoftContact3DAugmente
 template <typename Scalar>
 class DADSoftContact3DAugmentedFwdDynamicsTpl;
 typedef DADSoftContact3DAugmentedFwdDynamicsTpl<double> DADSoftContact3DAugmentedFwdDynamics;
-
+// State soft contact
+template <typename Scalar>
+class StateSoftContactTpl;
+typedef StateSoftContactTpl<double> StateSoftContact;
 
 }  // namespace sobec
 

@@ -27,6 +27,7 @@ void exposeOCPWalk();
 void exposeMPCWalk();
 void exposeDAMSoftContact3DFwdDyn();
 void exposeDAMSoftContact3DAugmentedFwdDyn();
+void exposeStateSoftContact();
 
 }  // namespace python
 }  // namespace sobec
