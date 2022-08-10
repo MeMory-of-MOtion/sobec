@@ -13,13 +13,10 @@
 #include <crocoddyl/core/utils/exception.hpp>
 #include <crocoddyl/multibody/actuations/floating-base.hpp>
 #include <crocoddyl/multibody/actuations/full.hpp>
-// #include <crocoddyl/multibody/residuals/frame-placement.hpp>
-// #include <crocoddyl/multibody/residuals/state.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 
 #include "contact3d.hpp"
 #include "cost.hpp"
-// #include "sobec/crocomplements/contact/contact-force.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -108,7 +105,6 @@ DAMSoftContactFactory::create_augmentedDAMSoft3D(StateModelTypes::Type state_typ
   state = boost::static_pointer_cast<crocoddyl::StateMultibody>(StateModelFactory().create(state_type));
   actuation = ActuationModelFactory().create(actuation_type, state_type);
   cost = boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
-  pinocchio::Force force = pinocchio::Force::Zero();    
   std::string frameName = "";
 
   pinocchio::ReferenceFrame pinRefFrame;

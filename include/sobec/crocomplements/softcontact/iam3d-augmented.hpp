@@ -10,7 +10,6 @@
 #define SOBEC_IAM3D_AUGMENTED_HPP_
 
 #include <crocoddyl/core/action-base.hpp>
-#include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/diff-action-base.hpp>
 #include <crocoddyl/core/fwd.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
@@ -41,9 +40,6 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
   typedef StateSoftContactTpl<Scalar> StateSoftContact;
   typedef StateMultibodyTpl<Scalar> StateMultibody;
   typedef pinocchio::ModelTpl<Scalar> PinocchioModel;
-  typedef ActivationModelQuadraticBarrierTpl<Scalar>
-      ActivationModelQuadraticBarrier;
-  typedef ActivationBoundsTpl<Scalar> ActivationBounds;
 
   IAMSoftContact3DAugmentedTpl(
       boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics> model,
@@ -97,10 +93,6 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
   std::size_t ny_;                  //!< Augmented state dimension : nq+nv+ntau
   using Base::state_;               //!< Model of the state
 
- public:
-  boost::shared_ptr<ActivationModelQuadraticBarrier>
-      activation_model_tauLim_;  //!< for lim cost
-
  private:
   boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics> differential_;
   Scalar time_step_;
@@ -125,8 +117,6 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
       DifferentialActionDataAbstract;
   typedef DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar>
       DADSoftContact3DAugmentedFwdDynamics;
-  typedef ActivationDataQuadraticBarrierTpl<Scalar>
-      ActivationDataQuadraticBarrier;  // for lim cost
 
   template <template <typename Scalar> class Model>
   explicit IADSoftContact3DAugmentedTpl(Model<Scalar>* const model)
@@ -135,18 +125,11 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
     differential = model->get_differential()->createData();
     const std::size_t& ndy = model->get_state()->get_ndx();
     dy = VectorXs::Zero(ndy);
-    // for wlim cost
-    activation = boost::static_pointer_cast<ActivationDataQuadraticBarrier>(
-        model->activation_model_tauLim_->createData());
   }
   virtual ~IADSoftContact3DAugmentedTpl() {}
 
   boost::shared_ptr<DifferentialActionDataAbstractTpl<Scalar> > differential;
   VectorXs dy;
-
-  // PinocchioData pinocchio;                                       // for reg
-  // cost
-  boost::shared_ptr<ActivationDataQuadraticBarrier> activation;  // for lim cost
 
   using Base::cost;
   using Base::r;

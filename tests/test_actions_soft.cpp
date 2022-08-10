@@ -60,30 +60,25 @@ void test_calc_returns_state(
               model->get_state()->get_nx());
 }
 
-// void test_calc_returns_a_cost(
-//     IAMSoftContactTypes::Type iam_type,
-//     DAMSoftContactTypes::Type dam_type,
-//     PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
-//     ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::Z) {
-//   // create the model
-//   IAMSoftContactFactory factory_iam;
-//   const boost::shared_ptr<sobec::IAMSoftContact3DAugmented>& model =
-//       factory_iam.create(iam_type, dam_type, ref_type, mask_type);
-
-//   // create the corresponding data object and set the cost to nan
-//   const boost::shared_ptr<crocoddyl::ActionDataAbstract>& data =
-//       model->createData();
-
-//   data->cost = nan("");
-
-//   // Getting the cost value computed by calc()
-//   const Eigen::VectorXd& x = model->get_state()->rand();
-//   const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nw());
-//   model->calc(data, x, u);
-
-//   // Checking that calc returns a cost value
-//   BOOST_CHECK(!std::isnan(data->cost));
-// }
+void test_calc_returns_a_cost(
+    IAMSoftContactTypes::Type iam_type,
+    DAMSoftContactTypes::Type dam_type,
+    PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL) {
+  // create the model
+  IAMSoftContactFactory factory_iam;
+  const boost::shared_ptr<sobec::IAMSoftContact3DAugmented>& model =
+      factory_iam.create(iam_type, dam_type, ref_type);
+  // create the corresponding data object and set the cost to nan
+  const boost::shared_ptr<crocoddyl::ActionDataAbstract>& data =
+      model->createData();
+  data->cost = nan("");
+  // Getting the cost value computed by calc()
+  const Eigen::VectorXd& x = model->get_state()->rand();
+  const Eigen::VectorXd& u = Eigen::VectorXd::Random(model->get_nu());
+  model->calc(data, x, u);
+  // Checking that calc returns a cost value
+  BOOST_CHECK(!std::isnan(data->cost));
+}
 
 // void test_partial_derivatives_against_numdiff(
 //     const boost::shared_ptr<sobec::IAMSoftContact3DAugmented>& model) {
@@ -597,8 +592,7 @@ void register_action_model_unit_tests(
   test_suite* ts = BOOST_TEST_SUITE(test_name.str());
 //   ts->add(BOOST_TEST_CASE(boost::bind(&test_check_data, iam_type, dam_type, ref_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_state, iam_type, dam_type, ref_type)));
-//   ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, iam_type,
-//                                       dam_type, ref_type, mask_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_returns_a_cost, iam_type, dam_type, ref_type)));
 //   ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_action_model,
 //                                   iam_type, dam_type, ref_type, mask_type)));
 //   // seems incompatible with euler equivalence test

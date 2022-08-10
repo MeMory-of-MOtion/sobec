@@ -32,6 +32,7 @@ IAMSoftContact3DAugmentedTpl<Scalar>::IAMSoftContact3DAugmentedTpl(
   // Instantiate stateLPF using pinocchio model of DAM state
   nc_ = 3;
   state_ = boost::make_shared<StateSoftContact>(pin_model_, nc_);
+  ny_ = boost::static_pointer_cast<StateSoftContact>(state_)->get_ny();
   // Check stuff
   if (time_step_ < Scalar(0.)) {
     time_step_ = Scalar(1e-3);
@@ -137,7 +138,6 @@ template <typename Scalar>
 void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
     const boost::shared_ptr<ActionDataAbstract>& data,
     const Eigen::Ref<const VectorXs>& y) {
-  const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nx = differential_->get_state()->get_nx();
 
   if (static_cast<std::size_t>(y.size()) != ny_) {
@@ -231,7 +231,6 @@ template <typename Scalar>
 void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
     const boost::shared_ptr<ActionDataAbstract>& data,
     const Eigen::Ref<const VectorXs>& y) {
-  const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nx = differential_->get_state()->get_nx();
   const std::size_t& ndx = differential_->get_state()->get_ndx();
 

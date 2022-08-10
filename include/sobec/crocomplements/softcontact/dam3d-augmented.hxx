@@ -380,12 +380,12 @@ const Scalar DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::get_force_weight()
 }
 
 template <typename Scalar>
-const pinocchio::ReferenceFrame DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::get_ref() const {
+const pinocchio::ReferenceFrame& DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::get_ref() const {
   return ref_;
 }
 
 template <typename Scalar>
-const pinocchio::FrameIndex DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::get_id() const {
+const pinocchio::FrameIndex& DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::get_id() const {
   return frameId_;
 }
 

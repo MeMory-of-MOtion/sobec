@@ -68,14 +68,16 @@ class StateSoftContactTpl : public StateAbstractTpl<_Scalar> {
   using Base::nv_;
   using Base::nx_;
   using Base::ub_;
+  boost::shared_ptr<pinocchio::ModelTpl<Scalar> > pinocchio_;
   std::size_t nc_;
   std::size_t ny_;
   std::size_t ndy_;
 
  private:
-  boost::shared_ptr<pinocchio::ModelTpl<Scalar> > pinocchio_;
+  // boost::shared_ptr<pinocchio::ModelTpl<Scalar> > pinocchio_;
   VectorXs y0_;
   JointType joint_type_;
+  
 };
 
 }  // namespace sobec

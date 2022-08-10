@@ -165,9 +165,9 @@ class DAMSoftContact3DAugmentedFwdDynamicsTpl
 
   const Scalar get_force_weight() const;
 
-  const pinocchio::ReferenceFrame get_ref() const;
+  const pinocchio::ReferenceFrame& get_ref() const;
   
-  const pinocchio::FrameIndex get_id() const;
+  const pinocchio::FrameIndex& get_id() const;
 
   std::size_t get_nc() {return nc_;};
 
@@ -219,13 +219,13 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
         da_dx(6,model->get_state()->get_ndx()),
         da_du(6,model->get_nu()),
         da_df(6,3),
+        pinForce(pinocchio::ForceTpl<Scalar>::Zero()),
+        fext(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()),
+        fext_copy(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()),
         dfdt_dx(3, model->get_state()->get_ndx()),
         dfdt_du(3, model->get_nu()),
         dfdt_dx_copy(3, model->get_state()->get_ndx()),
-        dfdt_du_copy(3, model->get_nu()),
-        pinForce(pinocchio::ForceTpl<Scalar>::Zero()),
-        fext(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()),
-        fext_copy(model->get_pinocchio().njoints, pinocchio::ForceTpl<Scalar>::Zero()) {
+        dfdt_du_copy(3, model->get_nu()) {
     costs->shareMemory(this);
     Minv.setZero();
     u_drift.setZero();
