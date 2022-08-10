@@ -58,6 +58,9 @@ target_link_libraries(test_diff_actions PUBLIC ${PROJECT_NAME}_unittest)
 ADD_UNIT_TEST(test_diff_actions_soft test_diff_actions_soft.cpp)
 target_link_libraries(test_diff_actions_soft PUBLIC ${PROJECT_NAME}_unittest)
 
+ADD_UNIT_TEST(test_actions_soft test_actions_soft.cpp)
+target_link_libraries(test_actions_soft PUBLIC ${PROJECT_NAME}_unittest)
+
 ADD_UNIT_TEST(test_walk_params test_walk_params.cpp)
 target_link_libraries(test_walk_params PUBLIC ${PROJECT_NAME}_unittest)
 target_compile_definitions(test_walk_params PRIVATE PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
