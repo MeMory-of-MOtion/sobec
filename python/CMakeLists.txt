@@ -18,6 +18,7 @@ set(${PY_NAME}_SOURCES
   crocomplements/contact/contact-force.cpp
   crocomplements/softcontact/dam3d.cpp
   crocomplements/softcontact/dam3d-augmented.cpp
+  crocomplements/softcontact/iam3d-augmented.cpp
   crocomplements/softcontact/state.cpp
   walk-with-traj/designer.cpp
   walk-with-traj/horizon_manager.cpp

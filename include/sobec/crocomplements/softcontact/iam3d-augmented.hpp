@@ -33,6 +33,8 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
   typedef ActionDataAbstractTpl<Scalar> ActionDataAbstract;
   typedef DifferentialActionModelAbstractTpl<Scalar>
       DifferentialActionModelAbstract;
+  typedef DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>
+      DAMSoftContact3DAugmentedFwdDynamics;
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::MatrixXs MatrixXs;
   typedef StateSoftContactTpl<Scalar> StateSoftContact;
@@ -43,7 +45,7 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
   typedef ActivationBoundsTpl<Scalar> ActivationBounds;
 
   IAMSoftContact3DAugmentedTpl(
-      boost::shared_ptr<DifferentialActionModelAbstract> model,
+      boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics> model,
       const Scalar& time_step = Scalar(1e-3),
       const bool& with_cost_residual = true);
   virtual ~IAMSoftContact3DAugmentedTpl();
@@ -72,7 +74,7 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
                            const std::size_t& maxiter = 100,
                            const Scalar& tol = Scalar(1e-9));
 
-  const boost::shared_ptr<DifferentialActionModelAbstract>& get_differential()
+  const boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics>& get_differential()
       const;
   const Scalar& get_dt() const;
 
@@ -80,7 +82,7 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
   const std::size_t& get_ny() const { return ny_; };
 
   void set_dt(const Scalar& dt);
-  void set_differential(boost::shared_ptr<DifferentialActionModelAbstract> model);
+  void set_differential(boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics> model);
 
  protected:
   using Base::has_control_limits_;  //!< Indicates whether any of the control
@@ -99,7 +101,7 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
       activation_model_tauLim_;  //!< for lim cost
 
  private:
-  boost::shared_ptr<DifferentialActionModelAbstract> differential_;
+  boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics> differential_;
   Scalar time_step_;
   Scalar time_step2_;
   bool with_cost_residual_;
@@ -120,6 +122,8 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
   typedef pinocchio::DataTpl<Scalar> PinocchioData;
   typedef DifferentialActionDataAbstractTpl<Scalar>
       DifferentialActionDataAbstract;
+  typedef DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar>
+      DADSoftContact3DAugmentedFwdDynamics;
   typedef ActivationDataQuadraticBarrierTpl<Scalar>
       ActivationDataQuadraticBarrier;  // for lim cost
 
@@ -136,7 +140,7 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
   }
   virtual ~IADSoftContact3DAugmentedTpl() {}
 
-  boost::shared_ptr<DifferentialActionDataAbstractTpl<Scalar> > differential;
+  boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamicsTpl<Scalar> > differential;
   VectorXs dy;
 
   // PinocchioData pinocchio;                                       // for reg
