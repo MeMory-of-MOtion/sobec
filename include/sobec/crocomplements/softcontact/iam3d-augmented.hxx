@@ -66,6 +66,7 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
 
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
+  boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamics> diff_data_soft = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential);
   // Extract x=(q,v) and f from augmented state y
   const Eigen::Ref<const VectorXs>& x = y.head(nx);   // get q,v_q
   const Eigen::Ref<const VectorXs>& f = y.tail(nc_);  // get f
@@ -88,7 +89,7 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
                    boost::static_pointer_cast<StateSoftContact>(state_)->get_ndy()) +
                ")");
   }
-  if (static_cast<std::size_t>(d->Fw.cols()) != nu_) {
+  if (static_cast<std::size_t>(d->Fu.cols()) != nu_) {
     throw_pretty("Invalid argument: "
                  << "Fw.cols() has wrong dimension (it should be " +
                         std::to_string(nu_) + ")");
@@ -109,7 +110,7 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
                    boost::static_pointer_cast<StateSoftContact>(state_)->get_ndy()) +
                ")");
   }
-  if (static_cast<std::size_t>(d->Lw.size()) != nu_) {
+  if (static_cast<std::size_t>(d->Lu.size()) != nu_) {
     throw_pretty("Invalid argument: "
                  << "Lw has wrong dimension (it should be " +
                         std::to_string(nu_) + ")");
@@ -117,20 +118,20 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
 
   // Compute acceleration and cost (DAM, i.e. CT model)
   // a_q, cost = DAM(q, v_q, f, tau_q)
-  differential_->calc(d->differential, x, f, u);
+  differential_->calc(diff_data_soft, x, f, u);
 
   // Computing the next state x+ = x + dx and cost+ = dt*cost
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> v = x.tail(nv);
-  const VectorXs& a = d->differential->xout;
-  const VectorXs& fdot = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->fout;
+  const VectorXs& a = diff_data_soft->xout;
+  const VectorXs& fdot = diff_data_soft->fout;
   d->dy.head(nv).noalias() = v * time_step_ + a * time_step2_;
   d->dy.segment(nv, nv).noalias() = a * time_step_;
   d->dy.tail(nc_).noalias() = fdot * time_step_;
   state_->integrate(y, d->dy, d->ynext);
-  d->cost = time_step_ * d->differential->cost;
+  d->cost = time_step_ * diff_data_soft->cost;
   if (with_cost_residual_) {
-    d->r.head(differential_->get_nr()) = d->differential->r;
-    d->r.tail(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->f_residual;
+    d->r.head(differential_->get_nr()) = diff_data_soft->r;
+    d->r.tail(nc_) = diff_data_soft->f_residual;
   }
 }  // calc
 
@@ -147,18 +148,19 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
   }
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
+  boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamics> diff_data_soft = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential);
   // Extract x=(q,v) and tau from augmented state y
   const Eigen::Ref<const VectorXs>& x = y.head(nx);  // get q,v_q
   const Eigen::Ref<const VectorXs>& f = y.tail(nc_);  // get q,v_q
   // Compute acceleration and cost (DAM, i.e. CT model)
-  differential_->calc(d->differential, x, f);
+  differential_->calc(diff_data_soft, x, f);
   d->dy.setZero();
   // d->ynext = y;
-  d->cost = d->differential->cost;
+  d->cost = diff_data_soft->cost;
   // Update RESIDUAL
   if (with_cost_residual_) {
-    d->r.head(differential_->get_nr()) = d->differential->r;
-    d->r.tail(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->f_residual;
+    d->r.head(differential_->get_nr()) = diff_data_soft->r;
+    d->r.tail(nc_) = diff_data_soft->f_residual;
   }
 }  // calc
 
@@ -166,7 +168,8 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calc(
 template <typename Scalar>
 void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
     const boost::shared_ptr<ActionDataAbstract>& data,
-    const Eigen::Ref<const VectorXs>& y, const Eigen::Ref<const VectorXs>& u) {
+    const Eigen::Ref<const VectorXs>& y, 
+    const Eigen::Ref<const VectorXs>& u) {
   const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nx = differential_->get_state()->get_nx();
   const std::size_t& ndx = differential_->get_state()->get_ndx();
@@ -184,47 +187,47 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
 
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
+  boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamics> diff_data_soft = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential);
   // Extract x=(q,v) and f from augmented state y
   const Eigen::Ref<const VectorXs>& x = y.head(nx);   // get q,v_q
   const Eigen::Ref<const VectorXs>& f = y.tail(nc_);  // get f
 
   // Get partials of CT model a_q ('f'), cost w.r.t. (q,v,tau)
-  differential_->calcDiff(d->differential, x, f, u);
-  const MatrixXs& da_dx = d->differential->Fx;
-  const MatrixXs& da_du = d->differential->Fu;
+  differential_->calcDiff(diff_data_soft, x, f, u);
+  const MatrixXs& da_dx = diff_data_soft->Fx;
+  const MatrixXs& da_du = diff_data_soft->Fu;
 
   // Fill out blocks
-  d->Fy.topRows(nv).noalias() = da_dx * time_step2_;
-  d->Fy.bottomRows(nv).noalias() = da_dx * time_step_;
-  d->Fy.topRightCorner(nv, nv).diagonal().array() += Scalar(time_step_);
-  d->Fw.topRows(nv).noalias() = time_step2_ * da_du;
-  d->Fw.bottomRows(nv).noalias() = time_step_ * da_du;
+  d->Fy.topLeftCorner(nv, ndx).noalias() = da_dx * time_step2_;
+  d->Fy.block(nv, 0, nv, ndx).noalias() = da_dx * time_step_;
+  d->Fy.block(0, nv, nv, nv).diagonal().array() += Scalar(time_step_);
+  d->Fu.topRows(nv).noalias() = time_step2_ * da_du;
+  d->Fu.block(nv, 0, nv, nu_).noalias() = time_step_ * da_du;
 
   // New block from augmented dynamics (top right corner)
-  d->Fy.topRightCorner(nv, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->aba_df * time_step2_;
-  d->Fy.block(nv, ndx, nv, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->aba_df * time_step_;
+  d->Fy.topRightCorner(nv, nc_) = diff_data_soft->aba_df * time_step2_;
+  d->Fy.block(nv, ndx, nv, nc_) = diff_data_soft->aba_df * time_step_;
   // New block from augmented dynamics (bottom right corner)
-  d->Fy.bottomRightCorner(nc_, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->dfdt_df*time_step_;
+  d->Fy.bottomRightCorner(nc_, nc_) = diff_data_soft->dfdt_df*time_step_;
   d->Fy.bottomRightCorner(nc_, nc_).diagonal().array() += Scalar(1.);
   // New block from augmented dynamics (bottom left corner)
-  d->Fy.bottomLeftCorner(nc_, ndx) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->dfdt_dx * time_step_;
+  d->Fy.bottomLeftCorner(nc_, ndx) = diff_data_soft->dfdt_dx * time_step_;
 
-  d->Fw.bottomRows(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->dfdt_du * time_step_;
-  state_->JintegrateTransport(y, d->dy, d->Fy, second);
+  d->Fu.bottomRows(nc_) = diff_data_soft->dfdt_du * time_step_;
   
+  state_->JintegrateTransport(y, d->dy, d->Fy, second);
   state_->Jintegrate(y, d->dy, d->Fy, d->Fy, first, addto);
   d->Fy.bottomRightCorner(nc_, nc_).diagonal().array() -= Scalar(1.);  // remove identity from Ftau (due to stateLPF.Jintegrate)
+  state_->JintegrateTransport(y, d->dy, d->Fu, second);
 
-  state_->JintegrateTransport(y, d->dy, d->Fw, second);
-
-  // d->Lx.noalias() = time_step_ * d->differential->Lx;
-  d->Ly.head(ndx) = d->differential->Lx*time_step_;
-  d->Ly.tail(nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->Lf*time_step_;
-  d->Lyy.topLeftCorner(ndx, ndx) = d->differential->Lxx*time_step_;
-  d->Lyy.bottomRightCorner(nc_, nc_) = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential)->Lff*time_step_;
-  d->Lyw.topLeftCorner(ndx, nu_) = d->differential->Lxu*time_step_;
-  d->Lw = d->Lu*time_step_;
-  d->Lww = d->Luu*time_step_;
+  // d->Lx.noalias() = time_step_ * diff_data_soft->Lx;
+  d->Ly.head(ndx) = diff_data_soft->Lx*time_step_;
+  d->Ly.tail(nc_) = diff_data_soft->Lf*time_step_;
+  d->Lyy.topLeftCorner(ndx, ndx) = diff_data_soft->Lxx*time_step_;
+  d->Lyy.bottomRightCorner(nc_, nc_) = diff_data_soft->Lff*time_step_;
+  d->Lyu.topLeftCorner(ndx, nu_) = diff_data_soft->Lxu*time_step_;
+  d->Lu = d->Lu*time_step_;
+  d->Luu = d->Luu*time_step_;
 }
 
 template <typename Scalar>
@@ -241,16 +244,19 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
   }
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
+  boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamics> diff_data_soft = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential);
   // Extract x=(q,v) and f from augmented state y
   const Eigen::Ref<const VectorXs>& x = y.head(nx);   // get q,v_q
   const Eigen::Ref<const VectorXs>& f = y.tail(nc_);  // get f
   // Get partials of CT model a_q ('f'), cost w.r.t. (q,v,tau)
-  differential_->calcDiff(d->differential, x, f);
+  differential_->calcDiff(diff_data_soft, x, f);
   state_->Jintegrate(y, d->dy, d->Fy, d->Fy);
-  // d->Fw.setZero();
+  // d->Fu.setZero();
   // d(cost+)/dy
-  d->Ly.head(ndx).noalias() = d->differential->Lx;
-  d->Lyy.topLeftCorner(ndx, ndx).noalias() = d->differential->Lxx;
+  d->Ly.head(ndx).noalias() = diff_data_soft->Lx;
+  d->Ly.tail(nc_).noalias() = diff_data_soft->Lf;
+  d->Lyy.topLeftCorner(ndx, ndx).noalias() = diff_data_soft->Lxx;
+  d->Lyy.bottomRightCorner(nc_, nc_).noalias() = diff_data_soft->Lff;
 }
 
 template <typename Scalar>
@@ -263,8 +269,9 @@ template <typename Scalar>
 bool IAMSoftContact3DAugmentedTpl<Scalar>::checkData(
     const boost::shared_ptr<ActionDataAbstract>& data) {
   boost::shared_ptr<Data> d = boost::dynamic_pointer_cast<Data>(data);
+  boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamics> diff_data_soft = boost::static_pointer_cast<DADSoftContact3DAugmentedFwdDynamics>(d->differential);
   if (data != NULL) {
-    return differential_->checkData(d->differential);
+    return differential_->checkData(diff_data_soft);
   } else {
     return false;
   }

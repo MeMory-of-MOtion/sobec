@@ -137,12 +137,12 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
   // use refs to "alias" base class member names
   VectorXs& ynext = Base::xnext;
   MatrixXs& Fy = Base::Fx;
-  MatrixXs& Fw = Base::Fu;
+//   MatrixXs& Fw = Base::Fu;
   VectorXs& Ly = Base::Lx;
-  VectorXs& Lw = Base::Lu;
+//   VectorXs& Lw = Base::Lu;
   MatrixXs& Lyy = Base::Lxx;
-  MatrixXs& Lyw = Base::Lxu;
-  MatrixXs& Lww = Base::Luu;
+  MatrixXs& Lyu = Base::Lxu;
+//   MatrixXs& Lww = Base::Luu;
 };
 
 }  // namespace sobec
