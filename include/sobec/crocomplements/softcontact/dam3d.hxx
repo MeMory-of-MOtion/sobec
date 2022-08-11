@@ -364,12 +364,12 @@ const Scalar DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::get_for
 }
 
 template <typename Scalar>
-const pinocchio::ReferenceFrame DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::get_ref() const {
+const pinocchio::ReferenceFrame& DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::get_ref() const {
   return ref_;
 }
 
 template <typename Scalar>
-const pinocchio::FrameIndex DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::get_id() const {
+const pinocchio::FrameIndex& DifferentialActionModelSoftContact3DFwdDynamicsTpl<Scalar>::get_id() const {
   return frameId_;
 }
 

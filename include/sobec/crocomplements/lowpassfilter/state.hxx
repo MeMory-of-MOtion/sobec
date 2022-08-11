@@ -20,8 +20,8 @@ StateLPFTpl<Scalar>::StateLPFTpl(
     std::vector<int> lpf_joint_ids)
     : Base(model->nq + model->nv + lpf_joint_ids.size(),
            2 * model->nv + lpf_joint_ids.size()),
-      pinocchio_(model),
       ntau_(lpf_joint_ids.size()),
+      pinocchio_(model),
       y0_(VectorXs::Zero(model->nq + model->nv + lpf_joint_ids.size())) {
   // In a multibody system, we could define the first joint using Lie groups.
   // The current cases are free-flyer (SE3) and spherical (S03).

@@ -226,8 +226,8 @@ void IAMSoftContact3DAugmentedTpl<Scalar>::calcDiff(
   d->Lyy.topLeftCorner(ndx, ndx) = diff_data_soft->Lxx*time_step_;
   d->Lyy.bottomRightCorner(nc_, nc_) = diff_data_soft->Lff*time_step_;
   d->Lyu.topLeftCorner(ndx, nu_) = diff_data_soft->Lxu*time_step_;
-  d->Lu = d->Lu*time_step_;
-  d->Luu = d->Luu*time_step_;
+  d->Lu = diff_data_soft->Lu*time_step_;
+  d->Luu = diff_data_soft->Luu*time_step_;
 }
 
 template <typename Scalar>

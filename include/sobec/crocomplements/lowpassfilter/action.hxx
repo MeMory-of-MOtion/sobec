@@ -22,12 +22,12 @@ IntegratedActionModelLPFTpl<Scalar>::IntegratedActionModelLPFTpl(
     const bool& tau_plus_integration, const int& filter)
     : Base(model->get_state(), model->get_nu(),
            model->get_nr() + 2 * lpf_joint_names.size()),
+      nw_(model->get_nu()),
       differential_(model),
       time_step_(time_step),
       time_step2_(time_step * time_step),
       with_cost_residual_(with_cost_residual),
       fc_(fc),
-      nw_(model->get_nu()),
       tau_plus_integration_(tau_plus_integration),
       filter_(filter) {
   // Downcast DAM state (abstract --> multibody)
@@ -301,7 +301,6 @@ template <typename Scalar>
 void IntegratedActionModelLPFTpl<Scalar>::calc(
     const boost::shared_ptr<ActionDataAbstract>& data,
     const Eigen::Ref<const VectorXs>& y) {
-  const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nx = differential_->get_state()->get_nx();
 
   if (static_cast<std::size_t>(y.size()) != ny_) {
@@ -736,7 +735,6 @@ template <typename Scalar>
 void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
     const boost::shared_ptr<ActionDataAbstract>& data,
     const Eigen::Ref<const VectorXs>& y) {
-  const std::size_t& nv = differential_->get_state()->get_nv();
   const std::size_t& nx = differential_->get_state()->get_nx();
   const std::size_t& ndx = differential_->get_state()->get_ndx();
 

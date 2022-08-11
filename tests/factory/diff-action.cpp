@@ -368,7 +368,6 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
       StateModelFactory().create(state_type));
   actuation = ActuationModelFactory().create(actuation_type, state_type);
   cost = boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
-  pinocchio::Force force = pinocchio::Force::Zero();    
   std::string frameName = "";
 
   pinocchio::ReferenceFrame pinRefFrame;

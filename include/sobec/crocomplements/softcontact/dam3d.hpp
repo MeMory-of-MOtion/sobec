@@ -156,9 +156,9 @@ class DifferentialActionModelSoftContact3DFwdDynamicsTpl
 
   const Scalar get_force_weight() const;
 
-  const pinocchio::ReferenceFrame get_ref() const;
+  const pinocchio::ReferenceFrame& get_ref() const;
   
-  const pinocchio::FrameIndex get_id() const;
+  const pinocchio::FrameIndex& get_id() const;
 
   std::size_t get_nc() {return nc_;};
 
