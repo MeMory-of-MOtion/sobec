@@ -71,12 +71,7 @@ void test_calc_returns_a_cost(DAMSoftContactTypes::Type action_type,
 }
 
 
-void test_partial_derivatives_against_numdiff(
-    DAMSoftContactTypes::Type action_type,
-    PinocchioReferenceTypes::Type ref_type) {
-  // create the model
-  DAMSoftContactFactory factory;
-  boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics> model = factory.create(action_type, ref_type);
+void test_partials_numdiff(boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics> model){
   // create the corresponding data object and set the cost to nan
   boost::shared_ptr<crocoddyl::DifferentialActionDataAbstract> data = model->createData();
   // Generating random values for the state and control
@@ -188,6 +183,26 @@ void test_partial_derivatives_against_numdiff(
   BOOST_CHECK((datacast->Lf - data_num_diff_cast->Lf).isZero(NUMDIFF_MODIFIER * tol));
 }
 
+void test_partial_derivatives_against_numdiff(
+    DAMSoftContactTypes::Type action_type,
+    PinocchioReferenceTypes::Type ref_type) {
+  // create the model
+  DAMSoftContactFactory factory;
+  boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics> model = factory.create(action_type, ref_type);
+  test_partials_numdiff(model);
+}
+
+void test_partial_derivatives_against_numdiff_armature(
+    DAMSoftContactTypes::Type action_type,
+    PinocchioReferenceTypes::Type ref_type) {
+  // create the model
+  DAMSoftContactFactory factory;
+  boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics> model = factory.create(action_type, ref_type);
+  Eigen::VectorXd armature = Eigen::VectorXd::Random(model->get_state()->get_nv());
+  model->set_armature(armature);
+  test_partials_numdiff(model);
+}
+
 
 
 void test_calc_equivalent_free(DAMSoftContactTypes::Type action_type,
@@ -270,6 +285,10 @@ void register_action_model_unit_tests(DAMSoftContactTypes::Type action_type,
   // Test equivalence with Euler for soft contact when Kp, Kv = 0 and f=0
   ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_equivalent_free, action_type, ref_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_equivalent_free, action_type, ref_type)));
+  // // armature stuff
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_partial_derivatives_against_numdiff_armature, action_type, ref_type)));
+  // ts->add(BOOST_TEST_CASE(boost::bind(&test_calc_equivalent_free_armature, action_type, ref_type)));
+  // ts->add(BOOST_TEST_CASE(boost::bind(&test_calcDiff_equivalent_free_armature, action_type, ref_type)));
   framework::master_test_suite().add(ts);
 }
 

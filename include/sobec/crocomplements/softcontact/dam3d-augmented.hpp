@@ -171,6 +171,10 @@ class DAMSoftContact3DAugmentedFwdDynamicsTpl
 
   std::size_t get_nc() {return nc_;};
 
+  // armature 
+  const VectorXs& get_armature() const;
+  void set_armature(const VectorXs& armature);
+
   protected:
     Scalar Kp_;                             //!< Contact model stiffness
     Scalar Kv_;                             //!< Contact model damping
@@ -225,7 +229,8 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
         dfdt_dx(3, model->get_state()->get_ndx()),
         dfdt_du(3, model->get_nu()),
         dfdt_dx_copy(3, model->get_state()->get_ndx()),
-        dfdt_du_copy(3, model->get_nu()) {
+        dfdt_du_copy(3, model->get_nu()),
+        JtF(model->get_state()->get_nv(), model->get_state()->get_nv()) {
     costs->shareMemory(this);
     Minv.setZero();
     u_drift.setZero();
@@ -265,6 +270,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
     Lf.setZero();
     Lff.setZero();
     f_residual.setZero();
+    JtF.setZero();
   }
 
   using Base::pinocchio;
@@ -324,6 +330,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
   // Force residual for hard coded tracking cost
   Vector3s f_residual;
 
+  MatrixXs JtF;
   using Base::cost;
   using Base::Fu;
   using Base::Fx;

@@ -56,6 +56,8 @@ DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::DAMSoftContact3DAugmentedFwdDyn
   nc_ = 3;
   parentId_ = this->get_pinocchio().frames[frameId_].parent;
   jMf_ = this->get_pinocchio().frames[frameId_].placement;
+  with_armature_ = false;
+  armature_ = VectorXs::Zero(this->get_state()->get_nv());
 }
 
 template <typename Scalar>
@@ -101,8 +103,29 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
         d->pinForce = pinocchio::ForceTpl<Scalar>(d->oRf.transpose() * f, Vector3s::Zero());
         d->fext[parentId_] = jMf_.act(d->pinForce);
     }
-    // ABA 
-    d->xout = pinocchio::aba(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext); 
+
+    // ABA with armature
+    if(with_armature_){
+      d->pinocchio.M.diagonal() += armature_;
+      pinocchio::cholesky::decompose(this->get_pinocchio(), d->pinocchio);
+      d->Minv.setZero();
+      pinocchio::cholesky::computeMinv(this->get_pinocchio(), d->pinocchio, d->Minv);
+      d->u_drift = d->multibody.actuation->tau - d->pinocchio.nle;
+      //  Compute jacobian transpose fext
+      std::size_t i = 0;
+      for(pinocchio::container::aligned_vector<pinocchio::Force>::iterator itr=d->fext.begin(); itr!=d->fext.end(); itr++){  
+        d->JtF.col(i) = d->pinocchio.J.transpose() * itr->toVector();
+        // for(std::size_t j=0; j<d->pinocchio.J.cols(); j++){
+        //   d->JtF(j,i) = d->pinocchio.J.transpose().row(j) * (itr->toVector_impl()); 
+        // }
+        i++;
+      }  
+      d->xout.noalias() = d->Minv * d->u_drift + d->Minv * d->JtF;
+    // ABA without armature
+    } else {
+      d->xout = pinocchio::aba(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext); 
+    }
+
     // Compute time derivative of contact force : need to forward kin with current acc
     pinocchio::forwardKinematics(this->get_pinocchio(), d->pinocchio, q, v, d->xout);
     d->la = pinocchio::getFrameAcceleration(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL).linear();     
@@ -116,10 +139,20 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
         d->fout = -Kp_* d->ov - Kv_ * d->oa;
     } 
   }
+
   // If contact NOT active : compute aq = ABA(q,v,tau)
   else {
-    // Computing the dynamics using ABA or manually for armature case
-    d->xout = pinocchio::aba(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau);
+    if (with_armature_) {
+      // pinocchio::computeAllTerms(this->get_pinocchio(), d->pinocchio, q, v);
+      d->pinocchio.M.diagonal() += armature_;
+      pinocchio::cholesky::decompose(this->get_pinocchio(), d->pinocchio);
+      d->Minv.setZero();
+      pinocchio::cholesky::computeMinv(this->get_pinocchio(), d->pinocchio, d->Minv);
+      d->u_drift = d->multibody.actuation->tau - d->pinocchio.nle;
+      d->xout.noalias() = d->Minv * d->u_drift;
+    } else {
+      d->xout = pinocchio::aba(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau);
+    }
   }
 
   pinocchio::updateGlobalPlacements(this->get_pinocchio(), d->pinocchio);
@@ -194,21 +227,39 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
 
     // Derivatives of d->xout (ABA) w.r.t. x and u in LOCAL (same in WORLD)
-    pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext, 
-                                                                d->aba_dq, d->aba_dv, d->aba_dtau);
-    d->Fx.leftCols(nv) = d->aba_dq;
-    d->Fx.rightCols(nv) = d->aba_dv; 
-    d->Fx += d->aba_dtau * d->multibody.actuation->dtau_dx;
-    d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
-    // Compute derivatives of d->xout (ABA) w.r.t. f in LOCAL 
-    d->aba_df = d->aba_dtau * d->lJ.topRows(3).transpose() * jMf_.rotation() * Matrix3s::Identity();
+    // No armature
+    if(!with_armature_){
+      pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext, 
+                                                                  d->aba_dq, d->aba_dv, d->aba_dtau);
+      d->Fx.leftCols(nv) = d->aba_dq;
+      d->Fx.rightCols(nv) = d->aba_dv; 
+      d->Fx += d->aba_dtau * d->multibody.actuation->dtau_dx;
+      d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
+      // Compute derivatives of d->xout (ABA) w.r.t. f in LOCAL 
+      d->aba_df = d->aba_dtau * d->lJ.topRows(3).transpose() * jMf_.rotation() * Matrix3s::Identity();
+      // Skew term added to RNEA derivatives when force is expressed in LWA
+      if(ref_ != pinocchio::LOCAL){
+          d->Fx.leftCols(nv)+= d->aba_dtau * d->lJ.topRows(3).transpose() * pinocchio::skew(d->oRf.transpose() * f) * d->lJ.bottomRows(3);
+          // Rotate dABA/df
+          d->aba_df = d->aba_df * d->oRf.transpose();
+      }
+    // With armature
+    } else {
+        pinocchio::computeRNEADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->xout, d->fext);
+        d->dtau_dx.leftCols(nv) = d->multibody.actuation->dtau_dx.leftCols(nv) - d->pinocchio.dtau_dq;
+        d->dtau_dx.rightCols(nv) = d->multibody.actuation->dtau_dx.rightCols(nv) - d->pinocchio.dtau_dv;
+        d->Fx.noalias() = d->Minv * d->dtau_dx;
+        d->Fu.noalias() = d->Minv * d->multibody.actuation->dtau_du;
+        // Compute derivatives of d->xout (ABA) w.r.t. f in LOCAL 
+        d->aba_df = d->Minv * d->lJ.topRows(3).transpose() * jMf_.rotation() * Matrix3s::Identity();
+        // Skew term added to RNEA derivatives when force is expressed in LWA
+        if(ref_ != pinocchio::LOCAL){
+            d->Fx.leftCols(nv)+= d->Minv * d->lJ.topRows(3).transpose() * pinocchio::skew(d->oRf.transpose() * f) * d->lJ.bottomRows(3);
+            // Rotate dABA/df
+            d->aba_df = d->aba_df * d->oRf.transpose();
+        }
+      }
 
-    // Skew term added to RNEA derivatives when force is expressed in LWA
-    if(ref_ != pinocchio::LOCAL){
-        d->Fx.leftCols(nv)+= d->aba_dtau * d->lJ.topRows(3).transpose() * pinocchio::skew(d->oRf.transpose() * f) * d->lJ.bottomRows(3);
-        // Rotate dABA/df
-        d->aba_df = d->aba_df * d->oRf.transpose();
-    }
     // Derivatives of d->fout in LOCAL : important >> UPDATE FORWARD KINEMATICS with d->xout
     pinocchio::getFrameVelocityDerivatives(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, 
                                                     d->lv_dq, d->lv_dv);
@@ -238,13 +289,22 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calcDiff(
     }
   }
   else {
-    // Computing the free forward dynamics with ABA derivatives
-    pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, 
-                                                    d->aba_dq, d->aba_dv, d->aba_dtau);
-    d->Fx.leftCols(nv) = d->aba_dq;
-    d->Fx.rightCols(nv) = d->aba_dv;
-    d->Fx += d->aba_dtau * d->multibody.actuation->dtau_dx;
-    d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
+    // Computing the dynamics derivatives
+    if (!with_armature_) {
+      // Computing the free forward dynamics with ABA derivatives
+      pinocchio::computeABADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, 
+                                                      d->aba_dq, d->aba_dv, d->aba_dtau);
+      d->Fx.leftCols(nv) = d->aba_dq;
+      d->Fx.rightCols(nv) = d->aba_dv;
+      d->Fx += d->aba_dtau * d->multibody.actuation->dtau_dx;
+      d->Fu = d->aba_dtau * d->multibody.actuation->dtau_du;
+    } else {
+      pinocchio::computeRNEADerivatives(this->get_pinocchio(), d->pinocchio, q, v, d->xout);
+      d->dtau_dx.leftCols(nv) = d->multibody.actuation->dtau_dx.leftCols(nv) - d->pinocchio.dtau_dq;
+      d->dtau_dx.rightCols(nv) = d->multibody.actuation->dtau_dx.rightCols(nv) - d->pinocchio.dtau_dv;
+      d->Fx.noalias() = d->Minv * d->dtau_dx;
+      d->Fu.noalias() = d->Minv * d->multibody.actuation->dtau_du;
+    }
   }
 
   this->get_costs()->calcDiff(d->costs, x, u);
@@ -388,5 +448,23 @@ template <typename Scalar>
 const pinocchio::FrameIndex& DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::get_id() const {
   return frameId_;
 }
+
+
+// armature
+template <typename Scalar>
+const typename MathBaseTpl<Scalar>::VectorXs& DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::get_armature() const {
+  return armature_;
+}
+
+template <typename Scalar>
+void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::set_armature(const VectorXs& armature) {
+  if (static_cast<std::size_t>(armature.size()) != this->get_state()->get_nv()) {
+    throw_pretty("Invalid argument: "
+                 << "The armature dimension is wrong (it should be " + std::to_string(this->get_state()->get_nv()) + ")");
+  }
+  armature_ = armature;
+  with_armature_ = true;
+}
+
 
 }  // namespace sobec
