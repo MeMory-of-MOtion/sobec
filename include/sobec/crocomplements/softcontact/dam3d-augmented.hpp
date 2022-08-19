@@ -206,6 +206,7 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
   template <template <typename Scalar> class Model>
   explicit DADSoftContact3DAugmentedFwdDynamicsTpl(Model<Scalar>* const model)
       : Base(model),
+        dtau_dx(model->get_state()->get_nv(), model->get_state()->get_ndx()),
         lJ(6, model->get_state()->get_nv()),
         oJ(6, model->get_state()->get_nv()),
         aba_dq(model->get_state()->get_nv(), model->get_state()->get_nv()),
@@ -278,9 +279,10 @@ struct DADSoftContact3DAugmentedFwdDynamicsTpl : public crocoddyl::DifferentialA
   using Base::costs;
   using Base::Minv;
   using Base::u_drift;
-  using Base::dtau_dx;
+  // using Base::dtau_dx;
   using Base::tmp_xstatic;
 
+  MatrixXs dtau_dx;
   // Contact frame rotation and Jacobians
   Matrix3s oRf;
   MatrixXs lJ;
