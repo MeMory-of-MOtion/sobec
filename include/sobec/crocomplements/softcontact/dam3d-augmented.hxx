@@ -111,21 +111,17 @@ void DAMSoftContact3DAugmentedFwdDynamicsTpl<Scalar>::calc(
       d->Minv.setZero();
       pinocchio::cholesky::computeMinv(this->get_pinocchio(), d->pinocchio, d->Minv);
       d->u_drift = d->multibody.actuation->tau - d->pinocchio.nle;
-      //  Compute jacobian transpose fext
-      std::size_t i = 0;
-      for(pinocchio::container::aligned_vector<pinocchio::Force>::iterator itr=d->fext.begin(); itr!=d->fext.end(); itr++){  
-        d->JtF.col(i) = d->pinocchio.J.transpose() * itr->toVector();
-        // for(std::size_t j=0; j<d->pinocchio.J.cols(); j++){
-        //   d->JtF(j,i) = d->pinocchio.J.transpose().row(j) * (itr->toVector_impl()); 
-        // }
-        i++;
-      }  
-      d->xout.noalias() = d->Minv * d->u_drift + d->Minv * d->JtF;
+      //  Compute jacobian transpose lambda
+      pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL, d->lJ);
+      d->xout.noalias() = d->Minv * d->u_drift + d->Minv * d->lJ.topRows(3).transpose() * d->pinForce.linear(); //d->JtF;
+      if(ref_ != pinocchio::LOCAL){
+        pinocchio::getFrameJacobian(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL_WORLD_ALIGNED, d->oJ);
+        d->xout.noalias() = d->Minv * d->u_drift + d->Minv * d->oJ.topRows(3).transpose() * d->pinForce.linear(); //d->JtF;
+      }
     // ABA without armature
     } else {
       d->xout = pinocchio::aba(this->get_pinocchio(), d->pinocchio, q, v, d->multibody.actuation->tau, d->fext); 
     }
-
     // Compute time derivative of contact force : need to forward kin with current acc
     pinocchio::forwardKinematics(this->get_pinocchio(), d->pinocchio, q, v, d->xout);
     d->la = pinocchio::getFrameAcceleration(this->get_pinocchio(), d->pinocchio, frameId_, pinocchio::LOCAL).linear();     
