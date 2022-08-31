@@ -127,7 +127,7 @@ MM_conf = dict(
 formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
 all_models = formuler.formulateHorizon(length=conf.T)
-ter_model = formuler.formulateStepTracker(Support.DOUBLE)
+ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
 
 # Horizon
 
