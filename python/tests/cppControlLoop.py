@@ -20,6 +20,34 @@ import ndcurves
 import numpy as np
 import time
 
+DEFAULT_SAVE_DIR = '/local/src/sobec/python/tests'
+
+def save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force,  save_name=None, save_dir=DEFAULT_SAVE_DIR):
+	'''
+	Saves data to a compressed npz file (binary)
+	'''
+	simu_data = {}
+	simu_data['xss'] = xss
+	simu_data['uss'] = uss
+	simu_data['LF_pose'] = LF_pose
+	simu_data['RF_pose'] = RF_pose
+	simu_data['LF_force'] = LF_force
+	simu_data['RF_force'] = RF_force
+	print('Compressing & saving data...')
+	if(save_name is None):
+		save_name = 'sim_data_NO_NAME'+str(time.time())
+	if(save_dir is None):
+		save_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'../data'))
+	save_path = save_dir+'/'+save_name+'.npz'
+	np.savez_compressed(save_path, data=simu_data)
+	print("Saved data to "+str(save_path)+" !")
+
+def load_data(npz_file):
+    '''
+    Loads a npz archive of sim_data into a dict
+    '''
+    d = np.load(npz_file, allow_pickle=True, encoding='latin1')
+    return d['data'][()]
 
 # from time import time
 def defineBezier(height, time_init,time_final,placement_init,placement_final):
@@ -130,14 +158,12 @@ all_models = formuler.formulateHorizon(length=conf.T)
 ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
 
 # Horizon
-
 H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
 horizon = HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), all_models, ter_model)
 
 # MPC
 wbc_conf = dict(
-    horizonSteps=conf.preview_steps,
     totalSteps=conf.total_steps,
     T=conf.T,
     TdoubleSupport=conf.TdoubleSupport,
@@ -173,6 +199,7 @@ mpc.initialize(
     design.get_v0Complete(),
     "actuationTask"
 )
+
 mpc.generateWalkingCycle(formuler)
 mpc.generateStandingCycle(formuler)
 
@@ -200,14 +227,14 @@ steps = 0
 starting_position_right = mpc.designer.get_RF_frame().copy()
 final_position_right = mpc.designer.get_LF_frame().copy()
 final_position_right.translation[0] = final_position_right.translation[0] + conf.xForward
-final_position_right.translation[1] = final_position_right.translation[1] - conf.footSeparation
+final_position_right.translation[1] = final_position_right.translation[1] - conf.footSeparation + conf.sidestep
 
 xForward = conf.xForward
 
 starting_position_left = mpc.designer.get_LF_frame().copy()
 final_position_left = mpc.designer.get_RF_frame().copy()
 final_position_left.translation[0] = final_position_left.translation[0] + 2 * conf.xForward
-final_position_left.translation[1] = final_position_left.translation[1] + conf.footSeparation
+final_position_left.translation[1] = final_position_left.translation[1] + conf.footSeparation 
 
 swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
@@ -230,11 +257,24 @@ wrench_reference_1contact = np.array([0,0,fz_ref_1contact,0,0,0])
 ref_force = fz_ref_2contact
 
 T_total = conf.total_steps * conf.Tstep + 5 * conf.T
-xForward = conf.xForward
+
+### Save trajectory in npz file
+xss = []
+uss = []
+LF_pose = []
+RF_pose = []
+LF_force = []
+RF_force = []
 
 for s in range(T_total * conf.Nc):
 	#    time.sleep(0.001)
 	if mpc.timeToSolveDDP(s):
+		xss.append(mpc.horizon.ddp.xs[0])
+		uss.append(mpc.horizon.ddp.us[0])
+		LF_pose.append(mpc.designer.get_LF_frame().copy())
+		RF_pose.append(mpc.designer.get_RF_frame().copy())
+		LF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_LF"].residual.contact.f)
+		RF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_RF"].residual.contact.f)
 
 		land_LF = (
 			mpc.land_LF()[0]
@@ -276,26 +316,26 @@ for s in range(T_total * conf.Nc):
 			#print("Update right trajectory")
 			final_position_right = mpc.designer.get_LF_frame().copy()
 			final_position_right.translation[0] += xForward
-			final_position_right.translation[1] -= conf.footSeparation
+			final_position_right.translation[1] -= conf.footSeparation + conf.sidestep
 			starting_position_right = mpc.designer.get_RF_frame().copy()
 			
 			starting_position_left = mpc.designer.get_LF_frame().copy()
 			final_position_left = final_position_right.copy()
 			final_position_left.translation[0] += xForward
-			final_position_left.translation[1] += conf.footSeparation
+			final_position_left.translation[1] += conf.footSeparation 
 			swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 			swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
 		if (takeoff_LF < conf.TdoubleSupport):
 			#print("Update left trajectory")
 			final_position_left = mpc.designer.get_RF_frame().copy()
 			final_position_left.translation[0] += xForward
-			final_position_left.translation[1] += conf.footSeparation
+			final_position_left.translation[1] += conf.footSeparation 
 			starting_position_left = mpc.designer.get_LF_frame().copy()
 			
 			starting_position_right = mpc.designer.get_RF_frame().copy()
 			final_position_right = final_position_left.copy()
 			final_position_right.translation[0] += xForward
-			final_position_right.translation[1] -= conf.footSeparation
+			final_position_right.translation[1] -= conf.footSeparation + conf.sidestep
 			swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
 			swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 		
@@ -317,8 +357,8 @@ for s in range(T_total * conf.Nc):
 					# Next foot to take off is left foot
 					wrench_reference_2contact_left[2] = fz_ref_1contact - ref_force
 					wrench_reference_2contact_right[2] = ref_force
-				print("Change left force to " + str(wrench_reference_2contact_left[2]))
-				print("Change right force to " + str(wrench_reference_2contact_right[2]))
+				#print("Change left force to " + str(wrench_reference_2contact_left[2]))
+				#print("Change right force to " + str(wrench_reference_2contact_right[2]))
 				mpc.walkingCycle.setForceReferenceLF(0,"wrench_LF",wrench_reference_2contact_left)
 				mpc.walkingCycle.setForceReferenceRF(0,"wrench_RF",wrench_reference_2contact_right)
 			else:
@@ -345,12 +385,12 @@ for s in range(T_total * conf.Nc):
 			mpc.ref_RF_poses[i] = RF_refs[i]
 
 		#print_trajectory(mpc.ref_LF_poses)
-
 	start = time.time()
-	mpc.iterate(s, q_current, v_current)
+
+	mpc.iterate(s,q_current, v_current)
 	end = time.time()
 	if end-start > 0.01:
-		print(end-start)
+		#print(end-start)
 		moyenne += end - start
 	torques = horizon.currentTorques(mpc.x0)
 	
@@ -382,5 +422,8 @@ for s in range(T_total * conf.Nc):
 	# if s == 0:
 	# stop
 
+#save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force, save_name="trajectories_xs_us")
+print('Mean computation time')
+print(moyenne / T_total)
 if conf.simulator == "bullet":
     device.close()

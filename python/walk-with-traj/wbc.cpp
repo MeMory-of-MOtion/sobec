@@ -22,7 +22,6 @@ void initialize(WBC &self, const bp::dict &settings,
                 const std::string &actuationCostName) {
   WBCSettings conf;
 
-  conf.horizonSteps = bp::extract<int>(settings["horizonSteps"]);
   conf.totalSteps = bp::extract<int>(settings["totalSteps"]);
   conf.T = bp::extract<int>(settings["T"]);
   conf.TdoubleSupport = bp::extract<int>(settings["TdoubleSupport"]);

@@ -22,6 +22,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   settings_ = settings;
   designer_ = design;
   horizon_ = horizon;
+  nWalkingCycles_ = settings_.T  / (2 * settings_.Tstep) + 1;
 
   // designer settings
   controlled_joints_id_ = designer_.get_controlledJointsIDs();
@@ -31,7 +32,6 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   x0_ << shapeState(q0, v0);
   designer_.updateReducedModel(x0_);
   designer_.updateCompleteModel(q0);
-
   ref_LF_poses_.reserve(horizon_.size() + 1);
   ref_RF_poses_.reserve(horizon_.size() + 1);
   
@@ -65,17 +65,19 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
   takeoff_RF_cycle_ = settings_.TdoubleSupport;
   land_RF_cycle_ = takeoff_RF_cycle_ + settings_.TsingleSupport;
   takeoff_LF_cycle_ = land_RF_cycle_ + settings_.TdoubleSupport;
-  land_LF_cycle_ = takeoff_LF_cycle_ + settings_.TsingleSupport;
-
-  for (int i = 0; i < 2 * settings_.Tstep; i++) {
-    if (i < takeoff_RF_cycle_)
-      cycle.push_back(DOUBLE);
-    else if (i < land_RF_cycle_)
-      cycle.push_back(LEFT);
-    else if (i < takeoff_LF_cycle_)
-      cycle.push_back(DOUBLE);
-    else
-      cycle.push_back(RIGHT);
+  land_LF_cycle_  = takeoff_LF_cycle_ + settings_.TsingleSupport;
+  
+  for (int j = 0; j < nWalkingCycles_; j++) {
+	  for (int i = 0; i < 2 * settings_.Tstep; i++) {
+		if (i < takeoff_RF_cycle_)
+		  cycle.push_back(DOUBLE);
+		else if (i < land_RF_cycle_)
+		  cycle.push_back(LEFT);
+		else if (i < takeoff_LF_cycle_)
+		  cycle.push_back(DOUBLE);
+		else
+		  cycle.push_back(RIGHT);
+	  }
   }
   std::vector<AMA> cyclicModels;
   cyclicModels = mm.formulateHorizon(cycle);
@@ -87,13 +89,13 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
 
 void WBC::generateStandingCycle(ModelMaker &mm) {
   ///@todo: bind it
-  std::vector<Support> cycle(2 * settings_.Tstep, DOUBLE);
+  std::vector<Support> cycle(settings_.T, DOUBLE);
   std::vector<AMA> cyclicModels;
   cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   standingCycle_ = HorizonManager(names, x0_, cyclicModels,
-                                  cyclicModels[2 * settings_.Tstep - 1]);
+                                  cyclicModels.back());
 }
 
 bool WBC::timeToSolveDDP(int iteration) {
@@ -173,10 +175,10 @@ void WBC::recedeWithCycle(HorizonManager &cycle) {
 }
 
 void WBC::rewindWalkingCycle() {
-  /** This function brings the walking cycle to the beggining of a single
+  /** This function brings the walking cycle to the beggining of a double
    * support*/
   for (unsigned long i = 0; i < walkingCycle_.size(); i++) {
-    if (horizon_.supportSize(0) == 1 && horizon_.supportSize(1) == 2) {
+    if (walkingCycle_.supportSize(0) == 1 && walkingCycle_.supportSize(1) == 2) {
       walkingCycle_.recede();
       return;
     }

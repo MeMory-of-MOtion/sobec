@@ -27,7 +27,6 @@ struct WBCSettings {
   ///@todo: add the cost names as setting parameters.
  public:
   // timing
-  int horizonSteps = 2;
   int totalSteps = 4;
   int T = 100;
   int TdoubleSupport = 50;
@@ -58,6 +57,7 @@ class WBC {
   Eigen::VectorXd x0_;
 
   LocomotionType now_ = WALKING;
+  int nWalkingCycles_;
 
   // timings
   std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;

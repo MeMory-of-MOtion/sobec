@@ -40,22 +40,20 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-preview_steps = 2
-total_steps = 6
-T_total = 2000  # Total number of nodes of the simulation
-DT = 2e-2  # Time step of the DDP
-T = 100  # Time horizon of the DDP (number of nodes)
+total_steps = 4
+DT = 1e-2  # Time step of the DDP
+T = 100 # Time horizon of the DDP (number of nodes)
 TdoubleSupport = 20  # Double support time  # TODO: (check with 20)
+TsingleSupport = 50  # Single support time
+
+Tstep = TsingleSupport + TdoubleSupport
+
 simu_step = simu_period = 1e-3  #
 
 Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
 
 # TODO: landing_advance and takeoff_delay are missing
-
-TsingleSupport = 50  # Single support time
 ddpIteration = 1  # Number of DDP iterations
-
-Tstep = TsingleSupport + TdoubleSupport
 
 # #### PHYSICS #####
 
@@ -107,7 +105,8 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 
 # ###### WALKING GEOMETRY #########
-xForward = 0.1 # step size
+xForward = 0.2 # step size
+sidestep = 0.0
 swingApex = 0.2  # foot height
 footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
 
