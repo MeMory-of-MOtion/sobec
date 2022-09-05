@@ -15,7 +15,7 @@ from bullet_Talos import BulletTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex, Support
+from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex, Support, LocomotionType
 import ndcurves
 import numpy as np
 import time
@@ -228,6 +228,7 @@ starting_position_right = mpc.designer.get_RF_frame().copy()
 final_position_right = mpc.designer.get_LF_frame().copy()
 final_position_right.translation[0] = final_position_right.translation[0] + conf.xForward
 final_position_right.translation[1] = final_position_right.translation[1] - conf.footSeparation + conf.sidestep
+final_position_right.translation[2] = final_position_right.translation[2] - conf.footPenetration
 
 xForward = conf.xForward
 
@@ -235,6 +236,7 @@ starting_position_left = mpc.designer.get_LF_frame().copy()
 final_position_left = mpc.designer.get_RF_frame().copy()
 final_position_left.translation[0] = final_position_left.translation[0] + 2 * conf.xForward
 final_position_left.translation[1] = final_position_left.translation[1] + conf.footSeparation 
+final_position_left.translation[2] = final_position_left.translation[2] - conf.footPenetration 
 
 swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
@@ -305,18 +307,24 @@ for s in range(T_total * conf.Nc):
 			)
 		)
 		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
+		
 		if land_RF == 0:
 			steps += 1
 		if land_LF == 0:
 			steps += 1
 		if steps == conf.total_steps:
-			mpc.switchToStand()
 			xForward = 0
+		if (s // conf.Nc == conf.Tstep * (conf.total_steps + 1)):
+			# Switch to stand at the beginning of the last double support step in walking cycle
+			# Given one more step to put feet together
+			mpc.switchToStand()
+			print("switch to stand")
 		if (takeoff_RF < conf.TdoubleSupport):
 			#print("Update right trajectory")
 			final_position_right = mpc.designer.get_LF_frame().copy()
 			final_position_right.translation[0] += xForward
 			final_position_right.translation[1] -= conf.footSeparation + conf.sidestep
+			final_position_right.translation[2] = final_position_right.translation[2] - conf.footPenetration 
 			starting_position_right = mpc.designer.get_RF_frame().copy()
 			
 			starting_position_left = mpc.designer.get_LF_frame().copy()
@@ -330,6 +338,7 @@ for s in range(T_total * conf.Nc):
 			final_position_left = mpc.designer.get_RF_frame().copy()
 			final_position_left.translation[0] += xForward
 			final_position_left.translation[1] += conf.footSeparation 
+			final_position_left.translation[2] = final_position_left.translation[2] - conf.footPenetration 
 			starting_position_left = mpc.designer.get_LF_frame().copy()
 			
 			starting_position_right = mpc.designer.get_RF_frame().copy()
@@ -341,11 +350,11 @@ for s in range(T_total * conf.Nc):
 		
 		if (mpc.walkingCycle.contacts(0).getContactStatus("leg_left_sole_fix_joint")):
 			if (mpc.walkingCycle.contacts(0).getContactStatus("leg_right_sole_fix_joint")):
-				if (s / conf.Nc <= conf.TdoubleSupport):
+				if (s // conf.Nc <= conf.TdoubleSupport):
 					ref_force = normal_force_traj_first(float(TdoubleSupport)/float(conf.TdoubleSupport))[0]
-				elif (s / conf.Nc < conf.total_steps * conf.Tstep):
+				elif(s // conf.Nc < conf.Tstep * (conf.total_steps + 1)):
 					ref_force = normal_force_traj(float(TdoubleSupport)/float(conf.TdoubleSupport))[0]
-				elif (TdoubleSupport <= conf.TdoubleSupport):
+				elif (TdoubleSupport < conf.TdoubleSupport):
 					ref_force = normal_force_traj_end(float(TdoubleSupport)/float(conf.TdoubleSupport))[0]
 				
 				TdoubleSupport += 1
@@ -361,6 +370,8 @@ for s in range(T_total * conf.Nc):
 				#print("Change right force to " + str(wrench_reference_2contact_right[2]))
 				mpc.walkingCycle.setForceReferenceLF(0,"wrench_LF",wrench_reference_2contact_left)
 				mpc.walkingCycle.setForceReferenceRF(0,"wrench_RF",wrench_reference_2contact_right)
+				mpc.standingCycle.setForceReferenceLF(0,"wrench_LF",wrench_reference_2contact_left)
+				mpc.standingCycle.setForceReferenceRF(0,"wrench_RF",wrench_reference_2contact_right)
 			else:
 				TdoubleSupport = 1
 		else:

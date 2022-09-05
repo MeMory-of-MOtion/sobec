@@ -40,7 +40,7 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 4
+total_steps = 6
 DT = 1e-2  # Time step of the DDP
 T = 100 # Time horizon of the DDP (number of nodes)
 TdoubleSupport = 20  # Double support time  # TODO: (check with 20)
@@ -109,6 +109,7 @@ xForward = 0.2 # step size
 sidestep = 0.0
 swingApex = 0.2  # foot height
 footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
+footPenetration = 0.0  # foot penetration in the ground
 
 normal_height = 0.87
 omega = np.sqrt(-gravity[2] / normal_height)
@@ -132,12 +133,12 @@ wCoP = 100
 
 weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
-weightLegPos = [1, 100, 100, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
+weightLegPos = [1, 10, 10, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
-weightArmPos = [10, 10, 10, 10]  # [z, x, z, y, z, x, y]
-weightArmVel = [100, 100, 100, 100]  # [z, x, z, y, z, x, y]
-weightTorsoPos = [5, 5]  # [z, y]
-weightTorsoVel = [5, 5]  # [z, y]
+weightArmPos = [1, 1, 1, 1]  # [z, x, z, y, z, x, y]
+weightArmVel = [1, 1, 1, 1]  # [z, x, z, y, z, x, y]
+weightTorsoPos = [0.1, 5]  # [z, y]
+weightTorsoVel = [0.1, 5]  # [z, y]
 stateWeights = np.array(
     weightBasePos
     + weightLegPos * 2
@@ -151,7 +152,7 @@ stateWeights = np.array(
 
 weightuBase = "not actuated"
 weightuLeg = [1, 1, 1, 1, 1, 1]
-weightuArm = [10, 10, 10, 10]
+weightuArm = [1, 1, 1, 1]
 weightuTorso = [1, 1]
 controlWeight = np.array(weightuLeg * 2 
                         + weightuTorso 
