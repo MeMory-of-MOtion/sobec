@@ -43,6 +43,9 @@ struct ModelMakerSettings {
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
+  
+  Eigen::VectorXd lowKinematicLimits;
+  Eigen::VectorXd highKinematicLimits;
 
   double th_stop = 1e-6;  // threshold for stopping criterion
   double th_grad = 1e-9;  // threshold for zero gradient.

@@ -185,15 +185,14 @@ void ModelMaker::defineActuationTask(Cost &costCollector) {
 void ModelMaker::defineJointLimits(Cost &costCollector) {
   Eigen::VectorXd lower_bound(2 * state_->get_nv()),
       upper_bound(2 * state_->get_nv());
+
   double inf = 9999.0;
   lower_bound << Eigen::VectorXd::Constant(6, -inf),
-      designer_.get_rModel().lowerPositionLimit.tail(state_->get_nq() - 7),
+      settings_.lowKinematicLimits,
       Eigen::VectorXd::Constant(state_->get_nv(), -inf);
-
   upper_bound << Eigen::VectorXd::Constant(6, inf),
-      designer_.get_rModel().upperPositionLimit.tail(state_->get_nq() - 7),
+      settings_.highKinematicLimits,
       Eigen::VectorXd::Constant(state_->get_nv(), inf);
-
   crocoddyl::ActivationBounds bounds =
       crocoddyl::ActivationBounds(lower_bound, upper_bound, 1.);
 

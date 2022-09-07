@@ -148,6 +148,8 @@ MM_conf = dict(
     wCoP = conf.wCoP,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
+    lowKinematicLimits=conf.lowKinematicLimits,
+    highKinematicLimits=conf.highKinematicLimits,
     th_grad=conf.th_grad,
     th_stop=conf.th_stop,
 )

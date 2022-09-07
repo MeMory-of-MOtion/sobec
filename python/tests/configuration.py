@@ -19,6 +19,8 @@ modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
 blocked_joints = [
     "universe",
+    #"torso_1_joint",
+    #"torso_2_joint",
     "arm_left_1_joint",
     "arm_left_2_joint",
     "arm_left_3_joint",
@@ -40,11 +42,11 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 6
+total_steps = 10
 DT = 1e-2  # Time step of the DDP
 T = 100 # Time horizon of the DDP (number of nodes)
 TdoubleSupport = 20  # Double support time  # TODO: (check with 20)
-TsingleSupport = 50  # Single support time
+TsingleSupport = 80  # Single support time
 
 Tstep = TsingleSupport + TdoubleSupport
 
@@ -105,7 +107,7 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 
 # ###### WALKING GEOMETRY #########
-xForward = 0.2 # step size
+xForward = 0.3 # step size
 sidestep = 0.0
 swingApex = 0.2  # foot height
 footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
@@ -128,15 +130,15 @@ wFootPlacement = 10000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wWrenchCone = 0.05
+wWrenchCone = 0.001
 wCoP = 100
 
 weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
 weightLegPos = [1, 10, 10, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
-weightArmPos = [1, 1, 1, 1]  # [z, x, z, y, z, x, y]
-weightArmVel = [1, 1, 1, 1]  # [z, x, z, y, z, x, y]
+weightArmPos = [0.01, 100, 1, 0.1]  # [z, x, z, y, z, x, y]
+weightArmVel = [1, 100, 1, 1]  # [z, x, z, y, z, x, y]
 weightTorsoPos = [0.1, 5]  # [z, y]
 weightTorsoVel = [0.1, 5]  # [z, y]
 stateWeights = np.array(
@@ -158,6 +160,13 @@ controlWeight = np.array(weightuLeg * 2
                         + weightuTorso 
                         #+ weightuArm * 2
 )
+
+lowKinematicLimits = np.array([-0.35, -0.52,-2.10, 0.0,-1.31,-0.52, # left leg
+                               -1.57,-0.52,-2.10,0.0,-1.31,-0.52, # right leg
+                               -1.3,-0.1])  # torso
+highKinematicLimits = np.array([1.57, 0.52, 0.7, 2.62, 0.77, 0.52, # left leg
+                               0.35,0.52,0.7,2.62,0.77,0.52, # right leg
+                               1.3,0.2])  # torso                        
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.
