@@ -125,9 +125,13 @@ void exposeDAMSoftContact3DAugmentedFwdDyn() {
           bp::make_function(&DAMSoftContact3DAugmentedFwdDynamics::get_id,
                             bp::return_value_policy<bp::return_by_value>()),
           &DAMSoftContact3DAugmentedFwdDynamics::set_id,
-          "Contact frame id");
-
-
+          "Contact frame id")
+      .add_property(
+          "armature",
+          bp::make_function(&DAMSoftContact3DAugmentedFwdDynamics::get_armature,
+                            bp::return_value_policy<bp::return_by_value>()),
+          &DAMSoftContact3DAugmentedFwdDynamics::set_armature,
+          "Armature");
 
   bp::register_ptr_to_python<boost::shared_ptr<DADSoftContact3DAugmentedFwdDynamics> >();
 
