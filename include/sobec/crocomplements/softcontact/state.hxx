@@ -34,14 +34,16 @@ StateSoftContactTpl<Scalar>::StateSoftContactTpl(
 
   // Define internally the limits of the first joint
   const std::size_t nq0 = model->joints[1].nq();
-  lb_.head(nq0) = -std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nq0);
+  lb_.head(nq0) =
+      -std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nq0);
   ub_.head(nq0) = std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nq0);
   lb_.segment(nq0, nq_ - nq0) = pinocchio_->lowerPositionLimit.tail(nq_ - nq0);
   ub_.segment(nq0, nq_ - nq0) = pinocchio_->upperPositionLimit.tail(nq_ - nq0);
   lb_.segment(nq_, nv_) = -pinocchio_->velocityLimit;
   ub_.segment(nq_, nv_) = pinocchio_->velocityLimit;
   // Visco-elastic force limit (no limit)
-  lb_.tail(nc_) = -std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nc_);
+  lb_.tail(nc_) =
+      -std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nc_);
   ub_.tail(nc_) = std::numeric_limits<Scalar>::infinity() * VectorXs::Ones(nc_);
 
   Base::update_has_limits();
@@ -71,12 +73,14 @@ const std::size_t& StateSoftContactTpl<Scalar>::get_ndy() const {
 }
 
 template <typename Scalar>
-typename MathBaseTpl<Scalar>::VectorXs StateSoftContactTpl<Scalar>::zero() const {
+typename MathBaseTpl<Scalar>::VectorXs StateSoftContactTpl<Scalar>::zero()
+    const {
   return y0_;
 }
 
 template <typename Scalar>
-typename MathBaseTpl<Scalar>::VectorXs StateSoftContactTpl<Scalar>::rand() const {
+typename MathBaseTpl<Scalar>::VectorXs StateSoftContactTpl<Scalar>::rand()
+    const {
   VectorXs yrand = VectorXs::Random(ny_);
   yrand.head(nq_) = pinocchio::randomConfiguration(*pinocchio_.get());
   return yrand;
@@ -84,8 +88,8 @@ typename MathBaseTpl<Scalar>::VectorXs StateSoftContactTpl<Scalar>::rand() const
 
 template <typename Scalar>
 void StateSoftContactTpl<Scalar>::diff(const Eigen::Ref<const VectorXs>& y0,
-                               const Eigen::Ref<const VectorXs>& y1,
-                               Eigen::Ref<VectorXs> dyout) const {
+                                       const Eigen::Ref<const VectorXs>& y1,
+                                       Eigen::Ref<VectorXs> dyout) const {
   if (static_cast<std::size_t>(y0.size()) != ny_) {
     throw_pretty("Invalid argument: "
                  << "y0 has wrong dimension (it should be " +
@@ -109,9 +113,9 @@ void StateSoftContactTpl<Scalar>::diff(const Eigen::Ref<const VectorXs>& y0,
 }
 
 template <typename Scalar>
-void StateSoftContactTpl<Scalar>::integrate(const Eigen::Ref<const VectorXs>& y,
-                                    const Eigen::Ref<const VectorXs>& dy,
-                                    Eigen::Ref<VectorXs> yout) const {
+void StateSoftContactTpl<Scalar>::integrate(
+    const Eigen::Ref<const VectorXs>& y, const Eigen::Ref<const VectorXs>& dy,
+    Eigen::Ref<VectorXs> yout) const {
   if (static_cast<std::size_t>(y.size()) != ny_) {
     throw_pretty("Invalid argument: "
                  << "y has wrong dimension (it should be " +
@@ -136,10 +140,10 @@ void StateSoftContactTpl<Scalar>::integrate(const Eigen::Ref<const VectorXs>& y,
 
 template <typename Scalar>
 void StateSoftContactTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
-                                const Eigen::Ref<const VectorXs>& y1,
-                                Eigen::Ref<MatrixXs> Jfirst,
-                                Eigen::Ref<MatrixXs> Jsecond,
-                                const Jcomponent firstsecond) const {
+                                        const Eigen::Ref<const VectorXs>& y1,
+                                        Eigen::Ref<MatrixXs> Jfirst,
+                                        Eigen::Ref<MatrixXs> Jsecond,
+                                        const Jcomponent firstsecond) const {
   assert_pretty(
       is_a_Jcomponent(firstsecond),
       ("firstsecond must be one of the Jcomponent {both, first, second}"));
@@ -206,12 +210,10 @@ void StateSoftContactTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
 }
 
 template <typename Scalar>
-void StateSoftContactTpl<Scalar>::Jintegrate(const Eigen::Ref<const VectorXs>& y,
-                                     const Eigen::Ref<const VectorXs>& dy,
-                                     Eigen::Ref<MatrixXs> Jfirst,
-                                     Eigen::Ref<MatrixXs> Jsecond,
-                                     const Jcomponent firstsecond,
-                                     const AssignmentOp op) const {
+void StateSoftContactTpl<Scalar>::Jintegrate(
+    const Eigen::Ref<const VectorXs>& y, const Eigen::Ref<const VectorXs>& dy,
+    Eigen::Ref<MatrixXs> Jfirst, Eigen::Ref<MatrixXs> Jsecond,
+    const Jcomponent firstsecond, const AssignmentOp op) const {
   assert_pretty(
       is_a_Jcomponent(firstsecond),
       ("firstsecond must be one of the Jcomponent {both, first, second}"));

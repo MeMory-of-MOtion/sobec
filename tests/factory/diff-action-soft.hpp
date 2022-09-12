@@ -40,8 +40,7 @@ struct DAMSoftContactTypes {
   static const std::vector<Type> all;
 };
 
-std::ostream& operator<<(std::ostream& os,
-                         DAMSoftContactTypes::Type type);
+std::ostream& operator<<(std::ostream& os, DAMSoftContactTypes::Type type);
 
 class DAMSoftContactFactory {
  public:
@@ -51,9 +50,9 @@ class DAMSoftContactFactory {
   ~DAMSoftContactFactory();
 
   boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics> create(
-      DAMSoftContactTypes::Type type,
-      PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL) const;
-  
+      DAMSoftContactTypes::Type type, PinocchioReferenceTypes::Type ref_type =
+                                          PinocchioReferenceTypes::LOCAL) const;
+
   // Soft contact 3D dynamics
   boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics>
   create_augmentedDAMSoft3D(StateModelTypes::Type state_type,

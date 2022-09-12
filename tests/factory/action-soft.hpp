@@ -13,10 +13,9 @@
 
 #include "crocoddyl/core/action-base.hpp"
 #include "crocoddyl/core/numdiff/action.hpp"
-
+#include "diff-action-soft.hpp"
 #include "sobec/crocomplements/softcontact/iam3d-augmented.hpp"
 #include "statesoft.hpp"
-#include "diff-action-soft.hpp"
 
 namespace sobec {
 namespace unittest {
@@ -48,9 +47,9 @@ class IAMSoftContactFactory {
   ~IAMSoftContactFactory();
 
   boost::shared_ptr<sobec::IAMSoftContact3DAugmented> create(
-      IAMSoftContactTypes::Type iam_type,
-      DAMSoftContactTypes::Type dam_type,
-      PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL) const;
+      IAMSoftContactTypes::Type iam_type, DAMSoftContactTypes::Type dam_type,
+      PinocchioReferenceTypes::Type ref_type =
+          PinocchioReferenceTypes::LOCAL) const;
 };
 
 }  // namespace unittest

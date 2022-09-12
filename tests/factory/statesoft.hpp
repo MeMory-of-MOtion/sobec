@@ -43,13 +43,15 @@ const std::map<StateSoftContactModelTypes::Type, StateModelTypes::Type>
     mapStateSoftContactToStateMultibody{
         {StateSoftContactModelTypes::StateSoftContact_TalosArm,
          StateModelTypes::StateMultibody_TalosArm},
-        {StateSoftContactModelTypes::StateSoftContact_HyQ, StateModelTypes::StateMultibody_HyQ},
+        {StateSoftContactModelTypes::StateSoftContact_HyQ,
+         StateModelTypes::StateMultibody_HyQ},
         {StateSoftContactModelTypes::StateSoftContact_Talos,
          StateModelTypes::StateMultibody_Talos},
         {StateSoftContactModelTypes::StateSoftContact_RandomHumanoid,
          StateModelTypes::StateMultibody_RandomHumanoid}};
 
-std::ostream& operator<<(std::ostream& os, StateSoftContactModelTypes::Type type);
+std::ostream& operator<<(std::ostream& os,
+                         StateSoftContactModelTypes::Type type);
 
 class StateSoftContactModelFactory {
  public:

@@ -32,8 +32,7 @@ void exposeIAMSoftContact3DAugmented() {
       "dt, [alpha*tau + (1-alpha)*w]).",
       bp::init<boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics>,
                bp::optional<double, bool> >(
-          bp::args("self", "diffModel", "stepTime",
-                   "withCostResidual"),
+          bp::args("self", "diffModel", "stepTime", "withCostResidual"),
           "Initialize the sympletic Euler integrator.\n\n"
           ":param diffModel: differential action model\n"
           ":param stepTime: step time\n"

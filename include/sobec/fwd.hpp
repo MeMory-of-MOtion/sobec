@@ -140,22 +140,25 @@ class OCPWalk;
 // MPC
 class MPCWalk;
 
-
 // Soft contact3D DAM
 template <typename Scalar>
 class DifferentialActionModelSoftContact3DFwdDynamicsTpl;
-typedef DifferentialActionModelSoftContact3DFwdDynamicsTpl<double> DifferentialActionModelSoftContact3DFwdDynamics;
+typedef DifferentialActionModelSoftContact3DFwdDynamicsTpl<double>
+    DifferentialActionModelSoftContact3DFwdDynamics;
 template <typename Scalar>
 class DifferentialActionDataSoftContact3DFwdDynamicsTpl;
-typedef DifferentialActionDataSoftContact3DFwdDynamicsTpl<double> DifferentialActionDataSoftContact3DFwdDynamics;
+typedef DifferentialActionDataSoftContact3DFwdDynamicsTpl<double>
+    DifferentialActionDataSoftContact3DFwdDynamics;
 
 // Soft contact3D DAM (augmented state)
 template <typename Scalar>
 class DAMSoftContact3DAugmentedFwdDynamicsTpl;
-typedef DAMSoftContact3DAugmentedFwdDynamicsTpl<double> DAMSoftContact3DAugmentedFwdDynamics;
+typedef DAMSoftContact3DAugmentedFwdDynamicsTpl<double>
+    DAMSoftContact3DAugmentedFwdDynamics;
 template <typename Scalar>
 class DADSoftContact3DAugmentedFwdDynamicsTpl;
-typedef DADSoftContact3DAugmentedFwdDynamicsTpl<double> DADSoftContact3DAugmentedFwdDynamics;
+typedef DADSoftContact3DAugmentedFwdDynamicsTpl<double>
+    DADSoftContact3DAugmentedFwdDynamics;
 // State soft contact
 template <typename Scalar>
 class StateSoftContactTpl;
@@ -167,7 +170,6 @@ typedef IAMSoftContact3DAugmentedTpl<double> IAMSoftContact3DAugmented;
 template <typename Scalar>
 class IADSoftContact3DAugmentedTpl;
 typedef IADSoftContact3DAugmentedTpl<double> IADSoftContact3DAugmented;
-
 
 }  // namespace sobec
 

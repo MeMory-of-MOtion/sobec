@@ -113,7 +113,7 @@ DifferentialActionModelFactory::create(
           ActuationModelTypes::ActuationModelFull, ref_type, mask_type);
       break;
 
-    // HyQ state 
+    // HyQ state
     case DifferentialActionModelTypes::
         DifferentialActionModelContact3DFwdDynamics_HyQ:
       action = create_contact3DFwdDynamics(
@@ -354,12 +354,12 @@ DifferentialActionModelFactory::create_contact1DFwdDynamics(
   return action;
 }
 
-
 boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics>
 DifferentialActionModelFactory::create_softContact3DFwdDynamics(
     StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
     PinocchioReferenceTypes::Type ref_type) const {
-  boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics> action;
+  boost::shared_ptr<sobec::DifferentialActionModelSoftContact3DFwdDynamics>
+      action;
   boost::shared_ptr<crocoddyl::StateMultibody> state;
   boost::shared_ptr<crocoddyl::ActuationModelAbstract> actuation;
   boost::shared_ptr<crocoddyl::ContactModelMultiple> contact;
@@ -367,11 +367,12 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
   state = boost::static_pointer_cast<crocoddyl::StateMultibody>(
       StateModelFactory().create(state_type));
   actuation = ActuationModelFactory().create(actuation_type, state_type);
-  cost = boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
+  cost =
+      boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
   std::string frameName = "";
 
   pinocchio::ReferenceFrame pinRefFrame;
-  switch(ref_type){
+  switch (ref_type) {
     case PinocchioReferenceTypes::Type::LOCAL:
       pinRefFrame = pinocchio::LOCAL;
       break;
@@ -400,7 +401,6 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
       break;
   }
 
-  
   cost->addCost(
       "control",
       CostModelFactory().create(
@@ -410,17 +410,14 @@ DifferentialActionModelFactory::create_softContact3DFwdDynamics(
   double Kp = 100;
   double Kv = 10;
   Eigen::Vector3d oPc = Eigen::Vector3d::Zero();
-  action = boost::make_shared<sobec::DifferentialActionModelSoftContact3DFwdDynamics>(
-      state, 
-      actuation, 
-      cost, 
-      state->get_pinocchio()->getFrameId(frameName), 
-      Kp, Kv, oPc, pinRefFrame);
+  action = boost::make_shared<
+      sobec::DifferentialActionModelSoftContact3DFwdDynamics>(
+      state, actuation, cost, state->get_pinocchio()->getFrameId(frameName), Kp,
+      Kv, oPc, pinRefFrame);
   action->set_force_cost(Eigen::Vector3d::Zero(), 0.01);
 
   return action;
 }
-
 
 }  // namespace unittest
 }  // namespace sobec

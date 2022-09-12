@@ -24,11 +24,11 @@ namespace sobec {
 namespace unittest {
 using namespace crocoddyl;
 
+const std::vector<StateSoftContactModelTypes::Type>
+    StateSoftContactModelTypes::all(StateSoftContactModelTypes::init_all());
 
-const std::vector<StateSoftContactModelTypes::Type> StateSoftContactModelTypes::all(
-    StateSoftContactModelTypes::init_all());
-
-std::ostream& operator<<(std::ostream& os, StateSoftContactModelTypes::Type type) {
+std::ostream& operator<<(std::ostream& os,
+                         StateSoftContactModelTypes::Type type) {
   switch (type) {
     case StateSoftContactModelTypes::StateSoftContact_TalosArm:
       os << "StateSoftContact_TalosArm";
@@ -61,9 +61,10 @@ boost::shared_ptr<sobec::StateSoftContact> StateSoftContactModelFactory::create(
   switch (state_type) {
     case StateSoftContactModelTypes::StateSoftContact_TalosArm: {
       model = PinocchioModelFactory(PinocchioModelTypes::TalosArm).create();
-      boost::shared_ptr<crocoddyl::ActuationModelFull> actuation = 
+      boost::shared_ptr<crocoddyl::ActuationModelFull> actuation =
           boost::make_shared<crocoddyl::ActuationModelFull>(
-              StateModelFactory().create(StateModelTypes::StateMultibody_TalosArm));
+              StateModelFactory().create(
+                  StateModelTypes::StateMultibody_TalosArm));
       state = boost::make_shared<sobec::StateSoftContact>(model, nc);
 
       break;
@@ -73,7 +74,8 @@ boost::shared_ptr<sobec::StateSoftContact> StateSoftContactModelFactory::create(
       boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
           boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
               boost::static_pointer_cast<crocoddyl::StateMultibody>(
-                  StateModelFactory().create(StateModelTypes::StateMultibody_HyQ)));
+                  StateModelFactory().create(
+                      StateModelTypes::StateMultibody_HyQ)));
       state = boost::make_shared<sobec::StateSoftContact>(model, nc);
       break;
     }
@@ -82,7 +84,8 @@ boost::shared_ptr<sobec::StateSoftContact> StateSoftContactModelFactory::create(
       boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
           boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
               boost::static_pointer_cast<crocoddyl::StateMultibody>(
-                  StateModelFactory().create(StateModelTypes::StateMultibody_Talos)));
+                  StateModelFactory().create(
+                      StateModelTypes::StateMultibody_Talos)));
       state = boost::make_shared<sobec::StateSoftContact>(model, nc);
       break;
     }
@@ -92,7 +95,8 @@ boost::shared_ptr<sobec::StateSoftContact> StateSoftContactModelFactory::create(
       boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation =
           boost::make_shared<crocoddyl::ActuationModelFloatingBase>(
               boost::static_pointer_cast<crocoddyl::StateMultibody>(
-                  StateModelFactory().create(StateModelTypes::StateMultibody_RandomHumanoid)));
+                  StateModelFactory().create(
+                      StateModelTypes::StateMultibody_RandomHumanoid)));
       state = boost::make_shared<sobec::StateSoftContact>(model, nc);
       break;
     }

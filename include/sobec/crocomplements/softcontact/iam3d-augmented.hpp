@@ -15,8 +15,8 @@
 #include <crocoddyl/multibody/states/multibody.hpp>
 #include <pinocchio/multibody/model.hpp>
 
-#include "state.hpp"
 #include "dam3d-augmented.hpp"
+#include "state.hpp"
 
 namespace sobec {
 using namespace crocoddyl;
@@ -65,21 +65,23 @@ class IAMSoftContact3DAugmentedTpl : public ActionModelAbstractTpl<_Scalar> {
 
   virtual bool checkData(const boost::shared_ptr<ActionDataAbstract>& data);
 
-//   virtual void quasiStatic(const boost::shared_ptr<ActionDataAbstract>& data,
-//                            Eigen::Ref<VectorXs> u,
-//                            const Eigen::Ref<const VectorXs>& x,
-//                            const std::size_t& maxiter = 100,
-//                            const Scalar& tol = Scalar(1e-9));
+  //   virtual void quasiStatic(const boost::shared_ptr<ActionDataAbstract>&
+  //   data,
+  //                            Eigen::Ref<VectorXs> u,
+  //                            const Eigen::Ref<const VectorXs>& x,
+  //                            const std::size_t& maxiter = 100,
+  //                            const Scalar& tol = Scalar(1e-9));
 
-  const boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics>& get_differential()
-      const;
+  const boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics>&
+  get_differential() const;
   const Scalar& get_dt() const;
 
   const std::size_t& get_nc() const { return nc_; };
   const std::size_t& get_ny() const { return ny_; };
 
   void set_dt(const Scalar& dt);
-  void set_differential(boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics> model);
+  void set_differential(
+      boost::shared_ptr<DAMSoftContact3DAugmentedFwdDynamics> model);
 
  protected:
   using Base::has_control_limits_;  //!< Indicates whether any of the control
@@ -137,12 +139,12 @@ struct IADSoftContact3DAugmentedTpl : public ActionDataAbstractTpl<_Scalar> {
   // use refs to "alias" base class member names
   VectorXs& ynext = Base::xnext;
   MatrixXs& Fy = Base::Fx;
-//   MatrixXs& Fw = Base::Fu;
+  //   MatrixXs& Fw = Base::Fu;
   VectorXs& Ly = Base::Lx;
-//   VectorXs& Lw = Base::Lu;
+  //   VectorXs& Lw = Base::Lu;
   MatrixXs& Lyy = Base::Lxx;
   MatrixXs& Lyu = Base::Lxu;
-//   MatrixXs& Lww = Base::Luu;
+  //   MatrixXs& Lww = Base::Luu;
 };
 
 }  // namespace sobec

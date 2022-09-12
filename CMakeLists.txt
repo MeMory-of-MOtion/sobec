@@ -55,52 +55,51 @@ add_project_dependency(yaml-cpp REQUIRED)
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
-  include/${PROJECT_NAME}/flexibility_compensation.hpp
-  include/${PROJECT_NAME}/python.hpp
-  include/${PROJECT_NAME}/fwd.hpp
-  include/${PROJECT_NAME}/crocomplements/residual-com-velocity.hpp
-  include/${PROJECT_NAME}/crocomplements/residual-cop.hpp
-  include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hpp
-  include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hpp
-  include/${PROJECT_NAME}/crocomplements/residual-fly-high.hpp
-  include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
-  include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hpp
-  include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hxx
-  include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hpp
-  include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hxx
-  include/${PROJECT_NAME}/crocomplements/contact/contact3d.hpp
-  include/${PROJECT_NAME}/crocomplements/contact/contact1d.hpp
-  include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hpp
-  include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hpp
-  include/${PROJECT_NAME}/crocomplements/contact/contact-force.hpp
-  include/${PROJECT_NAME}/crocomplements/softcontact/dam3d.hpp
-  include/${PROJECT_NAME}/crocomplements/softcontact/dam3d-augmented.hpp
-  include/${PROJECT_NAME}/crocomplements/softcontact/iam3d-augmented.hpp
-  include/${PROJECT_NAME}/crocomplements/softcontact/state.hpp
-  include/${PROJECT_NAME}/crocomplements/residual-com-velocity.hxx
-  include/${PROJECT_NAME}/crocomplements/residual-cop.hxx
-  include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hxx
-  include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hxx
-  include/${PROJECT_NAME}/crocomplements/contact/contact3d.hxx
-  include/${PROJECT_NAME}/crocomplements/contact/contact1d.hxx
-  include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hxx
-  include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hxx
-  include/${PROJECT_NAME}/crocomplements/contact/contact-force.hxx
-  include/${PROJECT_NAME}/crocomplements/residual-fly-high.hxx
-  include/${PROJECT_NAME}/crocomplements/softcontact/dam3d.hxx
-  include/${PROJECT_NAME}/crocomplements/softcontact/dam3d-augmented.hxx
-  include/${PROJECT_NAME}/crocomplements/softcontact/iam3d-augmented.hxx
-  include/${PROJECT_NAME}/crocomplements/softcontact/state.hxx
-  include/${PROJECT_NAME}/walk-without-think/ocp.hpp
-  include/${PROJECT_NAME}/walk-without-think/mpc.hpp
-  include/${PROJECT_NAME}/walk-without-think/mpc.hxx
-  include/${PROJECT_NAME}/walk-with-traj/designer.hpp
-  include/${PROJECT_NAME}/walk-with-traj/model_factory.hpp
-  include/${PROJECT_NAME}/walk-with-traj/horizon_manager.hpp
-  # include/${PROJECT_NAME}/walk-with-traj/ocp.hpp
-  include/${PROJECT_NAME}/walk-with-traj/wbc.hpp
-  include/${PROJECT_NAME}/walk-with-traj/foot_trajectory.hpp
- )
+    include/${PROJECT_NAME}/flexibility_compensation.hpp
+    include/${PROJECT_NAME}/python.hpp
+    include/${PROJECT_NAME}/fwd.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-com-velocity.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-cop.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-fly-high.hpp
+    include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
+    include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hpp
+    include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hxx
+    include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hpp
+    include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hxx
+    include/${PROJECT_NAME}/crocomplements/contact/contact3d.hpp
+    include/${PROJECT_NAME}/crocomplements/contact/contact1d.hpp
+    include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hpp
+    include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hpp
+    include/${PROJECT_NAME}/crocomplements/contact/contact-force.hpp
+    include/${PROJECT_NAME}/crocomplements/softcontact/dam3d.hpp
+    include/${PROJECT_NAME}/crocomplements/softcontact/dam3d-augmented.hpp
+    include/${PROJECT_NAME}/crocomplements/softcontact/iam3d-augmented.hpp
+    include/${PROJECT_NAME}/crocomplements/softcontact/state.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-com-velocity.hxx
+    include/${PROJECT_NAME}/crocomplements/residual-cop.hxx
+    include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hxx
+    include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hxx
+    include/${PROJECT_NAME}/crocomplements/contact/contact3d.hxx
+    include/${PROJECT_NAME}/crocomplements/contact/contact1d.hxx
+    include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hxx
+    include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hxx
+    include/${PROJECT_NAME}/crocomplements/contact/contact-force.hxx
+    include/${PROJECT_NAME}/crocomplements/residual-fly-high.hxx
+    include/${PROJECT_NAME}/crocomplements/softcontact/dam3d.hxx
+    include/${PROJECT_NAME}/crocomplements/softcontact/dam3d-augmented.hxx
+    include/${PROJECT_NAME}/crocomplements/softcontact/iam3d-augmented.hxx
+    include/${PROJECT_NAME}/crocomplements/softcontact/state.hxx
+    include/${PROJECT_NAME}/walk-without-think/ocp.hpp
+    include/${PROJECT_NAME}/walk-without-think/mpc.hpp
+    include/${PROJECT_NAME}/walk-without-think/mpc.hxx
+    include/${PROJECT_NAME}/walk-with-traj/designer.hpp
+    include/${PROJECT_NAME}/walk-with-traj/model_factory.hpp
+    include/${PROJECT_NAME}/walk-with-traj/horizon_manager.hpp
+    # include/${PROJECT_NAME}/walk-with-traj/ocp.hpp
+    include/${PROJECT_NAME}/walk-with-traj/wbc.hpp
+    include/${PROJECT_NAME}/walk-with-traj/foot_trajectory.hpp)
 
 set(${PROJECT_NAME}_SOURCES
     src/walk-with-traj/designer.cpp
@@ -161,8 +160,7 @@ if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
 
-# # Benchmark
-# add_subdirectory(benchmark)
+# # Benchmark add_subdirectory(benchmark)
 
 # Installation
 install(

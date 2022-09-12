@@ -28,7 +28,8 @@ class StateSoftContactTpl : public StateAbstractTpl<_Scalar> {
 
   enum JointType { FreeFlyer = 0, Spherical, Simple };
 
-  explicit StateSoftContactTpl(boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model, std::size_t nc);
+  explicit StateSoftContactTpl(
+      boost::shared_ptr<pinocchio::ModelTpl<Scalar> > model, std::size_t nc);
   virtual ~StateSoftContactTpl();
 
   virtual VectorXs zero() const;
@@ -77,7 +78,6 @@ class StateSoftContactTpl : public StateAbstractTpl<_Scalar> {
   // boost::shared_ptr<pinocchio::ModelTpl<Scalar> > pinocchio_;
   VectorXs y0_;
   JointType joint_type_;
-  
 };
 
 }  // namespace sobec

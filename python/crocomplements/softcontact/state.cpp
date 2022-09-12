@@ -33,7 +33,8 @@ void exposeStateSoftContact() {
       .def("rand", &sobec::StateSoftContact::rand, bp::args("self"),
            "Return a random reference state.\n\n"
            ":return random reference state")
-      .def("diff", &sobec::StateSoftContact::diff_dx, bp::args("self", "x0", "x1"),
+      .def("diff", &sobec::StateSoftContact::diff_dx,
+           bp::args("self", "x0", "x1"),
            "Operator that differentiates the two robot states.\n\n"
            "It returns the value of x1 [-] x0 operation. This operator uses "
            "the Lie\n"

@@ -21,26 +21,22 @@
 namespace sobec {
 namespace unittest {
 
-const std::vector<DAMSoftContactTypes::Type>
-    DAMSoftContactTypes::all(DAMSoftContactTypes::init_all());
+const std::vector<DAMSoftContactTypes::Type> DAMSoftContactTypes::all(
+    DAMSoftContactTypes::init_all());
 
-std::ostream& operator<<(std::ostream& os,
-                         DAMSoftContactTypes::Type dam_type) {
+std::ostream& operator<<(std::ostream& os, DAMSoftContactTypes::Type dam_type) {
   switch (dam_type) {
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_TalosArm:
+    case DAMSoftContactTypes::DAMSoftContact3DAugmentedFwdDynamics_TalosArm:
       os << "DAMSoftContact3DAugmentedFwdDynamics_TalosArm";
       break;
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_HyQ:
+    case DAMSoftContactTypes::DAMSoftContact3DAugmentedFwdDynamics_HyQ:
       os << "DAMSoftContact3DAugmentedFwdDynamics_HyQ";
       break;
     case DAMSoftContactTypes::
         DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid:
       os << "DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid";
       break;
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_Talos:
+    case DAMSoftContactTypes::DAMSoftContact3DAugmentedFwdDynamics_Talos:
       os << "DAMSoftContact3DAugmentedFwdDynamics_Talos";
       break;
     default:
@@ -57,30 +53,27 @@ DAMSoftContactFactory::create(DAMSoftContactTypes::Type dam_type,
                               PinocchioReferenceTypes::Type ref_type) const {
   boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics> action;
   switch (dam_type) {
-    // TalosArm 
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_TalosArm:
+    // TalosArm
+    case DAMSoftContactTypes::DAMSoftContact3DAugmentedFwdDynamics_TalosArm:
       action = create_augmentedDAMSoft3D(
           StateModelTypes::StateMultibody_TalosArm,
           ActuationModelTypes::ActuationModelFull, ref_type);
       break;
-    // HyQ  
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_HyQ:
+    // HyQ
+    case DAMSoftContactTypes::DAMSoftContact3DAugmentedFwdDynamics_HyQ:
       action = create_augmentedDAMSoft3D(
           StateModelTypes::StateMultibody_HyQ,
           ActuationModelTypes::ActuationModelFloatingBase, ref_type);
       break;
-    // RandmHumanoid  
+    // RandmHumanoid
     case DAMSoftContactTypes::
         DAMSoftContact3DAugmentedFwdDynamics_RandomHumanoid:
       action = create_augmentedDAMSoft3D(
           StateModelTypes::StateMultibody_RandomHumanoid,
           ActuationModelTypes::ActuationModelFloatingBase, ref_type);
       break;
-    // Talos  
-    case DAMSoftContactTypes::
-        DAMSoftContact3DAugmentedFwdDynamics_Talos:
+    // Talos
+    case DAMSoftContactTypes::DAMSoftContact3DAugmentedFwdDynamics_Talos:
       action = create_augmentedDAMSoft3D(
           StateModelTypes::StateMultibody_Talos,
           ActuationModelTypes::ActuationModelFloatingBase, ref_type);
@@ -92,23 +85,24 @@ DAMSoftContactFactory::create(DAMSoftContactTypes::Type dam_type,
   return action;
 }
 
-
 boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics>
-DAMSoftContactFactory::create_augmentedDAMSoft3D(StateModelTypes::Type state_type,
-                                                 ActuationModelTypes::Type actuation_type,
-                                                 PinocchioReferenceTypes::Type ref_type) const {
+DAMSoftContactFactory::create_augmentedDAMSoft3D(
+    StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
+    PinocchioReferenceTypes::Type ref_type) const {
   boost::shared_ptr<sobec::DAMSoftContact3DAugmentedFwdDynamics> action;
   boost::shared_ptr<crocoddyl::StateMultibody> state;
   boost::shared_ptr<crocoddyl::ActuationModelAbstract> actuation;
   boost::shared_ptr<crocoddyl::ContactModelMultiple> contact;
   boost::shared_ptr<crocoddyl::CostModelSum> cost;
-  state = boost::static_pointer_cast<crocoddyl::StateMultibody>(StateModelFactory().create(state_type));
+  state = boost::static_pointer_cast<crocoddyl::StateMultibody>(
+      StateModelFactory().create(state_type));
   actuation = ActuationModelFactory().create(actuation_type, state_type);
-  cost = boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
+  cost =
+      boost::make_shared<crocoddyl::CostModelSum>(state, actuation->get_nu());
   std::string frameName = "";
 
   pinocchio::ReferenceFrame pinRefFrame;
-  switch(ref_type){
+  switch (ref_type) {
     case PinocchioReferenceTypes::Type::LOCAL:
       pinRefFrame = pinocchio::LOCAL;
       break;
@@ -155,16 +149,12 @@ DAMSoftContactFactory::create_augmentedDAMSoft3D(StateModelTypes::Type state_typ
   double Kv = 10;
   Eigen::Vector3d oPc = Eigen::Vector3d::Zero();
   action = boost::make_shared<sobec::DAMSoftContact3DAugmentedFwdDynamics>(
-      state, 
-      actuation, 
-      cost, 
-      state->get_pinocchio()->getFrameId(frameName), 
-      Kp, Kv, oPc, pinRefFrame);
+      state, actuation, cost, state->get_pinocchio()->getFrameId(frameName), Kp,
+      Kv, oPc, pinRefFrame);
   action->set_force_cost(Eigen::Vector3d::Zero(), 0.01);
 
   return action;
 }
-
 
 }  // namespace unittest
 }  // namespace sobec

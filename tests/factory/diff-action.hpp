@@ -65,7 +65,7 @@ class DifferentialActionModelFactory {
   boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics>
   create_freeFwdDynamics(StateModelTypes::Type state_type,
                          ActuationModelTypes::Type actuation_type) const;
-  
+
   // Rigid contact 3D dynamics
   boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
   create_contact3DFwdDynamics(StateModelTypes::Type state_type,
