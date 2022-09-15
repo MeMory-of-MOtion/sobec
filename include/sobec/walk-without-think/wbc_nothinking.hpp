@@ -14,7 +14,7 @@
 #include "sobec/walk-with-traj/wbc.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
 #include "sobec/walk-with-traj/horizon_manager.hpp"
-#include "sobec/walk-with-traj/model_factory_nothinking.hpp"
+#include "sobec/walk-without-think/model_factory_nothinking.hpp"
 
 namespace sobec {
 

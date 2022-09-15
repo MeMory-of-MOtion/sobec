@@ -14,6 +14,7 @@
 #include "sobec/walk-with-traj/designer.hpp"
 #include "sobec/walk-with-traj/horizon_manager.hpp"
 #include "sobec/walk-with-traj/model_factory.hpp"
+#include "sobec/walk-without-think/model_factory_nothinking.hpp"
 
 namespace sobec {
 
@@ -53,11 +54,17 @@ class WBC {
   HorizonManager horizon_;
   HorizonManager walkingCycle_;
   HorizonManager standingCycle_;
+  
+  eVector3 ref_com_vel_;
+  eVector3 ref_com_;
+  pinocchio::Motion ref_feet_vel_;
 
   Eigen::VectorXd x0_;
 
   LocomotionType now_ = WALKING;
   int nWalkingCycles_;
+  double yaw_left_;
+  double yaw_right_;
 
   // timings
   std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;
@@ -67,6 +74,7 @@ class WBC {
   // INTERNAL UPDATING functions
   void updateStepTrackerReferences();
   void updateStepTrackerLastReference();
+  void updateNonThinkingReferences();
 
   // References for costs:
   std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
@@ -109,6 +117,10 @@ class WBC {
 
   void generateStandingCycle(ModelMaker &mm);
 
+  void generateWalkingCycleNoThinking(ModelMakerNoThinking &mm);
+
+  void generateStandingCycleNoThinking(ModelMakerNoThinking &mm);
+
   void updateStepCycleTiming();
 
   bool timeToSolveDDP(int iteration);
@@ -118,7 +130,11 @@ class WBC {
 
   void iterate(int iteration, const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, bool is_feasible);
+  void iterateNoThinking(const Eigen::VectorXd &q_current,
+               const Eigen::VectorXd &v_current, bool is_feasible);
 
+  void iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
+               const Eigen::VectorXd &v_current, bool is_feasible);
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
 
@@ -176,10 +192,22 @@ class WBC {
   void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) {
     ref_RF_poses_[time] = ref_RF_pose;
   }
+  
+  const eVector3 &getCoMRef() { return ref_com_;}
+  void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com;}
+  
+  const eVector3 &getVelRef_COM() {
+    return ref_com_vel_;
+  }
+  void setVelRef_COM(eVector3 ref_com_vel) {
+    ref_com_vel_ = ref_com_vel;
+  }
 
   // For the python bindings:
   std::vector<pinocchio::SE3> &ref_LF_poses() { return ref_LF_poses_; }
   std::vector<pinocchio::SE3> &ref_RF_poses() { return ref_RF_poses_; }
+  eVector3 &ref_com() { return ref_com_; }
+  eVector3 &ref_com_vel() { return ref_com_vel_; }
 
   void switchToWalk() { now_ = WALKING; }
   void switchToStand() { now_ = STANDING; }

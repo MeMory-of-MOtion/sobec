@@ -42,11 +42,11 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 10
+total_steps = 0
 DT = 1e-2  # Time step of the DDP
 T = 100 # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 20  # Double support time  # TODO: (check with 20)
-TsingleSupport = 80  # Single support time
+TdoubleSupport = 30  # Double support time  # TODO: (check with 20)
+TsingleSupport = 70  # Single support time
 
 Tstep = TsingleSupport + TdoubleSupport
 
@@ -70,8 +70,8 @@ gravity = np.array([0, 0, -9.81])
 mu = 0.3
 footSize = 0.05
 cone_box = np.array([0.1, 0.05])
-minNforce = 200
-maxNforce = 1200  # This may be still too low
+minNforce = 100
+maxNforce = 1500  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
@@ -107,7 +107,7 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 
 # ###### WALKING GEOMETRY #########
-xForward = 0.3 # step size
+xForward = 0. # step size
 sidestep = 0.0
 swingApex = 0.2  # foot height
 footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
@@ -130,17 +130,17 @@ wFootPlacement = 10000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wWrenchCone = 0.001
-wCoP = 100
+wWrenchCone = 0.05
+wCoP = 10
 
-weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
-weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
+weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
+weightBaseVel = [0, 0, 10, 100, 100, 0]  # [x, y, z| x, y, z]
 weightLegPos = [1, 10, 10, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
 weightArmPos = [0.01, 100, 1, 0.1]  # [z, x, z, y, z, x, y]
 weightArmVel = [1, 100, 1, 1]  # [z, x, z, y, z, x, y]
-weightTorsoPos = [0.1, 5]  # [z, y]
-weightTorsoVel = [0.1, 5]  # [z, y]
+weightTorsoPos = [10, 5]  # [z, y]
+weightTorsoVel = [10, 5]  # [z, y]
 stateWeights = np.array(
     weightBasePos
     + weightLegPos * 2

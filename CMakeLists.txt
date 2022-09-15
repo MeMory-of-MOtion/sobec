@@ -63,7 +63,9 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hpp
 	include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hpp
 	include/${PROJECT_NAME}/crocomplements/residual-fly-high.hpp
+	include/${PROJECT_NAME}/crocomplements/residual-2D-surface.hpp
 	include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
+	include/${PROJECT_NAME}/crocomplements/activation-weighted-log.hpp
 	include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hpp
 	include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hxx
 	include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hpp
@@ -83,29 +85,28 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hxx
 	include/${PROJECT_NAME}/crocomplements/contact/contact-force.hxx
 	include/${PROJECT_NAME}/crocomplements/residual-fly-high.hxx
+	include/${PROJECT_NAME}/crocomplements/residual-2D-surface.hxx
 	include/${PROJECT_NAME}/walk-without-think/ocp.hpp
 	include/${PROJECT_NAME}/walk-without-think/mpc.hpp
 	include/${PROJECT_NAME}/walk-without-think/mpc.hxx
+	include/${PROJECT_NAME}/walk-without-think/model_factory_nothinking.hpp
 	include/${PROJECT_NAME}/walk-with-traj/designer.hpp
 	include/${PROJECT_NAME}/walk-with-traj/model_factory.hpp
-	include/${PROJECT_NAME}/walk-with-traj/model_factory_nothinking.hpp
 	include/${PROJECT_NAME}/walk-with-traj/horizon_manager.hpp
 	# include/${PROJECT_NAME}/walk-with-traj/ocp.hpp
 	include/${PROJECT_NAME}/walk-with-traj/wbc.hpp
-	include/${PROJECT_NAME}/walk-with-traj/wbc_nothinking.hpp
 	include/${PROJECT_NAME}/walk-with-traj/foot_trajectory.hpp
  )
 
 set(${PROJECT_NAME}_SOURCES
 	src/walk-with-traj/designer.cpp
 	src/walk-with-traj/model_factory.cpp
-	src/walk-with-traj/model_factory_nothinking.cpp
 	src/walk-with-traj/horizon_manager.cpp
 	# src/walk-with-traj/ocp.cpp
 	src/walk-with-traj/wbc.cpp
-	src/walk-with-traj/wbc_nothinking.cpp
 	src/walk-with-traj/foot_trajectory.cpp
 	src/flexibility_compensation.cpp
+	src/walk-without-think/model_factory_nothinking.cpp
 	src/walk-without-think/ocp.cpp
 	src/walk-without-think/ocp-running-models.cpp
 	src/walk-without-think/ocp-terminal-model.cpp

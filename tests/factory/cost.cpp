@@ -16,6 +16,7 @@
 
 #include "sobec/crocomplements/residual-com-velocity.hpp"
 #include "sobec/crocomplements/residual-fly-high.hpp"
+#include "sobec/crocomplements/residual-2D-surface.hpp"
 // #include "crocoddyl/multibody/residuals/centroidal-momentum.hpp"
 #include <crocoddyl/core/costs/cost-sum.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
@@ -51,6 +52,9 @@ std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
       break;
     case CostModelTypes::CostModelResidualFlyHigh:
       os << "CostModelResidualFlyHigh";
+      break;
+    case CostModelTypes::CostModelResidual2DSurface:
+      os << "CostModelResidual2DSurface";
       break;
     case CostModelTypes::CostModelResidualFramePlacement:
       os << "CostModelResidualFramePlacement";
@@ -99,7 +103,7 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
   boost::shared_ptr<crocoddyl::StateMultibody> state =
       boost::static_pointer_cast<crocoddyl::StateMultibody>(
           state_factory.create(state_type));
-
+  
   crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() - 1;
   pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
   if (nu == std::numeric_limits<std::size_t>::max()) {
@@ -139,6 +143,13 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
                                                           nu));
       sobec::ResidualModelFlyHigh res(state, frame_index, 1, nu);
       res.get_frame_id();
+      break;
+    }
+    case CostModelTypes::CostModelResidual2DSurface: {
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 1),
+          boost::make_shared<sobec::ResidualModel2DSurface>(state, frame_index, Eigen::Vector2d::Random(), 
+                                                            0.2, 0.2, nu));
       break;
     }
     case CostModelTypes::CostModelResidualFramePlacement:

@@ -203,11 +203,28 @@ void HorizonManager::setVelocityRefCOM(const unsigned long time,
       ->set_reference(ref_velocity);
 }
 
-void HorizonManager::setForceReferenceLF(const unsigned long time,
-                                         const std::string &nameCostLF,
+void HorizonManager::setVelocityRefFeet(const unsigned long time,
+                                       const std::string &nameCost,
+                                       const pinocchio::Motion &ref_velocity) {
+  boost::static_pointer_cast<sobec::ResidualModelFrameVelocity>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_velocity);
+}
+
+void HorizonManager::setSurfaceInequality(const unsigned long time,
+                                       const std::string &nameCost,
+                                       const eVector2 &XYpose,
+                                       const double &orientation) {
+  boost::static_pointer_cast<sobec::ResidualModel2DSurface>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_Ab(XYpose,orientation);
+}
+
+void HorizonManager::setForceReference(const unsigned long time,
+                                         const std::string &nameCost,
                                          const eVector6 &reference) {
   cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
-      costs(time)->get_costs().at(nameCostLF)->cost);
+      costs(time)->get_costs().at(nameCost)->cost);
   new_ref_ =
       boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(
           cone_->get_residual())
@@ -218,19 +235,25 @@ void HorizonManager::setForceReferenceLF(const unsigned long time,
       ->set_reference(new_ref_);
 }
 
-void HorizonManager::setForceReferenceRF(const unsigned long time,
-                                         const std::string &nameCostRF,
+void HorizonManager::setWrenchReference(const unsigned long time,
+                                         const std::string &nameCost,
+                                         const Eigen::Matrix3d &rotation,
                                          const eVector6 &reference) {
   cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
-      costs(time)->get_costs().at(nameCostRF)->cost);
-  new_ref_ =
-      boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(
-          cone_->get_residual())
-          ->get_reference()
-          .get_A() *
-      reference;
-  boost::static_pointer_cast<ActivationModelQuadRef>(cone_->get_activation())
-      ->set_reference(new_ref_);
+      costs(time)->get_costs().at(nameCost)->cost);                                       
+  residual_cone_ = boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(
+      boost::static_pointer_cast<crocoddyl::CostModelResidual>(
+      costs(time)->get_costs().at(nameCost)->cost)->get_residual());
+  
+  wrench_cone_ = residual_cone_->get_reference();
+  wrench_cone_.set_R(rotation.transpose());
+  wrench_cone_.update();
+  
+  activation_cone_ = boost::static_pointer_cast<ActivationModelQuadRef>(
+      cone_->get_activation());
+  
+  activation_cone_->set_reference(wrench_cone_.get_A() * reference);
+  residual_cone_->set_reference(wrench_cone_);
 }
 
 void HorizonManager::setSwingingLF(const unsigned long time,
@@ -239,7 +262,7 @@ void HorizonManager::setSwingingLF(const unsigned long time,
                                    const std::string &nameForceCostLF) {
   removeContactLF(time, nameContactLF);
   activateContactRF(time, nameContactRF);
-  setForceReferenceLF(time, nameForceCostLF, eVector6::Zero());
+  setWrenchReference(time, nameForceCostLF, Eigen::Matrix3d::Identity(),eVector6::Zero());
 }
 
 void HorizonManager::setSwingingRF(const unsigned long time,
@@ -248,7 +271,7 @@ void HorizonManager::setSwingingRF(const unsigned long time,
                                    const std::string &nameForceCostRF) {
   activateContactLF(time, nameContactLF);
   removeContactRF(time, nameContactRF);
-  setForceReferenceRF(time, nameForceCostRF, eVector6::Zero());
+  setWrenchReference(time, nameForceCostRF, Eigen::Matrix3d::Identity(),eVector6::Zero());
 }
 
 void HorizonManager::setDoubleSupport(const unsigned long time,

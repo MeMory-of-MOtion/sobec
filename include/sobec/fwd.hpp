@@ -96,11 +96,28 @@ struct ResidualDataFeetCollisionTpl;
 typedef ResidualModelFeetCollisionTpl<double> ResidualModelFeetCollision;
 typedef ResidualDataFeetCollisionTpl<double> ResidualDataFeetCollision;
 
+// Cost 2D surface
+template <typename Scalar>
+class ResidualModel2DSurfaceTpl;
+template <typename Scalar>
+struct ResidualData2DSurfaceTpl;
+typedef ResidualModel2DSurfaceTpl<double> ResidualModel2DSurface;
+typedef ResidualData2DSurfaceTpl<double> ResidualData2DSurface;
+
 // Activation quad-ref
 template <typename Scalar>
 class ActivationModelQuadRefTpl;
 typedef ActivationModelQuadRefTpl<double> ActivationModelQuadRef;
 typedef boost::shared_ptr<ActivationModelQuadRef> ActivationModelQuadRefPtr;
+
+// Activation weighted-log
+template <typename Scalar>
+class ActivationModelWeightedLogTpl;
+template <typename Scalar>
+struct ActivationDataWeightedLogTpl;
+typedef ActivationModelWeightedLogTpl<double> ActivationModelWeightedLog;
+typedef ActivationDataWeightedLogTpl<double> ActivationDataWeightedLog;
+typedef boost::shared_ptr<ActivationModelWeightedLog> ActivationModelWeightedLogPtr;
 
 typedef Eigen::Matrix<double, 6, 1> eVector6;
 typedef Eigen::Matrix<double, 4, 1> eVector4;

@@ -69,6 +69,10 @@ class BulletTalos:
 
     def initializeJoints(self, q0CompleteStart):
         # Initialize position in pyBullet
+        p.resetBasePositionAndOrientation(self.robotId, posObj=[q0CompleteStart[0] + self.localInertiaPos[0],
+            q0CompleteStart[1] + self.localInertiaPos[1], 
+            q0CompleteStart[2] + self.localInertiaPos[2]], 
+            ornObj=q0CompleteStart[3:7])
         initial_joint_positions = np.array(q0CompleteStart[7:].flat).tolist()
         for i in range(len(initial_joint_positions)):
             p.enableJointForceTorqueSensor(self.robotId, i, True)

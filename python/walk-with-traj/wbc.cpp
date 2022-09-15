@@ -91,6 +91,10 @@ void exposeWBC() {
            bp::args("self", "modelMaker"))
       .def("generateStandingCycle", &WBC::generateStandingCycle,
            bp::args("self", "modelMaker"))
+      .def("generateWalkingCycleNoThinking", &WBC::generateWalkingCycleNoThinking,
+           bp::args("self", "modelMakerNoThinking"))
+      .def("generateStandingCycleNoThinking", &WBC::generateStandingCycleNoThinking,
+           bp::args("self", "modelMakerNoThinking"))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
            static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
@@ -102,6 +106,18 @@ void exposeWBC() {
            static_cast<void (WBC::*)(const Eigen::VectorXd &,
                                      const Eigen::VectorXd &, const bool)>(
                &WBC::iterate),
+           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
+            bp::arg("is_feasible") = false))
+      .def("iterateNoThinking",
+           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
+                                     const Eigen::VectorXd &, const bool)>(
+               &WBC::iterateNoThinking),
+           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
+            bp::arg("v_current"), bp::arg("is_feasible") = false))
+      .def("iterateNoThinking",
+           static_cast<void (WBC::*)(const Eigen::VectorXd &,
+                                     const Eigen::VectorXd &, const bool)>(
+               &WBC::iterateNoThinking),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
       .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle,
@@ -152,6 +168,20 @@ void exposeWBC() {
               bp::return_value_policy<bp::reference_existing_object>()),
           static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(
               &WBC::setPoseRef_RF))
+      .add_property(
+          "ref_com",
+          bp::make_function(
+              &WBC::ref_com,
+              bp::return_value_policy<bp::reference_existing_object>()),
+          static_cast<void (WBC::*)(eVector3)>(
+              &WBC::setCoMRef))
+      .add_property(
+          "ref_com_vel",
+          bp::make_function(
+              &WBC::ref_com_vel,
+              bp::return_value_policy<bp::reference_existing_object>()),
+          static_cast<void (WBC::*)(eVector3)>(
+              &WBC::setVelRef_COM))
       .def("switchToWalk", &WBC::switchToWalk)
       .def("switchToStand", &WBC::switchToStand)
       .def("current_motion_type", &WBC::currentLocomotion)

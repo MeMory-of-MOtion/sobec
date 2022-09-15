@@ -8,7 +8,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include <sobec/walk-with-traj/wbc_nothinking.hpp>
+#include <sobec/walk-without-think/wbc_nothinking.hpp>
 
 #include "sobec/fwd.hpp"
 
@@ -22,7 +22,6 @@ void initialize(WBCNoThinking &self, const bp::dict &settings,
                 const std::string &actuationCostName) {
   WBCSettings conf;
 
-  conf.horizonSteps = bp::extract<int>(settings["horizonSteps"]);
   conf.totalSteps = bp::extract<int>(settings["totalSteps"]);
   conf.T = bp::extract<int>(settings["T"]);
   conf.TdoubleSupport = bp::extract<int>(settings["TdoubleSupport"]);
@@ -72,7 +71,7 @@ void exposeWBCNoThinking() {
       .def("__init__", make_constructor(constructVectorFromList<eVector3>))
       .def("__repr__", &displayVector<eVector3>);
 
-  bp::class_<WBCNoThinking>("WBCNoThinking", bp::init<>())
+  bp::class_<WBCNoThinking, bp::bases<WBC> >("WBCNoThinking")
       .def("initialize", &initialize,
            bp::args("self", "settings", "design", "horizon", "q0", "v0",
                     "actuationCostName"),

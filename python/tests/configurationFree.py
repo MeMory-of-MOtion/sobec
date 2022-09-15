@@ -40,19 +40,17 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-preview_steps = 2
-total_steps = 8
-T_total = 2000  # Total number of nodes of the simulation
+total_steps = 10
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 40  # Double support time  # TODO: (check with 20)
+TdoubleSupport = 30  # Double support time  # TODO: (check with 20)
 simu_step = simu_period = 1e-3  #
 
 Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
 
 # TODO: landing_advance and takeoff_delay are missing
 
-TsingleSupport = 100  # Single support time
+TsingleSupport = 60  # Single support time
 ddpIteration = 1  # Number of DDP iterations
 
 Tstep = TsingleSupport + TdoubleSupport
@@ -108,10 +106,13 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 # ###### WALKING GEOMETRY #########
 xForward = 0.15 # step size
-swingApex = 0.  # foot height
-footMinimalDistance = 0.25
+swingApex = 0.04  # foot height
+footMinimalDistance = 0.2
 flyHighSlope = 100
-footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
+footPenetration = 0.0
+
+heelTranslation = 0.1
+toeTranslation = 0.1
 
 normal_height = 0.87
 omega = np.sqrt(-gravity[2] / normal_height)
@@ -127,19 +128,20 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 
 # Weights for all costs
 
-wFootPlacement = 1000
+wFootPlacement = 10000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wVCoM = 0
-wCoM = 1000
+wVCoM = 10000
+wCoM = 0
 wWrenchCone = 0.05
 wFootRot = 1000
 wGroundCol = 0
 wCoP = 10
-wFlyHigh = 1000
-wVelFoot = 1000
-wColFeet = 1000
+wFlyHigh = 0
+wVelFoot = 0
+wColFeet = 50000
+wSurface = 0
 
 weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
@@ -168,6 +170,13 @@ controlWeight = np.array(weightuLeg * 2
                         + weightuTorso 
                         #+ weightuArm * 2
 )
+
+lowKinematicLimits = np.array([-0.35, -0.52,-2.10, 0.0,-1.31,-0.52, # left leg
+                               -1.57,-0.52,-2.10,0.0,-1.31,-0.52, # right leg
+                               -1.3,-0.1])  # torso
+highKinematicLimits = np.array([1.57, 0.52, 0.7, 2.62, 0.77, 0.52, # left leg
+                               0.35,0.52,0.7,2.62,0.77,0.52, # right leg
+                               1.3,0.2])  # torso 
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.

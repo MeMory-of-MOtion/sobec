@@ -8,6 +8,7 @@ set(${PY_NAME}_SOURCES
     crocomplements/residual-center-of-friction.cpp
     crocomplements/residual-feet-collision.cpp
     crocomplements/residual-fly-high.cpp
+    crocomplements/residual-2D-surface.cpp
     crocomplements/activation-quad-ref.cpp
     crocomplements/lowpassfilter/action.cpp
     crocomplements/lowpassfilter/state.cpp
@@ -22,7 +23,8 @@ set(${PY_NAME}_SOURCES
     walk-with-traj/wbc.cpp
     walk-with-traj/foot_trajectory.cpp
     walk-without-think/ocp.cpp
-    walk-without-think/mpc.cpp)
+    walk-without-think/mpc.cpp
+    walk-without-think/model_factory_nothinking.cpp)
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
 target_link_libraries(${PY_NAME}_pywrap PUBLIC ${PROJECT_NAME} eigenpy::eigenpy)

@@ -15,44 +15,43 @@ from bullet_Talos import BulletTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBCNoThinking, HorizonManager, ModelMakerNoThinking, Flex, Support
+from sobec import RobotDesigner, WBC, HorizonManager, ModelMakerNoThinking, Flex, Support, FootTrajectory
 import ndcurves
 import numpy as np
 import time
 import ndcurves
 
 
-def defineBezier(height, time_init,time_final,translation_init,translation_final):
+def defineBezier(height, time_init,time_final,placement_init,placement_final):
 	wps = np.zeros([3, 9])
 	for i in range(4):  # init position. init vel,acc and jerk == 0
-		wps[:, i] = translation_init
+		wps[:, i] = placement_init.translation
 	# compute mid point (average and offset along z)
-	wps[:, 4] = (translation_init + translation_final) / 2.
+	wps[:, 4] = (placement_init.translation + placement_final.translation) / 2.
 	wps[2, 4] += height
 	for i in range(5, 9):  # final position. final vel,acc and jerk == 0
-		wps[:, i] = translation_final
+		wps[:, i] = placement_final.translation
 	translation = ndcurves.bezier(wps, time_init, time_final)
-	return translation
+	pBezier = ndcurves.piecewise_SE3(ndcurves.SE3Curve(translation, placement_init.rotation, placement_final.rotation))
+	return pBezier
 
-def foot_trajectory(T, time_to_land, translation_init,translation_final, trajectory_swing):
+def foot_trajectory(T, time_to_land, initial_pose,final_pose, trajectory_swing):
 	"""Functions to generate steps."""
 	tmax = conf.TsingleSupport
 	landing_advance = 0
 	takeoff_delay = 0
-	translation = []
+	placement = []
 	for t in range(time_to_land - landing_advance, time_to_land - landing_advance - T, -1):
-		if (t < 0):
-			translation.append(translation_final)
+		if (t <= 0):
+			placement.append(final_pose)
 		elif (t > conf.TsingleSupport - landing_advance - takeoff_delay):
-			translation.append(translation_init)
+			placement.append(initial_pose)
 		else:
-			swing_pose = translation_init.copy()
-			swing_pose[0] = trajectory_swing(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[0]
-			swing_pose[1] = trajectory_swing(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[1]
-			swing_pose[2] = trajectory_swing(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[2]
-			translation.append(swing_pose)
+			swing_pose = initial_pose.copy()
+			swing_pose.translation = trajectory_swing.compute(float(conf.TsingleSupport - t) * conf.DT).translation
+			placement.append(swing_pose)
 
-	return translation
+	return placement
 
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
@@ -90,9 +89,7 @@ design_conf = dict(
 )
 design = RobotDesigner()
 design.initialize(design_conf)
-print("Model ok")
-design.addToeAndHeel(0.1,0.1)
-print("Added heel")
+
 # Vector of Formulations
 MM_conf = dict(
     timeStep=conf.DT,
@@ -106,6 +103,8 @@ MM_conf = dict(
     footSize = conf.footSize,
     flyHighSlope = conf.flyHighSlope,
     footMinimalDistance = conf.footMinimalDistance,
+    heelTranslation = conf.heelTranslation,
+    toeTranslation = conf.toeTranslation,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
@@ -119,26 +118,28 @@ MM_conf = dict(
     wFlyHigh = conf.wFlyHigh,
     wVelFoot = conf.wVelFoot,
     wColFeet = conf.wColFeet,
+    wSurface = conf.wSurface,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
+    lowKinematicLimits=conf.lowKinematicLimits,
+    highKinematicLimits=conf.highKinematicLimits,
     th_grad=conf.th_grad,
     th_stop=conf.th_stop,
 )
 
 formuler = ModelMakerNoThinking()
 formuler.initialize(MM_conf, design)
-all_models = formuler.formulateHorizon(length=conf.T)
-ter_model = formuler.formulateNoThinkingTerminalTracker(Support.DOUBLE)
-print("horizon formulated")
-# Horizon
 
+all_models = formuler.formulateHorizon(length=conf.T)
+ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
+
+# Horizon
 H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
 horizon = HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), all_models, ter_model)
-print("horizon initialized")
+
 # MPC
 wbc_conf = dict(
-    horizonSteps=conf.preview_steps,
     totalSteps=conf.total_steps,
     T=conf.T,
     TdoubleSupport=conf.TdoubleSupport,
@@ -166,7 +167,7 @@ flex.initialize(
     )
 )
 
-mpc = WBCNoThinking()
+mpc = WBC()
 mpc.initialize(
     wbc_conf,
     design,
@@ -175,8 +176,8 @@ mpc.initialize(
     design.get_v0Complete(),
     "actuationTask",
 )
-mpc.generateWalkingCycle(formuler)
-mpc.generateStandingCycle(formuler)
+mpc.generateWalkingCycleNoThinking(formuler)
+mpc.generateStandingCycleNoThinking(formuler)
 print("mpc generated")
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
@@ -213,13 +214,32 @@ wrench_reference_1contact = np.array([0,0,fz_ref_1contact,0,0,0])
 ref_force = fz_ref_2contact
 comRef = mpc.designer.get_com_position().copy()
 
+starting_position_right = mpc.designer.get_RF_frame().copy()
+final_position_right = mpc.designer.get_RF_frame().copy()
+final_position_right.translation[2] = final_position_right.translation[2] - conf.footPenetration 
+
+xForward = conf.xForward
+
+starting_position_left = mpc.designer.get_LF_frame().copy()
+final_position_left = mpc.designer.get_LF_frame().copy()
+final_position_left.translation[2] = final_position_left.translation[2] - conf.footPenetration 
+
+swing_trajectory_right = FootTrajectory(conf.swingApex,0.0,0)
+swing_trajectory_left = FootTrajectory(conf.swingApex,0.0,0)
+swing_trajectory_right.generate(0,conf.TsingleSupport * conf.DT,starting_position_right,final_position_right, False)
+swing_trajectory_left.generate(0,conf.TsingleSupport * conf.DT,starting_position_left,final_position_left, False)
+
 comRef[0] += 0.5
 comRef[1] += 0
 mpc.ref_com = comRef
-mpc.ref_com_vel = np.array([0.2,0,0])
+ref_com_vel = np.array([0.2,0.,0])
 
-for s in range(conf.T_total * conf.Nc):
+T_total = conf.total_steps * conf.Tstep + 5 * conf.T
+
+for s in range(T_total * conf.Nc):
 	#    time.sleep(0.001)
+	if (s // conf.Nc == conf.TdoubleSupport + conf.T):
+		mpc.ref_com_vel = ref_com_vel 
 	if mpc.timeToSolveDDP(s):
 
 		land_LF = (
@@ -252,6 +272,24 @@ for s in range(conf.T_total * conf.Nc):
 		)
 		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
 		
+		LF_refs = foot_trajectory(
+			len(mpc.ref_LF_poses),
+			land_LF,
+			starting_position_left,
+			final_position_left,
+			swing_trajectory_left
+		)
+		RF_refs = foot_trajectory(
+			len(mpc.ref_RF_poses),
+			land_RF,
+			starting_position_right,
+			final_position_right,
+			swing_trajectory_right
+		)
+
+		for i in range(len(mpc.ref_LF_poses)):
+			mpc.ref_LF_poses[i] = LF_refs[i]
+			mpc.ref_RF_poses[i] = RF_refs[i]
 		
 		if (mpc.walkingCycle.contacts(0).getContactStatus("leg_left_sole_fix_joint")):
 			if (mpc.walkingCycle.contacts(0).getContactStatus("leg_right_sole_fix_joint")):
@@ -273,8 +311,8 @@ for s in range(conf.T_total * conf.Nc):
 					wrench_reference_2contact_right[2] = ref_force
 				print("Change left force to " + str(wrench_reference_2contact_left[2]))
 				print("Change right force to " + str(wrench_reference_2contact_right[2]))
-				mpc.walkingCycle.setForceReferenceLF(0,"wrench_LF",wrench_reference_2contact_left)
-				mpc.walkingCycle.setForceReferenceRF(0,"wrench_RF",wrench_reference_2contact_right)
+				mpc.walkingCycle.setForceReference(0,"wrench_LF",wrench_reference_2contact_left)
+				mpc.walkingCycle.setForceReference(0,"wrench_RF",wrench_reference_2contact_right)
 			else:
 				TdoubleSupport = 1
 		else:
@@ -282,8 +320,9 @@ for s in range(conf.T_total * conf.Nc):
 
 		#print_trajectory(mpc.ref_LF_poses)
 
+	
 	start = time.time()
-	mpc.iterate(s, q_current, v_current)
+	mpc.iterateNoThinking(s, q_current, v_current)
 	end = time.time()
 	if end-start > 0.01:
 		print(end-start)

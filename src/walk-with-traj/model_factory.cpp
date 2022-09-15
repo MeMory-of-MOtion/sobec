@@ -189,13 +189,13 @@ void ModelMaker::defineJointLimits(Cost &costCollector) {
   double inf = 9999.0;
   lower_bound << Eigen::VectorXd::Constant(6, -inf),
       settings_.lowKinematicLimits,
-      Eigen::VectorXd::Constant(state_->get_nv(), -inf);
+      Eigen::VectorXd::Constant(state_->get_nv(), -inf); 
   upper_bound << Eigen::VectorXd::Constant(6, inf),
       settings_.highKinematicLimits,
       Eigen::VectorXd::Constant(state_->get_nv(), inf);
   crocoddyl::ActivationBounds bounds =
       crocoddyl::ActivationBounds(lower_bound, upper_bound, 1.);
-
+  
   boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationQB =
       boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
   boost::shared_ptr<crocoddyl::CostModelAbstract> jointLimitCost =

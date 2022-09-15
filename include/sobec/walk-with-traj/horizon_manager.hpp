@@ -8,6 +8,7 @@
 #include "sobec/fwd.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
 #include "sobec/walk-with-traj/model_factory.hpp"
+#include "sobec/walk-without-think/model_factory_nothinking.hpp"
 
 namespace sobec {
 struct HorizonManagerSettings {
@@ -23,6 +24,9 @@ class HorizonManager {
 
   // prealocated memory:
   boost::shared_ptr<crocoddyl::CostModelResidual> cone_;
+  boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> residual_cone_;
+  boost::shared_ptr<ActivationModelQuadRef> activation_cone_;
+  crocoddyl::WrenchCone wrench_cone_;
   std::vector<Eigen::VectorXd> warm_xs_;
   std::vector<Eigen::VectorXd> warm_us_;
   Eigen::VectorXd new_ref_;
@@ -88,6 +92,9 @@ class HorizonManager {
       const std::string &nameCostFootPose);
   void setVelocityRefCOM(const unsigned long time, const std::string &nameCost,
                          const eVector3 &ref_placement);
+  void setVelocityRefFeet(const unsigned long time,
+                          const std::string &nameCost,
+                          const pinocchio::Motion &ref_velocity);
   void activateContactLF(const unsigned long time,
                          const std::string &nameContacttLF);
   void activateContactRF(const unsigned long time,
@@ -96,11 +103,12 @@ class HorizonManager {
                        const std::string &nameContactLF);
   void removeContactRF(const unsigned long time,
                        const std::string &nameContactRF);
-  void setForceReferenceLF(const unsigned long time,
-                           const std::string &nameCostLF,
+  void setForceReference(const unsigned long time,
+                           const std::string &nameCost,
                            const eVector6 &reference);
-  void setForceReferenceRF(const unsigned long time,
-                           const std::string &nameCostRF,
+  void setWrenchReference(const unsigned long time,
+                           const std::string &nameCost,
+                           const Eigen::Matrix3d &rotation,
                            const eVector6 &reference);
   void setTerminalPoseCoM(const std::string &nameCost,
                           const eVector3 &ref_placement);
@@ -113,6 +121,10 @@ class HorizonManager {
   void setDoubleSupport(const unsigned long time,
                         const std::string &nameContactLF,
                         const std::string &nameContactRF);
+  void setSurfaceInequality(const unsigned long time,
+                            const std::string &nameCost,
+                            const eVector2 &XYpose,
+                            const double &orientation); 
 
   const eVector3 &getFootForce(const unsigned long time,
                                const std::string &nameFootForceCost);

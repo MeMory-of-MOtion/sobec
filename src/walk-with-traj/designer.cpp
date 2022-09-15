@@ -130,7 +130,6 @@ void RobotDesigner::addToeAndHeel(const double &heel_translation,const double &t
                                   rModel_.frames[rightFootId_].previousFrame,
                                   rModel_.frames[rightFootId_].placement * heelPlacement,
                                   pinocchio::OP_FRAME);
-  
   heelLeftId_ = rModel_.addFrame(heelFrameLeft);
   heelRightId_ = rModel_.addFrame(heelFrameRight);
   updateReducedModel(q0_);
