@@ -38,6 +38,7 @@ struct ModelMakerSettings {
   double wStateReg = 0;       // 100;
   double wControlReg = 0;     // 0.001;
   double wLimit = 0;          // 1e3;
+  double wPCoM = 0;
   double wVCoM = 0;           // 0;
   double wWrenchCone = 0;     // 0.05;
   double wFootTrans = 0;      // 100;
@@ -45,6 +46,9 @@ struct ModelMakerSettings {
   double wFootRot = 0;        // 100;
   double wGroundCol = 0;      // 0.05;
   double wCoP = 0;            // 1;
+  double wGripperPos = 0;
+  double wGripperRot = 0;
+  double wGripperVel = 0;
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
@@ -70,6 +74,7 @@ class ModelMaker {
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
   AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
+  AMA formulatePointingTask();
 
   std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
   std::vector<AMA> formulateHorizon(const int &T);
@@ -84,9 +89,12 @@ class ModelMaker {
   void definePostureTask(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
+  void defineCoMPosition(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
   void defineCoPTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
+  void defineGripperPlacement(Cost &costCollector);
+  void defineGripperVelocity(Cost &costCollector);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {
