@@ -135,6 +135,12 @@ void RobotDesigner::addToeAndHeel(const double &heel_translation,const double &t
   updateReducedModel(q0_);
 }
 
+void RobotDesigner::set_q0(const Eigen::VectorXd &q0) {
+	q0_ = q0;
+	x0_ << q0_, v0_;
+	updateReducedModel(q0_);
+}
+
 void RobotDesigner::updateReducedModel(const Eigen::VectorXd &x) {
   /** x is the reduced posture, or contains the reduced posture in the first
    * elements */

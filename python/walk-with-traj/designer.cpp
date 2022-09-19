@@ -74,6 +74,7 @@ void exposeDesigner() {
       .def("updateReducedModel", &RobotDesigner::updateReducedModel)
       .def("updateCompleteModel", &RobotDesigner::updateCompleteModel)
       .def("addToeAndHeel", &RobotDesigner::addToeAndHeel)
+      .def("set_q0", &RobotDesigner::set_q0)
       .def("get_LF_frame",
            bp::make_function(
                &RobotDesigner::get_LF_frame,

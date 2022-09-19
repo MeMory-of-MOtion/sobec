@@ -57,6 +57,7 @@ class RobotDesigner {
   void updateReducedModel(const Eigen::VectorXd &x);
   void updateCompleteModel(const Eigen::VectorXd &x);
   void addToeAndHeel(const double &heel_translation,const double &toe_translation);
+  void set_q0(const Eigen::VectorXd &q0);
 
   const pinocchio::SE3 &get_LF_frame();
   const pinocchio::SE3 &get_RF_frame();

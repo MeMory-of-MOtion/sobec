@@ -59,16 +59,16 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
   double Fz_ref;
   support == Support::DOUBLE ? Fz_ref = Mg / 2 : Fz_ref = Mg;
 
-  Eigen::Matrix3d coneRotationLeft =
+  /*Eigen::Matrix3d coneRotationLeft =
       designer_.get_LF_frame().rotation().transpose();
   Eigen::Matrix3d coneRotationRight =
-      designer_.get_RF_frame().rotation().transpose();
+      designer_.get_RF_frame().rotation().transpose();*/
 
   crocoddyl::WrenchCone wrenchCone_LF =
-      crocoddyl::WrenchCone(coneRotationLeft, settings_.mu, settings_.coneBox,
+      crocoddyl::WrenchCone(Eigen::Matrix3d::Identity(), settings_.mu, settings_.coneBox,
                             4, true, settings_.minNforce, settings_.maxNforce);
   crocoddyl::WrenchCone wrenchCone_RF =
-      crocoddyl::WrenchCone(coneRotationRight, settings_.mu, settings_.coneBox,
+      crocoddyl::WrenchCone(Eigen::Matrix3d::Identity(), settings_.mu, settings_.coneBox,
                             4, true, settings_.minNforce, settings_.maxNforce);
 
   eVector6 refWrench_LF = eVector6::Zero();

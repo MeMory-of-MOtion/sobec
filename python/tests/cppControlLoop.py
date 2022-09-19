@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import configuration as conf
 
 from bullet_Talos import BulletTalos
-#from cricket.virtual_talos import VirtualPhysics
+from cricket.virtual_talos import VirtualPhysics
 
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
@@ -19,8 +19,44 @@ from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex, Support,
 import ndcurves
 import numpy as np
 import time
+from scipy.spatial.transform import Rotation as R
 
 DEFAULT_SAVE_DIR = '/local/src/sobec/python/tests'
+
+def normalize(v, tolerance=0.00001):
+    mag2 = sum(n * n for n in v)
+    if abs(mag2 - 1.0) > tolerance:
+        mag = sqrt(mag2)
+        v = tuple(n / mag for n in v)
+    return v
+
+def axisangle_to_q(v, theta):
+    v = normalize(v)
+    x, y, z = v
+    theta /= 2
+    w = np.cos(theta)
+    x = x * np.sin(theta)
+    y = y * np.sin(theta)
+    z = z * np.sin(theta)
+    return np.array([x, y, z, w])
+
+def q_mult(q1, q2):
+    x1, y1, z1, w1 = q1[0], q1[1], q1[2], q1[3] 
+    x2, y2, z2, w2 = q2[0], q2[1], q2[2], q2[3] 
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
+    return  np.array([x, y, z, w])
+
+def yawRotation(yaw):
+	R = np.array([[np.cos(yaw), -np.sin(yaw), 0],
+	              [np.sin(yaw), np.cos(yaw),  0],
+	              [ 0,         0,             1]])
+	return R
+
+def extractYaw(R):
+	return(np.arctan2(R[1,0],R[0,0]))
 
 def save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force,  save_name=None, save_dir=DEFAULT_SAVE_DIR):
 	'''
@@ -76,9 +112,8 @@ def foot_trajectory(T, time_to_land, initial_pose,final_pose, trajectory_swing):
 			placement.append(initial_pose)
 		else:
 			swing_pose = initial_pose.copy()
-			swing_pose.translation[0] = float(trajectory_swing.translation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[0])
-			swing_pose.translation[1] = float(trajectory_swing.translation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[1])
-			swing_pose.translation[2] = float(trajectory_swing.translation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))[2])
+			swing_pose.translation = trajectory_swing.translation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))
+			swing_pose.rotation = trajectory_swing.rotation(float(conf.TsingleSupport - t) / float(conf.TsingleSupport))
 			placement.append(swing_pose)
 
 	return placement
@@ -129,6 +164,13 @@ design_conf = dict(
 design = RobotDesigner()
 design.initialize(design_conf)
 
+# Rotate initial configuration by theta
+theta = 0
+xStart = design.get_x0().copy()
+qYaw = axisangle_to_q(np.array([0,0,1]),theta)
+xStart[3:7] = q_mult(qYaw,xStart[3:7])
+
+design.set_q0(xStart[:design.get_rModel().nq])
 # Vector of Formulations
 MM_conf = dict(
     timeStep=conf.DT,
@@ -162,7 +204,8 @@ ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
 # Horizon
 H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
 horizon = HorizonManager()
-horizon.initialize(H_conf, design.get_x0(), all_models, ter_model)
+
+horizon.initialize(H_conf, xStart, all_models, ter_model)
 
 # MPC
 wbc_conf = dict(
@@ -192,12 +235,14 @@ flex.initialize(
     )
 )
 
+qStartComplete = design.get_q0Complete().copy()
+qStartComplete[3:7] = q_mult(qYaw,qStartComplete[3:7])
 mpc = WBC()
 mpc.initialize(
     wbc_conf,
     design,
     horizon,
-    design.get_q0Complete(),
+    qStartComplete,
     design.get_v0Complete(),
     "actuationTask"
 )
@@ -207,13 +252,13 @@ mpc.generateStandingCycle(formuler)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
-    device.initializeJoints(design.get_q0Complete().copy())
+    device.initializeJoints(qStartComplete.copy())
     device.showTargetToTrack(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
     q_current, v_current = device.measureState()
 
 elif conf.simulator == "pinocchio":
     design.rmodelComplete = design.get_rModelComplete()
-    design.rmodelComplete.q0 = design.get_q0Complete()
+    design.rmodelComplete.q0 = qStartComplete.copy()
     design.rmodelComplete.v0 = design.get_v0Complete()
 
     device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
@@ -223,22 +268,32 @@ elif conf.simulator == "pinocchio":
     v_current = init_state["dq"]
 
 # ### SIMULATION LOOP ###
-moyenne = 0
+
+
 steps = 0
 
+# Define the constant yaw rotation for the feet
+yaw = np.pi / 12
+
+# Define the rotation and translation used to move the feet
+translationRight = np.array([conf.xForward, - conf.footSeparation + conf.sidestep, 0])
+translationLeft = np.array([conf.xForward, conf.footSeparation, 0])
+rotationDiff = yawRotation(yaw)
+
+# Define the first reference trajectories for both feet
 starting_position_right = mpc.designer.get_RF_frame().copy()
 final_position_right = mpc.designer.get_LF_frame().copy()
-final_position_right.translation[0] = final_position_right.translation[0] + conf.xForward
-final_position_right.translation[1] = final_position_right.translation[1] - conf.footSeparation + conf.sidestep
-final_position_right.translation[2] = final_position_right.translation[2] - conf.footPenetration
+yawLeft = extractYaw(mpc.designer.get_LF_frame().rotation)
+final_position_right.translation += yawRotation(yawLeft) @ translationRight
+final_position_right.rotation = rotationDiff @ final_position_right.rotation
 
 xForward = conf.xForward
 
 starting_position_left = mpc.designer.get_LF_frame().copy()
-final_position_left = mpc.designer.get_RF_frame().copy()
-final_position_left.translation[0] = final_position_left.translation[0] + 2 * conf.xForward
-final_position_left.translation[1] = final_position_left.translation[1] + conf.footSeparation 
-final_position_left.translation[2] = final_position_left.translation[2] - conf.footPenetration 
+final_position_left = final_position_right.copy()
+yawRight = extractYaw(final_position_right.rotation)
+final_position_left.translation += yawRotation(yawRight) @ translationLeft
+#final_position_left.rotation = rotationDiff @ final_position_left.rotation
 
 swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
@@ -246,10 +301,12 @@ swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,f
 ref_pose_right = [swing_trajectory_right for i in range(conf.T)]
 ref_pose_left = [swing_trajectory_left for i in range(conf.T)]
 
-fz_ref_1contact = -design.getRobotMass() * conf.gravity[2];
-fz_ref_2contact = fz_ref_1contact / 2.;
 
-MIN_CONTACT_FORCE = 150
+# Define the reference trajectories for wrench
+fz_ref_1contact = -design.getRobotMass() * conf.gravity[2]
+fz_ref_2contact = fz_ref_1contact / 2.
+
+MIN_CONTACT_FORCE = 100
 normal_force_traj_first = ndcurves.polynomial.MinimumJerk(np.array([fz_ref_2contact]), np.array([fz_ref_1contact - MIN_CONTACT_FORCE]))
 normal_force_traj = ndcurves.polynomial.MinimumJerk(np.array([MIN_CONTACT_FORCE]), np.array([fz_ref_1contact - MIN_CONTACT_FORCE])) 
 normal_force_traj_end = ndcurves.polynomial.MinimumJerk(np.array([MIN_CONTACT_FORCE]), np.array([fz_ref_2contact])) 
@@ -260,7 +317,7 @@ wrench_reference_2contact_left = np.array([0,0,fz_ref_2contact,0,0,0])
 wrench_reference_1contact = np.array([0,0,fz_ref_1contact,0,0,0])
 ref_force = fz_ref_2contact
 
-T_total = conf.total_steps * conf.Tstep + 5 * conf.T
+T_total = conf.total_steps * conf.Tstep + 4 * conf.T
 
 ### Save trajectory in npz file
 xss = []
@@ -277,8 +334,8 @@ for s in range(T_total * conf.Nc):
 		uss.append(mpc.horizon.ddp.us[0])
 		LF_pose.append(mpc.designer.get_LF_frame().copy())
 		RF_pose.append(mpc.designer.get_RF_frame().copy())
-		LF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_LF"].residual.contact.f)
-		RF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_RF"].residual.contact.f)
+		LF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_LF"].residual.contact.f.copy())
+		RF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_RF"].residual.contact.f.copy())
 
 		land_LF = (
 			mpc.land_LF()[0]
@@ -308,45 +365,51 @@ for s in range(T_total * conf.Nc):
 				mpc.takeoff_RF_cycle() + mpc.horizon.size()
 			)
 		)
-		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
+		#print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
 		
 		if land_RF == 0:
 			steps += 1
 		if land_LF == 0:
 			steps += 1
+			
 		if steps == conf.total_steps:
 			xForward = 0
 		if (s // conf.Nc == conf.Tstep * (conf.total_steps + 1)):
 			# Switch to stand at the beginning of the last double support step in walking cycle
 			# Given one more step to put feet together
 			mpc.switchToStand()
-			print("switch to stand")
+			print("switch to stand")	
+		
 		if (takeoff_RF < conf.TdoubleSupport):
 			#print("Update right trajectory")
-			final_position_right = mpc.designer.get_LF_frame().copy()
-			final_position_right.translation[0] += xForward
-			final_position_right.translation[1] -= conf.footSeparation + conf.sidestep
-			final_position_right.translation[2] = final_position_right.translation[2] - conf.footPenetration 
 			starting_position_right = mpc.designer.get_RF_frame().copy()
+			final_position_right = mpc.designer.get_LF_frame().copy()
+			yawLeft = extractYaw(mpc.designer.get_LF_frame().rotation)
+			final_position_right.translation += yawRotation(yawLeft) @ translationRight
+			final_position_right.rotation = rotationDiff @ final_position_right.rotation
 			
 			starting_position_left = mpc.designer.get_LF_frame().copy()
 			final_position_left = final_position_right.copy()
-			final_position_left.translation[0] += xForward
-			final_position_left.translation[1] += conf.footSeparation 
+			yawRight = extractYaw(final_position_right.rotation)
+			final_position_left.translation += yawRotation(yawRight) @ translationLeft
+			#final_position_left.rotation = rotationDiff @ final_position_left.rotation
+			
 			swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 			swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
 		if (takeoff_LF < conf.TdoubleSupport):
 			#print("Update left trajectory")
-			final_position_left = mpc.designer.get_RF_frame().copy()
-			final_position_left.translation[0] += xForward
-			final_position_left.translation[1] += conf.footSeparation 
-			final_position_left.translation[2] = final_position_left.translation[2] - conf.footPenetration 
 			starting_position_left = mpc.designer.get_LF_frame().copy()
+			final_position_left = mpc.designer.get_RF_frame().copy()
+			yawRight = extractYaw(mpc.designer.get_RF_frame().rotation)
+			final_position_left.translation += yawRotation(yawRight) @ translationLeft
+			#final_position_left.rotation = rotationDiff @ final_position_left.rotation
 			
 			starting_position_right = mpc.designer.get_RF_frame().copy()
 			final_position_right = final_position_left.copy()
-			final_position_right.translation[0] += xForward
-			final_position_right.translation[1] -= conf.footSeparation + conf.sidestep
+			yawLeft = extractYaw(final_position_left.rotation)
+			final_position_right.translation += yawRotation(yawLeft) @ translationRight
+			final_position_right.rotation = rotationDiff @ final_position_right.rotation
+			
 			swing_trajectory_left = defineBezier(conf.swingApex,0,1,starting_position_left,final_position_left)
 			swing_trajectory_right = defineBezier(conf.swingApex,0,1,starting_position_right,final_position_right)
 		
@@ -368,12 +431,8 @@ for s in range(T_total * conf.Nc):
 					# Next foot to take off is left foot
 					wrench_reference_2contact_left[2] = fz_ref_1contact - ref_force
 					wrench_reference_2contact_right[2] = ref_force
-				#print("Change left force to " + str(wrench_reference_2contact_left[2]))
-				#print("Change right force to " + str(wrench_reference_2contact_right[2]))
-				mpc.walkingCycle.setForceReferenceLF(0,"wrench_LF",wrench_reference_2contact_left)
-				mpc.walkingCycle.setForceReferenceRF(0,"wrench_RF",wrench_reference_2contact_right)
-				mpc.standingCycle.setForceReferenceLF(0,"wrench_LF",wrench_reference_2contact_left)
-				mpc.standingCycle.setForceReferenceRF(0,"wrench_RF",wrench_reference_2contact_right)
+				mpc.walkingCycle.setForceReference(0,"wrench_LF",wrench_reference_2contact_left)
+				mpc.walkingCycle.setForceReference(0,"wrench_RF",wrench_reference_2contact_right)
 			else:
 				TdoubleSupport = 1
 		else:
@@ -398,18 +457,15 @@ for s in range(T_total * conf.Nc):
 			mpc.ref_RF_poses[i] = RF_refs[i]
 
 		#print_trajectory(mpc.ref_LF_poses)
-	start = time.time()
 
 	mpc.iterate(s,q_current, v_current)
-	end = time.time()
-	if end-start > 0.01:
-		#print(end-start)
-		moyenne += end - start
 	torques = horizon.currentTorques(mpc.x0)
 	
 	if conf.simulator == "bullet":
 		device.execute(torques)
 		q_current, v_current = device.measureState()
+		q_current[3:7] = q_mult(qYaw,q_current[3:7])
+		#q_current[3:7] = qStartComplete[3:7]
 		device.moveMarkers(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
 
 	elif conf.simulator == "pinocchio":
@@ -424,6 +480,8 @@ for s in range(T_total * conf.Nc):
 
 		q_current = np.hstack([real_state["q"][:7], qc])
 		v_current = np.hstack([real_state["dq"][:6], dqc])
+		#q_current = real_state["q"]
+		#v_current = real_state["dq"]
 
 		# esti_state = flex.correctEstimatedDeflections(
 		# torques, q_current[7:], v_current[6:]
@@ -436,7 +494,5 @@ for s in range(T_total * conf.Nc):
 	# stop
 
 #save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force, save_name="trajectories_xs_us")
-print('Mean computation time')
-print(moyenne / T_total)
 if conf.simulator == "bullet":
     device.close()

@@ -8,7 +8,7 @@ Created on Mon May  9 18:22:56 2022
 import pybullet_data
 import pybullet as p  # PyBullet simulator
 import numpy as np
-
+from scipy.spatial.transform import Rotation as R
 
 class BulletTalos:
     def __init__(self, conf, rmodelComplete):
@@ -122,8 +122,8 @@ class BulletTalos:
                 [jointStates[i_joint][1] for i_joint in range(len(jointStates))],
             ]
         )
-
-        q[:3] -= self.localInertiaPos
+        rotation = R.from_quat(q[3:7])
+        q[:3] -= rotation.as_matrix() @ self.localInertiaPos 
         return q, v
 
     def showTargetToTrack(self, LF_pose, RF_pose):
