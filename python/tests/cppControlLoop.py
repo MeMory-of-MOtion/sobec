@@ -228,10 +228,12 @@ flex.initialize(
         right_stiffness=np.array(conf.H_stiff[2:]),
         left_damping=np.array(conf.H_damp[:2]),
         right_damping=np.array(conf.H_damp[2:]),
+        flexToJoint=conf.flexToJoint,
         dt=conf.simu_period,
         MA_duration=0.01,
         left_hip_indices=np.array([0, 1, 2]),
         right_hip_indices=np.array([6, 7, 8]),
+        filtered=True,
     )
 )
 
@@ -268,7 +270,6 @@ elif conf.simulator == "pinocchio":
     v_current = init_state["dq"]
 
 # ### SIMULATION LOOP ###
-
 
 steps = 0
 
@@ -474,24 +475,34 @@ for s in range(T_total * conf.Nc):
 		command = {"tau": torques}
 		real_state, _ = device.execute(command, correct_contacts, s)
 
-		qc, dqc = flex.correctEstimatedDeflections(
-			torques, real_state["q"][7:], real_state["dq"][6:]
-		)
+		######## Generating the forces ########## TODO: cast it in functions.
 
-		q_current = np.hstack([real_state["q"][:7], qc])
-		v_current = np.hstack([real_state["dq"][:6], dqc])
-		#q_current = real_state["q"]
-		#v_current = real_state["dq"]
+		LW = mpc.horizon.pinData(0).f[2].linear
+		RW = mpc.horizon.pinData(0).f[8].linear
+		TW = mpc.horizon.pinData(0).f[1].linear
 
-		# esti_state = flex.correctEstimatedDeflections(
-		# torques, q_current[7:], v_current[6:]
-		# )
+		if not all(correct_contacts.values()):
+			Lforce = TW - LW if correct_contacts["leg_left_sole_fix_joint"] else -LW
+			Rforce = TW - RW if correct_contacts["leg_right_sole_fix_joint"] else -RW
+		else:
+			Lforce = TW / 2 - LW
+			Rforce = TW / 2 - RW
 
-		# q_current = np.hstack([q_current[:7], esti_state[0]])
-		# v_current = np.hstack([v_current[:6], esti_state[1]])
+		if conf.model_name == "talos_flex":
+			qc, dqc = flex.correctEstimatedDeflections(
+				torques, real_state["q"][7:], real_state["dq"][6:], Lforce, Rforce
+			)
 
-	# if s == 0:
-	# stop
+			q_current = np.hstack([real_state["q"][:7], qc])
+			v_current = np.hstack([real_state["dq"][:6], dqc])
+
+		elif conf.model_name == "talos":
+
+			q_current = real_state["q"]
+			v_current = real_state["dq"]
+
+    # if s == 0:
+    # stop
 
 #save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force, save_name="trajectories_xs_us")
 if conf.simulator == "bullet":

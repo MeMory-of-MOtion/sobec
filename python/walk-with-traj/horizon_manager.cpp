@@ -60,6 +60,8 @@ void exposeHorizonManager() {
       .def("terminaliam", &HorizonManager::terminaliam, bp::args("self"))
       .def("dam", &HorizonManager::dam, bp::args("self", "time"))
       .def("terminaldam", &HorizonManager::terminaldam, bp::args("self"))
+      .def("dad", &HorizonManager::dad, bp::args("self", "time"))
+      .def("pinData", &HorizonManager::pinData, bp::args("self", "time"))
       .def("costs", &HorizonManager::costs, bp::args("self", "time"))
       .def("terminalCosts", &HorizonManager::terminalCosts, bp::args("self"))
       .def("contacts", &HorizonManager::contacts, bp::args("self", "time"))
