@@ -123,11 +123,11 @@ void exposeDesigner() {
       .def("get_LF_name",
            bp::make_function(
                &RobotDesigner::get_LF_name,
-               bp::return_value_policy<bp::reference_existing_object>()))
+               bp::return_value_policy<bp::copy_const_reference>()))
       .def("get_RF_name",
            bp::make_function(
                &RobotDesigner::get_RF_name,
-               bp::return_value_policy<bp::reference_existing_object>()))
+               bp::return_value_policy<bp::copy_const_reference>()))
       .def("get_LF_id",
            bp::make_function(
                &RobotDesigner::get_LF_id,

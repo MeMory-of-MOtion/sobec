@@ -236,7 +236,7 @@ class ClasesTestCase(unittest.TestCase):
             (self.mpc.shapeState(q, v) == self.py_mpc.shapeState(q, v)).all()
         )
 
-        self.mpc.generateFullCycle(self.formuler)
+        self.mpc.generateWalkigCycle(self.formuler)
         self.assertTrue(isinstance(self.mpc.walkingCycle, HorizonManager))
         self.assertEqual(self.mpc.walkingCycle.ddp.problem.T, 2 * self.Tstep)
 

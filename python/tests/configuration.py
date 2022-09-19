@@ -75,7 +75,7 @@ maxNforce = 1500  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
-model_name = "talos_flex"  #
+model_name = "talos"  # _flex
 
 # Flexibility Parameters
 compensate_deflections = True
@@ -105,6 +105,7 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 flex_esti_delay = 0.0  # [s]
 flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
+flexToJoint = np.array([0, 0, 0.09])
 
 # ###### WALKING GEOMETRY #########
 xForward = 0. # step size
