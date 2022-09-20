@@ -165,7 +165,7 @@ design = RobotDesigner()
 design.initialize(design_conf)
 
 # Rotate initial configuration by theta
-theta = 0
+theta = np.pi/2
 xStart = design.get_x0().copy()
 qYaw = axisangle_to_q(np.array([0,0,1]),theta)
 xStart[3:7] = q_mult(qYaw,xStart[3:7])
@@ -254,13 +254,13 @@ mpc.generateStandingCycle(formuler)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
-    device.initializeJoints(qStartComplete.copy())
+    device.initializeJoints(qStartComplete)
     device.showTargetToTrack(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
     q_current, v_current = device.measureState()
 
 elif conf.simulator == "pinocchio":
     design.rmodelComplete = design.get_rModelComplete()
-    design.rmodelComplete.q0 = qStartComplete.copy()
+    design.rmodelComplete.q0 = qStartComplete
     design.rmodelComplete.v0 = design.get_v0Complete()
 
     device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
@@ -465,7 +465,7 @@ for s in range(T_total * conf.Nc):
 	if conf.simulator == "bullet":
 		device.execute(torques)
 		q_current, v_current = device.measureState()
-		q_current[3:7] = q_mult(qYaw,q_current[3:7])
+		#q_current[3:7] = q_mult(qYaw,q_current[3:7])
 		#q_current[3:7] = qStartComplete[3:7]
 		device.moveMarkers(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
 

@@ -40,17 +40,16 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 10
+total_steps = 20
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 30  # Double support time  # TODO: (check with 20)
+TdoubleSupport = 1  # Double support time  # TODO: (check with 20)
+TsingleSupport = 50  # Single support time
 simu_step = simu_period = 1e-3  #
 
 Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
 
 # TODO: landing_advance and takeoff_delay are missing
-
-TsingleSupport = 60  # Single support time
 ddpIteration = 1  # Number of DDP iterations
 
 Tstep = TsingleSupport + TdoubleSupport
@@ -73,7 +72,7 @@ maxNforce = 1200  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
-model_name = "talos_flex"  #
+model_name = "talos"  #
 
 # Flexibility Parameters
 compensate_deflections = True
@@ -103,11 +102,13 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 flex_esti_delay = 0.0  # [s]
 flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
+flexToJoint = np.array([0, 0, 0.09])
+
 
 # ###### WALKING GEOMETRY #########
 xForward = 0.15 # step size
 swingApex = 0.04  # foot height
-footMinimalDistance = 0.2
+footMinimalDistance = 0.20
 flyHighSlope = 100
 footPenetration = 0.0
 
@@ -132,18 +133,18 @@ wFootPlacement = 10000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wVCoM = 10000
-wCoM = 0
+wVCoM = 0
+wCoM = 1000
 wWrenchCone = 0.05
 wFootRot = 1000
 wGroundCol = 0
 wCoP = 10
-wFlyHigh = 0
+wFlyHigh = 5000
 wVelFoot = 0
-wColFeet = 50000
+wColFeet = 5000
 wSurface = 0
 
-weightBasePos = [0, 0, 0, 1000, 1000, 10]  # [x, y, z| x, y, z]
+weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
 weightLegPos = [.1, .1, .1, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
@@ -163,7 +164,7 @@ stateWeights = np.array(
 )
 
 weightuBase = "not actuated"
-weightuLeg = [1, 0, 0, 1, 1, 1]
+weightuLeg = [1, 1, 1, 1, 1, 1]
 weightuArm = [10, 10, 10, 10]
 weightuTorso = [1, 1]
 controlWeight = np.array(weightuLeg * 2 

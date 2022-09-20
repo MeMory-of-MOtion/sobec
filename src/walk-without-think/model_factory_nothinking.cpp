@@ -145,9 +145,13 @@ void ModelMakerNoThinking::defineZFeetTracking(Cost &costCollector, const Suppor
                                settings_.wFootPlacement, false);
   costCollector.get()->addCost("Z_translation_RF", trackingModel_RF,
                                settings_.wFootPlacement, false);
-  if (support == Support::LEFT || support == Support::DOUBLE)
+  /*if (support == Support::LEFT || support == Support::DOUBLE)
     costCollector.get()->changeCostStatus("Z_translation_RF",true);
   if (support == Support::RIGHT || support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("Z_translation_LF",true);*/
+  if (support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("Z_translation_RF",true);
+  if (support == Support::DOUBLE)
     costCollector.get()->changeCostStatus("Z_translation_LF",true);
 }
 
@@ -452,10 +456,10 @@ AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   defineCoPTask(costs, support);
   defineVelFootTask(costs, support);
   defineFeetRotation(costs);
-  //defineFlyHighTask(costs, support);
+  defineFlyHighTask(costs, support);
   define2DSurfaceTask(costs, support);
   defineZFeetTracking(costs, support);
-  //defineGroundCollisionTask(costs);
+  defineGroundCollisionTask(costs);
 
   DAM runningDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(

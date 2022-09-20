@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import configurationFree as conf
 
 from bullet_Talos import BulletTalos
-#from cricket.virtual_talos import VirtualPhysics
+from cricket.virtual_talos import VirtualPhysics
 
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
@@ -160,10 +160,12 @@ flex.initialize(
         right_stiffness=np.array(conf.H_stiff[2:]),
         left_damping=np.array(conf.H_damp[:2]),
         right_damping=np.array(conf.H_damp[2:]),
+        flexToJoint=conf.flexToJoint,
         dt=conf.simu_period,
         MA_duration=0.01,
         left_hip_indices=np.array([0, 1, 2]),
         right_hip_indices=np.array([6, 7, 8]),
+        filtered=True,
     )
 )
 
@@ -229,10 +231,10 @@ swing_trajectory_left = FootTrajectory(conf.swingApex,0.0,0)
 swing_trajectory_right.generate(0,conf.TsingleSupport * conf.DT,starting_position_right,final_position_right, False)
 swing_trajectory_left.generate(0,conf.TsingleSupport * conf.DT,starting_position_left,final_position_left, False)
 
-comRef[0] += 0.5
+comRef[0] += 1
 comRef[1] += 0
 mpc.ref_com = comRef
-ref_com_vel = np.array([0.2,0.,0])
+ref_com_vel = np.array([0.,0.,0])
 
 T_total = conf.total_steps * conf.Tstep + 5 * conf.T
 
@@ -272,7 +274,7 @@ for s in range(T_total * conf.Nc):
 		)
 		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
 		
-		LF_refs = foot_trajectory(
+		'''LF_refs = foot_trajectory(
 			len(mpc.ref_LF_poses),
 			land_LF,
 			starting_position_left,
@@ -289,7 +291,7 @@ for s in range(T_total * conf.Nc):
 
 		for i in range(len(mpc.ref_LF_poses)):
 			mpc.ref_LF_poses[i] = LF_refs[i]
-			mpc.ref_RF_poses[i] = RF_refs[i]
+			mpc.ref_RF_poses[i] = RF_refs[i]'''
 		
 		if (mpc.walkingCycle.contacts(0).getContactStatus("leg_left_sole_fix_joint")):
 			if (mpc.walkingCycle.contacts(0).getContactStatus("leg_right_sole_fix_joint")):
@@ -345,22 +347,34 @@ for s in range(T_total * conf.Nc):
 		command = {"tau": torques}
 		real_state, _ = device.execute(command, correct_contacts, s)
 
-		qc, dqc = flex.correctEstimatedDeflections(
-			torques, real_state["q"][7:], real_state["dq"][6:]
-		)
+		######## Generating the forces ########## TODO: cast it in functions.
 
-		q_current = np.hstack([real_state["q"][:7], qc])
-		v_current = np.hstack([real_state["dq"][:6], dqc])
+		LW = mpc.horizon.pinData(0).f[2].linear
+		RW = mpc.horizon.pinData(0).f[8].linear
+		TW = mpc.horizon.pinData(0).f[1].linear
 
-		# esti_state = flex.correctEstimatedDeflections(
-		# torques, q_current[7:], v_current[6:]
-		# )
+		if not all(correct_contacts.values()):
+			Lforce = TW - LW if correct_contacts["leg_left_sole_fix_joint"] else -LW
+			Rforce = TW - RW if correct_contacts["leg_right_sole_fix_joint"] else -RW
+		else:
+			Lforce = TW / 2 - LW
+			Rforce = TW / 2 - RW
 
-		# q_current = np.hstack([q_current[:7], esti_state[0]])
-		# v_current = np.hstack([v_current[:6], esti_state[1]])
+		if conf.model_name == "talos_flex":
+			qc, dqc = flex.correctEstimatedDeflections(
+				torques, real_state["q"][7:], real_state["dq"][6:], Lforce, Rforce
+			)
 
-	# if s == 0:
-	# stop
+			q_current = np.hstack([real_state["q"][:7], qc])
+			v_current = np.hstack([real_state["dq"][:6], dqc])
+
+		elif conf.model_name == "talos":
+
+			q_current = real_state["q"]
+			v_current = real_state["dq"]
+
+    # if s == 0:
+    # stop
 
 if conf.simulator == "bullet":
     device.close()
