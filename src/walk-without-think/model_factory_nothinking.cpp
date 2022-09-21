@@ -18,7 +18,6 @@ void ModelMakerNoThinking::initialize(const ModelMakerNoThinkingSettings &settin
                             const RobotDesigner &designer) {
   settings_ = settings;
   designer_ = designer;
-  designer_.addToeAndHeel(settings_.heelTranslation,settings_.toeTranslation);
 
   state_ = boost::make_shared<crocoddyl::StateMultibody>(
       boost::make_shared<pinocchio::Model>(designer_.get_rModel()));

@@ -75,6 +75,9 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
 
   rModel_ = pinocchio::buildReducedModel(rModelComplete_, locked_joints_id,
                                          q0Complete_);
+  leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
+  rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
+  addToeAndHeel(0.1,0.1);
   rData_ = pinocchio::Data(rModel_);
 
   pinocchio::srdf::loadReferenceConfigurations(rModel_, settings_.srdfPath,
@@ -95,9 +98,6 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
     }
   }
 
-  leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
-  rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
-
   updateReducedModel(q0_);
   initialized_ = true;
 }
@@ -105,12 +105,12 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
 void RobotDesigner::addToeAndHeel(const double &heel_translation,const double &toe_translation) {
   pinocchio::SE3 toePlacement = pinocchio::SE3::Identity();
   toePlacement.translation()[0] = toe_translation;
-  pinocchio::Frame toeFrameLeft(rModel_.frames[leftFootId_].name + "_" + "tow", 
+  pinocchio::Frame toeFrameLeft(rModel_.frames[leftFootId_].name + "_" + "toe", 
                                 rModel_.frames[leftFootId_].parent, 
                                 rModel_.frames[leftFootId_].previousFrame,
                                 rModel_.frames[leftFootId_].placement * toePlacement, 
                                 pinocchio::OP_FRAME);
-  pinocchio::Frame toeFrameRight(rModel_.frames[rightFootId_].name + "_" + "tow", 
+  pinocchio::Frame toeFrameRight(rModel_.frames[rightFootId_].name + "_" + "toe", 
                                  rModel_.frames[rightFootId_].parent, 
                                  rModel_.frames[rightFootId_].previousFrame,
                                  rModel_.frames[rightFootId_].placement * toePlacement, 
@@ -132,7 +132,6 @@ void RobotDesigner::addToeAndHeel(const double &heel_translation,const double &t
                                   pinocchio::OP_FRAME);
   heelLeftId_ = rModel_.addFrame(heelFrameLeft);
   heelRightId_ = rModel_.addFrame(heelFrameRight);
-  updateReducedModel(q0_);
 }
 
 void RobotDesigner::set_q0(const Eigen::VectorXd &q0) {

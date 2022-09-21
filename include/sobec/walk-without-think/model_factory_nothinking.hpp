@@ -54,8 +54,6 @@ struct ModelMakerNoThinkingSettings {
   
   double flyHighSlope = 2;
   double footMinimalDistance = 0.2;
-  double heelTranslation = 0.1;
-  double toeTranslation = 0.1;
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;

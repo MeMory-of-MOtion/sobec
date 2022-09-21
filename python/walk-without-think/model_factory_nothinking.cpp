@@ -46,8 +46,6 @@ void initialize(ModelMakerNoThinking &self, const bp::dict &settings,
   conf.footSize = bp::extract<double>(settings["footSize"]);
   conf.footMinimalDistance = bp::extract<double>(settings["footMinimalDistance"]);
   conf.flyHighSlope = bp::extract<double>(settings["flyHighSlope"]);
-  conf.heelTranslation = bp::extract<double>(settings["heelTranslation"]);
-  conf.toeTranslation = bp::extract<double>(settings["toeTranslation"]);
 
   // gains
   conf.wFootPlacement = bp::extract<double>(settings["wFootPlacement"]);
@@ -88,8 +86,6 @@ bp::dict get_settings(ModelMakerNoThinking &self) {
   settings["footSize"] = conf.footSize;
   settings["footMinimalDistance"] = conf.footMinimalDistance;
   settings["flyHighSlope"] = conf.flyHighSlope;
-  settings["heelTranslation"] = conf.heelTranslation;
-  settings["toeTranslation"] = conf.toeTranslation;
   settings["wFootPlacement"] = conf.wFootPlacement;
   settings["wStateReg"] = conf.wStateReg;
   settings["wControlReg"] = conf.wControlReg;
