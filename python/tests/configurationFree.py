@@ -40,7 +40,7 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 20
+total_steps = 50
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
 TdoubleSupport = 1  # Double support time  # TODO: (check with 20)
@@ -108,7 +108,8 @@ flexToJoint = np.array([0, 0, 0.09])
 # ###### WALKING GEOMETRY #########
 xForward = 0.15 # step size
 swingApex = 0.04  # foot height
-footMinimalDistance = 0.20
+footMinimalDistance = 0.3
+angleSurface = 0.5
 flyHighSlope = 100
 footPenetration = 0.0
 
@@ -129,7 +130,7 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 
 # Weights for all costs
 
-wFootPlacement = 10000
+wFootPlacement = 20000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
@@ -141,8 +142,8 @@ wGroundCol = 0
 wCoP = 10
 wFlyHigh = 5000
 wVelFoot = 0
-wColFeet = 5000
-wSurface = 0
+wColFeet = 0
+wSurface = 20000
 
 weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]

@@ -405,18 +405,18 @@ void ModelMakerNoThinking::define2DSurfaceTask(Cost &costCollector, const Suppor
   boost::shared_ptr<sobec::ResidualModel2DSurface> surfaceResidualLeft =
       boost::make_shared<sobec::ResidualModel2DSurface>(
               state_, designer_.get_LF_id(), designer_.get_RF_frame().translation().head(2),
-              settings_.footMinimalDistance, yaw_right, actuation_->get_nu());
+              settings_.footMinimalDistance, yaw_right, settings_.angleSurface, actuation_->get_nu());
   boost::shared_ptr<sobec::ResidualModel2DSurface> surfaceResidualRight =
       boost::make_shared<sobec::ResidualModel2DSurface>(
               state_, designer_.get_RF_id(), designer_.get_LF_frame().translation().head(2),
-              -settings_.footMinimalDistance, yaw_left, actuation_->get_nu());
+              -settings_.footMinimalDistance, yaw_left, -settings_.angleSurface, actuation_->get_nu());
 
   double inf = 9999.0;
 
-  crocoddyl::ActivationBounds boundsRight =
-      crocoddyl::ActivationBounds(Eigen::VectorXd::Constant(1, -inf), Eigen::VectorXd::Constant(1, 0), 1.);
   crocoddyl::ActivationBounds boundsLeft =
-      crocoddyl::ActivationBounds(Eigen::VectorXd::Constant(1, 0), Eigen::VectorXd::Constant(1, inf), 1.);
+      crocoddyl::ActivationBounds(Eigen::VectorXd::Constant(2, -inf), Eigen::VectorXd::Constant(2, 0), 1.);
+  crocoddyl::ActivationBounds boundsRight =
+      crocoddyl::ActivationBounds(Eigen::VectorXd::Constant(2, 0), Eigen::VectorXd::Constant(2, inf), 1.);
       
   boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationBRight =
       boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(boundsRight);

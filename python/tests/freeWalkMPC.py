@@ -103,6 +103,7 @@ MM_conf = dict(
     footSize = conf.footSize,
     flyHighSlope = conf.flyHighSlope,
     footMinimalDistance = conf.footMinimalDistance,
+    angleSurface = conf.angleSurface,
     heelTranslation = conf.heelTranslation,
     toeTranslation = conf.toeTranslation,
     wFootPlacement=conf.wFootPlacement,

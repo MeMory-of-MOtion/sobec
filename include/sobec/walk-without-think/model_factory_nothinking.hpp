@@ -54,6 +54,7 @@ struct ModelMakerNoThinkingSettings {
   
   double flyHighSlope = 2;
   double footMinimalDistance = 0.2;
+  double angleSurface = 0.5;
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;

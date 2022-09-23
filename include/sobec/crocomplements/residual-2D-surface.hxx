@@ -21,24 +21,33 @@ ResidualModel2DSurfaceTpl<Scalar>::ResidualModel2DSurfaceTpl(
     const Vector2s support_translation,
     const Scalar separation,
     const Scalar orientation,
+    const Scalar alpha,
     const std::size_t nu)
-    : Base(state, 1, nu, true, false, false),
+    : Base(state, 2, nu, true, false, false),
       frame_id(frame_id),
       support_translation_(support_translation),
       separation_(separation),
       orientation_(orientation),
+      alpha_(alpha),
       pin_model_(state->get_pinocchio()) {
-		  A_.resize(1,2);
-		  pointA_ = support_translation_;
-		  pointA_(0) -= separation_ * sin(orientation_);
-		  pointA_(1) += separation_ * cos(orientation_);
+		  A_.resize(2,2);
+		  pointF_ = support_translation_;
+		  pointF_(0) -= separation_ * sin(orientation_);
+		  pointF_(1) += separation_ * cos(orientation_);
 		  
-		  pointB_ = pointA_;
-		  pointB_(0) += cos(orientation_);
-		  pointB_(1) += sin(orientation_);
-		  A_(0,0) = pointA_(1) - pointB_(1);
-		  A_(0,1) = pointB_(0) - pointA_(0);
-		  b_ = pointB_(0) * pointA_(1) - pointA_(0) * pointB_(1);
+		  pointA_ = pointF_;
+		  pointA_(0) += cos(orientation_ + alpha_);
+		  pointA_(1) -= sin(orientation_ + alpha_);
+		  
+		  pointB_ = pointF_;
+		  pointB_(0) -= cos(orientation_ - alpha_);
+		  pointB_(1) += sin(orientation_ - alpha_);
+		  A_(0,0) = pointA_(1) - pointF_(1);
+		  A_(0,1) = pointF_(0) - pointA_(0);
+		  A_(1,0) = pointF_(1) - pointB_(1);
+		  A_(1,1) = pointB_(0) - pointF_(0);
+		  b_(0) = pointF_(0) * pointA_(1) - pointA_(0) * pointF_(1);
+		  b_(1) = pointB_(0) * pointF_(1) - pointF_(0) * pointB_(1);
 	}
 
 template <typename Scalar>
@@ -47,24 +56,33 @@ ResidualModel2DSurfaceTpl<Scalar>::ResidualModel2DSurfaceTpl(
     const pinocchio::FrameIndex frame_id,
     const Vector2s support_translation,
     const Scalar separation,
-    const Scalar orientation)
-    : Base(state, 1, true, false, false),
+    const Scalar orientation,
+    const Scalar alpha)
+    : Base(state, 2, true, false, false),
       frame_id(frame_id),
       support_translation_(support_translation),
       separation_(separation),
       orientation_(orientation),
+      alpha_(alpha),
       pin_model_(state->get_pinocchio()) {
-		  A_.resize(1,2);
-		  pointA_ = support_translation_;
-		  pointA_(0) -= separation_ * sin(orientation_);
-		  pointA_(1) += separation_ * cos(orientation_);
+		  A_.resize(2,2);
+		  pointF_ = support_translation_;
+		  pointF_(0) -= separation_ * sin(orientation_);
+		  pointF_(1) += separation_ * cos(orientation_);
 		  
-		  pointB_ = pointA_;
-		  pointB_(0) += cos(orientation_);
-		  pointB_(1) += sin(orientation_);
-		  A_(0,0) = pointA_(1) - pointB_(1);
-		  A_(0,1) = pointB_(0) - pointA_(0);
-		  b_ = pointB_(0) * pointA_(1) - pointA_(0) * pointB_(1);
+		  pointA_ = pointF_;
+		  pointA_(0) += cos(orientation_ + alpha_);
+		  pointA_(1) -= sin(orientation_ + alpha_);
+		  
+		  pointB_ = pointF_;
+		  pointB_(0) -= cos(orientation_ - alpha_);
+		  pointB_(1) += sin(orientation_ - alpha_);
+		  A_(0,0) = pointA_(1) - pointF_(1);
+		  A_(0,1) = pointF_(0) - pointA_(0);
+		  A_(1,0) = pointF_(1) - pointB_(1);
+		  A_(1,1) = pointB_(0) - pointF_(0);
+		  b_(0) = pointF_(0) * pointA_(1) - pointA_(0) * pointF_(1);
+		  b_(1) = pointB_(0) * pointF_(1) - pointF_(0) * pointB_(1);
 	}
 
 template <typename Scalar>
@@ -81,7 +99,7 @@ void ResidualModel2DSurfaceTpl<Scalar>::calc(
 
   pinocchio::updateFramePlacement(*pin_model_.get(), *d->pinocchio, frame_id);
   data->r = A_ * d->pinocchio->oMf[frame_id].translation().head(2);
-  data->r(0) -= b_;
+  data->r -= b_;
 }
 
 template <typename Scalar>
@@ -119,16 +137,23 @@ template <typename Scalar>
 void ResidualModel2DSurfaceTpl<Scalar>::set_Ab(
     const Vector2s support_translation,
     const Scalar orientation) {
-  pointA_ = support_translation;
-  pointA_(0) -= separation_ * sin(orientation);
-  pointA_(1) += separation_ * cos(orientation);
+  pointF_ = support_translation;
+  pointF_(0) -= separation_ * sin(orientation);
+  pointF_(1) += separation_ * cos(orientation);
   
-  pointB_ = pointA_;
-  pointB_(0) += cos(orientation);
-  pointB_(1) += sin(orientation);
-  A_(0,0) = pointA_(1) - pointB_(1);
-  A_(0,1) = pointB_(0) - pointA_(0);
-  b_ = pointB_(0) * pointA_(1) - pointA_(0) * pointB_(1);
+  pointA_ = pointF_;
+  pointA_(0) += cos(orientation + alpha_);
+  pointA_(1) -= sin(orientation + alpha_);
+  
+  pointB_ = pointF_;
+  pointB_(0) -= cos(orientation - alpha_);
+  pointB_(1) += sin(orientation - alpha_);
+  A_(0,0) = pointA_(1) - pointF_(1);
+  A_(0,1) = pointF_(0) - pointA_(0);
+  A_(1,0) = pointF_(1) - pointB_(1);
+  A_(1,1) = pointB_(0) - pointF_(0);
+  b_(0) = pointF_(0) * pointA_(1) - pointA_(0) * pointF_(1);
+  b_(1) = pointB_(0) * pointF_(1) - pointF_(0) * pointB_(1);
 }
 
 }  // namespace sobec

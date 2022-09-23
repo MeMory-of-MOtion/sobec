@@ -59,6 +59,7 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
                           const Vector2s support_translation,
                           const Scalar separation,
                           const Scalar orientation,
+                          const Scalar alpha,
                           const std::size_t nu);
 
   /**
@@ -75,7 +76,8 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
                           const pinocchio::FrameIndex frame_id,
                           const Vector2s support_translation,
                           const Scalar separation,
-                          const Scalar orientation);
+                          const Scalar orientation,
+                          const Scalar alpha);
   virtual ~ResidualModel2DSurfaceTpl();
 
   /**
@@ -121,10 +123,10 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
     const Scalar orientation);
  
   const MatrixXs& get_A() const {return A_;}
-  const Scalar& get_b() const {return b_;}
+  const Vector2s& get_b() const {return b_;}
   
   void set_A(const MatrixXs& A) { A_ = A;}
-  void set_b(const Scalar& b) { b_ = b;}
+  void set_b(const Vector2s& b) { b_ = b;}
  
  protected:
   using Base::nu_;
@@ -139,10 +141,12 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
   Vector2s support_translation_; // Coordinates of the support foot
   Scalar separation_; // Separation between flying foot and support foot
   Scalar orientation_; // Angle of support foot
+  Scalar alpha_; // Angle of cone limit
   Vector2s pointA_;
   Vector2s pointB_;
+  Vector2s pointF_;
   MatrixXs A_;
-  Scalar b_;
+  Vector2s b_;
 };
 
 template <typename _Scalar>
