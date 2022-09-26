@@ -283,7 +283,7 @@ void HorizonManager::setDoubleSupport(const unsigned long time,
 const eVector3 &HorizonManager::getFootForce(
     const unsigned long time, const std::string &nameFootForceCost) {
   foot_force_ =
-      boost::static_pointer_cast<crocoddyl::ResidualDataContactWrenchCone>(
+      boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
           boost::static_pointer_cast<
               crocoddyl::DifferentialActionDataContactFwdDynamics>(
               iad(time)->differential)
@@ -296,7 +296,7 @@ const eVector3 &HorizonManager::getFootForce(
 const eVector3 &HorizonManager::getFootTorque(
     const unsigned long time, const std::string &nameFootForceCost) {
   foot_torque_ =
-      boost::static_pointer_cast<crocoddyl::ResidualDataContactWrenchCone>(
+      boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
           boost::static_pointer_cast<
               crocoddyl::DifferentialActionDataContactFwdDynamics>(
               iad(time)->differential)
