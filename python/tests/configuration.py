@@ -42,7 +42,7 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 16
+total_steps = 14
 DT = 1e-2  # Time step of the DDP
 T = 100 # Time horizon of the DDP (number of nodes)
 TdoubleSupport = 30  # Double support time  # TODO: (check with 20)
@@ -60,8 +60,8 @@ ddpIteration = 1  # Number of DDP iterations
 # #### PHYSICS #####
 
 simulator = (
-    #"bullet"
-    "pinocchio"
+    "bullet"
+    #"pinocchio"
 )
 
 
@@ -131,7 +131,7 @@ wFootPlacement = 10000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wWrenchCone = 0.05
+wWrenchCone = 1 # 0.05
 wCoP = 10
 
 weightBasePos = [0, 0, 0, 100, 100, 0]  # [x, y, z| x, y, z]
@@ -161,6 +161,8 @@ controlWeight = np.array(weightuLeg * 2
                         + weightuTorso 
                         #+ weightuArm * 2
 )
+
+forceWeights = np.array([1,1,1,1,1,1])
 
 lowKinematicLimits = np.array([-0.35, -0.52,-2.10, 0.0,-1.31,-0.52, # left leg
                                -1.57,-0.52,-2.10,0.0,-1.31,-0.52, # right leg

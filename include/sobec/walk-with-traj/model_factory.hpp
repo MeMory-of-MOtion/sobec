@@ -43,6 +43,7 @@ struct ModelMakerSettings {
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
+  Eigen::VectorXd forceWeights;
   
   Eigen::VectorXd lowKinematicLimits;
   Eigen::VectorXd highKinematicLimits;
@@ -75,6 +76,8 @@ class ModelMaker {
   ModelMakerSettings &get_settings() { return settings_; }
 
   // formulation parts:
+  void defineFeetForceTask(Cost &costCollector,
+                            const Support &support = Support::DOUBLE);
   void defineFeetContact(Contact &contactCollector,
                          const Support &support = Support::DOUBLE);
   void defineFeetWrenchCost(Cost &costCollector,

@@ -53,8 +53,8 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wWrenchCone = bp::extract<double>(settings["wWrenchCone"]);
   conf.wCoP = bp::extract<double>(settings["wCoP"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
-  conf.controlWeights =
-      bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
+  conf.controlWeights = bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
+  conf.forceWeights = bp::extract<Eigen::VectorXd>(settings["forceWeights"]);
   conf.lowKinematicLimits = bp::extract<Eigen::VectorXd>(settings["lowKinematicLimits"]);
   conf.highKinematicLimits = bp::extract<Eigen::VectorXd>(settings["highKinematicLimits"]);
   conf.th_grad = bp::extract<double>(settings["th_grad"]);
@@ -83,6 +83,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wCoP"] = conf.wCoP;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
+  settings["forceWeights"] = conf.forceWeights;
   settings["lowKinematicLimits"] = conf.lowKinematicLimits;
   settings["highKinematicLimits"] = conf.highKinematicLimits;
   settings["th_grad"] = conf.th_grad;

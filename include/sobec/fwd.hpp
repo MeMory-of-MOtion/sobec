@@ -29,6 +29,7 @@
 #include <crocoddyl/multibody/residuals/com-position.hpp>
 #include <crocoddyl/multibody/residuals/contact-control-gravity.hpp>
 #include <crocoddyl/multibody/residuals/contact-wrench-cone.hpp>
+#include <crocoddyl/multibody/residuals/contact-force.hpp>
 #include <crocoddyl/multibody/residuals/frame-placement.hpp>
 #include <crocoddyl/multibody/residuals/frame-rotation.hpp>
 #include <crocoddyl/multibody/residuals/frame-translation.hpp>

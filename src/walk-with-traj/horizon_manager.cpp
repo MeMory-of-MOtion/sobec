@@ -233,6 +233,16 @@ void HorizonManager::setSurfaceInequality(const unsigned long time,
 void HorizonManager::setForceReference(const unsigned long time,
                                          const std::string &nameCost,
                                          const eVector6 &reference) {
+  force_cost_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
+      costs(time)->get_costs().at(nameCost)->cost);
+  force_ = pinocchio::Force(reference);
+  boost::static_pointer_cast<crocoddyl::ResidualModelContactForce>(
+      force_cost_->get_residual())->set_reference(force_);
+}
+
+void HorizonManager::setWrenchReference(const unsigned long time,
+                                         const std::string &nameCost,
+                                         const eVector6 &reference) {
   cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
       costs(time)->get_costs().at(nameCost)->cost);
   new_ref_ =
@@ -245,34 +255,13 @@ void HorizonManager::setForceReference(const unsigned long time,
       ->set_reference(new_ref_);
 }
 
-void HorizonManager::setWrenchReference(const unsigned long time,
-                                         const std::string &nameCost,
-                                         const Eigen::Matrix3d &rotation,
-                                         const eVector6 &reference) {
-  cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
-      costs(time)->get_costs().at(nameCost)->cost);                                       
-  residual_cone_ = boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(
-      boost::static_pointer_cast<crocoddyl::CostModelResidual>(
-      costs(time)->get_costs().at(nameCost)->cost)->get_residual());
-  
-  wrench_cone_ = residual_cone_->get_reference();
-  wrench_cone_.set_R(rotation.transpose());
-  wrench_cone_.update();
-  
-  activation_cone_ = boost::static_pointer_cast<ActivationModelQuadRef>(
-      cone_->get_activation());
-  
-  activation_cone_->set_reference(wrench_cone_.get_A() * reference);
-  residual_cone_->set_reference(wrench_cone_);
-}
-
 void HorizonManager::setSwingingLF(const unsigned long time,
                                    const std::string &nameContactLF,
                                    const std::string &nameContactRF,
                                    const std::string &nameForceCostLF) {
   removeContactLF(time, nameContactLF);
   activateContactRF(time, nameContactRF);
-  setWrenchReference(time, nameForceCostLF, Eigen::Matrix3d::Identity(),eVector6::Zero());
+  setWrenchReference(time, nameForceCostLF,eVector6::Zero());
 }
 
 void HorizonManager::setSwingingRF(const unsigned long time,
@@ -281,7 +270,7 @@ void HorizonManager::setSwingingRF(const unsigned long time,
                                    const std::string &nameForceCostRF) {
   activateContactLF(time, nameContactLF);
   removeContactRF(time, nameContactRF);
-  setWrenchReference(time, nameForceCostRF, Eigen::Matrix3d::Identity(),eVector6::Zero());
+  setWrenchReference(time, nameForceCostRF,eVector6::Zero());
 }
 
 void HorizonManager::setDoubleSupport(const unsigned long time,

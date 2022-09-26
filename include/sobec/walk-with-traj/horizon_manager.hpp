@@ -24,9 +24,8 @@ class HorizonManager {
 
   // prealocated memory:
   boost::shared_ptr<crocoddyl::CostModelResidual> cone_;
-  boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> residual_cone_;
-  boost::shared_ptr<ActivationModelQuadRef> activation_cone_;
-  crocoddyl::WrenchCone wrench_cone_;
+  boost::shared_ptr<crocoddyl::CostModelResidual> force_cost_;
+  pinocchio::Force force_;
   std::vector<Eigen::VectorXd> warm_xs_;
   std::vector<Eigen::VectorXd> warm_us_;
   Eigen::VectorXd new_ref_;
@@ -110,7 +109,6 @@ class HorizonManager {
                            const eVector6 &reference);
   void setWrenchReference(const unsigned long time,
                            const std::string &nameCost,
-                           const Eigen::Matrix3d &rotation,
                            const eVector6 &reference);
   void setTerminalPoseCoM(const std::string &nameCost,
                           const eVector3 &ref_placement);

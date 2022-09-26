@@ -165,7 +165,7 @@ design = RobotDesigner()
 design.initialize(design_conf)
 
 # Rotate initial configuration by theta
-theta = np.pi/2
+theta = 0
 xStart = design.get_x0().copy()
 qYaw = axisangle_to_q(np.array([0,0,1]),theta)
 xStart[3:7] = q_mult(qYaw,xStart[3:7])
@@ -190,6 +190,7 @@ MM_conf = dict(
     wCoP = conf.wCoP,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
+    forceWeights = conf.forceWeights,
     lowKinematicLimits=conf.lowKinematicLimits,
     highKinematicLimits=conf.highKinematicLimits,
     th_grad=conf.th_grad,
@@ -270,11 +271,9 @@ elif conf.simulator == "pinocchio":
     v_current = init_state["dq"]
 
 # ### SIMULATION LOOP ###
-
 steps = 0
-
 # Define the constant yaw rotation for the feet
-yaw = np.pi / 12
+yaw = 0
 
 # Define the rotation and translation used to move the feet
 translationRight = np.array([conf.xForward, - conf.footSeparation + conf.sidestep, 0])
@@ -335,8 +334,8 @@ for s in range(T_total * conf.Nc):
 		uss.append(mpc.horizon.ddp.us[0])
 		LF_pose.append(mpc.designer.get_LF_frame().copy())
 		RF_pose.append(mpc.designer.get_RF_frame().copy())
-		LF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_LF"].residual.contact.f.copy())
-		RF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["wrench_RF"].residual.contact.f.copy())
+		LF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["force_LF"].residual.contact.f.copy())
+		RF_force.append(mpc.horizon.ddp.problem.runningDatas[0].differential.costs.costs["force_RF"].residual.contact.f.copy())
 
 		land_LF = (
 			mpc.land_LF()[0]
@@ -432,8 +431,8 @@ for s in range(T_total * conf.Nc):
 					# Next foot to take off is left foot
 					wrench_reference_2contact_left[2] = fz_ref_1contact - ref_force
 					wrench_reference_2contact_right[2] = ref_force
-				mpc.walkingCycle.setForceReference(0,"wrench_LF",wrench_reference_2contact_left)
-				mpc.walkingCycle.setForceReference(0,"wrench_RF",wrench_reference_2contact_right)
+				mpc.walkingCycle.setForceReference(0,"force_LF",wrench_reference_2contact_left)
+				mpc.walkingCycle.setForceReference(0,"force_RF",wrench_reference_2contact_right)
 			else:
 				TdoubleSupport = 1
 		else:
@@ -504,6 +503,6 @@ for s in range(T_total * conf.Nc):
     # if s == 0:
     # stop
 
-#save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force, save_name="trajectories_xs_us")
+save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force, save_name="trajectories_xs_us")
 if conf.simulator == "bullet":
     device.close()
