@@ -39,6 +39,7 @@ struct ModelMakerSettings {
   double wControlReg = 0;     // 0.001;
   double wLimit = 0;          // 1e3;
   double wWrenchCone = 0;     // 0.05;
+  double wForceTask = 0;      // 0.05
   double wCoP = 0;            // 1;
 
   Eigen::VectorXd stateWeights;

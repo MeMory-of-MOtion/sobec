@@ -187,6 +187,7 @@ MM_conf = dict(
     wControlReg=conf.wControlReg,
     wLimit=conf.wLimit,
     wWrenchCone=conf.wWrenchCone,
+    wForceTask=conf.wForceTask,
     wCoP = conf.wCoP,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,

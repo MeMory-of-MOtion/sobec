@@ -186,9 +186,9 @@ void ModelMaker::defineFeetForceTask(Cost &costCollector, const Support &support
                                                        residual_RF_Force);
   
   costCollector.get()->addCost("force_LF", forceModel_LF,
-                               settings_.wWrenchCone, false);
+                               settings_.wForceTask, false);
   costCollector.get()->addCost("force_RF", forceModel_RF,
-                               settings_.wWrenchCone, false);
+                               settings_.wForceTask, false);
   if (support == Support::RIGHT || support == Support::DOUBLE)
     costCollector.get()->changeCostStatus("force_RF",true);
   if (support == Support::LEFT || support == Support::DOUBLE)
@@ -299,7 +299,7 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   defineJointLimits(costs);
   definePostureTask(costs);
   defineActuationTask(costs);
-  //defineFeetWrenchCost(costs, support);
+  defineFeetWrenchCost(costs, support);
   defineFeetForceTask(costs,support);
   defineCoPTask(costs, support);
   defineFeetTracking(costs, support);

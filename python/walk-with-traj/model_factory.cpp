@@ -51,6 +51,7 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wControlReg = bp::extract<double>(settings["wControlReg"]);
   conf.wLimit = bp::extract<double>(settings["wLimit"]);
   conf.wWrenchCone = bp::extract<double>(settings["wWrenchCone"]);
+  conf.wForceTask = bp::extract<double>(settings["wForceTask"]);
   conf.wCoP = bp::extract<double>(settings["wCoP"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights = bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
@@ -80,6 +81,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wControlReg"] = conf.wControlReg;
   settings["wLimit"] = conf.wLimit;
   settings["wWrenchCone"] = conf.wWrenchCone;
+  settings["wForceTask"] = conf.wForceTask;
   settings["wCoP"] = conf.wCoP;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
@@ -124,6 +126,14 @@ void defineFeetWrenchCost(ModelMaker &self,
                           const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetWrenchCost(costs, supports);
+  costCollector = *costs;
+}
+
+void defineFeetForceTask(ModelMaker &self,
+                          crocoddyl::CostModelSum &costCollector,
+                          const Support &supports = Support::DOUBLE) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineFeetForceTask(costs, supports);
   costCollector = *costs;
 }
 
@@ -179,6 +189,9 @@ void exposeModelFactory() {
            (bp::arg("self"), bp::arg("contactCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetWrenchCost", &defineFeetWrenchCost,
+           (bp::arg("self"), bp::arg("costCollector"),
+            bp::arg("supports") = Support::DOUBLE))
+      .def("defineFeetForceTask", &defineFeetForceTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetTracking", &defineFeetTracking,
