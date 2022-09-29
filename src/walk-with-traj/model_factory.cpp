@@ -272,7 +272,7 @@ void ModelMaker::defineDCMTask(Cost &costCollector, const Support &support) {
   boost::shared_ptr<sobec::ResidualModelDCMPosition>
       residual_DCM =
           boost::make_shared<sobec::ResidualModelDCMPosition>(
-              state_, ref_position, sqrt(settings_.omega),
+              state_, ref_position, 1 / settings_.omega,
               actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> DCM_model =

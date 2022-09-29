@@ -197,7 +197,15 @@ void WBC::updateStepTrackerReferences() {
   }
   horizon_.setTerminalPoseReference("placement_LF", getPoseRef_LF(horizon_.size()));
   horizon_.setTerminalPoseReference("placement_RF", getPoseRef_RF(horizon_.size()));
-  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
+  if (horizon_.contacts(horizon_.size() - 1)->getContactStatus("left_sole_link") and horizon_.contacts(horizon_.size() - 1)->getContactStatus("right_sole_link")) {
+	  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
+  }
+  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus("left_sole_link")) {
+	  horizon_.setTerminalDCMReference("DCM", getPoseRef_LF(horizon_.size()).translation());
+  }
+  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus("right_sole_link")) {
+	  horizon_.setTerminalDCMReference("DCM", getPoseRef_RF(horizon_.size()).translation());
+  }
 }
 
 void WBC::updateStepTrackerLastReference() {
