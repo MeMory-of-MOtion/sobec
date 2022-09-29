@@ -8,6 +8,7 @@ set(${PY_NAME}_SOURCES
     crocomplements/residual-center-of-friction.cpp
     crocomplements/residual-feet-collision.cpp
     crocomplements/residual-fly-high.cpp
+    crocomplements/residual-dcm-position.cpp
     crocomplements/residual-2D-surface.cpp
     crocomplements/activation-quad-ref.cpp
     crocomplements/lowpassfilter/action.cpp

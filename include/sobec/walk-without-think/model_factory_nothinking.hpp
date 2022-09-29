@@ -58,6 +58,7 @@ struct ModelMakerNoThinkingSettings {
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
+  Eigen::VectorXd forceWeights;
   
   Eigen::VectorXd lowKinematicLimits;
   Eigen::VectorXd highKinematicLimits;
@@ -96,7 +97,8 @@ class ModelMakerNoThinking {
                          const Support &support = Support::DOUBLE);
   void defineFeetWrenchCost(Cost &costCollector,
                             const Support &support = Support::DOUBLE);
-
+  void defineFeetForceTask(Cost &costCollector,
+                            const Support &support = Support::DOUBLE);
   void definePostureTask(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineCoPTask(Cost &costCollector,

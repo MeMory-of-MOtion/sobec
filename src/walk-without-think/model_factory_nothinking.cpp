@@ -115,6 +115,54 @@ void ModelMakerNoThinking::defineFeetWrenchCost(Cost &costCollector,
     costCollector.get()->changeCostStatus("wrench_RF",true);
 }
 
+void ModelMakerNoThinking::defineFeetForceTask(Cost &costCollector, const Support &support) {
+  double Mg = -designer_.getRobotMass() * settings_.gravity(2);
+  double Fz_ref;
+  support == Support::DOUBLE ? Fz_ref = Mg / 2 : Fz_ref = Mg;
+  
+  boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> activationForce =
+      boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(
+          settings_.forceWeights);
+
+  eVector6 refWrench_LF = eVector6::Zero();
+  eVector6 refWrench_RF = eVector6::Zero();
+  if (support == Support::LEFT || support == Support::DOUBLE)
+    refWrench_LF(2) = Fz_ref;
+  if (support == Support::RIGHT || support == Support::DOUBLE)
+    refWrench_RF(2) = Fz_ref;
+  
+  pinocchio::Force refForce_LF = pinocchio::Force(refWrench_LF);
+  pinocchio::Force refForce_RF = pinocchio::Force(refWrench_RF);
+  
+  boost::shared_ptr<crocoddyl::ResidualModelContactForce>
+      residual_LF_Force =
+          boost::make_shared<crocoddyl::ResidualModelContactForce>(
+              state_, designer_.get_LF_id(), refForce_LF, 6,
+              actuation_->get_nu());
+
+  boost::shared_ptr<crocoddyl::ResidualModelContactForce>
+      residual_RF_Force =
+          boost::make_shared<crocoddyl::ResidualModelContactForce>(
+              state_, designer_.get_RF_id(), refForce_RF, 6,
+              actuation_->get_nu());
+
+  boost::shared_ptr<crocoddyl::CostModelAbstract> forceModel_LF =
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationForce,
+                                                       residual_LF_Force);
+  boost::shared_ptr<crocoddyl::CostModelAbstract> forceModel_RF =
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationForce,
+                                                       residual_RF_Force);
+  
+  costCollector.get()->addCost("force_LF", forceModel_LF,
+                               settings_.wWrenchCone, false);
+  costCollector.get()->addCost("force_RF", forceModel_RF,
+                               settings_.wWrenchCone, false);
+  if (support == Support::RIGHT || support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("force_RF",true);
+  if (support == Support::LEFT || support == Support::DOUBLE)
+    costCollector.get()->changeCostStatus("force_LF",true);
+}
+
 void ModelMakerNoThinking::defineZFeetTracking(Cost &costCollector, const Support &support) {
   eVector3 ZFootTrackingVec;
   ZFootTrackingVec << 0, 0, 1;
@@ -450,7 +498,8 @@ AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   defineJointLimits(costs);
   definePostureTask(costs);
   defineActuationTask(costs);
-  defineFeetWrenchCost(costs, support);
+  //defineFeetWrenchCost(costs, support);
+  defineFeetForceTask(costs, support);
   defineFootCollisionTask(costs);
   defineCoPTask(costs, support);
   defineVelFootTask(costs, support);
@@ -458,7 +507,7 @@ AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   defineFlyHighTask(costs, support);
   define2DSurfaceTask(costs, support);
   defineZFeetTracking(costs, support);
-  defineGroundCollisionTask(costs);
+  //defineGroundCollisionTask(costs);
 
   DAM runningDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
@@ -480,9 +529,9 @@ AMA ModelMakerNoThinking::formulateTerminalStepTracker(const Support &support) {
   defineCoMVelocity(costs);
   defineJointLimits(costs);
   definePostureTask(costs);
-  //defineFootCollisionTask(costs);
+  defineFootCollisionTask(costs);
   defineVelFootTask(costs);
-  //defineFlyHighTask(costs, support);
+  defineFlyHighTask(costs, support);
   defineCoMTask(costs);
   defineZFeetTracking(costs);
   //defineGroundCollisionTask(costs);

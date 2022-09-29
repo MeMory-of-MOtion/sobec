@@ -53,6 +53,7 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wWrenchCone = bp::extract<double>(settings["wWrenchCone"]);
   conf.wForceTask = bp::extract<double>(settings["wForceTask"]);
   conf.wCoP = bp::extract<double>(settings["wCoP"]);
+  conf.wDCM = bp::extract<double>(settings["wDCM"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights = bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
   conf.forceWeights = bp::extract<Eigen::VectorXd>(settings["forceWeights"]);
@@ -83,6 +84,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wWrenchCone"] = conf.wWrenchCone;
   settings["wForceTask"] = conf.wForceTask;
   settings["wCoP"] = conf.wCoP;
+  settings["wDCM"] = conf.wDCM;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
   settings["forceWeights"] = conf.forceWeights;
@@ -145,6 +147,14 @@ void defineFeetTracking(ModelMaker &self,
   costCollector = *costs;
 }
 
+void defineDCMTask(ModelMaker &self,
+                        crocoddyl::CostModelSum &costCollector,
+                        const Support &supports = Support::DOUBLE) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineDCMTask(costs, supports);
+  costCollector = *costs;
+}
+
 void definePostureTask(ModelMaker &self,
                        crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
@@ -195,6 +205,9 @@ void exposeModelFactory() {
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetTracking", &defineFeetTracking,
+           (bp::arg("self"), bp::arg("costCollector"),
+            bp::arg("supports") = Support::DOUBLE))
+      .def("defineDCMTask", &defineDCMTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("definePostureTask", &definePostureTask,

@@ -134,6 +134,7 @@ wLimit = 1e3
 wWrenchCone = 1 # 0.05
 wForceTask = 0
 wCoP = 10
+wDCM = 0
 
 weightBasePos = [0, 0, 0, 100, 100, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [10, 10, 10, 10, 10, 10]  # [x, y, z| x, y, z]

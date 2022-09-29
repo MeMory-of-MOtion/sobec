@@ -173,6 +173,13 @@ void HorizonManager::setTerminalPoseReference(const std::string &nameCost,
       ->set_reference(ref_placement);
 }
 
+void HorizonManager::setTerminalDCMReference(const std::string &nameCost,
+                                              const eVector3 &ref_translation) {
+  boost::static_pointer_cast<sobec::ResidualModelDCMPosition>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_translation);
+}
+
 void HorizonManager::setTerminalTranslationReference(const std::string &nameCost,
                                               const eVector3 &ref_translation) {
   boost::static_pointer_cast<crocoddyl::ResidualModelFrameTranslation>(

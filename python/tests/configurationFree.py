@@ -108,7 +108,7 @@ flexToJoint = np.array([0, 0, 0.09])
 # ###### WALKING GEOMETRY #########
 xForward = 0.15 # step size
 swingApex = 0.04  # foot height
-footMinimalDistance = 0.3
+footMinimalDistance = 0.2
 angleSurface = 0.5
 flyHighSlope = 100
 footPenetration = 0.0
@@ -136,14 +136,14 @@ wControlReg = 0.001
 wLimit = 1e3
 wVCoM = 0
 wCoM = 1000
-wWrenchCone = 0.05
+wWrenchCone = 0.01
 wFootRot = 1000
 wGroundCol = 0
-wCoP = 10
+wCoP = 0
 wFlyHigh = 5000
 wVelFoot = 0
-wColFeet = 0
-wSurface = 20000
+wColFeet = 1000
+wSurface = 0
 
 weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
@@ -173,6 +173,8 @@ controlWeight = np.array(weightuLeg * 2
                         #+ weightuArm * 2
 )
 
+
+forceWeights = np.array([1,1,1,10,10,10])
 lowKinematicLimits = np.array([-0.35, -0.52,-2.10, 0.0,-1.31,-0.52, # left leg
                                -1.57,-0.52,-2.10,0.0,-1.31,-0.52, # right leg
                                -1.3,-0.1])  # torso

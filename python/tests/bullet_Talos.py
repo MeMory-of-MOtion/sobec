@@ -9,6 +9,7 @@ import pybullet_data
 import pybullet as p  # PyBullet simulator
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+import os 
 
 class BulletTalos:
     def __init__(self, conf, rmodelComplete):
@@ -90,6 +91,11 @@ class BulletTalos:
             p.resetJointState(
                 self.robotId, self.bulletControlledJoints[i], q0Start[i+7]
             )
+                  
+    def addStairs(self, path, position):
+        p.setAdditionalSearchPath(path)
+        self.stepId = p.loadURDF("step/step.urdf")
+        p.resetBasePositionAndOrientation(self.stepId, posObj=position,ornObj=[0,0,0,1])
 
     def execute(self, torques):
         p.setJointMotorControlArray(

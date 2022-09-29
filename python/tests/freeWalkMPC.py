@@ -90,6 +90,19 @@ design_conf = dict(
 design = RobotDesigner()
 design.initialize(design_conf)
 
+design.get_rModel().inertias[1].lever[1] +=0.02
+design.get_rModel().inertias[2].lever[1] +=0.02
+design.get_rModel().inertias[3].lever[1] +=0.02
+design.get_rModel().inertias[4].lever[1] +=0.02
+design.get_rModel().inertias[5].lever[1] +=0.02
+design.get_rModel().inertias[6].lever[1] +=0.02
+design.get_rModel().inertias[7].lever[1] -=0.02
+design.get_rModel().inertias[8].lever[1] -=0.02
+design.get_rModel().inertias[9].lever[1] -=0.02
+design.get_rModel().inertias[10].lever[1] -=0.02
+design.get_rModel().inertias[11].lever[1] -=0.02
+design.get_rModel().inertias[12].lever[1] -=0.02
+
 # Vector of Formulations
 MM_conf = dict(
     timeStep=conf.DT,
@@ -122,6 +135,7 @@ MM_conf = dict(
     wSurface = conf.wSurface,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
+    forceWeights=conf.forceWeights,
     lowKinematicLimits=conf.lowKinematicLimits,
     highKinematicLimits=conf.highKinematicLimits,
     th_grad=conf.th_grad,
@@ -232,10 +246,10 @@ swing_trajectory_left = FootTrajectory(conf.swingApex,0.0,0)
 swing_trajectory_right.generate(0,conf.TsingleSupport * conf.DT,starting_position_right,final_position_right, False)
 swing_trajectory_left.generate(0,conf.TsingleSupport * conf.DT,starting_position_left,final_position_left, False)
 
-comRef[0] += 1
+comRef[0] += -1
 comRef[1] += 0
-mpc.ref_com = comRef
 ref_com_vel = np.array([0.,0.,0])
+mpc.ref_com = comRef
 
 T_total = conf.total_steps * conf.Tstep + 5 * conf.T
 
@@ -314,8 +328,8 @@ for s in range(T_total * conf.Nc):
 					wrench_reference_2contact_right[2] = ref_force
 				print("Change left force to " + str(wrench_reference_2contact_left[2]))
 				print("Change right force to " + str(wrench_reference_2contact_right[2]))
-				mpc.walkingCycle.setForceReference(0,"wrench_LF",wrench_reference_2contact_left)
-				mpc.walkingCycle.setForceReference(0,"wrench_RF",wrench_reference_2contact_right)
+				mpc.walkingCycle.setForceReference(0,"force_LF",wrench_reference_2contact_left)
+				mpc.walkingCycle.setForceReference(0,"force_RF",wrench_reference_2contact_right)
 			else:
 				TdoubleSupport = 1
 		else:
@@ -331,7 +345,7 @@ for s in range(T_total * conf.Nc):
 		print(end-start)
 		moyenne += end - start
 	torques = horizon.currentTorques(mpc.x0)
-	'''if (s == 150 * 10):
+	'''if (s == 100 * 10):
 		for t in range(conf.T):
 			print("t = " + str(t))
 			time.sleep(0.1)

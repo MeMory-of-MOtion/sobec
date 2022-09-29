@@ -15,6 +15,7 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeResidualCenterOfPressure();
   sobec::python::exposeResidualFeetCollision();
   sobec::python::exposeResidualFlyHigh();
+  sobec::python::exposeResidualDCMPosition();
   sobec::python::exposeResidual2DSurface();
   sobec::python::exposeActivationQuadRef();
   sobec::python::exposeDesigner();

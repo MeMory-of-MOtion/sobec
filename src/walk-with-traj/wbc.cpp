@@ -174,7 +174,6 @@ void WBC::iterateNoThinking(const Eigen::VectorXd &q_current,
   // ~~TIMING~~ //
   recedeWithCycle();
   updateSupportTiming();
-
   // ~~REFERENCES~~ //
   designer_.updateReducedModel(x0_);
   updateNonThinkingReferences();
@@ -198,6 +197,7 @@ void WBC::updateStepTrackerReferences() {
   }
   horizon_.setTerminalPoseReference("placement_LF", getPoseRef_LF(horizon_.size()));
   horizon_.setTerminalPoseReference("placement_RF", getPoseRef_RF(horizon_.size()));
+  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
 }
 
 void WBC::updateStepTrackerLastReference() {

@@ -65,6 +65,7 @@ void initialize(ModelMakerNoThinking &self, const bp::dict &settings,
   conf.wSurface = bp::extract<double>(settings["wSurface"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights = bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
+  conf.forceWeights = bp::extract<Eigen::VectorXd>(settings["forceWeights"]);
   conf.lowKinematicLimits = bp::extract<Eigen::VectorXd>(settings["lowKinematicLimits"]);
   conf.highKinematicLimits = bp::extract<Eigen::VectorXd>(settings["highKinematicLimits"]);
   conf.th_grad = bp::extract<double>(settings["th_grad"]);
@@ -104,6 +105,7 @@ bp::dict get_settings(ModelMakerNoThinking &self) {
   settings["wSurface"] = conf.wSurface;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
+  settings["forceWeights"] = conf.forceWeights;
   settings["lowKinematicLimits"] = conf.lowKinematicLimits;
   settings["highKinematicLimits"] = conf.highKinematicLimits;
   settings["th_grad"] = conf.th_grad;
@@ -144,6 +146,14 @@ void defineFeetWrenchCost(ModelMakerNoThinking &self,
                           const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetWrenchCost(costs, supports);
+  costCollector = *costs;
+}
+
+void defineFeetForceTask(ModelMakerNoThinking &self,
+                          crocoddyl::CostModelSum &costCollector,
+                          const Support &supports = Support::DOUBLE) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineFeetForceTask(costs, supports);
   costCollector = *costs;
 }
 
@@ -258,6 +268,9 @@ void exposeModelFactoryNoThinking() {
            (bp::arg("self"), bp::arg("contactCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetWrenchCost", &defineFeetWrenchCost,
+           (bp::arg("self"), bp::arg("costCollector"),
+            bp::arg("supports") = Support::DOUBLE))
+      .def("defineFeetForceTask", &defineFeetForceTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineZFeetTracking", &defineZFeetTracking,

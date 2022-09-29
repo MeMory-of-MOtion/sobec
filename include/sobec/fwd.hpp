@@ -89,6 +89,14 @@ struct ResidualDataFlyHighTpl;
 typedef ResidualModelFlyHighTpl<double> ResidualModelFlyHigh;
 typedef ResidualDataFlyHighTpl<double> ResidualDataFlyHigh;
 
+// Cost DCM
+template <typename Scalar>
+class ResidualModelDCMPositionTpl;
+template <typename Scalar>
+struct ResidualDataDCMPositionTpl;
+typedef ResidualModelDCMPositionTpl<double> ResidualModelDCMPosition;
+typedef ResidualDataDCMPositionTpl<double> ResidualDataDCMPosition;
+
 // Cost feet collision
 template <typename Scalar>
 class ResidualModelFeetCollisionTpl;

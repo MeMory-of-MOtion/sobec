@@ -15,6 +15,7 @@
 #include <crocoddyl/multibody/residuals/state.hpp>
 
 #include "sobec/crocomplements/residual-com-velocity.hpp"
+#include "sobec/crocomplements/residual-dcm-position.hpp"
 #include "sobec/crocomplements/residual-fly-high.hpp"
 #include "sobec/crocomplements/residual-2D-surface.hpp"
 // #include "crocoddyl/multibody/residuals/centroidal-momentum.hpp"
@@ -65,6 +66,9 @@ std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
     case CostModelTypes::CostModelResidualFrameTranslation:
       os << "CostModelResidualFrameTranslation";
       break;
+      case CostModelTypes::CostModelResidualDCMPosition:
+      os << "CostModelResidualDCMPosition";
+      break;
     case CostModelTypes::CostModelResidualFrameVelocity:
       os << "CostModelResidualFrameVelocity";
       break;
@@ -103,7 +107,7 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
   boost::shared_ptr<crocoddyl::StateMultibody> state =
       boost::static_pointer_cast<crocoddyl::StateMultibody>(
           state_factory.create(state_type));
-  
+  double alpha = fabs(Eigen::VectorXd::Random(1)[0]);
   crocoddyl::FrameIndex frame_index = state->get_pinocchio()->frames.size() - 1;
   pinocchio::SE3 frame_SE3 = pinocchio::SE3::Random();
   if (nu == std::numeric_limits<std::size_t>::max()) {
@@ -169,6 +173,11 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
           state, activation_factory.create(activation_type, 3),
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
               state, frame_index, frame_SE3.translation(), nu));
+      break;
+    case CostModelTypes::CostModelResidualDCMPosition:
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, 3),
+          boost::make_shared<sobec::ResidualModelDCMPosition>(state, Eigen::Vector3d::Random(), alpha, nu));
       break;
     case CostModelTypes::CostModelResidualFrameVelocity:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(

@@ -13,6 +13,7 @@ void exposeResidualVelCollision();
 void exposeResidualCenterOfPressure();
 void exposeResidualFeetCollision();
 void exposeResidualFlyHigh();
+void exposeResidualDCMPosition();
 void exposeResidual2DSurface();
 void exposeActivationQuadRef();
 void exposeDesigner();

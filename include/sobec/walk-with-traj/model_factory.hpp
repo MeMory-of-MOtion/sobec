@@ -9,6 +9,7 @@
 
 #include "sobec/fwd.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
+#include "sobec/crocomplements/residual-dcm-position.hpp"
 
 namespace sobec {
 
@@ -41,6 +42,7 @@ struct ModelMakerSettings {
   double wWrenchCone = 0;     // 0.05;
   double wForceTask = 0;      // 0.05
   double wCoP = 0;            // 1;
+  double wDCM = 0;
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
@@ -91,7 +93,9 @@ class ModelMaker {
   void defineJointLimits(Cost &costCollector);
   void defineCoPTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
-
+  void defineDCMTask(Cost &costCollector, 
+                     const Support &support = Support::DOUBLE);
+                     
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {
     state_ = new_state;

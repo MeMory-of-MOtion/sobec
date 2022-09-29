@@ -256,6 +256,33 @@ void ModelMaker::defineJointLimits(Cost &costCollector) {
                                true);
 }
 
+void ModelMaker::defineDCMTask(Cost &costCollector, const Support &support) {
+	
+  Eigen::Vector3d ref_position = Eigen::VectorXd::Zero(3);
+  if (support == Support::LEFT) {
+	  ref_position = designer_.get_LF_frame().translation();
+  }
+  if (support == Support::RIGHT) {
+	  ref_position = designer_.get_RF_frame().translation();
+  }
+  if (support == Support::DOUBLE) {
+	  ref_position = (designer_.get_RF_frame().translation() + 
+	                  designer_.get_LF_frame().translation()) / 2.;
+  }
+  boost::shared_ptr<sobec::ResidualModelDCMPosition>
+      residual_DCM =
+          boost::make_shared<sobec::ResidualModelDCMPosition>(
+              state_, ref_position, sqrt(settings_.omega),
+              actuation_->get_nu());
+
+  boost::shared_ptr<crocoddyl::CostModelAbstract> DCM_model =
+      boost::make_shared<crocoddyl::CostModelResidual>(state_,
+                                                       residual_DCM);
+  
+  costCollector.get()->addCost("DCM", DCM_model,
+                               settings_.wDCM, true);
+}
+
 void ModelMaker::defineCoPTask(Cost &costCollector, const Support &support) {
   Eigen::Vector2d w_cop;
   double value = 1.0 / (settings_.footSize * settings_.footSize);
@@ -323,6 +350,7 @@ AMA ModelMaker::formulateTerminalStepTracker(const Support &support) {
   defineJointLimits(costs);
   definePostureTask(costs);
   defineFeetTracking(costs, support);
+  defineDCMTask(costs, support);
 
   DAM terminalDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
