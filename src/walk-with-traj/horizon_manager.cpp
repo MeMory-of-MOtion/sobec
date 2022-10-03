@@ -150,6 +150,13 @@ void HorizonManager::setActuationReference(const unsigned long time,
       ->set_reference(reference);
 }
 
+Eigen::VectorXd HorizonManager::getActuationReference(const unsigned long time,
+                                           const std::string &nameCostActuation) {
+  return boost::static_pointer_cast<crocoddyl::ResidualModelState>(
+          costs(time)->get_costs().at(nameCostState)->cost->get_residual())
+          ->get_reference();
+}
+
 void HorizonManager::setPoseReference(const unsigned long time,
                                         const std::string &nameCost,
                                         const pinocchio::SE3 &ref_placement) {

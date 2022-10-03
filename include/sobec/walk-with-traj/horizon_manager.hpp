@@ -71,6 +71,8 @@ class HorizonManager {
   void setActuationReference(const unsigned long time,
                              const std::string &nameCostActuation,
                              const Eigen::VectorXd &reference);
+  Eigen::VectorXd getActuationReference(const unsigned long time,
+                                        const std::string &nameCostActuation);
   void setBalancingTorque(const unsigned long time,
                           const std::string &nameCostActuation,
                           const Eigen::VectorXd &x);
