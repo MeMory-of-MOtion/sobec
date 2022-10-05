@@ -498,8 +498,7 @@ AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   defineJointLimits(costs);
   definePostureTask(costs);
   defineActuationTask(costs);
-  //defineFeetWrenchCost(costs, support);
-  defineFeetForceTask(costs, support);
+  defineFeetWrenchCost(costs, support);
   defineFootCollisionTask(costs);
   defineCoPTask(costs, support);
   defineVelFootTask(costs, support);
