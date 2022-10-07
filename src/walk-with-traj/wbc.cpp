@@ -148,6 +148,7 @@ bool WBC::timeToSolveDDP(int iteration) {
 void WBC::iterate(const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
+
   // ~~TIMING~~ //
   recedeWithCycle();
   updateSupportTiming();
@@ -156,6 +157,7 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   designer_.updateReducedModel(x0_);
   //updateStepTrackerLastReference();
   updateStepTrackerReferences();
+
   // ~~SOLVER~~ //
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
@@ -178,6 +180,7 @@ void WBC::iterateNoThinking(const Eigen::VectorXd &q_current,
   designer_.updateReducedModel(x0_);
   updateNonThinkingReferences();
   // ~~SOLVER~~ //
+
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
@@ -197,13 +200,14 @@ void WBC::updateStepTrackerReferences() {
   }
   horizon_.setTerminalPoseReference("placement_LF", getPoseRef_LF(horizon_.size()));
   horizon_.setTerminalPoseReference("placement_RF", getPoseRef_RF(horizon_.size()));
-  if (horizon_.contacts(horizon_.size() - 1)->getContactStatus("left_sole_link") and horizon_.contacts(horizon_.size() - 1)->getContactStatus("right_sole_link")) {
+
+  if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
 	  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
   }
-  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus("left_sole_link")) {
+  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name())) {
 	  horizon_.setTerminalDCMReference("DCM", getPoseRef_LF(horizon_.size()).translation());
   }
-  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus("right_sole_link")) {
+  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
 	  horizon_.setTerminalDCMReference("DCM", getPoseRef_RF(horizon_.size()).translation());
   }
 }
