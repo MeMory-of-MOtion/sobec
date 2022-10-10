@@ -90,6 +90,8 @@ class RobotDesigner {
   const Eigen::Vector3d &get_LF_position() { return LF_position_; }
   const Eigen::Vector3d &get_RF_position() { return RF_position_; }
   const Eigen::Vector3d &get_com_position() { return com_position_; }
+  
+  void changeInertia(const size_t &i, const double &offset);
 };
 
 }  // namespace sobec

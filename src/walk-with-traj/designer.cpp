@@ -177,4 +177,13 @@ double RobotDesigner::getRobotMass() {
   return mass_;
 }
 
+void RobotDesigner::changeInertia(const size_t &inertia_id,
+                                  const double &offset) {
+	Eigen::Vector3d lever = rModel_.inertias[inertia_id].lever();
+	double mass = rModel_.inertias[inertia_id].mass();
+	Eigen::Matrix3d rot_inertia = rModel_.inertias[inertia_id].inertia();
+	lever[1] += offset;
+	rModel_.inertias[inertia_id] = pinocchio::Inertia(mass,lever,rot_inertia);
+}
+
 }  // namespace sobec
