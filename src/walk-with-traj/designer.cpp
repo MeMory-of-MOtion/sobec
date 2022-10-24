@@ -77,7 +77,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
                                          q0Complete_);
   leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
   rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
-  addToeAndHeel(0.1,0.1);
+  addToeAndHeel(0.15,0.15);
   rData_ = pinocchio::Data(rModel_);
 
   pinocchio::srdf::loadReferenceConfigurations(rModel_, settings_.srdfPath,

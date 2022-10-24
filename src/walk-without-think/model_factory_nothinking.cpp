@@ -299,9 +299,13 @@ void ModelMakerNoThinking::defineFeetRotation(Cost &costCollector) {
 }
 
 void ModelMakerNoThinking::defineCoMTask(Cost &costCollector) {
+  eVector3 comW;
+  comW << 1, 1, 0;
+  boost::shared_ptr<crocoddyl::ActivationModelWeightedLog> activation =
+      boost::make_shared<crocoddyl::ActivationModelWeightedLog>(comW, 1);
   boost::shared_ptr<crocoddyl::CostModelAbstract> comCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, boost::make_shared<crocoddyl::ResidualModelCoMPosition>(
+          state_, activation, boost::make_shared<crocoddyl::ResidualModelCoMPosition>(
               state_, designer_.get_com_position(), actuation_->get_nu()));
   costCollector.get()->addCost("comTask", comCost,
                                settings_.wCoM, true);
@@ -349,7 +353,7 @@ void ModelMakerNoThinking::defineVelFootTask(Cost &costCollector, const Support 
               state_, designer_.get_RF_id(), pinocchio::Motion::Zero(),
               pinocchio::LOCAL_WORLD_ALIGNED, actuation_->get_nu());
   eVector6 verticalFootVelActVec;
-  verticalFootVelActVec << 1, 1, 0, 0, 0, 0;
+  verticalFootVelActVec << 0, 0, 1, 0, 0, 0;
   boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> verticalFootVelAct = 
       boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(verticalFootVelActVec);
   
