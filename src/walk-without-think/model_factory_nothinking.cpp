@@ -299,10 +299,10 @@ void ModelMakerNoThinking::defineFeetRotation(Cost &costCollector) {
 }
 
 void ModelMakerNoThinking::defineCoMTask(Cost &costCollector) {
-  eVector3 comW;
-  comW << 1, 1, 0;
-  boost::shared_ptr<crocoddyl::ActivationModelWeightedLog> activation =
-      boost::make_shared<crocoddyl::ActivationModelWeightedLog>(comW, 1);
+  eVector3 comWeight;
+  comWeight << 1, 1, 0;
+  boost::shared_ptr<sobec::ActivationModelWeightedLog> activation =
+      boost::make_shared<sobec::ActivationModelWeightedLog>(comWeight, 1);
   boost::shared_ptr<crocoddyl::CostModelAbstract> comCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
           state_, activation, boost::make_shared<crocoddyl::ResidualModelCoMPosition>(
