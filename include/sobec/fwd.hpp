@@ -12,6 +12,7 @@
 #include <crocoddyl/core/action-base.hpp>
 #include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/activations/quadratic-flat-log.hpp>
+#include <crocoddyl/core/activations/smooth-1norm.hpp>
 #include <crocoddyl/core/activations/weighted-quadratic.hpp>
 #include <crocoddyl/core/fwd.hpp>
 #include <crocoddyl/core/integrator/euler.hpp>
