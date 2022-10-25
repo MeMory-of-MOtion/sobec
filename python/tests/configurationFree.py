@@ -109,7 +109,6 @@ flexToJoint = np.array([0, 0, 0.09])
 xForward = 0.15 # step size
 swingApex = 0.04  # foot height
 footMinimalDistance = 0.2
-angleSurface = 0.5
 flyHighSlope = 100
 footPenetration = 0.0
 
@@ -138,12 +137,11 @@ wVCoM = 0
 wCoM = 1000
 wWrenchCone = 0.01
 wFootRot = 1000
-wGroundCol = 0
 wCoP = 0
 wFlyHigh = 5000
 wVelFoot = 0
 wColFeet = 1000
-wSurface = 0
+wDCM = 0
 
 weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]

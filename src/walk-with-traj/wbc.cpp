@@ -36,7 +36,6 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   ref_RF_poses_.reserve(horizon_.size() + 1);
   ref_com_ = designer_.get_com_position();
   ref_com_vel_ = eVector3::Zero();
-  ref_feet_vel_ = pinocchio::Motion::Zero();
   
   for (unsigned long i = 0; i < horizon_.size() + 1; i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
@@ -173,14 +172,16 @@ void WBC::iterate(int iteration, const Eigen::VectorXd &q_current,
 void WBC::iterateNoThinking(const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
+  
   // ~~TIMING~~ //
   recedeWithCycle();
   updateSupportTiming();
+  
   // ~~REFERENCES~~ //
   designer_.updateReducedModel(x0_);
   updateNonThinkingReferences();
+  
   // ~~SOLVER~~ //
-
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
@@ -228,22 +229,24 @@ void WBC::updateStepTrackerLastReference() {
 }
 
 void WBC::updateNonThinkingReferences() {
-  ref_feet_vel_.linear() = ref_com_vel_;
   horizon_.setTerminalPoseCoM("comTask", ref_com_);
-  double yaw_left_ = atan2(designer_.get_LF_frame().rotation().data()[1], designer_.get_LF_frame().rotation().data()[0]);
-  double yaw_right_ = atan2(designer_.get_RF_frame().rotation().data()[1], designer_.get_RF_frame().rotation().data()[0]);
   for (unsigned long time = 0; time < horizon_.size(); time++) {
 	  horizon_.setVelocityRefCOM(time,"comVelocity",ref_com_vel_);
-	  horizon_.setVelocityRefFeet(time,"velFoot_RF",ref_feet_vel_);
-	  horizon_.setVelocityRefFeet(time,"velFoot_LF",ref_feet_vel_);
 	  horizon_.setTranslationReference(time, "Z_translation_LF", getPoseRef_LF(time).translation());
 	  horizon_.setTranslationReference(time, "Z_translation_RF", getPoseRef_RF(time).translation());
-	  horizon_.setSurfaceInequality(time,"surface_LF",designer_.get_RF_frame().translation().head(2),yaw_right_);
-	  horizon_.setSurfaceInequality(time,"surface_RF",designer_.get_LF_frame().translation().head(2),yaw_left_);
   }
   horizon_.setTerminalTranslationReference("Z_translation_LF", getPoseRef_LF(horizon_.size()).translation());
   horizon_.setTerminalTranslationReference("Z_translation_RF", getPoseRef_RF(horizon_.size()).translation());
-    ///@todo: the names must be provided by the user
+
+  if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
+	  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
+  }
+  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name())) {
+	  horizon_.setTerminalDCMReference("DCM", getPoseRef_LF(horizon_.size()).translation());
+  }
+  else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
+	  horizon_.setTerminalDCMReference("DCM", getPoseRef_RF(horizon_.size()).translation());
+  }
 }
 
 void WBC::recedeWithCycle() {

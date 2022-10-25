@@ -220,6 +220,33 @@ void ModelMakerNoThinking::definePostureTask(Cost &costCollector) {
                                true);
 }
 
+void ModelMakerNoThinking::defineDCMTask(Cost &costCollector, const Support &support) {
+	
+  Eigen::Vector3d ref_position = Eigen::VectorXd::Zero(3);
+  if (support == Support::LEFT) {
+	  ref_position = designer_.get_LF_frame().translation();
+  }
+  if (support == Support::RIGHT) {
+	  ref_position = designer_.get_RF_frame().translation();
+  }
+  if (support == Support::DOUBLE) {
+	  ref_position = (designer_.get_RF_frame().translation() + 
+	                  designer_.get_LF_frame().translation()) / 2.;
+  }
+  boost::shared_ptr<sobec::ResidualModelDCMPosition>
+      residual_DCM =
+          boost::make_shared<sobec::ResidualModelDCMPosition>(
+              state_, ref_position, 1 / settings_.omega,
+              actuation_->get_nu());
+
+  boost::shared_ptr<crocoddyl::CostModelAbstract> DCM_model =
+      boost::make_shared<crocoddyl::CostModelResidual>(state_,
+                                                       residual_DCM);
+  
+  costCollector.get()->addCost("DCM", DCM_model,
+                               settings_.wDCM, true);
+}
+
 void ModelMakerNoThinking::defineActuationTask(Cost &costCollector) {
   if (settings_.controlWeights.size() != (int)actuation_->get_nu()) {
     throw std::invalid_argument("Control weight size is wrong ");
@@ -427,6 +454,7 @@ void ModelMakerNoThinking::defineJointLimits(Cost &costCollector) {
                                true);
 }
 
+/*
 void ModelMakerNoThinking::defineGroundCollisionTask(Cost &costCollector) {
   boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation> groundColResRight =
       boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
@@ -490,7 +518,7 @@ void ModelMakerNoThinking::define2DSurfaceTask(Cost &costCollector, const Suppor
     costCollector.get()->changeCostStatus("surface_RF",true);
   if (support == Support::RIGHT)
     costCollector.get()->changeCostStatus("surface_LF",true);
-}
+}*/
 
 AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
@@ -510,9 +538,7 @@ AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   defineVelFootTask(costs, support);
   defineFeetRotation(costs);
   defineFlyHighTask(costs, support);
-  define2DSurfaceTask(costs, support);
   defineZFeetTracking(costs, support);
-  //defineGroundCollisionTask(costs);
 
   DAM runningDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
@@ -539,7 +565,7 @@ AMA ModelMakerNoThinking::formulateTerminalStepTracker(const Support &support) {
   defineFlyHighTask(costs, support);
   defineCoMTask(costs);
   defineZFeetTracking(costs);
-  //defineGroundCollisionTask(costs);
+  defineDCMTask(costs, support);
 
   DAM terminalDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(

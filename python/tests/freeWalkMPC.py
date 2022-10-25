@@ -89,7 +89,7 @@ design_conf = dict(
 )
 design = RobotDesigner()
 design.initialize(design_conf)
-
+'''
 design.get_rModel().inertias[1].lever[1] +=0.02
 design.get_rModel().inertias[2].lever[1] +=0.02
 design.get_rModel().inertias[3].lever[1] +=0.02
@@ -101,7 +101,7 @@ design.get_rModel().inertias[8].lever[1] -=0.02
 design.get_rModel().inertias[9].lever[1] -=0.02
 design.get_rModel().inertias[10].lever[1] -=0.02
 design.get_rModel().inertias[11].lever[1] -=0.02
-design.get_rModel().inertias[12].lever[1] -=0.02
+design.get_rModel().inertias[12].lever[1] -=0.02'''
 
 # Vector of Formulations
 MM_conf = dict(
@@ -116,9 +116,6 @@ MM_conf = dict(
     footSize = conf.footSize,
     flyHighSlope = conf.flyHighSlope,
     footMinimalDistance = conf.footMinimalDistance,
-    angleSurface = conf.angleSurface,
-    heelTranslation = conf.heelTranslation,
-    toeTranslation = conf.toeTranslation,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
@@ -127,12 +124,11 @@ MM_conf = dict(
     wCoM=conf.wCoM,
     wWrenchCone=conf.wWrenchCone,
     wFootRot=conf.wFootRot,
-    wGroundCol=conf.wGroundCol,
     wCoP = conf.wCoP,
     wFlyHigh = conf.wFlyHigh,
     wVelFoot = conf.wVelFoot,
     wColFeet = conf.wColFeet,
-    wSurface = conf.wSurface,
+    wDCM = conf.wDCM,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
     forceWeights=conf.forceWeights,
@@ -246,7 +242,7 @@ swing_trajectory_left = FootTrajectory(conf.swingApex,0.0,0)
 swing_trajectory_right.generate(0,conf.TsingleSupport * conf.DT,starting_position_right,final_position_right, False)
 swing_trajectory_left.generate(0,conf.TsingleSupport * conf.DT,starting_position_left,final_position_left, False)
 
-comRef[0] += -1
+comRef[0] += 1
 comRef[1] += 0
 ref_com_vel = np.array([0.,0.,0])
 mpc.ref_com = comRef
@@ -328,8 +324,8 @@ for s in range(T_total * conf.Nc):
 					wrench_reference_2contact_right[2] = ref_force
 				print("Change left force to " + str(wrench_reference_2contact_left[2]))
 				print("Change right force to " + str(wrench_reference_2contact_right[2]))
-				mpc.walkingCycle.setForceReference(0,"force_LF",wrench_reference_2contact_left)
-				mpc.walkingCycle.setForceReference(0,"force_RF",wrench_reference_2contact_right)
+				mpc.walkingCycle.setWrenchReference(0,"wrench_LF",wrench_reference_2contact_left)
+				mpc.walkingCycle.setWrenchReference(0,"wrench_RF",wrench_reference_2contact_right)
 			else:
 				TdoubleSupport = 1
 		else:

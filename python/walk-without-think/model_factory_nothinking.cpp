@@ -46,7 +46,6 @@ void initialize(ModelMakerNoThinking &self, const bp::dict &settings,
   conf.footSize = bp::extract<double>(settings["footSize"]);
   conf.footMinimalDistance = bp::extract<double>(settings["footMinimalDistance"]);
   conf.flyHighSlope = bp::extract<double>(settings["flyHighSlope"]);
-  conf.angleSurface = bp::extract<double>(settings["angleSurface"]);
 
   // gains
   conf.wFootPlacement = bp::extract<double>(settings["wFootPlacement"]);
@@ -57,12 +56,11 @@ void initialize(ModelMakerNoThinking &self, const bp::dict &settings,
   conf.wCoM = bp::extract<double>(settings["wCoM"]);
   conf.wWrenchCone = bp::extract<double>(settings["wWrenchCone"]);
   conf.wFootRot = bp::extract<double>(settings["wFootRot"]);
-  conf.wGroundCol = bp::extract<double>(settings["wGroundCol"]);
   conf.wCoP = bp::extract<double>(settings["wCoP"]);
   conf.wVelFoot = bp::extract<double>(settings["wVelFoot"]);
   conf.wColFeet = bp::extract<double>(settings["wColFeet"]);
   conf.wFlyHigh = bp::extract<double>(settings["wFlyHigh"]);
-  conf.wSurface = bp::extract<double>(settings["wSurface"]);
+  conf.wDCM = bp::extract<double>(settings["wDCM"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights = bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
   conf.forceWeights = bp::extract<Eigen::VectorXd>(settings["forceWeights"]);
@@ -88,7 +86,6 @@ bp::dict get_settings(ModelMakerNoThinking &self) {
   settings["footSize"] = conf.footSize;
   settings["footMinimalDistance"] = conf.footMinimalDistance;
   settings["flyHighSlope"] = conf.flyHighSlope;
-  settings["angleSurface"] = conf.angleSurface;
   settings["wFootPlacement"] = conf.wFootPlacement;
   settings["wStateReg"] = conf.wStateReg;
   settings["wControlReg"] = conf.wControlReg;
@@ -97,12 +94,11 @@ bp::dict get_settings(ModelMakerNoThinking &self) {
   settings["wCoM"] = conf.wCoM;
   settings["wWrenchCone"] = conf.wWrenchCone;
   settings["wFootRot"] = conf.wFootRot;
-  settings["wGroundCol"] = conf.wGroundCol;
   settings["wCoP"] = conf.wCoP;
   settings["wVelFoot"] = conf.wVelFoot;
   settings["wColFeet"] = conf.wColFeet;
   settings["wFlyHigh"] = conf.wFlyHigh;
-  settings["wSurface"] = conf.wSurface;
+  settings["wDCM"] = conf.wDCM;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
   settings["forceWeights"] = conf.forceWeights;
@@ -223,13 +219,6 @@ void defineVelFootTask(ModelMakerNoThinking &self,
   costCollector = *costs;
 }
 
-void defineGroundCollisionTask(ModelMakerNoThinking &self,
-                   crocoddyl::CostModelSum &costCollector) {
-  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.defineGroundCollisionTask(costs);
-  costCollector = *costs;
-}
-
 void defineFootCollisionTask(ModelMakerNoThinking &self,
                    crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
@@ -245,11 +234,11 @@ void defineFlyHighTask(ModelMakerNoThinking &self,
   costCollector = *costs;
 }
 
-void define2DSurfaceTask(ModelMakerNoThinking &self,
+void defineDCMTask(ModelMakerNoThinking &self,
                          crocoddyl::CostModelSum &costCollector,
                          const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.define2DSurfaceTask(costs, supports);
+  self.defineDCMTask(costs, supports);
   costCollector = *costs;
 }
 
@@ -294,12 +283,10 @@ void exposeModelFactoryNoThinking() {
       .def("defineVelFootTask", &defineVelFootTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
-      .def("defineGroundCollisionTask", &defineGroundCollisionTask,
-           bp::args("self", "costCollector"))
       .def("defineFlyHighTask", &defineFlyHighTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
-      .def("define2DSurfaceTask", &define2DSurfaceTask,
+      .def("defineDCMTask", &defineDCMTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFootCollisionTask", &defineFootCollisionTask,

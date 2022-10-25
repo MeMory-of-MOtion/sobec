@@ -57,7 +57,6 @@ class WBC {
   
   eVector3 ref_com_vel_;
   eVector3 ref_com_;
-  pinocchio::Motion ref_feet_vel_;
 
   Eigen::VectorXd x0_;
 

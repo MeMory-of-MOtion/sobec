@@ -14,6 +14,7 @@
 #include "sobec/crocomplements/residual-fly-high.hpp"
 #include "sobec/crocomplements/residual-2D-surface.hpp"
 #include "sobec/crocomplements/activation-weighted-log.hpp"
+#include "sobec/crocomplements/residual-dcm-position.hpp"
 
 namespace sobec {
 
@@ -45,16 +46,14 @@ struct ModelMakerNoThinkingSettings {
   double wCoP = 0;            // 1;
   double wVCoM = 0;           // 0;
   double wFootRot = 0;        // 100;
-  double wGroundCol = 0;      // 0.05;
   double wCoM = 0;
   double wFlyHigh = 0;
   double wVelFoot = 0;
   double wColFeet = 0;
-  double wSurface = 0;
+  double wDCM = 0;
   
   double flyHighSlope = 2;
   double footMinimalDistance = 0.2;
-  double angleSurface = 0.5;
 
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
@@ -111,13 +110,15 @@ class ModelMakerNoThinking {
                          const Support &support = Support::DOUBLE); 
   void defineCoMTask(Cost &costCollector);
   void defineFeetRotation(Cost &costCollector); 
-  void defineGroundCollisionTask(Cost &costCollector);
+  //void defineGroundCollisionTask(Cost &costCollector);
   void defineFootCollisionTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineFlyHighTask(Cost &costCollector, 
                           const Support &support = Support::DOUBLE);
-  void define2DSurfaceTask(Cost &costCollector, 
+  void defineDCMTask(Cost &costCollector, 
                           const Support &support = Support::DOUBLE);
+  //void define2DSurfaceTask(Cost &costCollector, 
+  //                        const Support &support = Support::DOUBLE);
                           
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {
