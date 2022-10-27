@@ -30,7 +30,7 @@ class RobotDesigner {
   RobotDesignerSettings settings_;
 
   std::vector<unsigned long> controlled_joints_id_;
-  unsigned long leftFootId_, rightFootId_;
+  unsigned long leftFootId_, rightFootId_, rootId_;
 
   pinocchio::Model rModelComplete_, rModel_;
   pinocchio::Data rDataComplete_, rData_;
@@ -61,6 +61,7 @@ class RobotDesigner {
 
   const pinocchio::SE3 &get_LF_frame();
   const pinocchio::SE3 &get_RF_frame();
+  const pinocchio::SE3 &get_root_frame();
 
   double getRobotMass();
 
@@ -76,6 +77,7 @@ class RobotDesigner {
 
   const std::string &get_LF_name() { return settings_.leftFootName; }
   const std::string &get_RF_name() { return settings_.rightFootName; }
+  const pinocchio::FrameIndex &get_root_id() { return rootId_; }
   const pinocchio::FrameIndex &get_LF_id() { return leftFootId_; }
   const pinocchio::FrameIndex &get_RF_id() { return rightFootId_; }
   const pinocchio::FrameIndex &get_LF_heel_id() { return heelLeftId_; }

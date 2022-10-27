@@ -205,11 +205,11 @@ design = RobotDesigner()
 design.initialize(design_conf)
 
 # Rotate initial configuration by theta
-theta = 0
+theta = np.pi / 2
 xStart = design.get_x0().copy()
 qYaw = axisangle_to_q(np.array([0, 0, 1]), theta)
 xStart[3:7] = q_mult(qYaw, xStart[3:7])
-
+exit()
 design.set_q0(xStart[: design.get_rModel().nq])
 # Vector of Formulations
 MM_conf = dict(

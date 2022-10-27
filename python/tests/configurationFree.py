@@ -140,8 +140,9 @@ wFootRot = 1000
 wCoP = 0
 wFlyHigh = 5000
 wVelFoot = 0
-wColFeet = 1000
+wColFeet = 3000
 wDCM = 0
+wBaseRot = 200
 
 weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]

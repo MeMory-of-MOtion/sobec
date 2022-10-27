@@ -165,6 +165,21 @@ void HorizonManager::setPoseReference(const unsigned long time,
       ->set_reference(ref_placement);
 }
 
+void HorizonManager::setRotationReference(const unsigned long time,
+                                          const std::string &nameCost,
+                                          const Eigen::Matrix3d &ref_rotation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameRotation>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_rotation);
+}
+
+void HorizonManager::setTerminalRotationReference(const std::string &nameCost,
+                                                  const Eigen::Matrix3d &ref_rotation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameRotation>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_rotation);
+}
+
 void HorizonManager::setTranslationReference(const unsigned long time,
                                         const std::string &nameCost,
                                         const eVector3 &ref_translation) {

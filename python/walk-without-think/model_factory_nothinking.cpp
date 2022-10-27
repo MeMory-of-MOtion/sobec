@@ -61,6 +61,7 @@ void initialize(ModelMakerNoThinking &self, const bp::dict &settings,
   conf.wColFeet = bp::extract<double>(settings["wColFeet"]);
   conf.wFlyHigh = bp::extract<double>(settings["wFlyHigh"]);
   conf.wDCM = bp::extract<double>(settings["wDCM"]);
+  conf.wBaseRot = bp::extract<double>(settings["wBaseRot"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
   conf.controlWeights = bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
   conf.forceWeights = bp::extract<Eigen::VectorXd>(settings["forceWeights"]);
@@ -99,6 +100,7 @@ bp::dict get_settings(ModelMakerNoThinking &self) {
   settings["wColFeet"] = conf.wColFeet;
   settings["wFlyHigh"] = conf.wFlyHigh;
   settings["wDCM"] = conf.wDCM;
+  settings["wBaseRot"] = conf.wBaseRot;
   settings["stateWeights"] = conf.stateWeights;
   settings["controlWeights"] = conf.controlWeights;
   settings["forceWeights"] = conf.forceWeights;
@@ -168,6 +170,13 @@ void definePostureTask(ModelMakerNoThinking &self,
   costCollector = *costs;
 }
 
+void defineRotationBase(ModelMakerNoThinking &self,
+                       crocoddyl::CostModelSum &costCollector) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineRotationBase(costs);
+  costCollector = *costs;
+}
+
 void defineActuationTask(ModelMakerNoThinking &self,
                          crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
@@ -194,6 +203,13 @@ void defineFeetRotation(ModelMakerNoThinking &self,
                        crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetRotation(costs);
+  costCollector = *costs;
+}
+
+void defineFeetZRotation(ModelMakerNoThinking &self,
+                       crocoddyl::CostModelSum &costCollector) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineFeetZRotation(costs);
   costCollector = *costs;
 }
 
@@ -267,6 +283,8 @@ void exposeModelFactoryNoThinking() {
             bp::arg("supports") = Support::DOUBLE))
       .def("definePostureTask", &definePostureTask,
            bp::args("self", "costCollector"))
+      .def("defineRotationBase", &defineRotationBase,
+           bp::args("self", "costCollector"))
       .def("defineActuationTask", &defineActuationTask,
            bp::args("self", "costCollector"))
       .def("defineJointLimits", &defineJointLimits,
@@ -275,6 +293,8 @@ void exposeModelFactoryNoThinking() {
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetRotation", &defineFeetRotation,
+           bp::args("self", "costCollector"))
+      .def("defineFeetZRotation", &defineFeetZRotation,
            bp::args("self", "costCollector"))
       .def("defineCoMTask", &defineCoMTask,
            bp::args("self", "costCollector"))

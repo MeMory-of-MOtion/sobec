@@ -182,6 +182,13 @@ void exposeWBC() {
               bp::return_value_policy<bp::reference_existing_object>()),
           static_cast<void (WBC::*)(eVector3)>(
               &WBC::setVelRef_COM))
+      .add_property(
+          "ref_base_rot",
+          bp::make_function(
+              &WBC::ref_base_rot,
+              bp::return_value_policy<bp::reference_existing_object>()),
+          static_cast<void (WBC::*)(Eigen::Matrix3d)>(
+              &WBC::setBaseRotRef))
       .def("switchToWalk", &WBC::switchToWalk)
       .def("switchToStand", &WBC::switchToStand)
       .def("current_motion_type", &WBC::currentLocomotion)

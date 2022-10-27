@@ -21,6 +21,11 @@ import numpy as np
 import time
 import ndcurves
 
+def yawRotation(yaw):
+    Ro = np.array(
+        [[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]]
+    )
+    return Ro
 
 def defineBezier(height, time_init,time_final,placement_init,placement_final):
 	wps = np.zeros([3, 9])
@@ -129,6 +134,7 @@ MM_conf = dict(
     wVelFoot = conf.wVelFoot,
     wColFeet = conf.wColFeet,
     wDCM = conf.wDCM,
+    wBaseRot = conf.wBaseRot,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
     forceWeights=conf.forceWeights,
@@ -244,8 +250,10 @@ swing_trajectory_left.generate(0,conf.TsingleSupport * conf.DT,starting_position
 
 comRef[0] += 1
 comRef[1] += 0
+baseRotation = design.get_root_frame().rotation @ yawRotation(np.pi / 6)
 ref_com_vel = np.array([0.,0.,0])
 mpc.ref_com = comRef
+#mpc.ref_base_rot = baseRotation
 
 T_total = conf.total_steps * conf.Tstep + 5 * conf.T
 

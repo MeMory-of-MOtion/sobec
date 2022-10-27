@@ -82,6 +82,11 @@ class HorizonManager {
   void setPoseReference(const unsigned long time,
                         const std::string &nameCost,
                         const pinocchio::SE3 &ref_placement);
+  void setRotationReference(const unsigned long time,
+                            const std::string &nameCost,
+                            const Eigen::Matrix3d &ref_rotation);                        
+  void setTerminalRotationReference(const std::string &nameCost,
+                                    const Eigen::Matrix3d &ref_rotation);
   void setTranslationReference(const unsigned long time,
                         const std::string &nameCost,
                         const eVector3 &ref_translation);

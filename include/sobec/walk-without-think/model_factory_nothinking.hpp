@@ -51,6 +51,7 @@ struct ModelMakerNoThinkingSettings {
   double wVelFoot = 0;
   double wColFeet = 0;
   double wDCM = 0;
+  double wBaseRot = 0;
   
   double flyHighSlope = 2;
   double footMinimalDistance = 0.2;
@@ -110,9 +111,10 @@ class ModelMakerNoThinking {
                          const Support &support = Support::DOUBLE); 
   void defineCoMTask(Cost &costCollector);
   void defineFeetRotation(Cost &costCollector); 
-  //void defineGroundCollisionTask(Cost &costCollector);
+  void defineFeetZRotation(Cost &costCollector);
   void defineFootCollisionTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
+  void defineRotationBase(Cost &costCollector);
   void defineFlyHighTask(Cost &costCollector, 
                           const Support &support = Support::DOUBLE);
   void defineDCMTask(Cost &costCollector, 

@@ -220,6 +220,20 @@ void ModelMakerNoThinking::definePostureTask(Cost &costCollector) {
                                true);
 }
 
+void ModelMakerNoThinking::defineRotationBase(Cost &costCollector) {
+  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
+      residual_Rotation =
+          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+              state_, designer_.get_root_id(), designer_.get_root_frame().rotation(),
+              actuation_->get_nu());
+
+  boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel =
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, residual_Rotation);
+  
+  costCollector.get()->addCost("rotation_base", rotationModel,
+                               settings_.wBaseRot, true);
+}
+
 void ModelMakerNoThinking::defineDCMTask(Cost &costCollector, const Support &support) {
 	
   Eigen::Vector3d ref_position = Eigen::VectorXd::Zero(3);
@@ -297,9 +311,11 @@ void ModelMakerNoThinking::defineCoPTask(Cost &costCollector, const Support &sup
 }
 
 void ModelMakerNoThinking::defineFeetRotation(Cost &costCollector) {
-  boost::shared_ptr<crocoddyl::ActivationModelQuadFlatLog> activationQF =
-      boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.01);
-      
+  eVector3 FootRotationVec;
+  FootRotationVec << 1, 1, 0;
+  boost::shared_ptr<sobec::ActivationModelWeightedLog> activationRot =
+      boost::make_shared<sobec::ActivationModelWeightedLog>(FootRotationVec, 0.01);
+    
   boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
       residual_LF_Rotation =
           boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
@@ -313,16 +329,47 @@ void ModelMakerNoThinking::defineFeetRotation(Cost &costCollector) {
               actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF, 
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, 
                                                        residual_LF_Rotation);
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF, 
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, 
                                                        residual_RF_Rotation);
   
   costCollector.get()->addCost("rotation_LF", rotationModel_LF,
                                settings_.wFootRot, true);
   costCollector.get()->addCost("rotation_RF", rotationModel_RF,
                                settings_.wFootRot, true);
+}
+
+void ModelMakerNoThinking::defineFeetZRotation(Cost &costCollector) {
+  eVector3 FootRotationVec;
+  FootRotationVec << 0, 0, 1;
+  boost::shared_ptr<sobec::ActivationModelWeightedQuad> activationRot =
+      boost::make_shared<sobec::ActivationModelWeightedQuad>(FootRotationVec);
+    
+  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
+      residual_LF_Rotation =
+          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+              state_, designer_.get_LF_id(), designer_.get_LF_frame().rotation(),
+              actuation_->get_nu());
+
+  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
+      residual_RF_Rotation =
+          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+              state_, designer_.get_RF_id(), designer_.get_RF_frame().rotation(),
+              actuation_->get_nu());
+
+  boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_LF =
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, 
+                                                       residual_LF_Rotation);
+  boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_RF =
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, 
+                                                       residual_RF_Rotation);
+  
+  costCollector.get()->addCost("rotation_LF", rotationModel_LF,
+                               settings_.wBaseRot, true);
+  costCollector.get()->addCost("rotation_RF", rotationModel_RF,
+                               settings_.wBaseRot, true);
 }
 
 void ModelMakerNoThinking::defineCoMTask(Cost &costCollector) {
@@ -566,6 +613,8 @@ AMA ModelMakerNoThinking::formulateTerminalStepTracker(const Support &support) {
   defineCoMTask(costs);
   defineZFeetTracking(costs);
   defineDCMTask(costs, support);
+  defineRotationBase(costs);
+  defineFeetZRotation(costs);
 
   DAM terminalDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(

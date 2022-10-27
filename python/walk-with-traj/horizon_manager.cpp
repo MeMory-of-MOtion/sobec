@@ -71,6 +71,10 @@ void exposeHorizonManager() {
       .def("iad", &HorizonManager::iad, bp::args("self", "time"))
       .def("setPoseReference", &HorizonManager::setPoseReference,
            bp::args("self", "time", "costName", "pose"))
+      .def("setRotationReference", &HorizonManager::setRotationReference,
+           bp::args("self", "time", "costName", "rotation"))
+      .def("setTerminalRotationReference", &HorizonManager::setTerminalRotationReference,
+           bp::args("self", "costName", "rotation"))
       .def("setTranslationReference", &HorizonManager::setTranslationReference,
            bp::args("self", "time", "costName", "translation"))
       .def("setTerminalPoseReference", &HorizonManager::setTerminalPoseReference,

@@ -77,6 +77,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
                                          q0Complete_);
   leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
   rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
+  rootId_ = rModel_.getFrameId("root_joint");
   addToeAndHeel(0.15,0.15);
   rData_ = pinocchio::Data(rModel_);
 
@@ -169,6 +170,10 @@ const pinocchio::SE3 &RobotDesigner::get_LF_frame() {
 
 const pinocchio::SE3 &RobotDesigner::get_RF_frame() {
   return rData_.oMf[rightFootId_];
+}
+
+const pinocchio::SE3 &RobotDesigner::get_root_frame() {
+  return rData_.oMf[rootId_];
 }
 
 double RobotDesigner::getRobotMass() {

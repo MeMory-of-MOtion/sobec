@@ -57,6 +57,7 @@ class WBC {
   
   eVector3 ref_com_vel_;
   eVector3 ref_com_;
+  Eigen::Matrix3d ref_base_rotation_;
 
   Eigen::VectorXd x0_;
 
@@ -195,6 +196,11 @@ class WBC {
   const eVector3 &getCoMRef() { return ref_com_;}
   void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com;}
   
+  const Eigen::Matrix3d &getBaseRotRef() { return ref_base_rotation_;}
+  void setBaseRotRef(Eigen::Matrix3d ref_base_rotation) { 
+	  ref_base_rotation_ = ref_base_rotation;
+  }
+  
   const eVector3 &getVelRef_COM() {
     return ref_com_vel_;
   }
@@ -206,6 +212,7 @@ class WBC {
   std::vector<pinocchio::SE3> &ref_LF_poses() { return ref_LF_poses_; }
   std::vector<pinocchio::SE3> &ref_RF_poses() { return ref_RF_poses_; }
   eVector3 &ref_com() { return ref_com_; }
+  Eigen::Matrix3d &ref_base_rot() { return ref_base_rotation_; }
   eVector3 &ref_com_vel() { return ref_com_vel_; }
 
   void switchToWalk() { now_ = WALKING; }

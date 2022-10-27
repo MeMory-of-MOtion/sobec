@@ -36,6 +36,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   ref_RF_poses_.reserve(horizon_.size() + 1);
   ref_com_ = designer_.get_com_position();
   ref_com_vel_ = eVector3::Zero();
+  ref_base_rotation_ = Eigen::Matrix3d::Identity();
   
   for (unsigned long i = 0; i < horizon_.size() + 1; i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
@@ -237,6 +238,9 @@ void WBC::updateNonThinkingReferences() {
   }
   horizon_.setTerminalTranslationReference("Z_translation_LF", getPoseRef_LF(horizon_.size()).translation());
   horizon_.setTerminalTranslationReference("Z_translation_RF", getPoseRef_RF(horizon_.size()).translation());
+  horizon_.setTerminalRotationReference("rotation_base",ref_base_rotation_);
+  horizon_.setTerminalRotationReference("rotation_LF", ref_base_rotation_);
+  horizon_.setTerminalRotationReference("rotation_RF", ref_base_rotation_);
 
   if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
 	  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
