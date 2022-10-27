@@ -31,7 +31,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
   x0_ << shapeState(q0, v0);
   designer_.updateReducedModel(x0_);
-  designer_.updateCompleteModel(q0);
+  //designer_.updateCompleteModel(q0);
   ref_LF_poses_.reserve(horizon_.size() + 1);
   ref_RF_poses_.reserve(horizon_.size() + 1);
   ref_com_ = designer_.get_com_position();
@@ -235,12 +235,14 @@ void WBC::updateNonThinkingReferences() {
 	  horizon_.setVelocityRefCOM(time,"comVelocity",ref_com_vel_);
 	  horizon_.setTranslationReference(time, "Z_translation_LF", getPoseRef_LF(time).translation());
 	  horizon_.setTranslationReference(time, "Z_translation_RF", getPoseRef_RF(time).translation());
+	  horizon_.setRotationReference(time, "rotation_LF", designer_.get_root_frame().rotation());
+	  horizon_.setRotationReference(time, "rotation_RF", designer_.get_root_frame().rotation());
   }
   horizon_.setTerminalTranslationReference("Z_translation_LF", getPoseRef_LF(horizon_.size()).translation());
   horizon_.setTerminalTranslationReference("Z_translation_RF", getPoseRef_RF(horizon_.size()).translation());
   horizon_.setTerminalRotationReference("rotation_base",ref_base_rotation_);
-  horizon_.setTerminalRotationReference("rotation_LF", ref_base_rotation_);
-  horizon_.setTerminalRotationReference("rotation_RF", ref_base_rotation_);
+  //horizon_.setTerminalRotationReference("rotation_LF", ref_base_rotation_);
+  //horizon_.setTerminalRotationReference("rotation_RF", ref_base_rotation_);
 
   if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
 	  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);

@@ -313,8 +313,10 @@ void ModelMakerNoThinking::defineCoPTask(Cost &costCollector, const Support &sup
 void ModelMakerNoThinking::defineFeetRotation(Cost &costCollector) {
   eVector3 FootRotationVec;
   FootRotationVec << 1, 1, 0;
-  boost::shared_ptr<sobec::ActivationModelWeightedLog> activationRot =
-      boost::make_shared<sobec::ActivationModelWeightedLog>(FootRotationVec, 0.01);
+  //boost::shared_ptr<sobec::ActivationModelWeightedLog> activationRot =
+  //    boost::make_shared<sobec::ActivationModelWeightedLog>(FootRotationVec, 0.01);
+  boost::shared_ptr<sobec::ActivationModelQuadFlatLog> activationRot =
+      boost::make_shared<sobec::ActivationModelQuadFlatLog>(3, 0.01);
     
   boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
       residual_LF_Rotation =
@@ -378,7 +380,7 @@ void ModelMakerNoThinking::defineCoMTask(Cost &costCollector) {
   //boost::shared_ptr<sobec::ActivationModelWeightedLog> activation =
   //    boost::make_shared<sobec::ActivationModelWeightedLog>(comWeight, 1);
   boost::shared_ptr<sobec::ActivationModelSmooth1Norm> activation =
-      boost::make_shared<sobec::ActivationModelSmooth1Norm>(3);
+      boost::make_shared<sobec::ActivationModelSmooth1Norm>(3, 0.01);
   boost::shared_ptr<crocoddyl::CostModelAbstract> comCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
           state_, activation, boost::make_shared<crocoddyl::ResidualModelCoMPosition>(
@@ -614,7 +616,7 @@ AMA ModelMakerNoThinking::formulateTerminalStepTracker(const Support &support) {
   defineZFeetTracking(costs);
   defineDCMTask(costs, support);
   defineRotationBase(costs);
-  defineFeetZRotation(costs);
+  //defineFeetZRotation(costs);
 
   DAM terminalDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
