@@ -6,7 +6,6 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <pinocchio/fwd.hpp>
 #include <boost/python.hpp>
 #include <boost/python/enum.hpp>
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!
