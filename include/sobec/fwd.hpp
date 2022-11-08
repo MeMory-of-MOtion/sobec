@@ -223,13 +223,7 @@ template <typename Scalar>
 class ResidualModelContactForceTpl;
 typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
 
-enum ContactType {
-  ContactUndefined,
-  Contact1D,
-  Contact2D,
-  Contact3D,
-  Contact6D
-};
+using crocoddyl::ContactType;
 
 }  // namespace newcontacts
 }  // namespace sobec
