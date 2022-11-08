@@ -12,6 +12,7 @@
 #include "sobec/walk-with-traj/model_factory.hpp"
 #include "sobec/crocomplements/residual-feet-collision.hpp"
 #include "sobec/crocomplements/residual-fly-high.hpp"
+#include "sobec/crocomplements/residual-fly-angle.hpp"
 #include "sobec/crocomplements/residual-2D-surface.hpp"
 #include "sobec/crocomplements/activation-weighted-log.hpp"
 #include "sobec/crocomplements/residual-dcm-position.hpp"
@@ -35,7 +36,8 @@ struct ModelMakerNoThinkingSettings {
   double maxNforce = 1200;
 
   double comHeight = 0.87;
-  double omega = -comHeight / gravity(2);
+  double omega = sqrt(abs(gravity(2) / comHeight));
+  double angle = 0;
 
   // Croco configuration
   double wFootPlacement = 0;  // 1000;

@@ -57,6 +57,7 @@ class WBC {
   
   eVector3 ref_com_vel_;
   eVector3 ref_com_;
+  eVector3 ref_dcm_;
   Eigen::Matrix3d ref_base_rotation_;
 
   Eigen::VectorXd x0_;

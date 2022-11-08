@@ -84,6 +84,14 @@ typedef ResidualDataVelCollisionTpl<double> ResidualDataVelCollision;
 
 // Cost fly high
 template <typename Scalar>
+class ResidualModelFlyAngleTpl;
+template <typename Scalar>
+struct ResidualDataFlyAngleTpl;
+typedef ResidualModelFlyAngleTpl<double> ResidualModelFlyAngle;
+typedef ResidualDataFlyAngleTpl<double> ResidualDataFlyAngle;
+
+// Cost fly angle
+template <typename Scalar>
 class ResidualModelFlyHighTpl;
 template <typename Scalar>
 struct ResidualDataFlyHighTpl;

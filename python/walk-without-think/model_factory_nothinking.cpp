@@ -44,6 +44,7 @@ void initialize(ModelMakerNoThinking &self, const bp::dict &settings,
   conf.comHeight = bp::extract<double>(settings["comHeight"]);
   conf.omega = bp::extract<double>(settings["omega"]);
   conf.footSize = bp::extract<double>(settings["footSize"]);
+  conf.angle = bp::extract<double>(settings["angle"]);
   conf.footMinimalDistance = bp::extract<double>(settings["footMinimalDistance"]);
   conf.flyHighSlope = bp::extract<double>(settings["flyHighSlope"]);
 
@@ -85,6 +86,7 @@ bp::dict get_settings(ModelMakerNoThinking &self) {
   settings["comHeight"] = conf.comHeight;
   settings["omega"] = conf.omega;
   settings["footSize"] = conf.footSize;
+  settings["angle"] = conf.angle;
   settings["footMinimalDistance"] = conf.footMinimalDistance;
   settings["flyHighSlope"] = conf.flyHighSlope;
   settings["wFootPlacement"] = conf.wFootPlacement;

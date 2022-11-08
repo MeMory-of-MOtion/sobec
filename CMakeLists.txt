@@ -63,6 +63,7 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hpp
 	include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hpp
 	include/${PROJECT_NAME}/crocomplements/residual-fly-high.hpp
+	include/${PROJECT_NAME}/crocomplements/residual-fly-angle.hpp
 	include/${PROJECT_NAME}/crocomplements/residual-dcm-position.hpp
 	include/${PROJECT_NAME}/crocomplements/residual-2D-surface.hpp
 	include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
@@ -86,6 +87,7 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/crocomplements/contact/contact-fwddyn.hxx
 	include/${PROJECT_NAME}/crocomplements/contact/contact-force.hxx
 	include/${PROJECT_NAME}/crocomplements/residual-fly-high.hxx
+	include/${PROJECT_NAME}/crocomplements/residual-fly-angle.hxx
 	include/${PROJECT_NAME}/crocomplements/residual-dcm-position.hxx
 	include/${PROJECT_NAME}/crocomplements/residual-2D-surface.hxx
 	include/${PROJECT_NAME}/walk-without-think/ocp.hpp

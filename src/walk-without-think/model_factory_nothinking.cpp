@@ -247,6 +247,7 @@ void ModelMakerNoThinking::defineDCMTask(Cost &costCollector, const Support &sup
 	  ref_position = (designer_.get_RF_frame().translation() + 
 	                  designer_.get_LF_frame().translation()) / 2.;
   }
+  ref_position[2] = settings_.comHeight;
   boost::shared_ptr<sobec::ResidualModelDCMPosition>
       residual_DCM =
           boost::make_shared<sobec::ResidualModelDCMPosition>(
@@ -401,15 +402,15 @@ void ModelMakerNoThinking::defineCoMVelocity(Cost &costCollector) {
 }
 
 void ModelMakerNoThinking::defineFlyHighTask(Cost &costCollector, const Support &support) {
-  boost::shared_ptr<ResidualModelFlyHigh> flyHighResidualRight = 
-      boost::make_shared<ResidualModelFlyHigh>(
-          state_, designer_.get_RF_id(), settings_.flyHighSlope / 2.0, actuation_->get_nu());
+  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualRight = 
+      boost::make_shared<ResidualModelFlyAngle>(
+          state_, designer_.get_RF_id(), settings_.flyHighSlope / 2.0, tan(settings_.angle), actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelResidual> flyHighCostRight =
           boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualRight);
           
-  boost::shared_ptr<ResidualModelFlyHigh> flyHighResidualLeft = 
-      boost::make_shared<ResidualModelFlyHigh>(
-          state_, designer_.get_LF_id(), settings_.flyHighSlope / 2.0, actuation_->get_nu());
+  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualLeft = 
+      boost::make_shared<ResidualModelFlyAngle>(
+          state_, designer_.get_LF_id(), settings_.flyHighSlope / 2.0, tan(settings_.angle), actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelAbstract> flyHighCostLeft =
           boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualLeft);
   

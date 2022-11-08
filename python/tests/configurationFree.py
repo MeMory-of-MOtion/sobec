@@ -43,7 +43,7 @@ blocked_joints = [
 total_steps = 50
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 1  # Double support time  # TODO: (check with 20)
+TdoubleSupport = 10  # Double support time  # TODO: (check with 20)
 TsingleSupport = 50  # Single support time
 simu_step = simu_period = 1e-3  #
 
@@ -67,7 +67,7 @@ gravity = np.array([0, 0, -9.81])
 mu = 0.3
 footSize = 0.05
 cone_box = np.array([0.1, 0.05])
-minNforce = 200
+minNforce = 150
 maxNforce = 1200  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
@@ -129,17 +129,17 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 
 # Weights for all costs
 
-wFootPlacement = 20000
+wFootPlacement = 0
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
 wVCoM = 0
 wCoM = 1000
-wWrenchCone = 0.01
-wFootRot = 1000
-wCoP = 0
-wFlyHigh = 5000
-wVelFoot = 0
+wWrenchCone = 0.005
+wFootRot = 100
+wCoP = 20
+wFlyHigh = 200
+wVelFoot = 100
 wColFeet = 3000
 wDCM = 0
 wBaseRot = 200

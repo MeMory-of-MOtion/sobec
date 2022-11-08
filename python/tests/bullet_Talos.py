@@ -92,10 +92,10 @@ class BulletTalos:
                 self.robotId, self.bulletControlledJoints[i], q0Start[i+7]
             )
                   
-    def addStairs(self, path, position):
+    def addStairs(self, path, position, orientation):
         p.setAdditionalSearchPath(path)
         self.stepId = p.loadURDF("step/step.urdf")
-        p.resetBasePositionAndOrientation(self.stepId, posObj=position,ornObj=[0,0,0,1])
+        p.resetBasePositionAndOrientation(self.stepId, posObj=position,ornObj=orientation)
 
     def execute(self, torques):
         p.setJointMotorControlArray(
@@ -177,12 +177,12 @@ class BulletTalos:
 
         p.resetBasePositionAndOrientation(
             self.sphereIdRight,
-            posObj=[RF_pose.translation[0], RF_pose.translation[1], 0],
+            posObj=[RF_pose.translation[0], RF_pose.translation[1], RF_pose.translation[2]],
             ornObj=np.array([0.0, 0.0, 0.0, 1.0]),
         )
         p.resetBasePositionAndOrientation(
             self.sphereIdLeft,
-            posObj=[LF_pose.translation[0], LF_pose.translation[1], 0],
+            posObj=[LF_pose.translation[0], LF_pose.translation[1], LF_pose.translation[2]],
             ornObj=np.array([0.0, 0.0, 0.0, 1.0]),
         )
 

@@ -37,6 +37,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   ref_com_ = designer_.get_com_position();
   ref_com_vel_ = eVector3::Zero();
   ref_base_rotation_ = Eigen::Matrix3d::Identity();
+  ref_dcm_ = eVector3::Zero();
   
   for (unsigned long i = 0; i < horizon_.size() + 1; i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
@@ -204,14 +205,16 @@ void WBC::updateStepTrackerReferences() {
   horizon_.setTerminalPoseReference("placement_RF", getPoseRef_RF(horizon_.size()));
 
   if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
-	  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
+	  ref_dcm_ = (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2;
   }
   else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name())) {
-	  horizon_.setTerminalDCMReference("DCM", getPoseRef_LF(horizon_.size()).translation());
-  }
+	  ref_dcm_ = getPoseRef_LF(horizon_.size()).translation();
+  } 
   else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
-	  horizon_.setTerminalDCMReference("DCM", getPoseRef_RF(horizon_.size()).translation());
+	  ref_dcm_ = getPoseRef_RF(horizon_.size()).translation();
   }
+  ref_dcm_[2] = 0.87;
+  horizon_.setTerminalDCMReference("DCM", ref_dcm_);
 }
 
 void WBC::updateStepTrackerLastReference() {
@@ -245,14 +248,16 @@ void WBC::updateNonThinkingReferences() {
   //horizon_.setTerminalRotationReference("rotation_RF", ref_base_rotation_);
 
   if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
-	  horizon_.setTerminalDCMReference("DCM", (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2);
+	  ref_dcm_ = (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2;
   }
   else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name())) {
-	  horizon_.setTerminalDCMReference("DCM", getPoseRef_LF(horizon_.size()).translation());
-  }
+	  ref_dcm_ = getPoseRef_LF(horizon_.size()).translation();
+  } 
   else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
-	  horizon_.setTerminalDCMReference("DCM", getPoseRef_RF(horizon_.size()).translation());
+	  ref_dcm_ = getPoseRef_RF(horizon_.size()).translation();
   }
+  ref_dcm_[2] = 0.87;
+  horizon_.setTerminalDCMReference("DCM", ref_dcm_);
 }
 
 void WBC::recedeWithCycle() {

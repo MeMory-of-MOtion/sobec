@@ -21,11 +21,31 @@ import numpy as np
 import time
 import ndcurves
 
+DEFAULT_SAVE_DIR = '/local/src/sobec/python/tests'
+
 def yawRotation(yaw):
     Ro = np.array(
         [[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]]
     )
     return Ro
+
+def q_mult(q1, q2):
+    x1, y1, z1, w1 = q1[0], q1[1], q1[2], q1[3]
+    x2, y2, z2, w2 = q2[0], q2[1], q2[2], q2[3]
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
+    return np.array([x, y, z, w])
+
+def axisangle_to_q(v, theta):
+    x, y, z = v
+    theta /= 2
+    w = np.cos(theta)
+    x = x * np.sin(theta)
+    y = y * np.sin(theta)
+    z = z * np.sin(theta)
+    return [x, y, z, w]
 
 def defineBezier(height, time_init,time_final,placement_init,placement_final):
 	wps = np.zeros([3, 9])
@@ -119,6 +139,7 @@ MM_conf = dict(
     comHeight=conf.normal_height,
     omega=conf.omega,
     footSize = conf.footSize,
+    angle = 12 * np.pi / 180,
     flyHighSlope = conf.flyHighSlope,
     footMinimalDistance = conf.footMinimalDistance,
     wFootPlacement=conf.wFootPlacement,
@@ -198,22 +219,6 @@ mpc.initialize(
 mpc.generateWalkingCycleNoThinking(formuler)
 mpc.generateStandingCycleNoThinking(formuler)
 print("mpc generated")
-if conf.simulator == "bullet":
-    device = BulletTalos(conf, design.get_rModelComplete())
-    device.initializeJoints(design.get_q0Complete().copy())
-    device.showTargetToTrack(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
-    q_current, v_current = device.measureState()
-
-elif conf.simulator == "pinocchio":
-    design.rmodelComplete = design.get_rModelComplete()
-    design.rmodelComplete.q0 = design.get_q0Complete()
-    design.rmodelComplete.v0 = design.get_v0Complete()
-
-    device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
-    device.initialize(design.rmodelComplete)
-    init_state = device.measure_state(device.Cq0, device.Cv0, device.Cv0 * 0)
-    q_current = init_state["q"]
-    v_current = init_state["dq"]
 
 # ### SIMULATION LOOP ###
 moyenne = 0
@@ -234,28 +239,50 @@ ref_force = fz_ref_2contact
 comRef = mpc.designer.get_com_position().copy()
 
 starting_position_right = mpc.designer.get_RF_frame().copy()
-final_position_right = mpc.designer.get_RF_frame().copy()
-final_position_right.translation[2] = final_position_right.translation[2] - conf.footPenetration 
-
-xForward = conf.xForward
+starting_position_right.translation[2] += 0.03
 
 starting_position_left = mpc.designer.get_LF_frame().copy()
-final_position_left = mpc.designer.get_LF_frame().copy()
-final_position_left.translation[2] = final_position_left.translation[2] - conf.footPenetration 
+starting_position_left.translation[2] += 0.03
 
-swing_trajectory_right = FootTrajectory(conf.swingApex,0.0,0)
-swing_trajectory_left = FootTrajectory(conf.swingApex,0.0,0)
-swing_trajectory_right.generate(0,conf.TsingleSupport * conf.DT,starting_position_right,final_position_right, False)
-swing_trajectory_left.generate(0,conf.TsingleSupport * conf.DT,starting_position_left,final_position_left, False)
+'''for i in range(len(mpc.ref_LF_poses)):
+	mpc.ref_LF_poses[i] = starting_position_left
+	mpc.ref_RF_poses[i] = starting_position_right'''
 
 comRef[0] += 1
 comRef[1] += 0
+comRef[2] += 0.1
 baseRotation = design.get_root_frame().rotation @ yawRotation(np.pi / 6)
 ref_com_vel = np.array([0.,0.,0])
 mpc.ref_com = comRef
 #mpc.ref_base_rot = baseRotation
 
 T_total = conf.total_steps * conf.Tstep + 5 * conf.T
+
+v1 = [0,-1,0]
+v2 = [0,0,1]
+
+q1 = axisangle_to_q(v1,12 * np.pi / 180)
+q2 = axisangle_to_q(v2,np.pi / 2)
+qtot = q_mult(q1,q2)
+
+if conf.simulator == "bullet":
+    device = BulletTalos(conf, design.get_rModelComplete())
+    device.initializeJoints(design.get_q0Complete().copy())
+    device.showTargetToTrack(starting_position_left, starting_position_right)
+    device.addStairs(DEFAULT_SAVE_DIR, [0.5,-0.75,-0.0], qtot)
+    #device.addStairs(DEFAULT_SAVE_DIR, [-0.3,0,0], [0,0,0,1])
+    q_current, v_current = device.measureState()
+
+elif conf.simulator == "pinocchio":
+    design.rmodelComplete = design.get_rModelComplete()
+    design.rmodelComplete.q0 = design.get_q0Complete()
+    design.rmodelComplete.v0 = design.get_v0Complete()
+
+    device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
+    device.initialize(design.rmodelComplete)
+    init_state = device.measure_state(device.Cq0, device.Cv0, device.Cv0 * 0)
+    q_current = init_state["q"]
+    v_current = init_state["dq"]
 
 for s in range(T_total * conf.Nc):
 	#    time.sleep(0.001)
@@ -292,25 +319,6 @@ for s in range(T_total * conf.Nc):
 			)
 		)
 		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
-		
-		'''LF_refs = foot_trajectory(
-			len(mpc.ref_LF_poses),
-			land_LF,
-			starting_position_left,
-			final_position_left,
-			swing_trajectory_left
-		)
-		RF_refs = foot_trajectory(
-			len(mpc.ref_RF_poses),
-			land_RF,
-			starting_position_right,
-			final_position_right,
-			swing_trajectory_right
-		)
-
-		for i in range(len(mpc.ref_LF_poses)):
-			mpc.ref_LF_poses[i] = LF_refs[i]
-			mpc.ref_RF_poses[i] = RF_refs[i]'''
 		
 		if (mpc.walkingCycle.contacts(0).getContactStatus("leg_left_sole_fix_joint")):
 			if (mpc.walkingCycle.contacts(0).getContactStatus("leg_right_sole_fix_joint")):
@@ -358,7 +366,7 @@ for s in range(T_total * conf.Nc):
 	if conf.simulator == "bullet":
 		device.execute(torques)
 		q_current, v_current = device.measureState()
-		device.moveMarkers(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
+		device.moveMarkers(starting_position_left, starting_position_right)
 
 	elif conf.simulator == "pinocchio":
 
