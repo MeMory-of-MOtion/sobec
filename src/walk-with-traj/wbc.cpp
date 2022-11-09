@@ -236,14 +236,14 @@ void WBC::updateNonThinkingReferences() {
   horizon_.setTerminalPoseCoM("comTask", ref_com_);
   for (unsigned long time = 0; time < horizon_.size(); time++) {
 	  horizon_.setVelocityRefCOM(time,"comVelocity",ref_com_vel_);
-	  horizon_.setTranslationReference(time, "Z_translation_LF", getPoseRef_LF(time).translation());
-	  horizon_.setTranslationReference(time, "Z_translation_RF", getPoseRef_RF(time).translation());
-	  horizon_.setRotationReference(time, "rotation_LF", designer_.get_root_frame().rotation());
-	  horizon_.setRotationReference(time, "rotation_RF", designer_.get_root_frame().rotation());
+	  horizon_.setTranslationReference(time, "Z_translation_LF", designer_.get_RF_frame().translation());
+	  horizon_.setTranslationReference(time, "Z_translation_RF", designer_.get_LF_frame().translation());
+	  //horizon_.setRotationReference(time, "rotation_LF", designer_.get_root_frame().rotation());
+	  //horizon_.setRotationReference(time, "rotation_RF", designer_.get_root_frame().rotation());
   }
-  horizon_.setTerminalTranslationReference("Z_translation_LF", getPoseRef_LF(horizon_.size()).translation());
-  horizon_.setTerminalTranslationReference("Z_translation_RF", getPoseRef_RF(horizon_.size()).translation());
-  horizon_.setTerminalRotationReference("rotation_base",ref_base_rotation_);
+  horizon_.setTerminalTranslationReference("Z_translation_LF", designer_.get_RF_frame().translation());
+  horizon_.setTerminalTranslationReference("Z_translation_RF", designer_.get_LF_frame().translation());
+  //horizon_.setTerminalRotationReference("rotation_base",ref_base_rotation_);
   //horizon_.setTerminalRotationReference("rotation_LF", ref_base_rotation_);
   //horizon_.setTerminalRotationReference("rotation_RF", ref_base_rotation_);
 

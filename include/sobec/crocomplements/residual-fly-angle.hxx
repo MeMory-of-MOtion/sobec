@@ -98,8 +98,8 @@ void ResidualModelFlyAngleTpl<Scalar>::calcDiff(
   d->o_dv_dv = R * d->l_dnu_dv.template topRows<3>();
 
   // First term with derivative of v
-  data->Rx.leftCols(nv) = (rotation_ * d->o_dv_dq).template topRows<2>();
-  data->Rx.rightCols(nv) = (rotation_ * d->o_dv_dv).template topRows<2>();
+  data->Rx.leftCols(nv) = d->o_dv_dq.template topRows<2>();
+  data->Rx.rightCols(nv) = d->o_dv_dv.template topRows<2>();
   data->Rx *= d->ez;
 
   // Second term with derivative of z

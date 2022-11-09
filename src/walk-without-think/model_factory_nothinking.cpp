@@ -313,7 +313,7 @@ void ModelMakerNoThinking::defineCoPTask(Cost &costCollector, const Support &sup
 
 void ModelMakerNoThinking::defineFeetRotation(Cost &costCollector) {
   eVector3 FootRotationVec;
-  FootRotationVec << 1, 1, 0;
+  FootRotationVec << 1, 1, 1;
   //boost::shared_ptr<sobec::ActivationModelWeightedLog> activationRot =
   //    boost::make_shared<sobec::ActivationModelWeightedLog>(FootRotationVec, 0.01);
   boost::shared_ptr<sobec::ActivationModelQuadFlatLog> activationRot =
@@ -332,10 +332,10 @@ void ModelMakerNoThinking::defineFeetRotation(Cost &costCollector) {
               actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, 
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, 
                                                        residual_LF_Rotation);
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, 
+      boost::make_shared<crocoddyl::CostModelResidual>(state_,  
                                                        residual_RF_Rotation);
   
   costCollector.get()->addCost("rotation_LF", rotationModel_LF,
