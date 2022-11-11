@@ -64,16 +64,6 @@ void exposeWBC() {
   bp::enum_<LocomotionType>("LocomotionType")
       .value("WALKING", LocomotionType::WALKING)
       .value("STANDING", LocomotionType::STANDING);
-  bp::class_<std::vector<pinocchio::SE3>>("vector_pinocchio_se3_")
-      .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3>>())
-      .def("__init__",
-           make_constructor(constructVectorFromList<pinocchio::SE3>))
-      .def("__repr__", &displayVector<pinocchio::SE3>);
-
-  bp::class_<std::vector<eVector3>>("vector_eigen_vector3_")
-      .def(bp::vector_indexing_suite<std::vector<eVector3>>())
-      .def("__init__", make_constructor(constructVectorFromList<eVector3>))
-      .def("__repr__", &displayVector<eVector3>);
 
   bp::class_<WBC>("WBC", bp::init<>())
       .def("initialize", &initialize,
