@@ -143,10 +143,8 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
     case CostModelTypes::CostModelResidualFlyHigh: {
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 2),
-          boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index, 1,
+          boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index, 1, alpha,
                                                           nu));
-      sobec::ResidualModelFlyHigh res(state, frame_index, 1, nu);
-      res.get_frame_id();
       break;
     }
     case CostModelTypes::CostModelResidual2DSurface: {

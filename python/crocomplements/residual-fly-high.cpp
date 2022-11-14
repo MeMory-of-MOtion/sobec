@@ -26,7 +26,7 @@ void exposeResidualFlyHigh() {
 
   bp::class_<ResidualModelFlyHigh, bp::bases<ResidualModelAbstract> >(
       "ResidualModelFlyHigh",
-      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double,
+      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double, double,
                std::size_t>(
           bp::args("self", "state", "frame_id", "slope", "min_height", "nu"),
           "Initialize the residual model.\n\n"
