@@ -56,7 +56,9 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    */
   ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar slope, const std::size_t nu);
+                          const Scalar slope, 
+                          const Scalar min_height,
+                          const std::size_t nu);
 
   /**
    * @brief Initialize the residual model
@@ -70,7 +72,8 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    */
   ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar slope);
+                          const Scalar slope,
+                          const Scalar min_height);
   virtual ~ResidualModelFlyHighTpl();
 
   /**
@@ -120,6 +123,7 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
  private:
   pinocchio::FrameIndex frame_id;
   Scalar slope;  // multiplication in front of the altitude in the cost
+  Scalar min_height;
   typename StateMultibody::PinocchioModel
       pin_model_;  //!< Pinocchio model used for internal computations
 };
