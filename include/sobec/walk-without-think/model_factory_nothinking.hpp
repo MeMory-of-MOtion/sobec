@@ -37,7 +37,7 @@ struct ModelMakerNoThinkingSettings {
 
   double comHeight = 0.87;
   double omega = sqrt(abs(gravity(2) / comHeight));
-  double angle = 0;
+  double minHeight = 0;
 
   // Croco configuration
   double wFootPlacement = 0;  // 1000;
