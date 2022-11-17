@@ -129,6 +129,7 @@ design.get_rModel().inertias[11].lever[1] -=0.02
 design.get_rModel().inertias[12].lever[1] -=0.02'''
 
 # Vector of Formulations
+alpha = 6 * np.pi / 180
 MM_conf = dict(
     timeStep=conf.DT,
     gravity=conf.gravity,
@@ -139,7 +140,7 @@ MM_conf = dict(
     comHeight=conf.normal_height,
     omega=conf.omega,
     footSize = conf.footSize,
-    angle = 12 * np.pi / 180,
+    minHeight = conf.minHeight,
     flyHighSlope = conf.flyHighSlope,
     footMinimalDistance = conf.footMinimalDistance,
     wFootPlacement=conf.wFootPlacement,
@@ -248,9 +249,9 @@ starting_position_left.translation[2] += 0.03
 	mpc.ref_LF_poses[i] = starting_position_left
 	mpc.ref_RF_poses[i] = starting_position_right'''
 
-comRef[0] += 1
+comRef[0] += 0.8
 comRef[1] += 0
-comRef[2] += 0.1
+comRef[2] += 0.
 baseRotation = design.get_root_frame().rotation @ yawRotation(np.pi / 6)
 ref_com_vel = np.array([0.,0.,0])
 mpc.ref_com = comRef
@@ -261,7 +262,7 @@ T_total = conf.total_steps * conf.Tstep + 5 * conf.T
 v1 = [0,-1,0]
 v2 = [0,0,1]
 
-q1 = axisangle_to_q(v1,12 * np.pi / 180)
+q1 = axisangle_to_q(v1,alpha)
 q2 = axisangle_to_q(v2,np.pi / 2)
 qtot = q_mult(q1,q2)
 
@@ -269,7 +270,7 @@ if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
     device.initializeJoints(design.get_q0Complete().copy())
     device.showTargetToTrack(starting_position_left, starting_position_right)
-    device.addStairs(DEFAULT_SAVE_DIR, [0.5,-0.75,-0.0], qtot)
+    device.addStairs(DEFAULT_SAVE_DIR, [0.5,-0.75,-0.03], qtot)
     #device.addStairs(DEFAULT_SAVE_DIR, [-0.3,0,0], [0,0,0,1])
     q_current, v_current = device.measureState()
 

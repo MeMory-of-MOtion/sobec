@@ -106,11 +106,10 @@ flexToJoint = np.array([0, 0, 0.09])
 
 
 # ###### WALKING GEOMETRY #########
-xForward = 0.15 # step size
 swingApex = 0.04  # foot height
 footMinimalDistance = 0.2
-flyHighSlope = 100
-footPenetration = 0.0
+flyHighSlope = 300
+minHeight = 0.03
 
 heelTranslation = 0.1
 toeTranslation = 0.1
@@ -129,16 +128,16 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 
 # Weights for all costs
 
-wFootPlacement = 0
+wFootPlacement = 100
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wVCoM = 0
+wVCoM = 1000
 wCoM = 1000
 wWrenchCone = 0.005
 wFootRot = 100
 wCoP = 20
-wFlyHigh = 200
+wFlyHigh = 800
 wVelFoot = 100
 wColFeet = 3000
 wDCM = 0

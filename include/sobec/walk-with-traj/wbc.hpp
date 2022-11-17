@@ -136,8 +136,14 @@ class WBC {
 
   void iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, bool is_feasible);
+  void iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
+                                  const Eigen::VectorXd &v_current,  
+                                  bool contact_left, 
+                                  bool contact_right,
+                                  bool is_feasible);
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
+  void goToNextDoubleSupport();
 
   // getters and setters
   WBCSettings &get_settings() { return settings_; }
