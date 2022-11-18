@@ -17,31 +17,28 @@ using namespace crocoddyl;
 template <typename Scalar>
 ResidualModelFlyAngleTpl<Scalar>::ResidualModelFlyAngleTpl(
     boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, const Scalar slope, const Scalar angle,
+    const pinocchio::FrameIndex frame_id, const Scalar slope, const Scalar height, const Scalar dist,
+    const Scalar width,
     const std::size_t nu)
     : Base(state, 2, nu, true, true, false),
       frame_id(frame_id),
       slope(slope),
-      angle(angle),
-      pin_model_(*state->get_pinocchio()) {
-		  rotation_ << cos(-angle), 0, sin(-angle),
-		               0, 1, 0,
-		               -sin(-angle), 0, cos(-angle);       
-}
+      height(height),
+      dist(dist),
+      width(width),
+      pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelFlyAngleTpl<Scalar>::ResidualModelFlyAngleTpl(
     boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, const Scalar slope, const Scalar angle)
+    const pinocchio::FrameIndex frame_id, const Scalar slope, const Scalar height, const Scalar dist, const Scalar width)
     : Base(state, 2, true, true, false),
       frame_id(frame_id),
       slope(slope),
-      angle(angle),
-      pin_model_(*state->get_pinocchio()) {
-		  rotation_ << cos(-angle), 0, sin(-angle),
-		               0, 1, 0,
-		               -sin(-angle), 0, cos(-angle);   
-}
+      height(height),
+      dist(dist),
+      width(width),
+      pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelFlyAngleTpl<Scalar>::~ResidualModelFlyAngleTpl() {}
@@ -56,12 +53,12 @@ void ResidualModelFlyAngleTpl<Scalar>::calc(
   Data* d = static_cast<Data*>(data.get());
 
   pinocchio::updateFramePlacement(pin_model_, *d->pinocchio, frame_id);
-  data->r = (rotation_ * pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id,
+  data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id,
                                         pinocchio::LOCAL_WORLD_ALIGNED)
-                .linear())
+                .linear()
                 .head(2);
-  d->ez = exp(- slope * (d->pinocchio->oMf[frame_id].translation()[2] -
-                         d->pinocchio->oMf[frame_id].translation()[0] * angle));
+  d->sig = 1 / (1 + exp(-width * (d->pinocchio->oMf[frame_id].translation()[0] - dist)));
+  d->ez = exp(- slope * (d->pinocchio->oMf[frame_id].translation()[2] - height * d->sig));
   data->r *= d->ez;
 }
 
@@ -103,8 +100,8 @@ void ResidualModelFlyAngleTpl<Scalar>::calcDiff(
   data->Rx *= d->ez;
 
   // Second term with derivative of z
-  data->Rx.leftCols(nv).row(0) -= data->r[0] * slope * ( d->o_dv_dv.row(2) - angle * d->o_dv_dv.row(0));
-  data->Rx.leftCols(nv).row(1) -= data->r[1] * slope * ( d->o_dv_dv.row(2) - angle * d->o_dv_dv.row(0));
+  data->Rx.leftCols(nv).row(0) -= data->r[0] * slope * ( d->o_dv_dv.row(2) - height * width * d->sig * (1 - d->sig) * d->o_dv_dv.row(0));
+  data->Rx.leftCols(nv).row(1) -= data->r[1] * slope * ( d->o_dv_dv.row(2) - height * width * d->sig * (1 - d->sig) * d->o_dv_dv.row(0));
 }
 
 template <typename Scalar>

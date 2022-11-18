@@ -38,9 +38,9 @@ std::ostream& operator<<(std::ostream& os, ActivationModelTypes::Type type) {
     case ActivationModelTypes::ActivationModelQuadRef:
       os << "ActivationModelQuadRef";
       break;
-    case ActivationModelTypes::ActivationModelWeightedLog:
-      os << "ActivationModelWeightedLog";
-      break;
+    //case ActivationModelTypes::ActivationModelWeightedLog:
+    //  os << "ActivationModelWeightedLog";
+    //  break;
     case ActivationModelTypes::ActivationModelQuadFlatExp:
       os << "ActivationModelQuadFlatExp";
       break;
@@ -97,9 +97,9 @@ ActivationModelFactory::create(ActivationModelTypes::Type activation_type,
     case ActivationModelTypes::ActivationModelQuadRef:
       activation = boost::make_shared<sobec::ActivationModelQuadRef>(lb);
       break;
-    case ActivationModelTypes::ActivationModelWeightedLog:
-      activation = boost::make_shared<sobec::ActivationModelWeightedLog>(weights,alpha);
-      break;
+    //case ActivationModelTypes::ActivationModelWeightedLog:
+    //  activation = boost::make_shared<sobec::ActivationModelWeightedLog>(weights,alpha);
+    //  break;
     case ActivationModelTypes::ActivationModelQuadFlatExp:
       activation =
           boost::make_shared<crocoddyl::ActivationModelQuadFlatExp>(nr, alpha);

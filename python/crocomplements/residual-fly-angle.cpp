@@ -26,13 +26,16 @@ void exposeResidualFlyAngle() {
 
   bp::class_<ResidualModelFlyAngle, bp::bases<ResidualModelAbstract> >(
       "ResidualModelFlyAngle",
-      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double, double, 
+      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double, double, double, double, 
                std::size_t>(
-          bp::args("self", "state", "frame_id", "slope", "angle", "nu"),
+          bp::args("self", "state", "frame_id", "slope", "height", "dist", "width", "nu"),
           "Initialize the residual model.\n\n"
           ":param state: state of the multibody system\n"
           ":param frame_id: reference colliding frame\n"
           ":param slope: slope ie altitude multiplier."
+          ":param height: height of sigmoid."
+          ":param dist: translation of sigmoid."
+          ":param width: contraction parameter."
           ":param nu: dimension of control vector"))
       .def<void (ResidualModelFlyAngle::*)(
           const boost::shared_ptr<ResidualDataAbstract>&,

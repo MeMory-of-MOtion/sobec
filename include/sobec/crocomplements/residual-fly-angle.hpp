@@ -56,7 +56,7 @@ class ResidualModelFlyAngleTpl : public ResidualModelAbstractTpl<_Scalar> {
    */
   ResidualModelFlyAngleTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar slope, const Scalar angle, const std::size_t nu);
+                          const Scalar slope, const Scalar height, const Scalar dist, const Scalar width, const std::size_t nu);
 
   /**
    * @brief Initialize the residual model
@@ -70,7 +70,7 @@ class ResidualModelFlyAngleTpl : public ResidualModelAbstractTpl<_Scalar> {
    */
   ResidualModelFlyAngleTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar slope, const Scalar angle);
+                          const Scalar slope, const Scalar height, const Scalar dist, const Scalar width);
   virtual ~ResidualModelFlyAngleTpl();
 
   /**
@@ -118,8 +118,9 @@ class ResidualModelFlyAngleTpl : public ResidualModelAbstractTpl<_Scalar> {
   using Base::v_dependent_;
 
  private:
-  Matrix3s rotation_;
-  Scalar angle;
+  Scalar height;
+  Scalar dist;
+  Scalar width;
   pinocchio::FrameIndex frame_id;
   Scalar slope;  // multiplication in front of the altitude in the cost
   typename StateMultibody::PinocchioModel
@@ -179,6 +180,7 @@ struct ResidualDataFlyAngleTpl : public ResidualDataAbstractTpl<_Scalar> {
   Matrix3xs o_dv_dq, o_dv_dv, o_Jw, vxJ;
 
   Scalar ez;
+  Scalar sig;
   using Base::r;
   using Base::Ru;
   using Base::Rx;

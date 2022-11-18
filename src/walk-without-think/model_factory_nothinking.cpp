@@ -164,11 +164,13 @@ void ModelMakerNoThinking::defineFeetForceTask(Cost &costCollector, const Suppor
 }
 
 void ModelMakerNoThinking::defineZFeetTracking(Cost &costCollector, const Support &support) {
-  eVector3 ZFootTrackingVec;
-  ZFootTrackingVec << 0, 0, 1;
-  boost::shared_ptr<sobec::ActivationModelWeightedLog> activationZ =
-      boost::make_shared<sobec::ActivationModelWeightedLog>(ZFootTrackingVec, 0.01);
-
+  //eVector3 ZFootTrackingVec;
+  //ZFootTrackingVec << 0, 0, 1;
+  //boost::shared_ptr<sobec::ActivationModelWeightedLog> activationZ =
+  //    boost::make_shared<sobec::ActivationModelWeightedLog>(ZFootTrackingVec, 0.01);
+  boost::shared_ptr<sobec::ActivationModelQuadFlatLog> activationZ =
+      boost::make_shared<sobec::ActivationModelQuadFlatLog>(3, 0.01);
+  
   boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation>
       residual_LF_Tracking =
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
@@ -196,9 +198,9 @@ void ModelMakerNoThinking::defineZFeetTracking(Cost &costCollector, const Suppor
     costCollector.get()->changeCostStatus("Z_translation_RF",true);
   if (support == Support::RIGHT || support == Support::DOUBLE)
     costCollector.get()->changeCostStatus("Z_translation_LF",true);*/
-  if (support == Support::DOUBLE)
+  if (support == Support::DOUBLE or support == Support::LEFT)
     costCollector.get()->changeCostStatus("Z_translation_RF",true);
-  if (support == Support::DOUBLE)
+  if (support == Support::DOUBLE or support == Support::RIGHT)
     costCollector.get()->changeCostStatus("Z_translation_LF",true);
 }
 
@@ -402,15 +404,27 @@ void ModelMakerNoThinking::defineCoMVelocity(Cost &costCollector) {
 }
 
 void ModelMakerNoThinking::defineFlyHighTask(Cost &costCollector, const Support &support) {
-  boost::shared_ptr<ResidualModelFlyHigh> flyHighResidualRight = 
+  /*boost::shared_ptr<ResidualModelFlyHigh> flyHighResidualRight = 
       boost::make_shared<ResidualModelFlyHigh>(
-          state_, designer_.get_RF_id(), settings_.flyHighSlope / 2.0, settings_.minHeight, actuation_->get_nu());
+          state_, designer_.get_RF_id(), settings_.flyHighSlope / 2.0, actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelResidual> flyHighCostRight =
           boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualRight);
           
   boost::shared_ptr<ResidualModelFlyHigh> flyHighResidualLeft = 
       boost::make_shared<ResidualModelFlyHigh>(
-          state_, designer_.get_LF_id(), settings_.flyHighSlope / 2.0, settings_.minHeight, actuation_->get_nu());
+          state_, designer_.get_LF_id(), settings_.flyHighSlope / 2.0, actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::CostModelAbstract> flyHighCostLeft =
+          boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualLeft);*/
+  
+  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualRight = 
+      boost::make_shared<ResidualModelFlyAngle>(
+          state_, designer_.get_RF_id(), settings_.flyHighSlope / 2.0, settings_.height, settings_.dist, settings_.width, actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::CostModelResidual> flyHighCostRight =
+          boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualRight);
+          
+  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualLeft = 
+      boost::make_shared<ResidualModelFlyAngle>(
+          state_, designer_.get_LF_id(), settings_.flyHighSlope / 2.0,  settings_.height, settings_.dist, settings_.width, actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelAbstract> flyHighCostLeft =
           boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualLeft);
   

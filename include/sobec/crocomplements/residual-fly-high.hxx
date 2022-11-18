@@ -19,24 +19,20 @@ ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
     boost::shared_ptr<StateMultibody> state,
     const pinocchio::FrameIndex frame_id, 
     const Scalar slope, 
-    const Scalar min_height,
     const std::size_t nu)
     : Base(state, 2, nu, true, true, false),
       frame_id(frame_id),
       slope(slope),
-      min_height(min_height),
       pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
     boost::shared_ptr<StateMultibody> state,
     const pinocchio::FrameIndex frame_id, 
-    const Scalar slope,
-    const Scalar min_height)
+    const Scalar slope)
     : Base(state, 2, true, true, false),
       frame_id(frame_id),
       slope(slope),
-      min_height(min_height),
       pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
@@ -56,7 +52,7 @@ void ResidualModelFlyHighTpl<Scalar>::calc(
                                         pinocchio::LOCAL_WORLD_ALIGNED)
                 .linear()
                 .head(2);
-  d->ez = exp(-(d->pinocchio->oMf[frame_id].translation()[2] - min_height) * slope);
+  d->ez = exp(-d->pinocchio->oMf[frame_id].translation()[2] * slope);
   data->r *= d->ez;
 }
 

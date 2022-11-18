@@ -40,11 +40,11 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 50
+total_steps = 4
 DT = 1e-2  # Time step of the DDP
-T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 10  # Double support time  # TODO: (check with 20)
-TsingleSupport = 50  # Single support time
+T = 150  # Time horizon of the DDP (number of nodes)
+TdoubleSupport = 50  # Double support time  # TODO: (check with 20)
+TsingleSupport = 150  # Single support time
 simu_step = simu_period = 1e-3  #
 
 Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
@@ -106,10 +106,11 @@ flexToJoint = np.array([0, 0, 0.09])
 
 
 # ###### WALKING GEOMETRY #########
-swingApex = 0.04  # foot height
 footMinimalDistance = 0.2
 flyHighSlope = 300
-minHeight = 0.03
+height = 0.11
+dist = 0.07
+width = 100
 
 heelTranslation = 0.1
 toeTranslation = 0.1
@@ -132,13 +133,13 @@ wFootPlacement = 100
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wVCoM = 1000
-wCoM = 1000
+wVCoM = 0
+wCoM = 0
 wWrenchCone = 0.005
-wFootRot = 100
+wFootRot = 1000
 wCoP = 20
-wFlyHigh = 800
-wVelFoot = 100
+wFlyHigh = 1000
+wVelFoot = 1000
 wColFeet = 3000
 wDCM = 0
 wBaseRot = 200

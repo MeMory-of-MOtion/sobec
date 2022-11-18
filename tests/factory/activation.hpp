@@ -19,7 +19,7 @@ struct ActivationModelTypes {
   enum Type {
     ActivationModelQuad,
     ActivationModelQuadRef,
-    ActivationModelWeightedLog,
+    //ActivationModelWeightedLog,
     ActivationModelQuadFlatExp,
     ActivationModelQuadFlatLog,
     ActivationModelSmooth1Norm,

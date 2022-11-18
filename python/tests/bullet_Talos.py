@@ -131,7 +131,25 @@ class BulletTalos:
         rotation = R.from_quat(q[3:7])
         q[:3] -= rotation.as_matrix() @ self.localInertiaPos 
         return q, v
+    
+    def showSlope(self, position, orientation):
+        visualShapeTarget = p.createVisualShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[2, 0.3, 0.01],
+            rgbaColor=[0.0, 1.0, 0.0, 1.0],
+            specularColor=[0.4, 0.4, 0],
+            visualFramePosition=[0.0, 0.0, 0.0],
+        )
 
+        self.sphereIdRight = p.createMultiBody(
+            baseMass=0.0,
+            baseInertialFramePosition=[0, 0, 0],
+            baseVisualShapeIndex=visualShapeTarget,
+            basePosition=position,
+            baseOrientation=orientation,
+            useMaximalCoordinates=True,
+        )
+    
     def showTargetToTrack(self, LF_pose, RF_pose):
         visualShapeTarget = p.createVisualShape(
             shapeType=p.GEOM_BOX,
@@ -163,14 +181,6 @@ class BulletTalos:
                 LF_pose.translation[2],
             ],
             useMaximalCoordinates=True,
-        )
-
-        self.visualShapeTargetCom = p.createVisualShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=[0.05, 0.05, 0.05],
-            rgbaColor=[0.0, 1.0, 0.0, 1.0],
-            specularColor=[0.4, 0.4, 0],
-            visualFramePosition=[0.0, 0.0, 0.0],
         )
 
     def moveMarkers(self, LF_pose, RF_pose):
