@@ -1,4 +1,4 @@
-//#include <ros/ros.h>
+// #include <ros/ros.h>
 #include "sobec/walk-with-traj/foot_trajectory.hpp"
 namespace sobec {
 FootTrajectory::FootTrajectory(const double& swing_leg_height,
