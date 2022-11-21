@@ -12,7 +12,7 @@
 #include <crocoddyl/core/fwd.hpp>
 #include <crocoddyl/core/solvers/fddp.hpp>
 #include <crocoddyl/multibody/fwd.hpp>
-//#include <crocoddyl/multibody/data/multibody.hpp>
+// #include <crocoddyl/multibody/data/multibody.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 
 #include "sobec/fwd.hpp"
