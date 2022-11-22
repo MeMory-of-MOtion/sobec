@@ -202,6 +202,17 @@ void ModelMaker::defineJointLimits(Cost &costCollector) {
                                true);
 }
 
+void ModelMaker::defineCoMPosition(Cost &costCollector) {
+  eVector3 refPosition = designer_.get_com_position();
+  boost::shared_ptr<crocoddyl::CostModelAbstract> CoMPositionCost =
+      boost::make_shared<crocoddyl::CostModelResidual>(
+          state_, boost::make_shared<ResidualModelCoMPosition>(
+                      state_, refPosition, actuation_->get_nu()));
+
+  costCollector.get()->addCost("comPosition", CoMPositionCost, settings_.wPCoM,
+                               true);
+}
+
 void ModelMaker::defineCoMVelocity(Cost &costCollector) {
   eVector3 refVelocity = eVector3::Zero();
   boost::shared_ptr<crocoddyl::CostModelAbstract> CoMVelocityCost =
@@ -245,6 +256,44 @@ void ModelMaker::defineCoPTask(Cost &costCollector, const Support &support) {
     costCollector->changeCostStatus(designer_.get_RF_name() + "_cop", true);
 }
 
+void ModelMaker::defineGripperPlacement(Cost &costCollector) {
+  pinocchio::SE3 goalPlacement = pinocchio::SE3::Identity();
+
+  // Position
+  boost::shared_ptr<crocoddyl::CostModelAbstract> gripperPositionCost =
+      boost::make_shared<crocoddyl::CostModelResidual>(
+          state_,
+          boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.02),
+          boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
+              state_, designer_.get_EndEff_id(), goalPlacement.translation(),
+              actuation_->get_nu()));
+
+  costCollector.get()->addCost("gripperPosition", gripperPositionCost,
+                               settings_.wGripperPos, true);
+
+  // Orientation
+  boost::shared_ptr<crocoddyl::CostModelAbstract> gripperRotationCost =
+      boost::make_shared<crocoddyl::CostModelResidual>(
+          state_, boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+                      state_, designer_.get_EndEff_id(),
+                      goalPlacement.rotation(), actuation_->get_nu()));
+
+  costCollector.get()->addCost("gripperRotation", gripperRotationCost,
+                               settings_.wGripperRot, true);
+}
+
+void ModelMaker::defineGripperVelocity(Cost &costCollector) {
+  pinocchio::Motion goalMotion = pinocchio::Motion(Eigen::VectorXd::Zero(6));
+  boost::shared_ptr<crocoddyl::CostModelAbstract> gripperVelocityCost =
+      boost::make_shared<crocoddyl::CostModelResidual>(
+          state_, boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
+                      state_, designer_.get_EndEff_id(), goalMotion,
+                      pinocchio::WORLD, actuation_->get_nu()));
+
+  costCollector.get()->addCost("gripperVelocity", gripperVelocityCost,
+                               settings_.wGripperVel, true);
+}
+
 AMA ModelMaker::formulateStepTracker(const Support &support) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
       state_, actuation_->get_nu());
@@ -259,6 +308,32 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   defineActuationTask(costs);
   defineFeetWrenchCost(costs, support);
   defineFeetTracking(costs);
+
+  DAM runningDAM =
+      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
+          state_, actuation_, contacts, costs, 0., true);
+  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(
+      runningDAM, settings_.timeStep);
+
+  return runningModel;
+}
+
+AMA ModelMaker::formulatePointingTask() {
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
+      state_, actuation_->get_nu());
+  Cost costs =
+      boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+
+  defineFeetContact(contacts, Support::DOUBLE);
+
+  defineFeetWrenchCost(costs, Support::DOUBLE);
+  definePostureTask(costs);
+  defineActuationTask(costs);
+  defineJointLimits(costs);
+  defineCoMPosition(costs);
+  defineCoMVelocity(costs);
+  defineGripperPlacement(costs);
+  defineGripperVelocity(costs);
 
   DAM runningDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
