@@ -9,13 +9,13 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   // Enabling eigenpy support, i.e. numpy/eigen compatibility.
   eigenpy::enableEigenPy();
   ENABLE_SPECIFIC_MATRIX_TYPE(Eigen::VectorXi);
-  sobec::python::exposeStdContainers();
+  // sobec::python::exposeStdContainers();
   sobec::python::exposeResidualVelCollision();
   sobec::python::exposeResidualCoMVelocity();
   sobec::python::exposeResidualCenterOfPressure();
   sobec::python::exposeResidualFeetCollision();
   sobec::python::exposeResidualFlyHigh();
-  sobec::python::exposeActivationQuadRef();
+  // sobec::python::exposeActivationQuadRef();
   sobec::python::exposeDesigner();
   sobec::python::exposeHorizonManager();
   sobec::python::exposeModelFactory();

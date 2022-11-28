@@ -1,6 +1,6 @@
 set(${PY_NAME}_SOURCES
     main.cpp
-    std-containers.cpp
+    # std-containers.cpp
     flexibility_compensation.cpp
     crocomplements/residual-com-velocity.cpp
     crocomplements/residual-vel-collision.cpp
@@ -8,7 +8,7 @@ set(${PY_NAME}_SOURCES
     crocomplements/residual-center-of-friction.cpp
     crocomplements/residual-feet-collision.cpp
     crocomplements/residual-fly-high.cpp
-    crocomplements/activation-quad-ref.cpp
+    # crocomplements/activation-quad-ref.cpp
     crocomplements/lowpassfilter/action.cpp
     crocomplements/lowpassfilter/state.cpp
     crocomplements/contact/contact3d.cpp
