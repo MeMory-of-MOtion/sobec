@@ -18,6 +18,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
     factory/lpf.cpp
     factory/diff-action.cpp
     factory/actuation.cpp
+    factory/contact6d.cpp
     factory/contact3d.cpp
     factory/contact1d.cpp)
 
@@ -36,6 +37,9 @@ target_link_libraries(test_stateslpf PUBLIC ${PROJECT_NAME}_unittest)
 
 add_unit_test(test_lpf test_lpf.cpp)
 target_link_libraries(test_lpf PUBLIC ${PROJECT_NAME}_unittest)
+
+add_unit_test(test_contact6d test_contact6d.cpp)
+target_link_libraries(test_contact6d PUBLIC ${PROJECT_NAME}_unittest)
 
 add_unit_test(test_contact3d test_contact3d.cpp)
 target_link_libraries(test_contact3d PUBLIC ${PROJECT_NAME}_unittest)

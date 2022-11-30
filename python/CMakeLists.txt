@@ -11,6 +11,7 @@ set(${PY_NAME}_SOURCES
     # crocomplements/activation-quad-ref.cpp
     crocomplements/lowpassfilter/action.cpp
     crocomplements/lowpassfilter/state.cpp
+    crocomplements/contact/contact6d.cpp
     crocomplements/contact/contact3d.cpp
     crocomplements/contact/contact1d.cpp
     crocomplements/contact/multiple-contacts.cpp
