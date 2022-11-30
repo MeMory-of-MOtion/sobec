@@ -39,7 +39,7 @@ ContactModel6DFactory::create(PinocchioModelTypes::Type model_type,
   // std::cout << "created contact6D for frame id = " << frame_name <<
   // std::endl;
 
-  pinocchio::SE3 xref = pinocchio::SE3::Random();
+  pinocchio::SE3 xref = pinocchio::SE3::Identity();
   if (reference_type == PinocchioReferenceTypes::LOCAL) {
     contact = boost::make_shared<sobec::newcontacts::ContactModel6D>(
         state, frame_id, xref, nu, gains, pinocchio::LOCAL);

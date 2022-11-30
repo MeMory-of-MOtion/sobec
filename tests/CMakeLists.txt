@@ -8,6 +8,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
     factory/lpf.hpp
     factory/diff-action.hpp
     factory/actuation.hpp
+    factory/contact6d.hpp
     factory/contact3d.hpp
     factory/contact1d.hpp
     factory/activation.cpp
