@@ -49,8 +49,7 @@ class ContactModel6DTpl : public crocoddyl::ContactModel6DTpl<_Scalar> {
    * @param[in] gains  Baumgarte stabilization gains
    */
   ContactModel6DTpl(boost::shared_ptr<StateMultibody> state,
-                    const pinocchio::FrameIndex id, 
-                    const SE3& xref,
+                    const pinocchio::FrameIndex id, const SE3& xref,
                     const std::size_t nu,
                     const Vector2s& gains = Vector2s::Zero(),
                     const pinocchio::ReferenceFrame type = pinocchio::LOCAL);
@@ -66,8 +65,7 @@ class ContactModel6DTpl : public crocoddyl::ContactModel6DTpl<_Scalar> {
    * @param[in] gains  Baumgarte stabilization gains
    */
   ContactModel6DTpl(boost::shared_ptr<StateMultibody> state,
-                    const pinocchio::FrameIndex id, 
-                    const SE3& xref,
+                    const pinocchio::FrameIndex id, const SE3& xref,
                     const Vector2s& gains = Vector2s::Zero(),
                     const pinocchio::ReferenceFrame type = pinocchio::LOCAL);
 
@@ -150,7 +148,7 @@ class ContactModel6DTpl : public crocoddyl::ContactModel6DTpl<_Scalar> {
   using Base::state_;
 
  private:
-  SE3 xref_;   //!< Contact position used for the Baumgarte stabilization
+  SE3 xref_;        //!< Contact position used for the Baumgarte stabilization
   Vector2s gains_;  //!< Baumgarte stabilization gains
   pinocchio::ReferenceFrame type_;  //!< Reference type of contact
 };

@@ -196,7 +196,7 @@ void test_partial_derivatives_against_numdiff(
   model_num_diff.calcDiff(data_num_diff, x, u);
 
   // Checking the partial derivatives against NumDiff
-  double tol = 0.002; //sqrt(model_num_diff.get_disturbance());
+  double tol = 0.002;  // sqrt(model_num_diff.get_disturbance());
   // if(!(data->Fx - data_num_diff->Fx).isZero(tol)){
   //   std::cout << "Test = " << action_type << "_" << ref_type << std::endl;
   //   std::cout << "Fx - Fx_ND = " << std::endl;
@@ -217,12 +217,9 @@ void test_partial_derivatives_against_numdiff(
   BOOST_CHECK((data->Lx - data_num_diff->Lx).isZero(tol));
   BOOST_CHECK((data->Lu - data_num_diff->Lu).isZero(tol));
   if (model_num_diff.get_with_gauss_approx()) {
-    BOOST_CHECK(
-        (data->Lxx - data_num_diff->Lxx).isZero(tol));
-    BOOST_CHECK(
-        (data->Lxu - data_num_diff->Lxu).isZero(tol));
-    BOOST_CHECK(
-        (data->Luu - data_num_diff->Luu).isZero(tol));
+    BOOST_CHECK((data->Lxx - data_num_diff->Lxx).isZero(tol));
+    BOOST_CHECK((data->Lxu - data_num_diff->Lxu).isZero(tol));
+    BOOST_CHECK((data->Luu - data_num_diff->Luu).isZero(tol));
   } else {
     BOOST_CHECK((data_num_diff->Lxx).isZero(tol));
     BOOST_CHECK((data_num_diff->Lxu).isZero(tol));
@@ -307,8 +304,8 @@ bool init_function() {
   // 6D contact
   for (size_t i = 0; i < DifferentialActionModelTypes::all.size(); ++i) {
     if (DifferentialActionModelTypes::all[i] ==
-            DifferentialActionModelTypes::
-                DifferentialActionModelContact6DFwdDynamics_Talos) {
+        DifferentialActionModelTypes::
+            DifferentialActionModelContact6DFwdDynamics_Talos) {
       for (size_t j = 0; j < PinocchioReferenceTypes::all.size(); ++j) {
         register_action_model_unit_tests(DifferentialActionModelTypes::all[i],
                                          PinocchioReferenceTypes::all[j]);
