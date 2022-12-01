@@ -180,6 +180,7 @@ struct ContactData6DTpl : public crocoddyl::ContactData6DTpl<_Scalar> {
         a_partial_dv(6, model->get_state()->get_nv()),
         a_partial_da(6, model->get_state()->get_nv()),
         da0_dx_temp_(6, model->get_state()->get_ndx()),
+        tmp_skew_(6, model->get_state()->get_nv()),
         drnea_skew_term_(model->get_state()->get_nv(),
                          model->get_state()->get_nv()) {
     frame = model->get_id();
@@ -222,7 +223,7 @@ struct ContactData6DTpl : public crocoddyl::ContactData6DTpl<_Scalar> {
   pinocchio::SE3Tpl<Scalar> rMf;
   pinocchio::SE3Tpl<Scalar> lwaMl;
   Matrix6s rMf_Jlog6;
-  Vector6s tmp_skew_;
+  MatrixXs tmp_skew_;
   Matrix3s tmp_skew_ang_;
   Matrix3s tmp_skew_lin_;
   pinocchio::ReferenceFrame type;

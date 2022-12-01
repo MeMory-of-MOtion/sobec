@@ -139,9 +139,9 @@ void ContactModel6DTpl<Scalar>::updateForce(
     // Compute skew term to be added to rnea derivatives
     pinocchio::skew(d->oRf.transpose() * force.tail(3), d->tmp_skew_ang_);
     pinocchio::skew(d->oRf.transpose() * force.head(3), d->tmp_skew_lin_);
-    d->tmp_skew_.topRows(3) = d->fJf.topRows(3).transpose() * d->tmp_skew_lin_ * d->fJf.bottomRows(3);
-    d->tmp_skew_.bottomRows(3) = d->fJf.bottomRows(3).transpose() * d->tmp_skew_ang_ * d->fJf.bottomRows(3);
-    d->drnea_skew_term_ = -d->tmp_skew_; //-d->fJf.transpose() * d->tmp_skew_;
+    d->tmp_skew_.topRows(3) = d->tmp_skew_lin_ * d->fJf.bottomRows(3);
+    d->tmp_skew_.bottomRows(3) = d->tmp_skew_ang_ * d->fJf.bottomRows(3);
+    d->drnea_skew_term_ = -d->fJf.transpose() * d->tmp_skew_;
   }
 }
 
