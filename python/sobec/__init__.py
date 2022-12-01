@@ -3,7 +3,7 @@
 from .sobec_pywrap import (
     ResidualModelCoMVelocity,
     ResidualModelVelCollision,
-    # ActivationModelQuadRef,
+    ActivationModelQuadRef,
     RobotDesigner,
     HorizonManager,
     ModelMaker,

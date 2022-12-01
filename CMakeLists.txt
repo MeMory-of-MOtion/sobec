@@ -5,7 +5,7 @@ set(PROJECT_NAMESPACE memory-of-motion)
 set(PROJECT_NAME sobec)
 set(PROJECT_DESCRIPTION "Sandbox for optimal control explicitly for bipeds")
 set(PROJECT_URL https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME})
-SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+
 # Project options
 option(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 option(BUILD_PY2CPP_INTERFACE "Build the py2cpp library" OFF)
@@ -63,7 +63,7 @@ set(${PROJECT_NAME}_HEADERS
     include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hpp
     include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hpp
     include/${PROJECT_NAME}/crocomplements/residual-fly-high.hpp
-    # include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
+    include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
     include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hpp
     include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hxx
     include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hpp
