@@ -243,10 +243,10 @@ comRef = mpc.designer.get_com_position().copy()
 
 starting_position_right = design.get_RF_frame().copy()
 starting_position_left = design.get_LF_frame().copy()
-starting_position_right.translation[2] += 0.08
-starting_position_right.translation[0] += 0.3
-starting_position_left.translation[2] += 0.08
-starting_position_left.translation[0] += 0.3
+starting_position_right.translation[2] += conf.height - 0.02
+starting_position_right.translation[0] += 0.25
+starting_position_left.translation[2] += conf.height - 0.02
+starting_position_left.translation[0] += 0.25
 LF_ref = [starting_position_left for i in range(horizon.size())]
 RF_ref = [starting_position_right for i in range(horizon.size())]
 
@@ -254,7 +254,7 @@ for i in range(len(mpc.ref_LF_poses)):
 	mpc.ref_LF_poses[i] = starting_position_left
 	mpc.ref_RF_poses[i] = starting_position_right
 
-comRef[0] += 0.2
+comRef[0] += 0.3
 comRef[1] += 0
 comRef[2] += 0.
 baseRotation = design.get_root_frame().rotation @ yawRotation(np.pi / 6)
@@ -271,12 +271,13 @@ q1 = axisangle_to_q(v1,alpha)
 q2 = axisangle_to_q(v2,np.pi / 2)
 qtot = q_mult(q1,q2)
 
+
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
     device.initializeJoints(design.get_q0Complete().copy())
     device.showTargetToTrack(starting_position_left, starting_position_right)
     #device.addStairs(DEFAULT_SAVE_DIR, [0.5,-0.75,-0.03], qtot)
-    device.addStairs(DEFAULT_SAVE_DIR, [-0.3,0,0], [0,0,0,1])
+    device.addStairs(DEFAULT_SAVE_DIR, [0.6,-0.8,0.0], q2)
     q_current, v_current = device.measureState()
 
 elif conf.simulator == "pinocchio":

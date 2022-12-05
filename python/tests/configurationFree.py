@@ -108,8 +108,8 @@ flexToJoint = np.array([0, 0, 0.09])
 # ###### WALKING GEOMETRY #########
 footMinimalDistance = 0.2
 flyHighSlope = 300
-height = 0.11
-dist = 0.07
+height = 0.1
+dist = 0.17
 width = 100
 
 heelTranslation = 0.1
@@ -136,9 +136,9 @@ wLimit = 1e3
 wVCoM = 0
 wCoM = 0
 wWrenchCone = 0.005
-wFootRot = 1000
+wFootRot = 10000
 wCoP = 20
-wFlyHigh = 1000
+wFlyHigh = 50000
 wVelFoot = 1000
 wColFeet = 3000
 wDCM = 0

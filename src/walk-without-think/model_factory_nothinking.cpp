@@ -418,13 +418,13 @@ void ModelMakerNoThinking::defineFlyHighTask(Cost &costCollector, const Support 
   
   boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualRight = 
       boost::make_shared<ResidualModelFlyAngle>(
-          state_, designer_.get_RF_id(), settings_.flyHighSlope / 2.0, settings_.height, settings_.dist, settings_.width, actuation_->get_nu());
+          state_, designer_.get_RF_toe_id(), settings_.flyHighSlope / 2.0, settings_.height, settings_.dist, settings_.width, actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelResidual> flyHighCostRight =
           boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualRight);
           
   boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualLeft = 
       boost::make_shared<ResidualModelFlyAngle>(
-          state_, designer_.get_LF_id(), settings_.flyHighSlope / 2.0,  settings_.height, settings_.dist, settings_.width, actuation_->get_nu());
+          state_, designer_.get_LF_toe_id(), settings_.flyHighSlope / 2.0,  settings_.height, settings_.dist, settings_.width, actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelAbstract> flyHighCostLeft =
           boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualLeft);
   

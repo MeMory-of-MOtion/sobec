@@ -137,6 +137,7 @@ struct ResidualDataFlyAngleTpl : public ResidualDataAbstractTpl<_Scalar> {
   typedef DataCollectorAbstractTpl<Scalar> DataCollectorAbstract;
   typedef typename MathBase::Matrix6xs Matrix6xs;
   typedef typename MathBase::Matrix3xs Matrix3xs;
+  typedef typename MathBase::Matrix3s Matrix3s;
   typedef typename MathBase::VectorXs VectorXs;
 
   template <template <typename Scalar> class Model>
@@ -172,6 +173,8 @@ struct ResidualDataFlyAngleTpl : public ResidualDataAbstractTpl<_Scalar> {
     o_dv_dv.fill(0);
     o_Jw.fill(0);
     vxJ.fill(0);
+    rotation_alpha.fill(0);
+    rotation_alpha_dt.fill(0);
   }
 
   pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
@@ -181,6 +184,12 @@ struct ResidualDataFlyAngleTpl : public ResidualDataAbstractTpl<_Scalar> {
 
   Scalar ez;
   Scalar sig;
+  Scalar alpha;
+  Scalar sig_dt;
+  Scalar sig_ddt;
+  Scalar alpha_dt;
+  Matrix3s rotation_alpha;
+  Matrix3s rotation_alpha_dt;
   using Base::r;
   using Base::Ru;
   using Base::Rx;
