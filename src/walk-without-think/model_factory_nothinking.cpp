@@ -446,7 +446,7 @@ void ModelMakerNoThinking::defineVelFootTask(Cost &costCollector, const Support 
               state_, designer_.get_RF_id(), pinocchio::Motion::Zero(),
               pinocchio::LOCAL_WORLD_ALIGNED, actuation_->get_nu());
   eVector6 verticalFootVelActVec;
-  verticalFootVelActVec << 0, 0, 1, 0, 0, 0;
+  verticalFootVelActVec << 1, 1, 1, 1, 1, 1;
   boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> verticalFootVelAct = 
       boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(verticalFootVelActVec);
   
