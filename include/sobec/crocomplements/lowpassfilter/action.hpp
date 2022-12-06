@@ -162,7 +162,8 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
 };
 
 template <typename _Scalar>
-struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
+class IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;
