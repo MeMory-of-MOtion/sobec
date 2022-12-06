@@ -42,11 +42,11 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 14
+total_steps = 2
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 30  # Double support time  # TODO: (check with 20)
-TsingleSupport = 70  # Single support time
+TdoubleSupport = 100  # Double support time  # TODO: (check with 20)
+TsingleSupport = 100  # Single support time
 
 Tstep = TsingleSupport + TdoubleSupport
 

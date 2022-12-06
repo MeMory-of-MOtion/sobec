@@ -163,13 +163,7 @@ void ModelMakerNoThinking::defineFeetForceTask(Cost &costCollector, const Suppor
     costCollector.get()->changeCostStatus("force_LF",true);
 }
 
-void ModelMakerNoThinking::defineZFeetTracking(Cost &costCollector, const Support &support) {
-  //eVector3 ZFootTrackingVec;
-  //ZFootTrackingVec << 0, 0, 1;
-  //boost::shared_ptr<sobec::ActivationModelWeightedLog> activationZ =
-  //    boost::make_shared<sobec::ActivationModelWeightedLog>(ZFootTrackingVec, 0.01);
-  boost::shared_ptr<sobec::ActivationModelQuadFlatLog> activationZ =
-      boost::make_shared<sobec::ActivationModelQuadFlatLog>(3, 0.01);
+void ModelMakerNoThinking::defineFeetTracking(Cost &costCollector, const Support &support) {
   
   boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation>
       residual_LF_Tracking =
@@ -182,7 +176,19 @@ void ModelMakerNoThinking::defineZFeetTracking(Cost &costCollector, const Suppor
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
               state_, designer_.get_RF_id(), designer_.get_RF_frame().translation(),
               actuation_->get_nu());
-
+  
+  boost::shared_ptr<crocoddyl::ActivationModelAbstract> activationZ;
+  if (settings_.stairs) {
+	  activationZ =
+	      boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.01);
+  }
+  else {
+	  eVector3 ZFootTrackingVec;
+	  ZFootTrackingVec << 0, 0, 1;
+	  activationZ =
+		  boost::make_shared<sobec::ActivationModelWeightedLog>(ZFootTrackingVec, 0.01);
+  }
+  
   boost::shared_ptr<crocoddyl::CostModelAbstract> trackingModel_LF =
       boost::make_shared<crocoddyl::CostModelResidual>(state_, activationZ,
                                                        residual_LF_Tracking);
@@ -190,18 +196,23 @@ void ModelMakerNoThinking::defineZFeetTracking(Cost &costCollector, const Suppor
       boost::make_shared<crocoddyl::CostModelResidual>(state_, activationZ,
                                                        residual_RF_Tracking);
   
-  costCollector.get()->addCost("Z_translation_LF", trackingModel_LF,
+  costCollector.get()->addCost("translation_LF", trackingModel_LF,
                                settings_.wFootPlacement, false);
-  costCollector.get()->addCost("Z_translation_RF", trackingModel_RF,
+  costCollector.get()->addCost("translation_RF", trackingModel_RF,
                                settings_.wFootPlacement, false);
-  /*if (support == Support::LEFT || support == Support::DOUBLE)
-    costCollector.get()->changeCostStatus("Z_translation_RF",true);
-  if (support == Support::RIGHT || support == Support::DOUBLE)
-    costCollector.get()->changeCostStatus("Z_translation_LF",true);*/
-  if (support == Support::DOUBLE or support == Support::LEFT)
-    costCollector.get()->changeCostStatus("Z_translation_RF",true);
-  if (support == Support::DOUBLE or support == Support::RIGHT)
-    costCollector.get()->changeCostStatus("Z_translation_LF",true);
+  
+  if (settings_.stairs) {
+	  if (support == Support::DOUBLE or support == Support::LEFT)
+		costCollector.get()->changeCostStatus("translation_RF",true);
+	  if (support == Support::DOUBLE or support == Support::RIGHT)
+		costCollector.get()->changeCostStatus("translation_LF",true);
+  }
+  else {
+	  if (support == Support::DOUBLE)
+		costCollector.get()->changeCostStatus("translation_RF",true);
+	  if (support == Support::DOUBLE)
+		costCollector.get()->changeCostStatus("translation_LF",true);
+  }
 }
 
 void ModelMakerNoThinking::definePostureTask(Cost &costCollector) {
@@ -518,72 +529,6 @@ void ModelMakerNoThinking::defineJointLimits(Cost &costCollector) {
                                true);
 }
 
-/*
-void ModelMakerNoThinking::defineGroundCollisionTask(Cost &costCollector) {
-  boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation> groundColResRight =
-      boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
-          state_,  designer_.get_RF_id(), Eigen::Vector3d::Zero(), actuation_->get_nu());
-  boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation> groundColResLeft =
-      boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
-          state_,  designer_.get_LF_id(), Eigen::Vector3d::Zero(), actuation_->get_nu());
-  Eigen::VectorXd groundColLow(3), groundColUp(3);
-  groundColLow << -1000, -1000, 0;
-  groundColUp << 1000, 1000, 1000;
-  const crocoddyl::ActivationBounds groundColBounds = crocoddyl::ActivationBounds(groundColLow, groundColUp);
-  boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> groundColAct =
-      boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(groundColBounds);
-  boost::shared_ptr<crocoddyl::CostModelAbstract> groundColCostRight = 
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, groundColAct, groundColResRight);
-  boost::shared_ptr<crocoddyl::CostModelAbstract> groundColCostLeft = 
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, groundColAct, groundColResLeft);
-  
-  costCollector.get()->addCost("ground_LF", groundColCostLeft,
-                               settings_.wGroundCol, true);
-  costCollector.get()->addCost("ground_RF", groundColCostRight,
-                               settings_.wGroundCol, true);
-}
-
-void ModelMakerNoThinking::define2DSurfaceTask(Cost &costCollector, const Support &support) {
-  double yaw_left = atan2(designer_.get_LF_frame().rotation().data()[1], designer_.get_LF_frame().rotation().data()[0]);
-  double yaw_right = atan2(designer_.get_RF_frame().rotation().data()[1], designer_.get_RF_frame().rotation().data()[0]);
-  boost::shared_ptr<sobec::ResidualModel2DSurface> surfaceResidualLeft =
-      boost::make_shared<sobec::ResidualModel2DSurface>(
-              state_, designer_.get_LF_id(), designer_.get_RF_frame().translation().head(2),
-              settings_.footMinimalDistance, yaw_right, settings_.angleSurface, actuation_->get_nu());
-  boost::shared_ptr<sobec::ResidualModel2DSurface> surfaceResidualRight =
-      boost::make_shared<sobec::ResidualModel2DSurface>(
-              state_, designer_.get_RF_id(), designer_.get_LF_frame().translation().head(2),
-              -settings_.footMinimalDistance, yaw_left, -settings_.angleSurface, actuation_->get_nu());
-
-  double inf = 9999.0;
-
-  crocoddyl::ActivationBounds boundsLeft =
-      crocoddyl::ActivationBounds(Eigen::VectorXd::Constant(2, -inf), Eigen::VectorXd::Constant(2, 0), 1.);
-  crocoddyl::ActivationBounds boundsRight =
-      crocoddyl::ActivationBounds(Eigen::VectorXd::Constant(2, 0), Eigen::VectorXd::Constant(2, inf), 1.);
-      
-  boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationBRight =
-      boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(boundsRight);
-  
-  boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationBLeft =
-      boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(boundsLeft);
-  
-  boost::shared_ptr<crocoddyl::CostModelAbstract> surfaceCostRight = 
-      boost::make_shared<crocoddyl::CostModelResidual>(
-      state_, activationBRight, surfaceResidualRight);
-  boost::shared_ptr<crocoddyl::CostModelAbstract> surfaceCostLeft = 
-      boost::make_shared<crocoddyl::CostModelResidual>(
-      state_, activationBLeft, surfaceResidualLeft);
-  costCollector.get()->addCost("surface_RF", surfaceCostRight, settings_.wSurface,false);
-  costCollector.get()->addCost("surface_LF", surfaceCostLeft, settings_.wSurface,false);
-  if (support == Support::LEFT)
-    costCollector.get()->changeCostStatus("surface_RF",true);
-  if (support == Support::RIGHT)
-    costCollector.get()->changeCostStatus("surface_LF",true);
-}*/
-
 AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
       state_, actuation_->get_nu());
@@ -602,7 +547,7 @@ AMA ModelMakerNoThinking::formulateStepTracker(const Support &support) {
   defineVelFootTask(costs, support);
   defineFeetRotation(costs);
   defineFlyHighTask(costs, support);
-  defineZFeetTracking(costs, support);
+  defineFeetTracking(costs, support);
 
   DAM runningDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
@@ -628,10 +573,9 @@ AMA ModelMakerNoThinking::formulateTerminalStepTracker(const Support &support) {
   defineVelFootTask(costs);
   defineFlyHighTask(costs, support);
   defineCoMTask(costs);
-  defineZFeetTracking(costs);
+  defineFeetTracking(costs);
   defineDCMTask(costs, support);
   defineRotationBase(costs);
-  //defineFeetZRotation(costs);
 
   DAM terminalDAM =
       boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
@@ -647,7 +591,7 @@ std::vector<sobec::AMA> ModelMakerNoThinking::formulateHorizon(
   // for loop to generate a vector of IAMs
   std::vector<sobec::AMA> models;
   for (std::size_t i = 0; i < supports.size(); i++) {
-	models.push_back(formulateStepTracker(supports[i]));
+	  models.push_back(formulateStepTracker(supports[i]));
   }
   return models;
 }

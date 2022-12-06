@@ -23,6 +23,7 @@ set(${PY_NAME}_SOURCES
     walk-with-traj/horizon_manager.cpp
     walk-with-traj/model_factory.cpp
     walk-with-traj/wbc.cpp
+    walk-with-traj/wbc_horizon.cpp
     walk-with-traj/foot_trajectory.cpp
     walk-without-think/ocp.cpp
     walk-without-think/mpc.cpp

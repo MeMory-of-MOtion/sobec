@@ -47,6 +47,7 @@ void initialize(ModelMakerNoThinking &self, const bp::dict &settings,
   conf.height = bp::extract<double>(settings["height"]);
   conf.dist = bp::extract<double>(settings["dist"]);
   conf.width = bp::extract<double>(settings["width"]);
+  conf.stairs = bp::extract<bool>(settings["stairs"]);
   conf.footMinimalDistance = bp::extract<double>(settings["footMinimalDistance"]);
   conf.flyHighSlope = bp::extract<double>(settings["flyHighSlope"]);
 
@@ -91,6 +92,7 @@ bp::dict get_settings(ModelMakerNoThinking &self) {
   settings["height"] = conf.height;
   settings["dist"] = conf.dist;
   settings["width"] = conf.width;
+  settings["stairs"] = conf.stairs;
   settings["footMinimalDistance"] = conf.footMinimalDistance;
   settings["flyHighSlope"] = conf.flyHighSlope;
   settings["wFootPlacement"] = conf.wFootPlacement;
@@ -161,11 +163,11 @@ void defineFeetForceTask(ModelMakerNoThinking &self,
   costCollector = *costs;
 }
 
-void defineZFeetTracking(ModelMakerNoThinking &self,
+void defineFeetTracking(ModelMakerNoThinking &self,
                         crocoddyl::CostModelSum &costCollector,
                         const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.defineZFeetTracking(costs, supports);
+  self.defineFeetTracking(costs, supports);
   costCollector = *costs;
 }
 
@@ -284,7 +286,7 @@ void exposeModelFactoryNoThinking() {
       .def("defineFeetForceTask", &defineFeetForceTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
-      .def("defineZFeetTracking", &defineZFeetTracking,
+      .def("defineFeetTracking", &defineFeetTracking,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
       .def("definePostureTask", &definePostureTask,

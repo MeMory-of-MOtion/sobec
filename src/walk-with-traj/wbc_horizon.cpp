@@ -1,19 +1,18 @@
-#include "sobec/walk-with-traj/wbc.hpp"
+#include "sobec/walk-with-traj/wbc_horizon.hpp"
 
 namespace sobec {
 
-WBC::WBC() {}
+WBCHorizon::WBCHorizon() {}
 
-WBC::WBC(const WBCSettings &settings, const RobotDesigner &design,
-         const HorizonManager &horizon, const Eigen::VectorXd &q0,
-         const Eigen::VectorXd &v0, const std::string &actuationCostName) {
+WBCHorizon::WBCHorizon(const WBCHorizonSettings &settings, const RobotDesigner &design,
+                       const HorizonManager &horizon, const Eigen::VectorXd &q0,
+                       const Eigen::VectorXd &v0, const std::string &actuationCostName) {
   initialize(settings, design, horizon, q0, v0, actuationCostName);
 }
 
-void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
-                     const HorizonManager &horizon, const Eigen::VectorXd &q0,
-                     const Eigen::VectorXd &v0,
-                     const std::string &actuationCostName) {
+void WBCHorizon::initialize(const WBCHorizonSettings &settings, const RobotDesigner &design,
+							const HorizonManager &horizon, const Eigen::VectorXd &q0,
+						    const Eigen::VectorXd &v0, const std::string &actuationCostName) {
   /** The posture required here is the full robot posture in the order of
    * pinicchio*/
   if (!design.initialized_ || !horizon.initialized_) {
@@ -22,7 +21,6 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   settings_ = settings;
   designer_ = design;
   horizon_ = horizon;
-  nWalkingCycles_ = settings_.T  / (2 * settings_.Tstep) + 1;
 
   // designer settings
   controlled_joints_id_ = designer_.get_controlledJointsIDs();
@@ -38,6 +36,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   ref_com_vel_ = eVector3::Zero();
   ref_base_rotation_ = Eigen::Matrix3d::Identity();
   ref_dcm_ = eVector3::Zero();
+  horizon_iteration_ = 0;
   
   for (unsigned long i = 0; i < horizon_.size() + 1; i++) {
     ref_LF_poses_.push_back(designer_.get_LF_frame());
@@ -59,94 +58,119 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
 
   horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
 
-  initializeSupportTiming();
   initialized_ = true;
 }
 
-void WBC::generateWalkingCycle(ModelMaker &mm) {
+void WBCHorizon::setForceAlongHorizon() {
+	// Set force reference
+  Eigen::VectorXd wrench_reference_left(6);
+  Eigen::VectorXd wrench_reference_right(6);
+  double ref_force;
+  double mean_force = settings_.support_force / 2.;
+  double max_force = settings_.support_force - settings_.min_force;
+  wrench_reference_left << 0, 0, mean_force, 0, 0, 0;
+  wrench_reference_right << 0, 0, mean_force, 0, 0, 0;
+  
+  // Set force reference for first cycle
+  for (int i = 0; i < settings_.TdoubleSupport; i++) {
+	  ref_force = mean_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport)
+				  + settings_.min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
+	  wrench_reference_right[2] = ref_force;
+	  wrench_reference_left[2] = settings_.support_force - ref_force;
+	  fullHorizon_.setWrenchReference(i,"wrench_LF",wrench_reference_left);
+	  fullHorizon_.setWrenchReference(i,"wrench_RF",wrench_reference_right);
+  }
+  // Set force reference for following cycles
+  for (int j = 1; j < settings_.totalSteps; j++) {
+	  for (int i = 0; i < settings_.TdoubleSupport; i++) {
+		  ref_force = max_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport)
+					  + settings_.min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
+		  if (j % 2 == 0){
+			  wrench_reference_right[2] = ref_force;
+			  wrench_reference_left[2] = settings_.support_force - ref_force;
+		  }
+		  else {
+			  wrench_reference_left[2] = ref_force;
+			  wrench_reference_right[2] = settings_.support_force - ref_force;
+		  }
+		  fullHorizon_.setWrenchReference(i + j * settings_.Tstep,"wrench_LF",wrench_reference_left);
+		  fullHorizon_.setWrenchReference(i + j * settings_.Tstep,"wrench_RF",wrench_reference_right);
+	  }
+  }
+  // Set force reference for last cycle
+  for (int i = 0; i < settings_.TdoubleSupport; i++) {
+	  ref_force = max_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport)
+				  + mean_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
+	  if (settings_.totalSteps % 2 == 0) {
+		  wrench_reference_right[2] = ref_force;
+		  wrench_reference_left[2] = settings_.support_force - ref_force;
+	  }
+	  else {
+		  wrench_reference_right[2] = ref_force;
+		  wrench_reference_left[2] = settings_.support_force - ref_force;
+	  }
+	  fullHorizon_.setWrenchReference(i + settings_.totalSteps * settings_.Tstep,"wrench_LF",wrench_reference_left);
+	  fullHorizon_.setWrenchReference(i + settings_.totalSteps * settings_.Tstep,"wrench_RF",wrench_reference_right);
+  }
+}
+
+std::vector<Support> WBCHorizon::generateSupportCycle() {
   std::vector<Support> cycle;
   
-  takeoff_RF_cycle_ = settings_.TdoubleSupport;
-  land_RF_cycle_ = takeoff_RF_cycle_ + settings_.TsingleSupport;
-  takeoff_LF_cycle_ = land_RF_cycle_ + settings_.TdoubleSupport;
-  land_LF_cycle_  = takeoff_LF_cycle_ + settings_.TsingleSupport;
-  
-  for (int j = 0; j < nWalkingCycles_; j++) {
-	  for (int i = 0; i < 2 * settings_.Tstep; i++) {
-		if (i < takeoff_RF_cycle_)
-		  cycle.push_back(DOUBLE);
-		else if (i < land_RF_cycle_)
+  for (int j = 0; j < settings_.totalSteps; j++) {
+	if (j % 2 == 0){
+	  takeoff_RF_.push_back(j * settings_.Tstep + settings_.TdoubleSupport + settings_.T);
+	  land_RF_.push_back((j + 1) * settings_.Tstep + settings_.T);
+	}
+	else {
+	  takeoff_LF_.push_back(j * settings_.Tstep + settings_.TdoubleSupport + settings_.T);
+	  land_LF_.push_back((j + 1) * settings_.Tstep + settings_.T);
+	}
+	for (int i = 0; i < settings_.Tstep; i++) {
+	  if (i < settings_.TdoubleSupport)
+	    cycle.push_back(DOUBLE);
+	  else {
+		if (j % 2 == 0)
 		  cycle.push_back(LEFT);
-		else if (i < takeoff_LF_cycle_)
-		  cycle.push_back(DOUBLE);
 		else
 		  cycle.push_back(RIGHT);
 	  }
+	}
   }
-  std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
-  HorizonManagerSettings names = {designer_.get_LF_name(),
-                                  designer_.get_RF_name()};
-  walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
-                                 cyclicModels.back());
-}
-
-void WBC::generateWalkingCycleNoThinking(ModelMakerNoThinking &mm) {
-  std::vector<Support> cycle;
-  
-  takeoff_RF_cycle_ = settings_.TdoubleSupport;
-  land_RF_cycle_ = takeoff_RF_cycle_ + settings_.TsingleSupport;
-  takeoff_LF_cycle_ = land_RF_cycle_ + settings_.TdoubleSupport;
-  land_LF_cycle_  = takeoff_LF_cycle_ + settings_.TsingleSupport;
-  
-  for (int j = 0; j < nWalkingCycles_; j++) {
-	  for (int i = 0; i < 2 * settings_.Tstep; i++) {
-		if (i < takeoff_RF_cycle_)
-		  cycle.push_back(DOUBLE);
-		else if (i < land_RF_cycle_)
-		  cycle.push_back(LEFT);
-		else if (i < takeoff_LF_cycle_)
-		  cycle.push_back(DOUBLE);
-		else
-		  cycle.push_back(RIGHT);
-	  }
+  for (int j = 0; j < settings_.T + settings_.TdoubleSupport; j++) {
+	cycle.push_back(DOUBLE);  
   }
+  return cycle;
+}
+
+void WBCHorizon::generateFullWalkingHorizon(ModelMaker &mm) {
+  std::vector<Support> cycle = generateSupportCycle(); 
   std::vector<AMA> cyclicModels;
   cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
-  walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
+  fullHorizon_ = HorizonManager(names, x0_, cyclicModels,
                                  cyclicModels.back());
+  setForceAlongHorizon();
 }
 
-void WBC::generateStandingCycle(ModelMaker &mm) {
-  ///@todo: bind it
-  std::vector<Support> cycle(settings_.T, DOUBLE);
+void WBCHorizon::generateFullWWTHorizon(ModelMakerNoThinking &mm) {
+  std::vector<Support> cycle = generateSupportCycle(); 
   std::vector<AMA> cyclicModels;
   cyclicModels = mm.formulateHorizon(cycle);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
-  standingCycle_ = HorizonManager(names, x0_, cyclicModels,
-                                  cyclicModels.back());
+  fullHorizon_ = HorizonManager(names, x0_, cyclicModels,
+                                 cyclicModels.back());
+  setForceAlongHorizon();
 }
 
-void WBC::generateStandingCycleNoThinking(ModelMakerNoThinking &mm) {
-  ///@todo: bind it
-  std::vector<Support> cycle(settings_.T, DOUBLE);
-  std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
-  HorizonManagerSettings names = {designer_.get_LF_name(),
-                                  designer_.get_RF_name()};
-  standingCycle_ = HorizonManager(names, x0_, cyclicModels,
-                                  cyclicModels.back());
-}
-
-bool WBC::timeToSolveDDP(int iteration) {
+bool WBCHorizon::timeToSolveDDP(int iteration) {
   time_to_solve_ddp_ = !(iteration % settings_.Nc);
   return time_to_solve_ddp_;
 }
 
-void WBC::iterate(const Eigen::VectorXd &q_current,
+void WBCHorizon::iterate(const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
 
@@ -163,7 +187,7 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBC::iterate(int iteration, const Eigen::VectorXd &q_current,
+void WBCHorizon::iterate(int iteration, const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterate(q_current, v_current, is_feasible);
@@ -171,7 +195,7 @@ void WBC::iterate(int iteration, const Eigen::VectorXd &q_current,
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBC::iterateNoThinking(const Eigen::VectorXd &q_current,
+void WBCHorizon::iterateNoThinking(const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
   
@@ -187,7 +211,7 @@ void WBC::iterateNoThinking(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBC::iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
+void WBCHorizon::iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterateNoThinking(q_current, v_current, is_feasible);
@@ -195,7 +219,7 @@ void WBC::iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBC::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
+void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool contact_left, bool contact_right, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
   designer_.updateReducedModel(x0_);
@@ -221,7 +245,7 @@ void WBC::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
   }
 }
 
-void WBC::updateStepTrackerReferences() {
+void WBCHorizon::updateStepTrackerReferences() {
   for (unsigned long time = 0; time < horizon_.size(); time++) {
     horizon_.setPoseReference(time, "placement_LF", getPoseRef_LF(time));
     horizon_.setPoseReference(time, "placement_RF", getPoseRef_RF(time));
@@ -243,7 +267,7 @@ void WBC::updateStepTrackerReferences() {
   horizon_.setTerminalDCMReference("DCM", ref_dcm_);
 }
 
-void WBC::updateStepTrackerLastReference() {
+void WBCHorizon::updateStepTrackerLastReference() {
   horizon_.setPoseReference(horizon_.size() - 1, "placement_LF",
                               getPoseRef_LF(horizon_.size() - 1));
   horizon_.setPoseReference(horizon_.size() - 1, "placement_RF",
@@ -258,7 +282,7 @@ void WBC::updateStepTrackerLastReference() {
   ref_RF_poses_.push_back(ref_RF_poses_[horizon_.size() - 1]);
 }
 
-void WBC::updateNonThinkingReferences() {
+void WBCHorizon::updateNonThinkingReferences() {
   horizon_.setTerminalPoseCoM("comTask", ref_com_);
   for (unsigned long time = 0; time < horizon_.size(); time++) {
 	  horizon_.setVelocityRefCOM(time,"comVelocity",ref_com_vel_);
@@ -286,50 +310,24 @@ void WBC::updateNonThinkingReferences() {
   horizon_.setTerminalDCMReference("DCM", ref_dcm_);
 }
 
-void WBC::recedeWithCycle() {
-  if (now_ == WALKING) {
-    recedeWithCycle(walkingCycle_);
-  } else if (now_ == STANDING &&
-             horizon_.supportSize(horizon_.size() - 1) == 2) {
-    recedeWithCycle(standingCycle_);
-    if (first_switch_to_stand_) {
-      rewindWalkingCycle();
-      first_switch_to_stand_ = false;
-    }
-  } else {
-    recedeWithCycle(walkingCycle_);
-    first_switch_to_stand_ = true;
+void WBCHorizon::recedeWithCycle() {
+  if (horizon_iteration_ < fullHorizon_.size()) {
+    horizon_.recede(fullHorizon_.ama(horizon_iteration_), fullHorizon_.ada(horizon_iteration_));
+    horizon_iteration_ ++;
   }
-  return;
+  else
+    horizon_.recede();
 }
 
-void WBC::recedeWithCycle(HorizonManager &cycle) {
-  horizon_.recede(cycle.ama(0), cycle.ada(0));
-  cycle.recede();
-  return;
-}
-
-void WBC::rewindWalkingCycle() {
-  /** This function brings the walking cycle to the beggining of a double
-   * support*/
-  for (unsigned long i = 0; i < walkingCycle_.size(); i++) {
-    if (walkingCycle_.supportSize(0) == 1 && walkingCycle_.supportSize(1) == 2) {
-      walkingCycle_.recede();
-      return;
-    }
-    walkingCycle_.recede();
-  }
-}
-
-void WBC::goToNextDoubleSupport() {
-	for (unsigned long i = 0; i < walkingCycle_.size(); i++) {
-		if (walkingCycle_.supportSize(0) == 2) return;
-		walkingCycle_.recede();
+void WBCHorizon::goToNextDoubleSupport() {
+	while (horizon_.supportSize(0) != 2 and horizon_iteration_ < fullHorizon_.size()) {
+		horizon_.recede(fullHorizon_.ama(horizon_iteration_), fullHorizon_.ada(horizon_iteration_));
+		horizon_iteration_ ++;
 		updateSupportTiming();
-  }
+	}
 }
 
-const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q,
+const Eigen::VectorXd &WBCHorizon::shapeState(const Eigen::VectorXd &q,
                                        const Eigen::VectorXd &v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
@@ -353,34 +351,11 @@ const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q,
         "q and v must have the dimentions of the reduced or complete model.");
 }
 
-void WBC::initializeSupportTiming() {
-  for (unsigned int i = 0; i < horizon_.size() - 1; i++) {
-    getSwitches(i, i + 1);
-    if (switch_ == LAND_LF)
-      land_LF_.push_back(i + 1);
-    else if (switch_ == LAND_RF)
-      land_RF_.push_back(i + 1);
-    else if (switch_ == TAKEOFF_LF)
-      takeoff_LF_.push_back(i + 1);
-    else if (switch_ == TAKEOFF_RF)
-      takeoff_RF_.push_back(i + 1);
-  }
-}
-
-void WBC::updateSupportTiming() {
+void WBCHorizon::updateSupportTiming() {
   for (unsigned long i = 0; i < land_LF_.size(); i++) land_LF_[i] -= 1;
   for (unsigned long i = 0; i < land_RF_.size(); i++) land_RF_[i] -= 1;
   for (unsigned long i = 0; i < takeoff_LF_.size(); i++) takeoff_LF_[i] -= 1;
   for (unsigned long i = 0; i < takeoff_RF_.size(); i++) takeoff_RF_[i] -= 1;
-  
-  land_RF_cycle_ -= 1;
-  land_LF_cycle_ -= 1;
-  takeoff_LF_cycle_ -= 1;
-  takeoff_RF_cycle_ -= 1;
-  if (land_RF_cycle_ < 0) land_RF_cycle_ = 2 * settings_.Tstep - 1; 
-  if (land_LF_cycle_ < 0) land_LF_cycle_ = 2 * settings_.Tstep - 1; 
-  if (takeoff_LF_cycle_ < 0) takeoff_LF_cycle_ = 2 * settings_.Tstep - 1; 
-  if (takeoff_RF_cycle_ < 0) takeoff_RF_cycle_ = 2 * settings_.Tstep - 1; 
 
   if (land_LF_.size() > 0 && land_LF_[0] < 0) land_LF_.erase(land_LF_.begin());
 
@@ -391,44 +366,6 @@ void WBC::updateSupportTiming() {
 
   if (takeoff_RF_.size() > 0 && takeoff_RF_[0] < 0)
     takeoff_RF_.erase(takeoff_RF_.begin());
-
-  horizon_end_ = (int)horizon_.size();
-  getSwitches(horizon_end_ - 2, horizon_end_ - 1);
-  if (switch_ == LAND_LF)
-    land_LF_.push_back(horizon_end_ - 1);
-  else if (switch_ == LAND_RF)
-    land_RF_.push_back(horizon_end_ - 1);
-  else if (switch_ == TAKEOFF_LF)
-    takeoff_LF_.push_back(horizon_end_ - 1);
-  else if (switch_ == TAKEOFF_RF)
-    takeoff_RF_.push_back(horizon_end_ - 1);
-}
-
-const supportSwitch &WBC::getSwitches(const unsigned long before,
-                                      const unsigned long after) {
-  contacts_before_ = horizon_.get_contacts(before);
-  contacts_after_ = horizon_.get_contacts(after);
-
-  if (contacts_before_ == contacts_after_) {
-    switch_ = NO_SWITCH;
-    return switch_;
-  }
-  if (horizon_.supportSize(before) == 2) {
-    if (contacts_after_.find(designer_.get_LF_name()) ==
-        contacts_after_.end()) {
-      switch_ = TAKEOFF_LF;  // case LF not in contact_after
-      return switch_;
-    }
-    switch_ = TAKEOFF_RF;  // case RF not in contact_after
-    return switch_;
-  }
-  if (contacts_before_.find(designer_.get_LF_name()) ==
-      contacts_before_.end()) {
-    switch_ = LAND_LF;  // case LF not in contact_before
-    return switch_;
-  }
-  switch_ = LAND_RF;  // case RF not in contact_before
-  return switch_;
 }
 
 }  // namespace sobec

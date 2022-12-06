@@ -40,6 +40,7 @@ struct ModelMakerNoThinkingSettings {
   double height = 0;
   double dist = 0;
   double width = 0;
+  bool stairs = false;
 
   // Croco configuration
   double wFootPlacement = 0;  // 1000;
@@ -107,7 +108,8 @@ class ModelMakerNoThinking {
   void defineActuationTask(Cost &costCollector);
   void defineCoPTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
-  void defineZFeetTracking(Cost &costCollector,
+  
+  void defineFeetTracking(Cost &costCollector,
                           const Support &support = Support::DOUBLE);
 
   void defineCoMVelocity(Cost &costCollector);
@@ -123,8 +125,6 @@ class ModelMakerNoThinking {
                           const Support &support = Support::DOUBLE);
   void defineDCMTask(Cost &costCollector, 
                           const Support &support = Support::DOUBLE);
-  //void define2DSurfaceTask(Cost &costCollector, 
-  //                        const Support &support = Support::DOUBLE);
                           
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {

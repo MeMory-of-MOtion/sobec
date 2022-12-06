@@ -99,6 +99,7 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/walk-with-traj/horizon_manager.hpp
 	# include/${PROJECT_NAME}/walk-with-traj/ocp.hpp
 	include/${PROJECT_NAME}/walk-with-traj/wbc.hpp
+	include/${PROJECT_NAME}/walk-with-traj/wbc_horizon.hpp
 	include/${PROJECT_NAME}/walk-with-traj/foot_trajectory.hpp
  )
 
@@ -108,6 +109,7 @@ set(${PROJECT_NAME}_SOURCES
 	src/walk-with-traj/horizon_manager.cpp
 	# src/walk-with-traj/ocp.cpp
 	src/walk-with-traj/wbc.cpp
+	src/walk-with-traj/wbc_horizon.cpp
 	src/walk-with-traj/foot_trajectory.cpp
 	src/flexibility_compensation.cpp
 	src/walk-without-think/model_factory_nothinking.cpp

@@ -26,6 +26,7 @@ void exposeStateLPF();
 void exposeDAMContactFwdDyn();
 void exposeResidualContactForce();
 void exposeWBC();
+void exposeWBCHorizon();
 void exposeFootTrajectory();
 void exposeFlex();
 void exposeOCPWalk();
