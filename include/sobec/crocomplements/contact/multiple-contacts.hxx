@@ -90,6 +90,16 @@ void ContactModelMultipleTpl<Scalar>::updateRneaDerivatives(
                   "it doesn't match the contact name between data and model");
     if (m_i->active) {
       const std::size_t nc_i = m_i->contact->get_nc();
+      if (nc_i == 6) {
+        ContactModel6DTpl<Scalar>* cm_i =
+            static_cast<ContactModel6DTpl<Scalar>*>(m_i->contact.get());
+        ContactData6DTpl<Scalar>* cd_i =
+            static_cast<ContactData6DTpl<Scalar>*>(d_i.get());
+        if (cm_i->get_type() == pinocchio::WORLD ||
+            cm_i->get_type() == pinocchio::LOCAL_WORLD_ALIGNED) {
+          pinocchio.dtau_dq.block(0, 0, nv, nv) += cd_i->drnea_skew_term_;
+        }
+      }
       if (nc_i == 3) {
         ContactModel3DTpl<Scalar>* cm_i =
             static_cast<ContactModel3DTpl<Scalar>*>(m_i->contact.get());
