@@ -31,7 +31,7 @@ At each control cycle, the first walking cycle horizon node is fed to the end of
 When the user wants to stop the locomotion, they can do so at any time by simply updating the LocomotionType variable from WALKING to STANDING. 
 The standing cycle will then be fed to the MPC horizon.
 
-The WBC class provides the method 'iterate' that receives the measured state and returns the joint torques that should be commanded to the robot. 
+The WBC class provides the method `iterate` that receives the measured state and returns the joint torques that should be commanded to the robot.  
 
 #### WBCHorizon
 This class implements a MPC with a longterm view of horizon.
@@ -42,8 +42,12 @@ The class previews the entire walking motion into the full horizon at its initia
 
 #### Examples
 
-Python examples running with bullet can be found in 'python/tests' folder. 
-'cppControlLoop.py' implements a forward walking motion with user-defined feet references.
-'freeWalkMpc.py' implements a forward walking motion with user-defined terminal CoM position.
-'stairCase.py' implements stair climbing with user-defined feet references.
-'freeStairsMPC.py' implements stair climbing without user-defined feet references, given only the next desired contact and a velocity height map of the stairs. 
+Python examples running with bullet can be found in 'python/tests folder. 
+
+`cppControlLoop.py` implements a forward walking motion with user-defined feet references.
+
+`freeWalkMpc.py` implements a forward walking motion with user-defined terminal CoM position.
+
+`stairCase.py` implements stair climbing with user-defined feet references.
+
+`freeStairsMPC.py` implements stair climbing without user-defined feet references, given only the next desired contact and a velocity height map of the stairs. 
