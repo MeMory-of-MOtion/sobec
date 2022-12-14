@@ -225,12 +225,12 @@ void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
   designer_.updateReducedModel(x0_);
   
   if (land_LF_.size() > 0) {
-	  if(land_LF_[0] == 1 and not(contact_left)) {
+	  if(land_LF_[0] == 0 and not(contact_left)) {
 		  //std::cout << "delay left contact" << std::endl;
 		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 		  return;
 	  }
-	  else if (contact_left and contact_right and land_LF_[0] < settings_.TsingleSupport) {
+	  else if (contact_left and contact_right and land_LF_[0] < settings_.TsingleSupport / 2) {
 		  //std::cout << "go to next double left" << std::endl;
 		  goToNextDoubleSupport();
 		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
@@ -238,12 +238,12 @@ void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
 	  }
   }
   if (land_RF_.size() > 0) {
-	  if(land_RF_[0] == 1 and not(contact_right)) {
+	  if(land_RF_[0] == 0 and not(contact_right)) {
 		  //std::cout << "delay right contact" << std::endl;
 		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 		  return;
 	  }
-	  else if (contact_left and contact_right and land_RF_[0] < settings_.TsingleSupport) {
+	  else if (contact_left and contact_right and land_RF_[0] < settings_.TsingleSupport / 2) {
 		  //std::cout << "go to next double right" << std::endl;
 		  goToNextDoubleSupport();
 		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
@@ -341,6 +341,9 @@ void WBCHorizon::goToNextDoubleSupport() {
 		horizon_iteration_ ++;
 		updateSupportTiming();
 	}
+	horizon_.recede(fullHorizon_.ama(horizon_iteration_), fullHorizon_.ada(horizon_iteration_));
+	horizon_iteration_ ++;
+	updateSupportTiming();
 }
 
 const Eigen::VectorXd &WBCHorizon::shapeState(const Eigen::VectorXd &q,
