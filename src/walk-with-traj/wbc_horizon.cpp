@@ -224,25 +224,41 @@ void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
   x0_ = shapeState(q_current, v_current);
   designer_.updateReducedModel(x0_);
   
-  if ( (land_LF_[0] == 1 and not(contact_left)) or (land_RF_[0] == 1 and not(contact_right)) ){
-	  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+  if (land_LF_.size() > 0) {
+	  if(land_LF_[0] == 1 and not(contact_left)) {
+		  //std::cout << "delay left contact" << std::endl;
+		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+		  return;
+	  }
+	  else if (contact_left and contact_right and land_LF_[0] < settings_.TsingleSupport) {
+		  //std::cout << "go to next double left" << std::endl;
+		  goToNextDoubleSupport();
+		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+		  return;
+	  }
   }
-  else if (contact_left and contact_right and (land_LF_[0] < settings_.TsingleSupport or land_RF_[0] < settings_.TsingleSupport)) {
-	  goToNextDoubleSupport();
-	  
-	  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+  if (land_RF_.size() > 0) {
+	  if(land_RF_[0] == 1 and not(contact_right)) {
+		  //std::cout << "delay right contact" << std::endl;
+		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+		  return;
+	  }
+	  else if (contact_left and contact_right and land_RF_[0] < settings_.TsingleSupport) {
+		  //std::cout << "go to next double right" << std::endl;
+		  goToNextDoubleSupport();
+		  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
+		  return;
+	  }
   }
-  else {
-	  // ~~TIMING~~ //
-	  recedeWithCycle();
-	  updateSupportTiming();
+  //std::cout << "normal execution" << std::endl;
+  recedeWithCycle();
+  updateSupportTiming();
 
-	  // ~~REFERENCES~~ //
-	  updateNonThinkingReferences();
+  // ~~REFERENCES~~ //
+  updateNonThinkingReferences();
 
-	  // ~~SOLVER~~ //
-	  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
-  }
+  // ~~SOLVER~~ //
+  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
 void WBCHorizon::updateStepTrackerReferences() {

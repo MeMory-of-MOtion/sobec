@@ -195,32 +195,6 @@ void WBC::iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBC::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
-                  const Eigen::VectorXd &v_current, bool contact_left, bool contact_right, bool is_feasible) {
-  x0_ = shapeState(q_current, v_current);
-  designer_.updateReducedModel(x0_);
-  
-  if ( (land_LF_[0] == 1 and not(contact_left)) or (land_RF_[0] == 1 and not(contact_right)) ){
-	  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
-  }
-  else if (contact_left and contact_right and (land_LF_[0] < settings_.TsingleSupport or land_RF_[0] < settings_.TsingleSupport)) {
-	  goToNextDoubleSupport();
-	  
-	  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
-  }
-  else {
-	  // ~~TIMING~~ //
-	  recedeWithCycle();
-	  updateSupportTiming();
-
-	  // ~~REFERENCES~~ //
-	  updateNonThinkingReferences();
-
-	  // ~~SOLVER~~ //
-	  horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
-  }
-}
-
 void WBC::updateStepTrackerReferences() {
   for (unsigned long time = 0; time < horizon_.size(); time++) {
     horizon_.setPoseReference(time, "placement_LF", getPoseRef_LF(time));

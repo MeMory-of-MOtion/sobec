@@ -120,15 +120,6 @@ void exposeWBC() {
                &WBC::iterateNoThinking),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
-      .def("iterateNoThinkingWithDelay",
-           static_cast<void (WBC::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, 
-                                     const bool,  
-                                     const bool,  
-                                     const bool)>(
-               &WBC::iterateNoThinkingWithDelay),
-           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
-            bp::arg("contact_left"), bp::arg("contact_right"), bp::arg("is_feasible") = false))
       .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle,
                             bp::args("self"))
       .def<void (WBC::*)(HorizonManager &)>(
