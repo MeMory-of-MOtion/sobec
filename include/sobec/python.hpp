@@ -20,7 +20,6 @@ void exposeActivationQuadRef();
 void exposeDesigner();
 void exposeHorizonManager();
 void exposeModelFactory();
-void exposeModelFactoryNoThinking();
 void exposeIntegratedActionLPF();
 void exposeStateLPF();
 void exposeDAMContactFwdDyn();

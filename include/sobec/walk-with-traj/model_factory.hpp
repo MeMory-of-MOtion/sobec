@@ -9,11 +9,17 @@
 
 #include "sobec/fwd.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
+#include "sobec/crocomplements/residual-feet-collision.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
+#include "sobec/crocomplements/residual-fly-angle.hpp"
+#include "sobec/crocomplements/residual-2D-surface.hpp"
+#include "sobec/crocomplements/activation-weighted-log.hpp"
 #include "sobec/crocomplements/residual-dcm-position.hpp"
 
 namespace sobec {
 
 enum Support { LEFT, RIGHT, DOUBLE };
+enum Experiment {WALK, WWT, WWT_STAIRS};
 
 struct ModelMakerSettings {
  public:
@@ -33,6 +39,9 @@ struct ModelMakerSettings {
 
   double comHeight = 0.87;
   double omega = -comHeight / gravity(2);
+  double height = 0;
+  double dist = 0;
+  double width = 0;
 
   // Croco configuration
   double wFootPlacement = 0;  // 1000;
@@ -43,7 +52,17 @@ struct ModelMakerSettings {
   double wForceTask = 0;      // 0.05
   double wCoP = 0;            // 1;
   double wDCM = 0;
-
+  double wBaseRot = 0;
+  double wVCoM = 0;           // 0;
+  double wFootRot = 0;        // 100;
+  double wCoM = 0;
+  double wFlyHigh = 0;
+  double wVelFoot = 0;
+  double wColFeet = 0;
+  
+  double flyHighSlope = 2;
+  double footMinimalDistance = 0.2;
+  
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
   Eigen::VectorXd forceWeights;
@@ -72,9 +91,12 @@ class ModelMaker {
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
   AMA formulateTerminalStepTracker(const Support &support = Support::DOUBLE); 
-  AMA formulate_stair_climber(const Support &support = Support::DOUBLE);
+  AMA formulateWWT(const Support &support = Support::DOUBLE, 
+                   const bool &stairs = false);
+  AMA formulateTerminalWWT(const Support &support = Support::DOUBLE, 
+                           const bool &stairs = false);
 
-  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports);
+  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports, const Experiment &experiment);
   std::vector<AMA> formulateHorizon(const int &T);
   ModelMakerSettings &get_settings() { return settings_; }
 
@@ -87,14 +109,26 @@ class ModelMaker {
                             const Support &support = Support::DOUBLE);
   void defineFeetTracking(Cost &costCollector,
                           const Support &support = Support::DOUBLE);
-
+  void defineFeetTranslation(Cost &costCollector, 
+                          const Support &support = Support::DOUBLE, 
+                          const bool &stairs = false);
   void definePostureTask(Cost &costCollector);
+  void defineRotationBase(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoPTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
   void defineDCMTask(Cost &costCollector, 
                      const Support &support = Support::DOUBLE);
+  void defineCoMVelocity(Cost &costCollector);
+  void defineVelFootTask(Cost &costCollector,
+                         const Support &support = Support::DOUBLE); 
+  void defineCoMTask(Cost &costCollector);
+  void defineFeetRotation(Cost &costCollector); 
+  void defineFeetZRotation(Cost &costCollector);
+  void defineFootCollisionTask(Cost &costCollector);
+  void defineFlyHighTask(Cost &costCollector, 
+                          const Support &support = Support::DOUBLE);
                      
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {

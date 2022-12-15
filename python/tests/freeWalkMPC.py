@@ -14,11 +14,10 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyModelMaker import modeller
 import pinocchio as pin
 import example_robot_data
-from sobec import RobotDesigner, WBCHorizon, HorizonManager, ModelMakerNoThinking, Flex, Support, FootTrajectory
+from sobec import RobotDesigner, WBCHorizon, HorizonManager, ModelMaker, Flex, Support, Experiment, FootTrajectory
 import ndcurves
 import numpy as np
 import time
-import ndcurves
 
 DEFAULT_SAVE_DIR = '/local/src/sobec/python/tests'
 
@@ -56,7 +55,7 @@ class conf:
 	]
 
 	# #### TIMING #####
-	total_steps = 2
+	total_steps = 10
 	DT = 1e-2  # Time step of the DDP
 	T = 100  # Time horizon of the DDP (number of nodes)
 	TdoubleSupport = 10  # Double support time  # TODO: (check with 20)
@@ -269,7 +268,6 @@ MM_conf = dict(
     height = 0,
     dist = 1,
     width = 1,
-    stairs = False,
     flyHighSlope = conf.flyHighSlope,
     footMinimalDistance = conf.footMinimalDistance,
     wFootPlacement=conf.wFootPlacement,
@@ -279,6 +277,7 @@ MM_conf = dict(
     wVCoM=conf.wVCoM,
     wCoM=conf.wCoM,
     wWrenchCone=conf.wWrenchCone,
+    wForceTask=0,
     wFootRot=conf.wFootRot,
     wCoP = conf.wCoP,
     wFlyHigh = conf.wFlyHigh,
@@ -295,11 +294,11 @@ MM_conf = dict(
     th_stop=conf.th_stop,
 )
 
-formuler = ModelMakerNoThinking()
+formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
-
-all_models = formuler.formulateHorizon(length=conf.T)
-ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
+cycles = [Support.DOUBLE for i in range(conf.T)]
+all_models = formuler.formulateHorizon(supports=cycles,experiment=Experiment.WWT)
+ter_model = formuler.formulateTerminalWWT(Support.DOUBLE, False)
 
 # Horizon
 H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
@@ -347,7 +346,7 @@ mpc.initialize(
     design.get_v0Complete(),
     "actuationTask",
 )
-mpc.generateFullWWTHorizon(formuler)
+mpc.generateFullHorizon(formuler,Experiment.WWT)
 print("mpc generated")
 
 # ### SIMULATION LOOP ###

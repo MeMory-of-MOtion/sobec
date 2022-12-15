@@ -21,6 +21,7 @@ from sobec import (
     HorizonManager,
     ModelMaker,
     Support,
+    Experiment,
     LocomotionType,
     Flex,
 )
@@ -221,6 +222,9 @@ MM_conf = dict(
     maxNforce=conf.maxNforce,
     comHeight=conf.normal_height,
     omega=conf.omega,
+    height = 1,
+    dist = 1,
+    width = 1,
     footSize=conf.footSize,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
@@ -230,6 +234,15 @@ MM_conf = dict(
     wForceTask=conf.wForceTask,
     wCoP = conf.wCoP,
     wDCM = conf.wDCM,
+    wVCoM = 0,
+	wFootRot = 0,
+	wCoM = 0,
+	wFlyHigh = 0,
+	wVelFoot = 0,
+	wColFeet = 0,
+	wBaseRot = 0,
+	flyHighSlope = 1,
+	footMinimalDistance = 0.2,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
     forceWeights = conf.forceWeights,
@@ -241,7 +254,8 @@ MM_conf = dict(
 
 formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
-all_models = formuler.formulateHorizon(length=conf.T)
+cycles = [Support.DOUBLE for i in range(conf.T)]
+all_models = formuler.formulateHorizon(supports=cycles,experiment=Experiment.WALK)
 ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
 
 # Horizon
@@ -287,7 +301,7 @@ mpc = WBCHorizon()
 mpc.initialize(
     wbc_conf, design, horizon, qStartComplete, design.get_v0Complete(), "actuationTask"
 )
-mpc.generateFullWalkingHorizon(formuler)
+mpc.generateFullHorizon(formuler, Experiment.WALK)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())

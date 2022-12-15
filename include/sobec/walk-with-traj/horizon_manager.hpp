@@ -8,7 +8,6 @@
 #include "sobec/fwd.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
 #include "sobec/walk-with-traj/model_factory.hpp"
-#include "sobec/walk-without-think/model_factory_nothinking.hpp"
 
 namespace sobec {
 struct HorizonManagerSettings {

@@ -26,8 +26,7 @@ set(${PY_NAME}_SOURCES
     walk-with-traj/wbc_horizon.cpp
     walk-with-traj/foot_trajectory.cpp
     walk-without-think/ocp.cpp
-    walk-without-think/mpc.cpp
-    walk-without-think/model_factory_nothinking.cpp)
+    walk-without-think/mpc.cpp)
 
 add_library(${PY_NAME}_pywrap SHARED ${${PY_NAME}_SOURCES})
 target_link_libraries(${PY_NAME}_pywrap PUBLIC ${PROJECT_NAME} eigenpy::eigenpy)

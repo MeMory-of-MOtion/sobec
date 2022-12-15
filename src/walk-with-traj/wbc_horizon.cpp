@@ -143,21 +143,10 @@ std::vector<Support> WBCHorizon::generateSupportCycle() {
   return cycle;
 }
 
-void WBCHorizon::generateFullWalkingHorizon(ModelMaker &mm) {
+void WBCHorizon::generateFullHorizon(ModelMaker &mm, const Experiment &experiment) {
   std::vector<Support> cycle = generateSupportCycle(); 
   std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
-  HorizonManagerSettings names = {designer_.get_LF_name(),
-                                  designer_.get_RF_name()};
-  fullHorizon_ = HorizonManager(names, x0_, cyclicModels,
-                                 cyclicModels.back());
-  setForceAlongHorizon();
-}
-
-void WBCHorizon::generateFullWWTHorizon(ModelMakerNoThinking &mm) {
-  std::vector<Support> cycle = generateSupportCycle(); 
-  std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
+  cyclicModels = mm.formulateHorizon(cycle,experiment);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   fullHorizon_ = HorizonManager(names, x0_, cyclicModels,

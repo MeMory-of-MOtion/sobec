@@ -117,7 +117,6 @@ footPenetration = 0.0  # foot penetration in the ground
 normal_height = 0.87
 omega = np.sqrt(-gravity[2] / normal_height)
 
-
 # ##### CROCO - CONFIGURATION ########
 # relevant frame names
 

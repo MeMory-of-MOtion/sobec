@@ -93,7 +93,6 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/walk-without-think/ocp.hpp
 	include/${PROJECT_NAME}/walk-without-think/mpc.hpp
 	include/${PROJECT_NAME}/walk-without-think/mpc.hxx
-	include/${PROJECT_NAME}/walk-without-think/model_factory_nothinking.hpp
 	include/${PROJECT_NAME}/walk-with-traj/designer.hpp
 	include/${PROJECT_NAME}/walk-with-traj/model_factory.hpp
 	include/${PROJECT_NAME}/walk-with-traj/horizon_manager.hpp
@@ -112,7 +111,6 @@ set(${PROJECT_NAME}_SOURCES
 	src/walk-with-traj/wbc_horizon.cpp
 	src/walk-with-traj/foot_trajectory.cpp
 	src/flexibility_compensation.cpp
-	src/walk-without-think/model_factory_nothinking.cpp
 	src/walk-without-think/ocp.cpp
 	src/walk-without-think/ocp-running-models.cpp
 	src/walk-without-think/ocp-terminal-model.cpp

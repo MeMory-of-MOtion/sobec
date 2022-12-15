@@ -15,11 +15,10 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBCHorizon, HorizonManager, ModelMakerNoThinking, Flex, Support, FootTrajectory
+from sobec import RobotDesigner, WBCHorizon, HorizonManager, ModelMaker, Flex, Support, Experiment, FootTrajectory
 import ndcurves
 import numpy as np
 import time
-import ndcurves
 
 DEFAULT_SAVE_DIR = '/local/src/sobec/python/tests'
 
@@ -112,7 +111,6 @@ MM_conf = dict(
     height = conf.height,
     dist = conf.dist,
     width = conf.width,
-    stairs = True,
     flyHighSlope = conf.flyHighSlope,
     footMinimalDistance = conf.footMinimalDistance,
     wFootPlacement=conf.wFootPlacement,
@@ -122,6 +120,7 @@ MM_conf = dict(
     wVCoM=conf.wVCoM,
     wCoM=conf.wCoM,
     wWrenchCone=conf.wWrenchCone,
+    wForceTask=0,
     wFootRot=conf.wFootRot,
     wCoP = conf.wCoP,
     wFlyHigh = conf.wFlyHigh,
@@ -138,11 +137,11 @@ MM_conf = dict(
     th_stop=conf.th_stop,
 )
 
-formuler = ModelMakerNoThinking()
+formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
-
-all_models = formuler.formulateHorizon(length=conf.T)
-ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
+cycles = [Support.DOUBLE for i in range(conf.T)]
+all_models = formuler.formulateHorizon(supports=cycles,experiment=Experiment.WWT_STAIRS)
+ter_model = formuler.formulateTerminalWWT(Support.DOUBLE,True)
 
 # Horizon
 H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
@@ -190,7 +189,7 @@ mpc.initialize(
     design.get_v0Complete(),
     "actuationTask",
 )
-mpc.generateFullWWTHorizon(formuler)
+mpc.generateFullHorizon(formuler,Experiment.WWT_STAIRS)
 print("mpc generated")
 
 # ### SIMULATION LOOP ###

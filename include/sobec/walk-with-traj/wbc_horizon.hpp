@@ -14,7 +14,6 @@
 #include "sobec/walk-with-traj/designer.hpp"
 #include "sobec/walk-with-traj/horizon_manager.hpp"
 #include "sobec/walk-with-traj/model_factory.hpp"
-#include "sobec/walk-without-think/model_factory_nothinking.hpp"
 
 namespace sobec {
 
@@ -103,9 +102,7 @@ class WBCHorizon {
   
   std::vector<Support> generateSupportCycle();
   
-  void generateFullWalkingHorizon(ModelMaker &mm);
-
-  void generateFullWWTHorizon(ModelMakerNoThinking &mm);
+  void generateFullHorizon(ModelMaker &mm, const Experiment &experiment);
 
   bool timeToSolveDDP(int iteration);
 

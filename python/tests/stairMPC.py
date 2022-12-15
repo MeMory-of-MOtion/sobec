@@ -15,7 +15,7 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBCHorizon, HorizonManager, ModelMaker, Flex, Support, LocomotionType
+from sobec import RobotDesigner, WBCHorizon, HorizonManager, ModelMaker, Flex, Support, Experiment, LocomotionType
 import ndcurves
 import numpy as np
 import time
@@ -182,14 +182,26 @@ MM_conf = dict(
     comHeight=conf.normal_height,
     omega=conf.omega,
     footSize=conf.footSize,
+    height = 0,
+    dist = 1,
+    width = 1,
+    flyHighSlope = 1,
+    footMinimalDistance = 0.2,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
     wLimit=conf.wLimit,
+    wVCoM=0,
+    wCoM=0,
     wWrenchCone=conf.wWrenchCone,
     wForceTask=conf.wForceTask,
+    wFootRot=0,
     wCoP = conf.wCoP,
+    wFlyHigh = 0,
+    wVelFoot = 0,
+    wColFeet = 0,
     wDCM = conf.wDCM,
+    wBaseRot = 0,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
     forceWeights = conf.forceWeights,
@@ -201,7 +213,8 @@ MM_conf = dict(
 
 formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
-all_models = formuler.formulateHorizon(length=conf.T)
+cycles = [Support.DOUBLE for i in range(conf.T)]
+all_models = formuler.formulateHorizon(supports=cycles,experiment=Experiment.WALK)
 ter_model = formuler.formulateTerminalStepTracker(Support.DOUBLE)
 
 # Horizon
@@ -255,7 +268,7 @@ mpc.initialize(
     "actuationTask",
 )
 
-mpc.generateFullWalkingHorizon(formuler)
+mpc.generateFullHorizon(formuler,Experiment.WALK)
 
 
 v_axis = [0,0,1]

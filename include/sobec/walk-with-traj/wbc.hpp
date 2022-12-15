@@ -14,7 +14,6 @@
 #include "sobec/walk-with-traj/designer.hpp"
 #include "sobec/walk-with-traj/horizon_manager.hpp"
 #include "sobec/walk-with-traj/model_factory.hpp"
-#include "sobec/walk-without-think/model_factory_nothinking.hpp"
 
 namespace sobec {
 
@@ -118,9 +117,9 @@ class WBC {
 
   void generateStandingCycle(ModelMaker &mm);
 
-  void generateWalkingCycleNoThinking(ModelMakerNoThinking &mm);
+  void generateWalkingCycleNoThinking(ModelMaker &mm);
 
-  void generateStandingCycleNoThinking(ModelMakerNoThinking &mm);
+  void generateStandingCycleNoThinking(ModelMaker &mm);
 
   void updateStepCycleTiming();
 

@@ -84,14 +84,14 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
 	  }
   }
   std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
+  cyclicModels = mm.formulateHorizon(cycle,Experiment::WALK);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
                                  cyclicModels.back());
 }
 
-void WBC::generateWalkingCycleNoThinking(ModelMakerNoThinking &mm) {
+void WBC::generateWalkingCycleNoThinking(ModelMaker &mm) {
   std::vector<Support> cycle;
   
   takeoff_RF_cycle_ = settings_.TdoubleSupport;
@@ -112,7 +112,7 @@ void WBC::generateWalkingCycleNoThinking(ModelMakerNoThinking &mm) {
 	  }
   }
   std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
+  cyclicModels = mm.formulateHorizon(cycle,Experiment::WWT);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   walkingCycle_ = HorizonManager(names, x0_, cyclicModels,
@@ -123,18 +123,18 @@ void WBC::generateStandingCycle(ModelMaker &mm) {
   ///@todo: bind it
   std::vector<Support> cycle(settings_.T, DOUBLE);
   std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
+  cyclicModels = mm.formulateHorizon(cycle,Experiment::WALK);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   standingCycle_ = HorizonManager(names, x0_, cyclicModels,
                                   cyclicModels.back());
 }
 
-void WBC::generateStandingCycleNoThinking(ModelMakerNoThinking &mm) {
+void WBC::generateStandingCycleNoThinking(ModelMaker &mm) {
   ///@todo: bind it
   std::vector<Support> cycle(settings_.T, DOUBLE);
   std::vector<AMA> cyclicModels;
-  cyclicModels = mm.formulateHorizon(cycle);
+  cyclicModels = mm.formulateHorizon(cycle,Experiment::WWT);
   HorizonManagerSettings names = {designer_.get_LF_name(),
                                   designer_.get_RF_name()};
   standingCycle_ = HorizonManager(names, x0_, cyclicModels,

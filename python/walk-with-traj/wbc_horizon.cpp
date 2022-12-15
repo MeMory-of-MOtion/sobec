@@ -86,10 +86,8 @@ void exposeWBCHorizon() {
                bp::return_value_policy<
                    bp::reference_existing_object>()))  //, bp::args("self", "q",
                                                        //"v")
-      .def("generateFullWalkingHorizon", &WBCHorizon::generateFullWalkingHorizon,
-           bp::args("self", "modelMaker"))
-      .def("generateFullWWTHorizon", &WBCHorizon::generateFullWWTHorizon,
-           bp::args("self", "modelMakerNoThinking"))
+      .def("generateFullHorizon", &WBCHorizon::generateFullHorizon,
+           (bp::args("self"), bp::arg("modelMaker"), bp::arg("experiment")))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
            static_cast<void (WBCHorizon::*)(const int, const Eigen::VectorXd &,
