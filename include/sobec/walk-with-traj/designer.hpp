@@ -30,7 +30,7 @@ class RobotDesigner {
   RobotDesignerSettings settings_;
 
   std::vector<unsigned long> controlled_joints_id_;
-  unsigned long leftFootId_, rightFootId_, rootId_;
+  unsigned long leftFootId_, rightFootId_, rootId_, EndEffectorId_;
 
   pinocchio::Model rModelComplete_, rModel_;
   pinocchio::Data rDataComplete_, rData_;
@@ -59,9 +59,13 @@ class RobotDesigner {
   void addToeAndHeel(const double &heel_translation,const double &toe_translation);
   void set_q0(const Eigen::VectorXd &q0);
 
+  void addEndEffectorFrame(std::string endEffectorName, std::string parentName,
+                           pinocchio::SE3 endEffectorPlacement);
+
   const pinocchio::SE3 &get_LF_frame();
   const pinocchio::SE3 &get_RF_frame();
   const pinocchio::SE3 &get_root_frame();
+  const pinocchio::SE3 &get_EndEff_frame();
 
   double getRobotMass();
 
@@ -84,6 +88,7 @@ class RobotDesigner {
   const pinocchio::FrameIndex &get_RF_heel_id() { return heelRightId_; }
   const pinocchio::FrameIndex &get_LF_toe_id() { return toeLeftId_; }
   const pinocchio::FrameIndex &get_RF_toe_id() { return toeRightId_; }
+  const pinocchio::FrameIndex &get_EndEff_id() { return EndEffectorId_; }
   const RobotDesignerSettings &get_settings() { return settings_; }
   const std::vector<unsigned long> &get_controlledJointsIDs() {
     return controlled_joints_id_;

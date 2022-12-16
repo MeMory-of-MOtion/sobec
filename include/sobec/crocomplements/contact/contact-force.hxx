@@ -54,21 +54,30 @@ void ResidualModelContactForceTpl<Scalar>::calc(
       ContactData3DTpl<Scalar>* d3d =
           static_cast<ContactData3DTpl<Scalar>*>(d->contact.get());
       if (d3d->type == pinocchio::LOCAL) {
-        data->r =
-            (d->contact->jMf.rotation().transpose() * d->contact->f.linear() -
-             this->get_reference().linear());
+        data->r = (d->contact->jMf.actInv(d->contact->f).linear() -
+                   this->get_reference().linear());
       } else if (d3d->type == pinocchio::WORLD ||
                  d3d->type == pinocchio::LOCAL_WORLD_ALIGNED) {
-        data->r = (d3d->oRf * d->contact->jMf.rotation().transpose() *
-                       d->contact->f.linear() -
+        data->r = (d3d->oRf * d->contact->jMf.actInv(d->contact->f).linear() -
                    this->get_reference().linear());
       }
       break;
     }
-    case Contact6D:
-      data->r = (d->contact->jMf.actInv(d->contact->f) - this->get_reference())
-                    .toVector();
+    case Contact6D: {
+      ContactData6DTpl<Scalar>* d6d =
+          static_cast<ContactData6DTpl<Scalar>*>(d->contact.get());
+      if (d6d->type == pinocchio::LOCAL) {
+        data->r =
+            (d->contact->jMf.actInv(d->contact->f) - this->get_reference())
+                .toVector();
+      } else if (d6d->type == pinocchio::WORLD ||
+                 d6d->type == pinocchio::LOCAL_WORLD_ALIGNED) {
+        data->r = (d6d->lwaMl.act(d->contact->jMf.actInv(d->contact->f)) -
+                   this->get_reference())
+                      .toVector();
+      }
       break;
+    }
     default:
       break;
   }

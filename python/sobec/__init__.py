@@ -16,6 +16,7 @@ from .sobec_pywrap import (
     ResidualModel2DSurface,
     IntegratedActionModelLPF,
     StateLPF,
+    ContactModel6D,
     ContactModel3D,
     ContactModel1D,
     ContactModelMultiple,

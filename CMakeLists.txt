@@ -72,6 +72,7 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hxx
 	include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hpp
 	include/${PROJECT_NAME}/crocomplements/lowpassfilter/action.hxx
+	include/${PROJECT_NAME}/crocomplements/contact/contact6d.hpp
 	include/${PROJECT_NAME}/crocomplements/contact/contact3d.hpp
 	include/${PROJECT_NAME}/crocomplements/contact/contact1d.hpp
 	include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hpp
@@ -81,6 +82,7 @@ set(${PROJECT_NAME}_HEADERS
 	include/${PROJECT_NAME}/crocomplements/residual-cop.hxx
 	include/${PROJECT_NAME}/crocomplements/residual-feet-collision.hxx
 	include/${PROJECT_NAME}/crocomplements/residual-vel-collision.hxx
+	include/${PROJECT_NAME}/crocomplements/contact/contact6d.hxx
 	include/${PROJECT_NAME}/crocomplements/contact/contact3d.hxx
 	include/${PROJECT_NAME}/crocomplements/contact/contact1d.hxx
 	include/${PROJECT_NAME}/crocomplements/contact/multiple-contacts.hxx

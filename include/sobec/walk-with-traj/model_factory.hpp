@@ -55,10 +55,13 @@ struct ModelMakerSettings {
   double wBaseRot = 0;
   double wVCoM = 0;           // 0;
   double wFootRot = 0;        // 100;
-  double wCoM = 0;
+  double wPCoM = 0;
   double wFlyHigh = 0;
   double wVelFoot = 0;
   double wColFeet = 0;
+  double wGripperPos = 0;
+  double wGripperRot = 0;
+  double wGripperVel = 0;
   
   double flyHighSlope = 2;
   double footMinimalDistance = 0.2;
@@ -95,6 +98,7 @@ class ModelMaker {
                    const bool &stairs = false);
   AMA formulateTerminalWWT(const Support &support = Support::DOUBLE, 
                            const bool &stairs = false);
+  AMA formulatePointingTask();
 
   std::vector<AMA> formulateHorizon(const std::vector<Support> &supports, const Experiment &experiment);
   std::vector<AMA> formulateHorizon(const int &T);
@@ -120,16 +124,19 @@ class ModelMaker {
                      const Support &support = Support::DOUBLE);
   void defineDCMTask(Cost &costCollector, 
                      const Support &support = Support::DOUBLE);
-  void defineCoMVelocity(Cost &costCollector);
   void defineVelFootTask(Cost &costCollector,
                          const Support &support = Support::DOUBLE); 
-  void defineCoMTask(Cost &costCollector);
   void defineFeetRotation(Cost &costCollector); 
   void defineFeetZRotation(Cost &costCollector);
   void defineFootCollisionTask(Cost &costCollector);
   void defineFlyHighTask(Cost &costCollector, 
                           const Support &support = Support::DOUBLE);
                      
+  void defineCoMPosition(Cost &costCollector);
+  void defineCoMVelocity(Cost &costCollector);
+  void defineGripperPlacement(Cost &costCollector);
+  void defineGripperVelocity(Cost &costCollector);
+
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
   void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {
     state_ = new_state;
