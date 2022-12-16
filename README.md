@@ -16,12 +16,7 @@ This is a robot wrapper embedding the model
 #### ModelMaker
 This class produces a `std::vector` of `AbstractModelAction`, it is done using the method `formulateHorizon`.
 
-The method formulates a locomotion problem with user-defined feet reference trajectories. 
-
-#### ModelMakerNoTHinking
-This class produces a horizon, i.e. a `std::vector` of `AbstractModelAction`, built by using the method `formulateHorizon`.
-
-The method formulates a locomotion problem without user-defined feet reference trajectories. The foot lateral velocity is penalized with respect to its distance to the ground or to an obstacle. 
+The class contains all task functions used to formulate a whole-body locomotion problem. 
 
 #### WBC
 This class implements a MPC with a cycle view of locomotion.
@@ -44,10 +39,10 @@ The class previews the entire walking motion into the full horizon at its initia
 
 Python examples running with bullet can be found in 'python/tests folder. 
 
-`cppControlLoop.py` implements a forward walking motion with user-defined feet references.
+`walkMPC.py` implements a forward walking motion with user-defined feet references.
 
 `freeWalkMpc.py` implements a forward walking motion with user-defined terminal CoM position.
 
-`stairCase.py` implements stair climbing with user-defined feet references.
+`stairMPC.py` implements stair climbing with user-defined feet references.
 
 `freeStairsMPC.py` implements stair climbing without user-defined feet references, given only the next desired contact and a velocity height map of the stairs. 
