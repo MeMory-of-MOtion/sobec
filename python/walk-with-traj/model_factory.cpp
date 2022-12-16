@@ -56,7 +56,7 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wControlReg = bp::extract<double>(settings["wControlReg"]);
   conf.wLimit = bp::extract<double>(settings["wLimit"]);
   conf.wVCoM = bp::extract<double>(settings["wVCoM"]);
-  conf.wCoM = bp::extract<double>(settings["wCoM"]);
+  conf.wPCoM = bp::extract<double>(settings["wPCoM"]);
   conf.wWrenchCone = bp::extract<double>(settings["wWrenchCone"]);
   conf.wForceTask = bp::extract<double>(settings["wForceTask"]);
   conf.wVelFoot = bp::extract<double>(settings["wVelFoot"]);
@@ -96,7 +96,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wControlReg"] = conf.wControlReg;
   settings["wLimit"] = conf.wLimit;
   settings["wVCoM"] = conf.wVCoM;
-  settings["wCoM"] = conf.wCoM;
+  settings["wPCoM"] = conf.wPCoM;
   settings["wWrenchCone"] = conf.wWrenchCone;
   settings["wForceTask"] = conf.wForceTask;
   settings["wVelFoot"] = conf.wVelFoot;
@@ -235,10 +235,10 @@ void defineFeetZRotation(ModelMaker &self,
   costCollector = *costs;
 }
 
-void defineCoMTask(ModelMaker &self,
+void defineCoMPosition(ModelMaker &self,
                    crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
-  self.defineCoMTask(costs);
+  self.defineCoMPosition(costs);
   costCollector = *costs;
 }
 
@@ -321,7 +321,7 @@ void exposeModelFactory() {
            bp::args("self", "costCollector"))
       .def("defineFeetZRotation", &defineFeetZRotation,
            bp::args("self", "costCollector"))
-      .def("defineCoMTask", &defineCoMTask,
+      .def("defineCoMPosition", &defineCoMPosition,
            bp::args("self", "costCollector"))
       .def("defineCoMVelocity", &defineCoMVelocity,
            bp::args("self", "costCollector"))

@@ -142,7 +142,7 @@ class conf:
 	wControlReg = 0.001
 	wLimit = 1e3
 	wVCoM = 0
-	wCoM = 1000
+	wPCoM = 1000
 	wWrenchCone = 0.005
 	wFootRot = 10000
 	wCoP = 20
@@ -275,7 +275,7 @@ MM_conf = dict(
     wControlReg=conf.wControlReg,
     wLimit=conf.wLimit,
     wVCoM=conf.wVCoM,
-    wCoM=conf.wCoM,
+    wPCoM=conf.wPCoM,
     wWrenchCone=conf.wWrenchCone,
     wForceTask=0,
     wFootRot=conf.wFootRot,

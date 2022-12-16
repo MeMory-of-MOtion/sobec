@@ -20,6 +20,7 @@
 
 #include "sobec/crocomplements/contact/contact1d.hpp"
 #include "sobec/crocomplements/contact/contact3d.hpp"
+#include "sobec/crocomplements/contact/contact6d.hpp"
 #include "sobec/fwd.hpp"
 
 namespace sobec {

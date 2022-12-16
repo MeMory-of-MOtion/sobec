@@ -164,6 +164,20 @@ void RobotDesigner::updateCompleteModel(const Eigen::VectorXd &x) {
   RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
+void RobotDesigner::addEndEffectorFrame(std::string endEffectorName,
+                                        std::string parentName,
+                                        pinocchio::SE3 endEffectorPlacement) {
+  pinocchio::FrameIndex parentId = rModel_.getFrameId(parentName);
+  pinocchio::Frame parentFrame = rModel_.frames[parentId];
+
+  rModel_.addBodyFrame(endEffectorName, parentFrame.parent,
+                       parentFrame.placement.act(endEffectorPlacement),
+                       (int)parentId);
+
+  EndEffectorId_ = rModel_.getFrameId(endEffectorName);
+  rData_ = pinocchio::Data(rModel_);
+}
+
 const pinocchio::SE3 &RobotDesigner::get_LF_frame() {
   return rData_.oMf[leftFootId_];
 }
@@ -174,6 +188,9 @@ const pinocchio::SE3 &RobotDesigner::get_RF_frame() {
 
 const pinocchio::SE3 &RobotDesigner::get_root_frame() {
   return rData_.oMf[rootId_];
+}
+const pinocchio::SE3 &RobotDesigner::get_EndEff_frame() {
+  return rData_.oMf[EndEffectorId_];
 }
 
 double RobotDesigner::getRobotMass() {
