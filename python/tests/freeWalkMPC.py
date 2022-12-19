@@ -4,7 +4,7 @@ Created on Sat Jun 11 17:42:39 2022
 
 @author: nvilla
 """
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from bullet_Talos import BulletTalos
 from cricket.virtual_talos import VirtualPhysics
@@ -12,7 +12,7 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
-import pinocchio as pin
+# import pinocchio as pin
 import example_robot_data
 from sobec import (
     RobotDesigner,
@@ -22,9 +22,10 @@ from sobec import (
     Flex,
     Support,
     Experiment,
-    FootTrajectory,
+    # FootTrajectory,
 )
-import ndcurves
+
+# import ndcurves
 import numpy as np
 import time
 
@@ -437,21 +438,29 @@ for s in range(T_total * conf.Nc):
         land_RF = mpc.land_RF()[0] if mpc.land_RF() else (-1)
         takeoff_LF = mpc.takeoff_LF()[0] if mpc.takeoff_LF() else (-1)
         takeoff_RF = mpc.takeoff_RF()[0] if mpc.takeoff_RF() else (-1)
-        # print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
+        # print(
+        # "takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ",
+        # str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ",
+        # str(land_LF),
+        # )
 
     start = time.time()
     mpc.iterateNoThinking(s, q_current, v_current)
     end = time.time()
-    """if end-start > 0.01:
-		print(end-start)
-		moyenne += end - start"""
+    """
+    if end - start > 0.01:
+        print(end - start)
+        moyenne += end - start
+    """
     torques = horizon.currentTorques(mpc.x0)
-    """if (s == 100 * 10):
-		for t in range(conf.T):
-			print("t = " + str(t))
-			time.sleep(0.1)
-			device.resetState(mpc.horizon.ddp.xs[t])
-		exit()"""
+    """
+    if s == 100 * 10:
+        for t in range(conf.T):
+            print("t = " + str(t))
+            time.sleep(0.1)
+            device.resetState(mpc.horizon.ddp.xs[t])
+        exit()
+    """
     if conf.simulator == "bullet":
         device.execute(torques)
         q_current, v_current = device.measureState()
@@ -462,7 +471,7 @@ for s in range(T_total * conf.Nc):
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
 
-        ######## Generating the forces ########## TODO: cast it in functions.
+        # ####### Generating the forces ########## TODO: cast it in functions.
 
         LW = mpc.horizon.pinData(0).f[2].linear
         RW = mpc.horizon.pinData(0).f[8].linear

@@ -4,18 +4,19 @@ Created on Sat Jun 11 17:42:39 2022
 
 @author: nvilla
 """
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-from bullet_Talos import BulletTalos
+# from bullet_Talos import BulletTalos
 
 # from cricket.virtual_talos import VirtualPhysics
 
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
-import pinocchio as pin
-from sobec import RobotDesigner, WBC, HorizonManager, ModelMaker, Flex, Support
-import ndcurves
+# import pinocchio as pin
+from sobec import RobotDesigner, HorizonManager, ModelMaker, Support
+
+# import ndcurves
 import numpy as np
 import time
 import example_robot_data

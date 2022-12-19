@@ -9,7 +9,8 @@ import pybullet_data
 import pybullet as p  # PyBullet simulator
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-import os
+
+# import os
 
 
 class BulletTalos:

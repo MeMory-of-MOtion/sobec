@@ -14,7 +14,7 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
-import pinocchio as pin
+# import pinocchio as pin
 from sobec import (
     RobotDesigner,
     WBCHorizon,
@@ -22,14 +22,15 @@ from sobec import (
     ModelMaker,
     Support,
     Experiment,
-    LocomotionType,
+    # LocomotionType,
     Flex,
 )
 import ndcurves
 import numpy as np
 import time
 import os
-from scipy.spatial.transform import Rotation as R
+
+# from scipy.spatial.transform import Rotation as R
 
 # from flex_joints import Flex
 
@@ -135,7 +136,7 @@ def defineBezier(height, time_init, time_final, placement_init, placement_final)
 
 def foot_trajectory(T, time_to_land, initial_pose, final_pose, trajectory_swing):
     """Functions to generate steps."""
-    tmax = conf.TsingleSupport
+    # tmax = conf.TsingleSupport
     landing_advance = 0
     takeoff_delay = 0
     placement = []
@@ -358,7 +359,7 @@ ref_pose_left = [swing_trajectory_left for i in range(conf.T)]
 
 T_total = conf.total_steps * conf.Tstep + 4 * conf.T
 
-### Save trajectory in npz file
+# ## Save trajectory in npz file
 xss = []
 uss = []
 LF_pose = []
@@ -503,7 +504,7 @@ for s in range(5 * T_total * conf.Nc):
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
 
-        ######## Generating the forces ########## TODO: cast it in functions.
+        # ####### Generating the forces ########## TODO: cast it in functions.
 
         # LW = mpc.horizon.pinData(0).f[2].linear
         # RW = mpc.horizon.pinData(0).f[8].linear
@@ -532,6 +533,8 @@ for s in range(5 * T_total * conf.Nc):
             # if s == 0:
             # stop
 
-# save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force, save_name="trajectories_xs_us")
+# save_trajectory(
+# xss, uss, LF_pose, RF_pose, LF_force, RF_force, save_name="trajectories_xs_us"
+# )
 if conf.simulator == "bullet":
     device.close()

@@ -4,6 +4,8 @@ Created on Sat Jun 11 17:42:39 2022
 
 @author: nvilla
 """
+import os.path
+from math import sqrt
 import matplotlib.pyplot as plt
 
 import configurationStair as conf
@@ -14,7 +16,7 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
-import pinocchio as pin
+# import pinocchio as pin
 from sobec import (
     RobotDesigner,
     WBCHorizon,
@@ -23,12 +25,13 @@ from sobec import (
     Flex,
     Support,
     Experiment,
-    LocomotionType,
+    # LocomotionType,
 )
 import ndcurves
 import numpy as np
 import time
-from scipy.spatial.transform import Rotation as R
+
+# from scipy.spatial.transform import Rotation as R
 
 DEFAULT_SAVE_DIR = "/local/src/sobec/python/tests"
 
@@ -132,7 +135,7 @@ def defineBezier(height, time_init, time_final, placement_init, placement_final)
 
 def foot_trajectory(T, time_to_land, initial_pose, final_pose, trajectory_swing):
     """Functions to generate steps."""
-    tmax = conf.TsingleSupport
+    # tmax = conf.TsingleSupport
     landing_advance = 0
     takeoff_delay = 0
     placement = []
@@ -368,7 +371,7 @@ ref_pose_left = [swing_trajectory_left for i in range(conf.T)]
 
 T_total = conf.total_steps * conf.Tstep + 4 * conf.T
 
-### Save trajectory in npz file
+# ## Save trajectory in npz file
 xss = []
 uss = []
 LF_pose = []
@@ -398,7 +401,11 @@ for s in range(T_total * conf.Nc):
         land_RF = mpc.land_RF()[0] if mpc.land_RF() else (-1)
         takeoff_LF = mpc.takeoff_LF()[0] if mpc.takeoff_LF() else (-1)
         takeoff_RF = mpc.takeoff_RF()[0] if mpc.takeoff_RF() else (-1)
-        # print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
+        # print(
+        # "takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ",
+        # str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ",
+        # str(land_LF),
+        # )
 
         if land_RF == 0:
             steps += 1
@@ -488,7 +495,7 @@ for s in range(T_total * conf.Nc):
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
 
-        ######## Generating the forces ########## TODO: cast it in functions.
+        # ####### Generating the forces ########## TODO: cast it in functions.
 
         LW = mpc.horizon.pinData(0).f[2].linear
         RW = mpc.horizon.pinData(0).f[8].linear
@@ -517,6 +524,8 @@ for s in range(T_total * conf.Nc):
             # if s == 0:
             # stop
 
-# save_trajectory(xss,uss,LF_pose,RF_pose,LF_force,RF_force, save_name="trajectories_xs_us")
+# save_trajectory(
+# xss, uss, LF_pose, RF_pose, LF_force, RF_force, save_name="trajectories_xs_us"
+# )
 if conf.simulator == "bullet":
     device.close()
