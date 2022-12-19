@@ -28,10 +28,13 @@ struct CostModelTypes {
     CostModelResidualControl,
     CostModelResidualCoMPosition,
     CostModelResidualCoMVelocity,
-    CostModelResidualFlyHigh,
+    // CostModelResidualFlyAngle,
+    // CostModelResidualFlyHigh,
+    CostModelResidual2DSurface,
     CostModelResidualFramePlacement,
     CostModelResidualFrameRotation,
     CostModelResidualFrameTranslation,
+    // CostModelResidualDCMPosition,
     CostModelResidualFrameVelocity,
     NbCostModelTypes
   };

@@ -19,8 +19,6 @@ modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
 blocked_joints = [
     "universe",
-    # "torso_1_joint",
-    # "torso_2_joint",
     "arm_left_1_joint",
     "arm_left_2_joint",
     "arm_left_3_joint",
@@ -42,20 +40,19 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 2
+total_steps = 4
 DT = 1e-2  # Time step of the DDP
-T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 100  # Double support time  # TODO: (check with 20)
-TsingleSupport = 100  # Single support time
-
-Tstep = TsingleSupport + TdoubleSupport
-
+T = 150  # Time horizon of the DDP (number of nodes)
+TdoubleSupport = 50  # Double support time  # TODO: (check with 20)
+TsingleSupport = 150  # Single support time
 simu_step = simu_period = 1e-3  #
 
 Nc = int(round(DT / simu_step))  # Number of control knots per planification timestep
 
 # TODO: landing_advance and takeoff_delay are missing
 ddpIteration = 1  # Number of DDP iterations
+
+Tstep = TsingleSupport + TdoubleSupport
 
 # #### PHYSICS #####
 
@@ -70,8 +67,8 @@ gravity = np.array([0, 0, -9.81])
 mu = 0.3
 footSize = 0.05
 cone_box = np.array([0.1, 0.05])
-minNforce = 100
-maxNforce = 1500  # This may be still too low
+minNforce = 150
+maxNforce = 1200  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
@@ -107,17 +104,23 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 
 flexToJoint = np.array([0, 0, 0.09])
 
+
 # ###### WALKING GEOMETRY #########
-xForward = 0.0  # step size
-sidestep = 0.0
-swingApex = 0.2  # foot height
-footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
-footPenetration = 0.0  # foot penetration in the ground
+footMinimalDistance = 0.2
+flyHighSlope = 300
+height = 0.1
+dist = 0.17
+width = 100
+
+heelTranslation = 0.1
+toeTranslation = 0.1
 
 normal_height = 0.87
 omega = np.sqrt(-gravity[2] / normal_height)
 
+
 # ##### CROCO - CONFIGURATION ########
+typeOfCommand = 1  # 0 for StepTracker, 1 for NonThinking
 # relevant frame names
 
 rightFoot = rf_frame_name = "leg_right_sole_fix_joint"
@@ -126,23 +129,29 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 
 # Weights for all costs
 
-wFootPlacement = 10000
+wFootPlacement = 100
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wWrenchCone = 1  # 0.05
-wForceTask = 0
-wCoP = 10
+wVCoM = 0
+wPCoM = 0
+wWrenchCone = 0.005
+wFootRot = 10000
+wCoP = 20
+wFlyHigh = 50000
+wVelFoot = 1000
+wColFeet = 3000
 wDCM = 0
+wBaseRot = 200
 
-weightBasePos = [0, 0, 0, 100, 100, 0]  # [x, y, z| x, y, z]
-weightBaseVel = [10, 10, 10, 10, 10, 10]  # [x, y, z| x, y, z]
-weightLegPos = [1, 10, 10, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
+weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
+weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
+weightLegPos = [0.1, 0.1, 0.1, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
-weightArmPos = [0.01, 100, 1, 0.1]  # [z, x, z, y, z, x, y]
-weightArmVel = [1, 100, 1, 1]  # [z, x, z, y, z, x, y]
-weightTorsoPos = [10, 5]  # [z, y]
-weightTorsoVel = [10, 5]  # [z, y]
+weightArmPos = [10, 10, 10, 10]  # [z, x, z, y, z, x, y]
+weightArmVel = [100, 100, 100, 100]  # [z, x, z, y, z, x, y]
+weightTorsoPos = [5, 5]  # [z, y]
+weightTorsoVel = [5, 5]  # [z, y]
 stateWeights = np.array(
     weightBasePos
     + weightLegPos * 2
@@ -156,7 +165,7 @@ stateWeights = np.array(
 
 weightuBase = "not actuated"
 weightuLeg = [1, 1, 1, 1, 1, 1]
-weightuArm = [1, 1, 1, 1]
+weightuArm = [10, 10, 10, 10]
 weightuTorso = [1, 1]
 controlWeight = np.array(
     weightuLeg * 2
@@ -164,8 +173,8 @@ controlWeight = np.array(
     # + weightuArm * 2
 )
 
-forceWeights = np.array([1, 1, 1, 1, 1, 1])
 
+forceWeights = np.array([1, 1, 1, 10, 10, 10])
 lowKinematicLimits = np.array(
     [
         -0.35,

@@ -45,8 +45,8 @@ blocked_joints = [
 total_steps = 2
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 100  # Double support time  # TODO: (check with 20)
-TsingleSupport = 100  # Single support time
+TdoubleSupport = 30  # Double support time  # TODO: (check with 20)
+TsingleSupport = 70  # Single support time
 
 Tstep = TsingleSupport + TdoubleSupport
 
@@ -75,7 +75,7 @@ maxNforce = 1500  # This may be still too low
 
 planned_push = [[(0, 10000 * simu_period)], [np.zeros(6)], ["base_link"]]
 
-model_name = "talos"  #
+model_name = "talos"  # _flex
 
 # Flexibility Parameters
 compensate_deflections = True
@@ -108,14 +108,15 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 flexToJoint = np.array([0, 0, 0.09])
 
 # ###### WALKING GEOMETRY #########
-xForward = 0.0  # step size
+xForward = 0.3  # step size
 sidestep = 0.0
-swingApex = 0.2  # foot height
+swingApex = 0.4  # foot height
 footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
-footPenetration = 0.0  # foot penetration in the ground
+footHeight = 0.08  # foot penetration in the ground
 
 normal_height = 0.87
 omega = np.sqrt(-gravity[2] / normal_height)
+
 
 # ##### CROCO - CONFIGURATION ########
 # relevant frame names
@@ -158,6 +159,7 @@ weightuBase = "not actuated"
 weightuLeg = [1, 1, 1, 1, 1, 1]
 weightuArm = [1, 1, 1, 1]
 weightuTorso = [1, 1]
+forceWeights = np.array([1, 1, 1, 1, 1, 1])
 controlWeight = np.array(
     weightuLeg * 2
     + weightuTorso

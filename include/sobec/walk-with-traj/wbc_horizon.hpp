@@ -1,5 +1,5 @@
-#ifndef SOBEC_WBC
-#define SOBEC_WBC
+#ifndef SOBEC_WBC_HORIZON
+#define SOBEC_WBC_HORIZON
 
 #include <pinocchio/fwd.hpp>
 
@@ -19,11 +19,8 @@ namespace sobec {
 
 /// @todo: in order to switch between locomotions safely, incorporate a terminal
 /// constraint
-/// @todo: bind these enumerations
-enum LocomotionType { WALKING, STANDING };
-enum supportSwitch { NO_SWITCH, LAND_LF, LAND_RF, TAKEOFF_LF, TAKEOFF_RF };
 
-struct WBCSettings {
+struct WBCHorizonSettings {
   ///@todo: add the cost names as setting parameters.
  public:
   // timing
@@ -37,9 +34,12 @@ struct WBCSettings {
   double Dt = 1e-2;
   double simu_step = 1e-3;
 
+  double min_force = 150;
+  double support_force = 1000;
+
   int Nc = (int)round(Dt / simu_step);
 };
-class WBC {
+class WBCHorizon {
   /**
    * Form to use this class:
    * 1) The function iterate produces the torques to command.
@@ -48,11 +48,10 @@ class WBC {
    */
 
  protected:
-  WBCSettings settings_;
+  WBCHorizonSettings settings_;
   RobotDesigner designer_;
   HorizonManager horizon_;
-  HorizonManager walkingCycle_;
-  HorizonManager standingCycle_;
+  HorizonManager fullHorizon_;
 
   eVector3 ref_com_vel_;
   eVector3 ref_com_;
@@ -61,15 +60,12 @@ class WBC {
 
   Eigen::VectorXd x0_;
 
-  LocomotionType now_ = WALKING;
-  int nWalkingCycles_;
+  int horizon_iteration_;
   double yaw_left_;
   double yaw_right_;
 
   // timings
   std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;
-
-  int takeoff_RF_cycle_, takeoff_LF_cycle_, land_RF_cycle_, land_LF_cycle_;
 
   // INTERNAL UPDATING functions
   void updateStepTrackerReferences();
@@ -81,47 +77,33 @@ class WBC {
 
   // Security management
   bool initialized_ = false;
-  void rewindWalkingCycle();
 
   // Memory preallocations:
   std::vector<unsigned long> controlled_joints_id_;
   Eigen::VectorXd x_internal_;
   bool time_to_solve_ddp_ = false;
-  bool first_switch_to_stand_ = true;
-  std::set<std::string> contacts_before_, contacts_after_;
-  supportSwitch switch_;
-  int horizon_end_;
 
  public:
-  WBC();
-  WBC(const WBCSettings &settings, const RobotDesigner &design,
-      const HorizonManager &horizon, const Eigen::VectorXd &q0,
-      const Eigen::VectorXd &v0, const std::string &actuationCostName);
+  WBCHorizon();
+  WBCHorizon(const WBCHorizonSettings &settings, const RobotDesigner &design,
+             const HorizonManager &horizon, const Eigen::VectorXd &q0,
+             const Eigen::VectorXd &v0, const std::string &actuationCostName);
 
-  void initialize(const WBCSettings &settings, const RobotDesigner &design,
-                  const HorizonManager &horizon, const Eigen::VectorXd &q0,
-                  const Eigen::VectorXd &v0,
+  void initialize(const WBCHorizonSettings &settings,
+                  const RobotDesigner &design, const HorizonManager &horizon,
+                  const Eigen::VectorXd &q0, const Eigen::VectorXd &v0,
                   const std::string &actuationCostName);
 
-  void initializeSupportTiming();
-
   void updateSupportTiming();
-
-  const supportSwitch &getSwitches(const unsigned long before,
-                                   const unsigned long after);
 
   const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
                                     const Eigen::VectorXd &v);
 
-  void generateWalkingCycle(ModelMaker &mm);
+  void setForceAlongHorizon();
 
-  void generateStandingCycle(ModelMaker &mm);
+  std::vector<Support> generateSupportCycle();
 
-  void generateWalkingCycleNoThinking(ModelMaker &mm);
-
-  void generateStandingCycleNoThinking(ModelMaker &mm);
-
-  void updateStepCycleTiming();
+  void generateFullHorizon(ModelMaker &mm, const Experiment &experiment);
 
   bool timeToSolveDDP(int iteration);
 
@@ -135,25 +117,22 @@ class WBC {
 
   void iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
                          const Eigen::VectorXd &v_current, bool is_feasible);
-
+  void iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
+                                  const Eigen::VectorXd &v_current,
+                                  bool contact_left, bool contact_right,
+                                  bool is_feasible);
   void recedeWithCycle();
-  void recedeWithCycle(HorizonManager &cycle);
   void goToNextDoubleSupport();
 
   // getters and setters
-  WBCSettings &get_settings() { return settings_; }
+  WBCHorizonSettings &get_settings() { return settings_; }
 
   const Eigen::VectorXd &get_x0() const { return x0_; }
   void set_x0(const Eigen::VectorXd &x0) { x0_ = x0; }
 
-  HorizonManager &get_walkingCycle() { return walkingCycle_; }
-  void set_walkingCycle(const HorizonManager &walkingCycle) {
-    walkingCycle_ = walkingCycle;
-  }
-
-  HorizonManager &get_standingCycle() { return standingCycle_; }
-  void set_standingCycle(const HorizonManager &standingCycle) {
-    standingCycle_ = standingCycle;
+  HorizonManager &get_fullHorizon() { return fullHorizon_; }
+  void set_fullHorizon(const HorizonManager &fullHorizon) {
+    fullHorizon_ = fullHorizon;
   }
 
   HorizonManager &get_horizon() { return horizon_; }
@@ -167,10 +146,7 @@ class WBC {
   const std::vector<int> &get_takeoff_LF() { return takeoff_LF_; }
   const std::vector<int> &get_takeoff_RF() { return takeoff_RF_; }
 
-  const int &get_land_LF_cycle() { return land_LF_cycle_; }
-  const int &get_land_RF_cycle() { return land_RF_cycle_; }
-  const int &get_takeoff_LF_cycle() { return takeoff_LF_cycle_; }
-  const int &get_takeoff_RF_cycle() { return takeoff_RF_cycle_; }
+  const int &get_horizon_iteration() { return horizon_iteration_; }
 
   // USER REFERENCE SETTERS AND GETTERS
   const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
@@ -205,6 +181,7 @@ class WBC {
 
   const eVector3 &getVelRef_COM() { return ref_com_vel_; }
   void setVelRef_COM(eVector3 ref_com_vel) { ref_com_vel_ = ref_com_vel; }
+  bool horizonEnd() { return horizon_iteration_ == fullHorizon_.size(); }
 
   // For the python bindings:
   std::vector<pinocchio::SE3> &ref_LF_poses() { return ref_LF_poses_; }
@@ -212,11 +189,7 @@ class WBC {
   eVector3 &ref_com() { return ref_com_; }
   Eigen::Matrix3d &ref_base_rot() { return ref_base_rotation_; }
   eVector3 &ref_com_vel() { return ref_com_vel_; }
-
-  void switchToWalk() { now_ = WALKING; }
-  void switchToStand() { now_ = STANDING; }
-  LocomotionType currentLocomotion() { return now_; }
 };
 }  // namespace sobec
 
-#endif  // SOBEC_OCP
+#endif  // SOBEC_WBC_HORIZON

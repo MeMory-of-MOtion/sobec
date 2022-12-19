@@ -42,15 +42,28 @@ IAM HorizonManager::iam(const unsigned long time) {
       ama(time));
 }
 
+IAM HorizonManager::terminaliam() {
+  return boost::static_pointer_cast<crocoddyl::IntegratedActionModelEuler>(
+      ddp_->get_problem()->get_terminalModel());
+}
+
 DAM HorizonManager::dam(const unsigned long time) {
   return boost::static_pointer_cast<
       crocoddyl::DifferentialActionModelContactFwdDynamics>(
       iam(time)->get_differential());
 }
 
+DAM HorizonManager::terminaldam() {
+  return boost::static_pointer_cast<
+      crocoddyl::DifferentialActionModelContactFwdDynamics>(
+      terminaliam()->get_differential());
+}
+
 Cost HorizonManager::costs(const unsigned long time) {
   return dam(time)->get_costs();
 }
+
+Cost HorizonManager::terminalCosts() { return terminaldam()->get_costs(); }
 
 Contact HorizonManager::contacts(const unsigned long time) {
   return dam(time)->get_contacts();
@@ -63,6 +76,16 @@ ADA HorizonManager::ada(const unsigned long time) {
 IAD HorizonManager::iad(const unsigned long time) {
   return boost::static_pointer_cast<crocoddyl::IntegratedActionDataEuler>(
       ada(time));
+}
+
+DAD HorizonManager::dad(const unsigned long time) {
+  return boost::static_pointer_cast<
+      crocoddyl::DifferentialActionDataContactFwdDynamics>(
+      iad(time)->differential);
+}
+
+pinocchio::Data HorizonManager::pinData(const unsigned long time) {
+  return dad(time)->pinocchio;
 }
 
 boost::shared_ptr<crocoddyl::StateMultibody> HorizonManager::state(
@@ -125,19 +148,72 @@ void HorizonManager::setActuationReference(const unsigned long time,
       ->set_reference(reference);
 }
 
-void HorizonManager::setPoseReferenceLF(const unsigned long time,
-                                        const std::string &nameCostLF,
-                                        const pinocchio::SE3 &ref_placement) {
+Eigen::VectorXd HorizonManager::getActuationReference(
+    const unsigned long time, const std::string &nameCostActuation) {
+  return boost::static_pointer_cast<crocoddyl::ResidualModelControl>(
+             costs(time)
+                 ->get_costs()
+                 .at(nameCostActuation)
+                 ->cost->get_residual())
+      ->get_reference();
+}
+
+void HorizonManager::setPoseReference(const unsigned long time,
+                                      const std::string &nameCost,
+                                      const pinocchio::SE3 &ref_placement) {
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
-      costs(time)->get_costs().at(nameCostLF)->cost->get_residual())
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
       ->set_reference(ref_placement);
 }
-///@todo:fuse these two functions and any other redundant funtion.
-void HorizonManager::setPoseReferenceRF(const unsigned long time,
-                                        const std::string &nameCostRF,
-                                        const pinocchio::SE3 &ref_placement) {
+
+void HorizonManager::setRotationReference(const unsigned long time,
+                                          const std::string &nameCost,
+                                          const Eigen::Matrix3d &ref_rotation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameRotation>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_rotation);
+}
+
+void HorizonManager::setTerminalRotationReference(
+    const std::string &nameCost, const Eigen::Matrix3d &ref_rotation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameRotation>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_rotation);
+}
+
+void HorizonManager::setTranslationReference(const unsigned long time,
+                                             const std::string &nameCost,
+                                             const eVector3 &ref_translation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameTranslation>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_translation);
+}
+
+void HorizonManager::setTerminalPoseReference(
+    const std::string &nameCost, const pinocchio::SE3 &ref_placement) {
   boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
-      costs(time)->get_costs().at(nameCostRF)->cost->get_residual())
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_placement);
+}
+
+void HorizonManager::setTerminalDCMReference(const std::string &nameCost,
+                                             const eVector3 &ref_translation) {
+  boost::static_pointer_cast<sobec::ResidualModelDCMPosition>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_translation);
+}
+
+void HorizonManager::setTerminalTranslationReference(
+    const std::string &nameCost, const eVector3 &ref_translation) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelFrameTranslation>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_translation);
+}
+
+void HorizonManager::setTerminalPoseCoM(const std::string &nameCost,
+                                        const eVector3 &ref_placement) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelCoMPosition>(
+      terminalCosts()->get_costs().at(nameCost)->cost->get_residual())
       ->set_reference(ref_placement);
 }
 
@@ -150,6 +226,17 @@ const pinocchio::SE3 &HorizonManager::getFootPoseReference(
   return pose_;
 }
 
+const pinocchio::SE3 &HorizonManager::getTerminalFootPoseReference(
+    const std::string &nameCostFootPose) {
+  pose_ = boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
+              terminalCosts()
+                  ->get_costs()
+                  .at(nameCostFootPose)
+                  ->cost->get_residual())
+              ->get_reference();
+  return pose_;
+}
+
 void HorizonManager::setVelocityRefCOM(const unsigned long time,
                                        const std::string &nameCost,
                                        const eVector3 &ref_velocity) {
@@ -158,26 +245,39 @@ void HorizonManager::setVelocityRefCOM(const unsigned long time,
       ->set_reference(ref_velocity);
 }
 
-void HorizonManager::setForceReferenceLF(const unsigned long time,
-                                         const std::string &nameCostLF,
-                                         const eVector6 &reference) {
-  cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
-      costs(time)->get_costs().at(nameCostLF)->cost);
-  new_ref_ =
-      boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(
-          cone_->get_residual())
-          ->get_reference()
-          .get_A() *
-      reference;
-  boost::static_pointer_cast<ActivationModelQuadRef>(cone_->get_activation())
-      ->set_reference(new_ref_);
+void HorizonManager::setVelocityRefFeet(const unsigned long time,
+                                        const std::string &nameCost,
+                                        const pinocchio::Motion &ref_velocity) {
+  boost::static_pointer_cast<sobec::ResidualModelFrameVelocity>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_reference(ref_velocity);
 }
 
-void HorizonManager::setForceReferenceRF(const unsigned long time,
-                                         const std::string &nameCostRF,
-                                         const eVector6 &reference) {
+void HorizonManager::setSurfaceInequality(const unsigned long time,
+                                          const std::string &nameCost,
+                                          const eVector2 &XYpose,
+                                          const double &orientation) {
+  boost::static_pointer_cast<sobec::ResidualModel2DSurface>(
+      costs(time)->get_costs().at(nameCost)->cost->get_residual())
+      ->set_Ab(XYpose, orientation);
+}
+
+void HorizonManager::setForceReference(const unsigned long time,
+                                       const std::string &nameCost,
+                                       const eVector6 &reference) {
+  force_cost_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
+      costs(time)->get_costs().at(nameCost)->cost);
+  force_ = pinocchio::Force(reference);
+  boost::static_pointer_cast<crocoddyl::ResidualModelContactForce>(
+      force_cost_->get_residual())
+      ->set_reference(force_);
+}
+
+void HorizonManager::setWrenchReference(const unsigned long time,
+                                        const std::string &nameCost,
+                                        const eVector6 &reference) {
   cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(
-      costs(time)->get_costs().at(nameCostRF)->cost);
+      costs(time)->get_costs().at(nameCost)->cost);
   new_ref_ =
       boost::static_pointer_cast<crocoddyl::ResidualModelContactWrenchCone>(
           cone_->get_residual())
@@ -194,7 +294,7 @@ void HorizonManager::setSwingingLF(const unsigned long time,
                                    const std::string &nameForceCostLF) {
   removeContactLF(time, nameContactLF);
   activateContactRF(time, nameContactRF);
-  setForceReferenceLF(time, nameForceCostLF, eVector6::Zero());
+  setWrenchReference(time, nameForceCostLF, eVector6::Zero());
 }
 
 void HorizonManager::setSwingingRF(const unsigned long time,
@@ -203,7 +303,7 @@ void HorizonManager::setSwingingRF(const unsigned long time,
                                    const std::string &nameForceCostRF) {
   activateContactLF(time, nameContactLF);
   removeContactRF(time, nameContactRF);
-  setForceReferenceRF(time, nameForceCostRF, eVector6::Zero());
+  setWrenchReference(time, nameForceCostRF, eVector6::Zero());
 }
 
 void HorizonManager::setDoubleSupport(const unsigned long time,
@@ -215,21 +315,20 @@ void HorizonManager::setDoubleSupport(const unsigned long time,
 
 const eVector3 &HorizonManager::getFootForce(
     const unsigned long time, const std::string &nameFootForceCost) {
-  foot_force_ =
-      boost::static_pointer_cast<crocoddyl::ResidualDataContactWrenchCone>(
-          boost::static_pointer_cast<
-              crocoddyl::DifferentialActionDataContactFwdDynamics>(
-              iad(time)->differential)
-              ->costs->costs.find(nameFootForceCost)
-              ->second->residual)
-          ->contact->f.linear();
+  foot_force_ = boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
+                    boost::static_pointer_cast<
+                        crocoddyl::DifferentialActionDataContactFwdDynamics>(
+                        iad(time)->differential)
+                        ->costs->costs.find(nameFootForceCost)
+                        ->second->residual)
+                    ->contact->f.linear();
   return foot_force_;
 }
 
 const eVector3 &HorizonManager::getFootTorque(
     const unsigned long time, const std::string &nameFootForceCost) {
   foot_torque_ =
-      boost::static_pointer_cast<crocoddyl::ResidualDataContactWrenchCone>(
+      boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
           boost::static_pointer_cast<
               crocoddyl::DifferentialActionDataContactFwdDynamics>(
               iad(time)->differential)

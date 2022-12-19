@@ -8,6 +8,9 @@ set(${PY_NAME}_SOURCES
     crocomplements/residual-center-of-friction.cpp
     crocomplements/residual-feet-collision.cpp
     crocomplements/residual-fly-high.cpp
+    crocomplements/residual-fly-angle.cpp
+    crocomplements/residual-dcm-position.cpp
+    crocomplements/residual-2D-surface.cpp
     crocomplements/activation-quad-ref.cpp
     crocomplements/lowpassfilter/action.cpp
     crocomplements/lowpassfilter/state.cpp
@@ -21,6 +24,8 @@ set(${PY_NAME}_SOURCES
     walk-with-traj/horizon_manager.cpp
     walk-with-traj/model_factory.cpp
     walk-with-traj/wbc.cpp
+    walk-with-traj/wbc_horizon.cpp
+    walk-with-traj/foot_trajectory.cpp
     walk-without-think/ocp.cpp
     walk-without-think/mpc.cpp)
 

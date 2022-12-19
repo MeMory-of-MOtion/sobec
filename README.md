@@ -11,25 +11,38 @@ Minimal python version: 3.6
 ## Current state of the MPC, Classes:
 
 #### RobotDesigner
-it is a robot wrapper (After, it will be called RobotWrapper)
+This is a robot wrapper embedding the model
 
 #### ModelMaker
 This class produces a `std::vector` of `AbstractModelAction`, it is done using the method `formulateHorizon`.
 
-There is only one formulation implemented right now, specified on the method `formulateStepTracker`, it would be good to incorporate the other formulations in new methods such as `formulateStairClimber` or `formulateWithoutThinking`. Reuse the contacts and costs methods that are already made (with names starting by `define...`).
-
-Once new formulations are made, it would be good to have a name based selector in the method `formulateHorizon`.
-
-#### HorizonManager
-it is the OCP (After, it will be called OCP)
-
-It receives a vector of `AbstractModelActions` (created by the ModelMaker) and provides methods to deal with the `ddp` object of crocoddyl.
+The class contains all task functions used to formulate a whole-body locomotion problem.
 
 #### WBC
-it is the MPC (After it will be called MPC)
+This class implements a MPC with a cycle view of locomotion.
 
-It provides the method iterate that receives the measured state and returns the joint torques that should be commanded in the robot.
-All previous classes are used here.
+It defines three horizon objects: the MPC horizon, the walking cycle horizon and the standing cycle horizon.
+At each control cycle, the first walking cycle horizon node is fed to the end of the MPC horizon. When the walking cycle comes to an end, it is rewinded.
+When the user wants to stop the locomotion, they can do so at any time by simply updating the LocomotionType variable from WALKING to STANDING.
+The standing cycle will then be fed to the MPC horizon.
 
-#### MainControlLoop
-It is missing, this script should instantiate the WBC and computes the control in a loop with ros.
+The WBC class provides the method `iterate` that receives the measured state and returns the joint torques that should be commanded to the robot.
+
+#### WBCHorizon
+This class implements a MPC with a longterm view of horizon.
+
+It defines two horizon objects: the MPC horizon and the full horizon.
+At each control cycle, the first node of the full horizon is fed to the end of the MPC horizon. When the full horizon comes to an end, the process stops.
+The class previews the entire walking motion into the full horizon at its initialization. It also sets up the wrench references for contact transition at initialization.
+
+#### Examples
+
+Python examples running with bullet can be found in 'python/tests folder.
+
+`walkMPC.py` implements a forward walking motion with user-defined feet references.
+
+`freeWalkMpc.py` implements a forward walking motion with user-defined terminal CoM position.
+
+`stairMPC.py` implements stair climbing with user-defined feet references.
+
+`freeStairsMPC.py` implements stair climbing without user-defined feet references, given only the next desired contact and a velocity height map of the stairs.

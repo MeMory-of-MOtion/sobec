@@ -8,7 +8,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include <sobec/walk-with-traj/wbc.hpp>
+#include <sobec/walk-with-traj/wbc_horizon.hpp>
 
 #include "sobec/fwd.hpp"
 
@@ -16,11 +16,11 @@ namespace sobec {
 namespace python {
 namespace bp = boost::python;
 
-void initialize(WBC &self, const bp::dict &settings,
+void initialize(WBCHorizon &self, const bp::dict &settings,
                 const RobotDesigner &designer, const HorizonManager &horizon,
                 const Eigen::VectorXd &q0, const Eigen::VectorXd &v0,
                 const std::string &actuationCostName) {
-  WBCSettings conf;
+  WBCHorizonSettings conf;
 
   conf.totalSteps = bp::extract<int>(settings["totalSteps"]);
   conf.T = bp::extract<int>(settings["T"]);
@@ -30,6 +30,8 @@ void initialize(WBC &self, const bp::dict &settings,
   conf.ddpIteration = bp::extract<int>(settings["ddpIteration"]);
   conf.Dt = bp::extract<double>(settings["Dt"]);
   conf.simu_step = bp::extract<double>(settings["simu_step"]);
+  conf.min_force = bp::extract<double>(settings["min_force"]);
+  conf.support_force = bp::extract<double>(settings["support_force"]);
   conf.Nc = bp::extract<int>(settings["Nc"]);
 
   self.initialize(conf, designer, horizon, q0, v0, actuationCostName);
@@ -56,14 +58,11 @@ std::string displayVector(std::vector<T> &self) {
   return oss.str();
 }
 
-bool timeToSolveDDP(WBC &self, const int iteration) {
+bool timeToSolveDDP(WBCHorizon &self, const int iteration) {
   return self.timeToSolveDDP(iteration);
 }
 
-void exposeWBC() {
-  bp::enum_<LocomotionType>("LocomotionType")
-      .value("WALKING", LocomotionType::WALKING)
-      .value("STANDING", LocomotionType::STANDING);
+void exposeWBCHorizon() {
   bp::class_<std::vector<pinocchio::SE3>>("vector_pinocchio_se3_")
       .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3>>())
       .def("__init__",
@@ -75,7 +74,7 @@ void exposeWBC() {
       .def("__init__", make_constructor(constructVectorFromList<eVector3>))
       .def("__repr__", &displayVector<eVector3>);
 
-  bp::class_<WBC>("WBC", bp::init<>())
+  bp::class_<WBCHorizon>("WBCHorizon", bp::init<>())
       .def("initialize", &initialize,
            bp::args("self", "settings", "design", "horizon", "q0", "v0",
                     "actuationCostName"),
@@ -83,143 +82,126 @@ void exposeWBC() {
            "of pinocchio")
       .def("shapeState",
            bp::make_function(
-               &WBC::shapeState,
+               &WBCHorizon::shapeState,
                bp::return_value_policy<
                    bp::reference_existing_object>()))  //, bp::args("self", "q",
                                                        //"v")
-      .def("generateWalkingCycle", &WBC::generateWalkingCycle,
-           bp::args("self", "modelMaker"))
-      .def("generateStandingCycle", &WBC::generateStandingCycle,
-           bp::args("self", "modelMaker"))
-      .def("generateWalkingCycleNoThinking",
-           &WBC::generateWalkingCycleNoThinking,
-           bp::args("self", "modelMakerNoThinking"))
-      .def("generateStandingCycleNoThinking",
-           &WBC::generateStandingCycleNoThinking,
-           bp::args("self", "modelMakerNoThinking"))
+      .def("generateFullHorizon", &WBCHorizon::generateFullHorizon,
+           (bp::args("self"), bp::arg("modelMaker"), bp::arg("experiment")))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
-           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBC::iterate),
+           static_cast<void (WBCHorizon::*)(const int, const Eigen::VectorXd &,
+                                            const Eigen::VectorXd &,
+                                            const bool)>(&WBCHorizon::iterate),
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
             bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterate",
-           static_cast<void (WBC::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBC::iterate),
+           static_cast<void (WBCHorizon::*)(
+               const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
+               &WBCHorizon::iterate),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
       .def("iterateNoThinking",
-           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBC::iterateNoThinking),
+           static_cast<void (WBCHorizon::*)(
+               const int, const Eigen::VectorXd &, const Eigen::VectorXd &,
+               const bool)>(&WBCHorizon::iterateNoThinking),
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
             bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterateNoThinking",
-           static_cast<void (WBC::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBC::iterateNoThinking),
+           static_cast<void (WBCHorizon::*)(
+               const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
+               &WBCHorizon::iterateNoThinking),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
-      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle,
-                            bp::args("self"))
-      .def<void (WBC::*)(HorizonManager &)>(
-          "recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
-      .def<void (WBC::*)()>("goToNextDoubleSupport",
-                            &WBC::goToNextDoubleSupport, bp::args("self"))
+      .def(
+          "iterateNoThinkingWithDelay",
+          static_cast<void (WBCHorizon::*)(
+              const Eigen::VectorXd &, const Eigen::VectorXd &, const bool,
+              const bool, const bool)>(&WBCHorizon::iterateNoThinkingWithDelay),
+          (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
+           bp::arg("contact_left"), bp::arg("contact_right"),
+           bp::arg("is_feasible") = false))
+      .def<void (WBCHorizon::*)()>(
+          "recedeWithCycle", &WBCHorizon::recedeWithCycle, bp::args("self"))
+      .def<void (WBCHorizon::*)()>("goToNextDoubleSupport",
+                                   &WBCHorizon::goToNextDoubleSupport,
+                                   bp::args("self"))
       .add_property(
           "x0",
           bp::make_function(
-              &WBC::get_x0,
+              &WBCHorizon::get_x0,
               bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_x0)
+          &WBCHorizon::set_x0)
       .add_property(
-          "walkingCycle",
+          "fullHorizon",
           bp::make_function(
-              &WBC::get_walkingCycle,
+              &WBCHorizon::get_fullHorizon,
               bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_walkingCycle)
-      .add_property(
-          "standingCycle",
-          bp::make_function(
-              &WBC::get_standingCycle,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_standingCycle)
+          &WBCHorizon::set_fullHorizon)
       .add_property(
           "horizon",
           bp::make_function(
-              &WBC::get_horizon,
+              &WBCHorizon::get_horizon,
               bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_horizon)
+          &WBCHorizon::set_horizon)
       .add_property(
           "designer",
           bp::make_function(
-              &WBC::get_designer,
+              &WBCHorizon::get_designer,
               bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_designer)
+          &WBCHorizon::set_designer)
       .add_property(
           "ref_LF_poses",
           bp::make_function(
-              &WBC::ref_LF_poses,
+              &WBCHorizon::ref_LF_poses,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(
-              &WBC::setPoseRef_LF))
+          static_cast<void (WBCHorizon::*)(
+              const std::vector<pinocchio::SE3> &)>(&WBCHorizon::setPoseRef_LF))
       .add_property(
           "ref_RF_poses",
           bp::make_function(
-              &WBC::ref_RF_poses,
+              &WBCHorizon::ref_RF_poses,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(
-              &WBC::setPoseRef_RF))
+          static_cast<void (WBCHorizon::*)(
+              const std::vector<pinocchio::SE3> &)>(&WBCHorizon::setPoseRef_RF))
       .add_property(
           "ref_com",
           bp::make_function(
-              &WBC::ref_com,
+              &WBCHorizon::ref_com,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(&WBC::setCoMRef))
+          static_cast<void (WBCHorizon::*)(eVector3)>(&WBCHorizon::setCoMRef))
       .add_property(
           "ref_com_vel",
           bp::make_function(
-              &WBC::ref_com_vel,
+              &WBCHorizon::ref_com_vel,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(&WBC::setVelRef_COM))
+          static_cast<void (WBCHorizon::*)(eVector3)>(
+              &WBCHorizon::setVelRef_COM))
       .add_property(
           "ref_base_rot",
           bp::make_function(
-              &WBC::ref_base_rot,
+              &WBCHorizon::ref_base_rot,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(Eigen::Matrix3d)>(&WBC::setBaseRotRef))
-      .def("switchToWalk", &WBC::switchToWalk)
-      .def("switchToStand", &WBC::switchToStand)
-      .def("current_motion_type", &WBC::currentLocomotion)
+          static_cast<void (WBCHorizon::*)(Eigen::Matrix3d)>(
+              &WBCHorizon::setBaseRotRef))
       .def("land_LF",
            make_function(
-               &WBC::get_land_LF,
+               &WBCHorizon::get_land_LF,
                bp::return_value_policy<bp::reference_existing_object>()))
       .def("land_RF",
            make_function(
-               &WBC::get_land_RF,
+               &WBCHorizon::get_land_RF,
                bp::return_value_policy<bp::reference_existing_object>()))
       .def("takeoff_LF",
            make_function(
-               &WBC::get_takeoff_LF,
+               &WBCHorizon::get_takeoff_LF,
                bp::return_value_policy<bp::reference_existing_object>()))
       .def("takeoff_RF",
            make_function(
-               &WBC::get_takeoff_RF,
+               &WBCHorizon::get_takeoff_RF,
                bp::return_value_policy<bp::reference_existing_object>()))
-      .def("land_LF_cycle",
-           make_function(&WBC::get_land_LF_cycle,
-                         bp::return_value_policy<bp::copy_const_reference>()))
-      .def("land_RF_cycle",
-           make_function(&WBC::get_land_RF_cycle,
-                         bp::return_value_policy<bp::copy_const_reference>()))
-      .def("takeoff_LF_cycle",
-           make_function(&WBC::get_takeoff_LF_cycle,
-                         bp::return_value_policy<bp::copy_const_reference>()))
-      .def("takeoff_RF_cycle",
-           make_function(&WBC::get_takeoff_RF_cycle,
+      .def("horizon_iteration",
+           make_function(&WBCHorizon::get_horizon_iteration,
                          bp::return_value_policy<bp::copy_const_reference>()));
 }
 }  // namespace python

@@ -12,6 +12,7 @@
 #include <crocoddyl/core/action-base.hpp>
 #include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/activations/quadratic-flat-log.hpp>
+#include <crocoddyl/core/activations/smooth-1norm.hpp>
 #include <crocoddyl/core/activations/weighted-quadratic.hpp>
 #include <crocoddyl/core/fwd.hpp>
 #include <crocoddyl/core/integrator/euler.hpp>
@@ -28,6 +29,7 @@
 #include <crocoddyl/multibody/fwd.hpp>
 #include <crocoddyl/multibody/residuals/com-position.hpp>
 #include <crocoddyl/multibody/residuals/contact-control-gravity.hpp>
+#include <crocoddyl/multibody/residuals/contact-force.hpp>
 #include <crocoddyl/multibody/residuals/contact-wrench-cone.hpp>
 #include <crocoddyl/multibody/residuals/frame-placement.hpp>
 #include <crocoddyl/multibody/residuals/frame-rotation.hpp>
@@ -82,13 +84,29 @@ typedef ResidualDataVelCollisionTpl<double> ResidualDataVelCollision;
 
 // Cost fly high
 template <typename Scalar>
+class ResidualModelFlyAngleTpl;
+template <typename Scalar>
+struct ResidualDataFlyAngleTpl;
+typedef ResidualModelFlyAngleTpl<double> ResidualModelFlyAngle;
+typedef ResidualDataFlyAngleTpl<double> ResidualDataFlyAngle;
+
+// Cost fly angle
+template <typename Scalar>
 class ResidualModelFlyHighTpl;
 template <typename Scalar>
 struct ResidualDataFlyHighTpl;
 typedef ResidualModelFlyHighTpl<double> ResidualModelFlyHigh;
 typedef ResidualDataFlyHighTpl<double> ResidualDataFlyHigh;
 
-// Cost fly high
+// Cost DCM
+template <typename Scalar>
+class ResidualModelDCMPositionTpl;
+template <typename Scalar>
+struct ResidualDataDCMPositionTpl;
+typedef ResidualModelDCMPositionTpl<double> ResidualModelDCMPosition;
+typedef ResidualDataDCMPositionTpl<double> ResidualDataDCMPosition;
+
+// Cost feet collision
 template <typename Scalar>
 class ResidualModelFeetCollisionTpl;
 template <typename Scalar>
@@ -96,11 +114,29 @@ struct ResidualDataFeetCollisionTpl;
 typedef ResidualModelFeetCollisionTpl<double> ResidualModelFeetCollision;
 typedef ResidualDataFeetCollisionTpl<double> ResidualDataFeetCollision;
 
+// Cost 2D surface
+template <typename Scalar>
+class ResidualModel2DSurfaceTpl;
+template <typename Scalar>
+struct ResidualData2DSurfaceTpl;
+typedef ResidualModel2DSurfaceTpl<double> ResidualModel2DSurface;
+typedef ResidualData2DSurfaceTpl<double> ResidualData2DSurface;
+
 // Activation quad-ref
 template <typename Scalar>
 class ActivationModelQuadRefTpl;
 typedef ActivationModelQuadRefTpl<double> ActivationModelQuadRef;
 typedef boost::shared_ptr<ActivationModelQuadRef> ActivationModelQuadRefPtr;
+
+// Activation weighted-log
+template <typename Scalar>
+class ActivationModelWeightedLogTpl;
+template <typename Scalar>
+struct ActivationDataWeightedLogTpl;
+typedef ActivationModelWeightedLogTpl<double> ActivationModelWeightedLog;
+typedef ActivationDataWeightedLogTpl<double> ActivationDataWeightedLog;
+typedef boost::shared_ptr<ActivationModelWeightedLog>
+    ActivationModelWeightedLogPtr;
 
 typedef Eigen::Matrix<double, 6, 1> eVector6;
 typedef Eigen::Matrix<double, 4, 1> eVector4;
@@ -112,6 +148,8 @@ typedef boost::shared_ptr<crocoddyl::ActionModelAbstract> AMA;
 typedef boost::shared_ptr<crocoddyl::ActionDataAbstract> ADA;
 typedef boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics>
     DAM;
+typedef boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics>
+    DAD;
 typedef boost::shared_ptr<crocoddyl::CostModelSum> Cost;
 typedef boost::shared_ptr<crocoddyl::ContactModelMultiple> Contact;
 typedef boost::shared_ptr<crocoddyl::SolverFDDP> DDP;

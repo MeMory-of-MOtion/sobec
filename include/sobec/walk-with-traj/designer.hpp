@@ -30,7 +30,7 @@ class RobotDesigner {
   RobotDesignerSettings settings_;
 
   std::vector<unsigned long> controlled_joints_id_;
-  unsigned long leftFootId_, rightFootId_, EndEffectorId_;
+  unsigned long leftFootId_, rightFootId_, rootId_, EndEffectorId_;
 
   pinocchio::Model rModelComplete_, rModel_;
   pinocchio::Data rDataComplete_, rData_;
@@ -43,6 +43,7 @@ class RobotDesigner {
   Eigen::Vector3d com_position_;
   Eigen::Vector3d LF_position_;
   Eigen::Vector3d RF_position_;
+  pinocchio::FrameIndex toeLeftId_, toeRightId_, heelLeftId_, heelRightId_;
 
   // Memori allocations
   double mass_ = 0;
@@ -55,12 +56,16 @@ class RobotDesigner {
 
   void updateReducedModel(const Eigen::VectorXd &x);
   void updateCompleteModel(const Eigen::VectorXd &x);
+  void addToeAndHeel(const double &heel_translation,
+                     const double &toe_translation);
+  void set_q0(const Eigen::VectorXd &q0);
 
   void addEndEffectorFrame(std::string endEffectorName, std::string parentName,
                            pinocchio::SE3 endEffectorPlacement);
 
   const pinocchio::SE3 &get_LF_frame();
   const pinocchio::SE3 &get_RF_frame();
+  const pinocchio::SE3 &get_root_frame();
   const pinocchio::SE3 &get_EndEff_frame();
 
   double getRobotMass();
@@ -77,8 +82,13 @@ class RobotDesigner {
 
   const std::string &get_LF_name() { return settings_.leftFootName; }
   const std::string &get_RF_name() { return settings_.rightFootName; }
+  const pinocchio::FrameIndex &get_root_id() { return rootId_; }
   const pinocchio::FrameIndex &get_LF_id() { return leftFootId_; }
   const pinocchio::FrameIndex &get_RF_id() { return rightFootId_; }
+  const pinocchio::FrameIndex &get_LF_heel_id() { return heelLeftId_; }
+  const pinocchio::FrameIndex &get_RF_heel_id() { return heelRightId_; }
+  const pinocchio::FrameIndex &get_LF_toe_id() { return toeLeftId_; }
+  const pinocchio::FrameIndex &get_RF_toe_id() { return toeRightId_; }
   const pinocchio::FrameIndex &get_EndEff_id() { return EndEffectorId_; }
   const RobotDesignerSettings &get_settings() { return settings_; }
   const std::vector<unsigned long> &get_controlledJointsIDs() {
@@ -88,6 +98,8 @@ class RobotDesigner {
   const Eigen::Vector3d &get_LF_position() { return LF_position_; }
   const Eigen::Vector3d &get_RF_position() { return RF_position_; }
   const Eigen::Vector3d &get_com_position() { return com_position_; }
+
+  void changeInertia(const size_t &i, const double &offset);
 };
 
 }  // namespace sobec
