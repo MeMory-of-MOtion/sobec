@@ -29,8 +29,8 @@
 #include <crocoddyl/multibody/fwd.hpp>
 #include <crocoddyl/multibody/residuals/com-position.hpp>
 #include <crocoddyl/multibody/residuals/contact-control-gravity.hpp>
-#include <crocoddyl/multibody/residuals/contact-wrench-cone.hpp>
 #include <crocoddyl/multibody/residuals/contact-force.hpp>
+#include <crocoddyl/multibody/residuals/contact-wrench-cone.hpp>
 #include <crocoddyl/multibody/residuals/frame-placement.hpp>
 #include <crocoddyl/multibody/residuals/frame-rotation.hpp>
 #include <crocoddyl/multibody/residuals/frame-translation.hpp>
@@ -135,7 +135,8 @@ template <typename Scalar>
 struct ActivationDataWeightedLogTpl;
 typedef ActivationModelWeightedLogTpl<double> ActivationModelWeightedLog;
 typedef ActivationDataWeightedLogTpl<double> ActivationDataWeightedLog;
-typedef boost::shared_ptr<ActivationModelWeightedLog> ActivationModelWeightedLogPtr;
+typedef boost::shared_ptr<ActivationModelWeightedLog>
+    ActivationModelWeightedLogPtr;
 
 typedef Eigen::Matrix<double, 6, 1> eVector6;
 typedef Eigen::Matrix<double, 4, 1> eVector4;

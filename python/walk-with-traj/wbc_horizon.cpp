@@ -91,41 +91,41 @@ void exposeWBCHorizon() {
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
            static_cast<void (WBCHorizon::*)(const int, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBCHorizon::iterate),
+                                            const Eigen::VectorXd &,
+                                            const bool)>(&WBCHorizon::iterate),
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
             bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterate",
-           static_cast<void (WBCHorizon::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
+           static_cast<void (WBCHorizon::*)(
+               const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
                &WBCHorizon::iterate),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
       .def("iterateNoThinking",
-           static_cast<void (WBCHorizon::*)(const int, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBCHorizon::iterateNoThinking),
+           static_cast<void (WBCHorizon::*)(
+               const int, const Eigen::VectorXd &, const Eigen::VectorXd &,
+               const bool)>(&WBCHorizon::iterateNoThinking),
            (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
             bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterateNoThinking",
-           static_cast<void (WBCHorizon::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
+           static_cast<void (WBCHorizon::*)(
+               const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
                &WBCHorizon::iterateNoThinking),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
-      .def("iterateNoThinkingWithDelay",
-           static_cast<void (WBCHorizon::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, 
-                                     const bool,  
-                                     const bool,  
-                                     const bool)>(
-               &WBCHorizon::iterateNoThinkingWithDelay),
-           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
-            bp::arg("contact_left"), bp::arg("contact_right"), bp::arg("is_feasible") = false))
-      .def<void (WBCHorizon::*)()>("recedeWithCycle", &WBCHorizon::recedeWithCycle,
-                            bp::args("self"))
-      .def<void (WBCHorizon::*)()>("goToNextDoubleSupport", &WBCHorizon::goToNextDoubleSupport,
-                            bp::args("self"))
+      .def(
+          "iterateNoThinkingWithDelay",
+          static_cast<void (WBCHorizon::*)(
+              const Eigen::VectorXd &, const Eigen::VectorXd &, const bool,
+              const bool, const bool)>(&WBCHorizon::iterateNoThinkingWithDelay),
+          (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
+           bp::arg("contact_left"), bp::arg("contact_right"),
+           bp::arg("is_feasible") = false))
+      .def<void (WBCHorizon::*)()>(
+          "recedeWithCycle", &WBCHorizon::recedeWithCycle, bp::args("self"))
+      .def<void (WBCHorizon::*)()>("goToNextDoubleSupport",
+                                   &WBCHorizon::goToNextDoubleSupport,
+                                   bp::args("self"))
       .add_property(
           "x0",
           bp::make_function(
@@ -155,22 +155,21 @@ void exposeWBCHorizon() {
           bp::make_function(
               &WBCHorizon::ref_LF_poses,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBCHorizon::*)(const std::vector<pinocchio::SE3> &)>(
-              &WBCHorizon::setPoseRef_LF))
+          static_cast<void (WBCHorizon::*)(
+              const std::vector<pinocchio::SE3> &)>(&WBCHorizon::setPoseRef_LF))
       .add_property(
           "ref_RF_poses",
           bp::make_function(
               &WBCHorizon::ref_RF_poses,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBCHorizon::*)(const std::vector<pinocchio::SE3> &)>(
-              &WBCHorizon::setPoseRef_RF))
+          static_cast<void (WBCHorizon::*)(
+              const std::vector<pinocchio::SE3> &)>(&WBCHorizon::setPoseRef_RF))
       .add_property(
           "ref_com",
           bp::make_function(
               &WBCHorizon::ref_com,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBCHorizon::*)(eVector3)>(
-              &WBCHorizon::setCoMRef))
+          static_cast<void (WBCHorizon::*)(eVector3)>(&WBCHorizon::setCoMRef))
       .add_property(
           "ref_com_vel",
           bp::make_function(
@@ -202,9 +201,8 @@ void exposeWBCHorizon() {
                &WBCHorizon::get_takeoff_RF,
                bp::return_value_policy<bp::reference_existing_object>()))
       .def("horizon_iteration",
-           make_function(
-               &WBCHorizon::get_horizon_iteration,
-               bp::return_value_policy<bp::copy_const_reference>()));
+           make_function(&WBCHorizon::get_horizon_iteration,
+                         bp::return_value_policy<bp::copy_const_reference>()));
 }
 }  // namespace python
 }  // namespace sobec

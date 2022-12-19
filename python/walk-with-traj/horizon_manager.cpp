@@ -73,14 +73,19 @@ void exposeHorizonManager() {
            bp::args("self", "time", "costName", "pose"))
       .def("setRotationReference", &HorizonManager::setRotationReference,
            bp::args("self", "time", "costName", "rotation"))
-      .def("setTerminalRotationReference", &HorizonManager::setTerminalRotationReference,
+      .def("setTerminalRotationReference",
+           &HorizonManager::setTerminalRotationReference,
            bp::args("self", "costName", "rotation"))
       .def("setTranslationReference", &HorizonManager::setTranslationReference,
            bp::args("self", "time", "costName", "translation"))
-      .def("setTerminalPoseReference", &HorizonManager::setTerminalPoseReference,
-           bp::args("self", "costName","pose"))
-      .def("setTerminalTranslationReference", &HorizonManager::setTerminalTranslationReference,
-           bp::args("self" "costName", "translation"))
+      .def("setTerminalPoseReference",
+           &HorizonManager::setTerminalPoseReference,
+           bp::args("self", "costName", "pose"))
+      .def("setTerminalTranslationReference",
+           &HorizonManager::setTerminalTranslationReference,
+           bp::args("self"
+                    "costName",
+                    "translation"))
       .def("activateContactLF", &HorizonManager::activateContactLF,
            bp::args("self", "time", "contactName"))
       .def("activateContactRF", &HorizonManager::activateContactRF,

@@ -47,7 +47,8 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.height = bp::extract<double>(settings["height"]);
   conf.dist = bp::extract<double>(settings["dist"]);
   conf.width = bp::extract<double>(settings["width"]);
-  conf.footMinimalDistance = bp::extract<double>(settings["footMinimalDistance"]);
+  conf.footMinimalDistance =
+      bp::extract<double>(settings["footMinimalDistance"]);
   conf.flyHighSlope = bp::extract<double>(settings["flyHighSlope"]);
 
   // gains
@@ -66,10 +67,13 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   conf.wDCM = bp::extract<double>(settings["wDCM"]);
   conf.wBaseRot = bp::extract<double>(settings["wBaseRot"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
-  conf.controlWeights = bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
+  conf.controlWeights =
+      bp::extract<Eigen::VectorXd>(settings["controlWeights"]);
   conf.forceWeights = bp::extract<Eigen::VectorXd>(settings["forceWeights"]);
-  conf.lowKinematicLimits = bp::extract<Eigen::VectorXd>(settings["lowKinematicLimits"]);
-  conf.highKinematicLimits = bp::extract<Eigen::VectorXd>(settings["highKinematicLimits"]);
+  conf.lowKinematicLimits =
+      bp::extract<Eigen::VectorXd>(settings["lowKinematicLimits"]);
+  conf.highKinematicLimits =
+      bp::extract<Eigen::VectorXd>(settings["highKinematicLimits"]);
   conf.th_grad = bp::extract<double>(settings["th_grad"]);
   conf.th_stop = bp::extract<double>(settings["th_stop"]);
 
@@ -153,8 +157,8 @@ void defineFeetWrenchCost(ModelMaker &self,
 }
 
 void defineFeetForceTask(ModelMaker &self,
-                          crocoddyl::CostModelSum &costCollector,
-                          const Support &supports = Support::DOUBLE) {
+                         crocoddyl::CostModelSum &costCollector,
+                         const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetForceTask(costs, supports);
   costCollector = *costs;
@@ -169,17 +173,16 @@ void defineFeetTracking(ModelMaker &self,
 }
 
 void defineFeetTranslation(ModelMaker &self,
-                        crocoddyl::CostModelSum &costCollector,
-                        const Support &supports = Support::DOUBLE,
-                        const bool &stairs = false) {
+                           crocoddyl::CostModelSum &costCollector,
+                           const Support &supports = Support::DOUBLE,
+                           const bool &stairs = false) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetTranslation(costs, supports, stairs);
   costCollector = *costs;
 }
 
-void defineDCMTask(ModelMaker &self,
-                        crocoddyl::CostModelSum &costCollector,
-                        const Support &supports = Support::DOUBLE) {
+void defineDCMTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
+                   const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineDCMTask(costs, supports);
   costCollector = *costs;
@@ -193,7 +196,7 @@ void definePostureTask(ModelMaker &self,
 }
 
 void defineRotationBase(ModelMaker &self,
-                       crocoddyl::CostModelSum &costCollector) {
+                        crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineRotationBase(costs);
   costCollector = *costs;
@@ -213,8 +216,7 @@ void defineJointLimits(ModelMaker &self,
   costCollector = *costs;
 }
 
-void defineCoPTask(ModelMaker &self,
-                   crocoddyl::CostModelSum &costCollector,
+void defineCoPTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
                    const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineCoPTask(costs, supports);
@@ -222,21 +224,21 @@ void defineCoPTask(ModelMaker &self,
 }
 
 void defineFeetRotation(ModelMaker &self,
-                       crocoddyl::CostModelSum &costCollector) {
+                        crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetRotation(costs);
   costCollector = *costs;
 }
 
 void defineFeetZRotation(ModelMaker &self,
-                       crocoddyl::CostModelSum &costCollector) {
+                         crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetZRotation(costs);
   costCollector = *costs;
 }
 
 void defineCoMPosition(ModelMaker &self,
-                   crocoddyl::CostModelSum &costCollector) {
+                       crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineCoMPosition(costs);
   costCollector = *costs;
@@ -249,24 +251,22 @@ void defineCoMVelocity(ModelMaker &self,
   costCollector = *costs;
 }
 
-void defineVelFootTask(ModelMaker &self,
-                   crocoddyl::CostModelSum &costCollector,
-                   const Support &supports = Support::DOUBLE) {
+void defineVelFootTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
+                       const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineVelFootTask(costs, supports);
   costCollector = *costs;
 }
 
 void defineFootCollisionTask(ModelMaker &self,
-                   crocoddyl::CostModelSum &costCollector) {
+                             crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFootCollisionTask(costs);
   costCollector = *costs;
 }
 
-void defineFlyHighTask(ModelMaker &self,
-                   crocoddyl::CostModelSum &costCollector,
-                   const Support &supports = Support::DOUBLE) {
+void defineFlyHighTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
+                       const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFlyHighTask(costs, supports);
   costCollector = *costs;
@@ -281,7 +281,7 @@ void exposeModelFactory() {
       .value("WALK", Experiment::WALK)
       .value("WWT", Experiment::WWT)
       .value("WWT_STAIRS", Experiment::WWT_STAIRS);
-      
+
   bp::class_<ModelMaker>("ModelMaker", bp::init<>())
       .def("initialize", &initialize, bp::args("self", "settings", "design"))
       // .def("formulateHorizon", &formulateHorizon, bp::args("self",
@@ -301,8 +301,7 @@ void exposeModelFactory() {
             bp::arg("supports") = Support::DOUBLE))
       .def("defineFeetTranslation", &defineFeetTranslation,
            (bp::arg("self"), bp::arg("costCollector"),
-            bp::arg("supports") = Support::DOUBLE,
-            bp::arg("stairs") = false))
+            bp::arg("supports") = Support::DOUBLE, bp::arg("stairs") = false))
       .def("defineDCMTask", &defineDCMTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("supports") = Support::DOUBLE))
@@ -335,19 +334,22 @@ void exposeModelFactory() {
            bp::args("self", "costCollector"))
       .def("formulateStepTracker", &ModelMaker::formulateStepTracker,
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE))
-      .def("formulateTerminalStepTracker", &ModelMaker::formulateTerminalStepTracker,
+      .def("formulateTerminalStepTracker",
+           &ModelMaker::formulateTerminalStepTracker,
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE))
       .def("formulateWWT", &ModelMaker::formulateWWT,
-           (bp::arg("self"), bp::arg("supports") = Support::DOUBLE, bp::arg("stairs") = false))
+           (bp::arg("self"), bp::arg("supports") = Support::DOUBLE,
+            bp::arg("stairs") = false))
       .def("formulateTerminalWWT", &ModelMaker::formulateTerminalWWT,
-           (bp::arg("self"), bp::arg("supports") = Support::DOUBLE, bp::arg("stairs") = false))
+           (bp::arg("self"), bp::arg("supports") = Support::DOUBLE,
+            bp::arg("stairs") = false))
       .def("getState", &ModelMaker::getState, bp::args("self"))
       .def("setState", &ModelMaker::setState, bp::args("self"))
       .def("getActuation", &ModelMaker::getActuation, bp::args("self"))
       .def("setActuation", &ModelMaker::setActuation, bp::args("self"))
       .def("formulateHorizon", &formulateHorizon,
-           (bp::arg("self"), bp::arg("supports") = bp::list(), bp::arg("experiment") = Experiment::WALK,
-            bp::arg("length") = 0));
+           (bp::arg("self"), bp::arg("supports") = bp::list(),
+            bp::arg("experiment") = Experiment::WALK, bp::arg("length") = 0));
 }
 }  // namespace python
 }  // namespace sobec

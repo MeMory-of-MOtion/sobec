@@ -17,8 +17,7 @@ using namespace crocoddyl;
 template <typename Scalar>
 ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
     boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, 
-    const Scalar slope, 
+    const pinocchio::FrameIndex frame_id, const Scalar slope,
     const std::size_t nu)
     : Base(state, 2, nu, true, true, false),
       frame_id(frame_id),
@@ -28,8 +27,7 @@ ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
 template <typename Scalar>
 ResidualModelFlyHighTpl<Scalar>::ResidualModelFlyHighTpl(
     boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, 
-    const Scalar slope)
+    const pinocchio::FrameIndex frame_id, const Scalar slope)
     : Base(state, 2, true, true, false),
       frame_id(frame_id),
       slope(slope),

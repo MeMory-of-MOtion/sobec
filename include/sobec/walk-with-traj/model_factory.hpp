@@ -7,19 +7,19 @@
 #include <string>
 #include <vector>
 
+#include "sobec/crocomplements/activation-weighted-log.hpp"
+#include "sobec/crocomplements/residual-2D-surface.hpp"
+#include "sobec/crocomplements/residual-dcm-position.hpp"
+#include "sobec/crocomplements/residual-feet-collision.hpp"
+#include "sobec/crocomplements/residual-fly-angle.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
 #include "sobec/fwd.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
-#include "sobec/crocomplements/residual-feet-collision.hpp"
-#include "sobec/crocomplements/residual-fly-high.hpp"
-#include "sobec/crocomplements/residual-fly-angle.hpp"
-#include "sobec/crocomplements/residual-2D-surface.hpp"
-#include "sobec/crocomplements/activation-weighted-log.hpp"
-#include "sobec/crocomplements/residual-dcm-position.hpp"
 
 namespace sobec {
 
 enum Support { LEFT, RIGHT, DOUBLE };
-enum Experiment {WALK, WWT, WWT_STAIRS};
+enum Experiment { WALK, WWT, WWT_STAIRS };
 
 struct ModelMakerSettings {
  public:
@@ -53,8 +53,8 @@ struct ModelMakerSettings {
   double wCoP = 0;            // 1;
   double wDCM = 0;
   double wBaseRot = 0;
-  double wVCoM = 0;           // 0;
-  double wFootRot = 0;        // 100;
+  double wVCoM = 0;     // 0;
+  double wFootRot = 0;  // 100;
   double wPCoM = 0;
   double wFlyHigh = 0;
   double wVelFoot = 0;
@@ -62,14 +62,14 @@ struct ModelMakerSettings {
   double wGripperPos = 0;
   double wGripperRot = 0;
   double wGripperVel = 0;
-  
+
   double flyHighSlope = 2;
   double footMinimalDistance = 0.2;
-  
+
   Eigen::VectorXd stateWeights;
   Eigen::VectorXd controlWeights;
   Eigen::VectorXd forceWeights;
-  
+
   Eigen::VectorXd lowKinematicLimits;
   Eigen::VectorXd highKinematicLimits;
 
@@ -93,45 +93,46 @@ class ModelMaker {
   bool initialized_ = false;
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
-  AMA formulateTerminalStepTracker(const Support &support = Support::DOUBLE); 
-  AMA formulateWWT(const Support &support = Support::DOUBLE, 
+  AMA formulateTerminalStepTracker(const Support &support = Support::DOUBLE);
+  AMA formulateWWT(const Support &support = Support::DOUBLE,
                    const bool &stairs = false);
-  AMA formulateTerminalWWT(const Support &support = Support::DOUBLE, 
+  AMA formulateTerminalWWT(const Support &support = Support::DOUBLE,
                            const bool &stairs = false);
   AMA formulatePointingTask();
 
-  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports, const Experiment &experiment);
+  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports,
+                                    const Experiment &experiment);
   std::vector<AMA> formulateHorizon(const int &T);
   ModelMakerSettings &get_settings() { return settings_; }
 
   // formulation parts:
   void defineFeetForceTask(Cost &costCollector,
-                            const Support &support = Support::DOUBLE);
+                           const Support &support = Support::DOUBLE);
   void defineFeetContact(Contact &contactCollector,
                          const Support &support = Support::DOUBLE);
   void defineFeetWrenchCost(Cost &costCollector,
                             const Support &support = Support::DOUBLE);
   void defineFeetTracking(Cost &costCollector,
                           const Support &support = Support::DOUBLE);
-  void defineFeetTranslation(Cost &costCollector, 
-                          const Support &support = Support::DOUBLE, 
-                          const bool &stairs = false);
+  void defineFeetTranslation(Cost &costCollector,
+                             const Support &support = Support::DOUBLE,
+                             const bool &stairs = false);
   void definePostureTask(Cost &costCollector);
   void defineRotationBase(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoPTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
-  void defineDCMTask(Cost &costCollector, 
+  void defineDCMTask(Cost &costCollector,
                      const Support &support = Support::DOUBLE);
   void defineVelFootTask(Cost &costCollector,
-                         const Support &support = Support::DOUBLE); 
-  void defineFeetRotation(Cost &costCollector); 
+                         const Support &support = Support::DOUBLE);
+  void defineFeetRotation(Cost &costCollector);
   void defineFeetZRotation(Cost &costCollector);
   void defineFootCollisionTask(Cost &costCollector);
-  void defineFlyHighTask(Cost &costCollector, 
-                          const Support &support = Support::DOUBLE);
-                     
+  void defineFlyHighTask(Cost &costCollector,
+                         const Support &support = Support::DOUBLE);
+
   void defineCoMPosition(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
   void defineGripperPlacement(Cost &costCollector);

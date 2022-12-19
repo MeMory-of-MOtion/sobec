@@ -56,8 +56,7 @@ class ResidualModelFlyHighTpl : public ResidualModelAbstractTpl<_Scalar> {
    */
   ResidualModelFlyHighTpl(boost::shared_ptr<StateMultibody> state,
                           const pinocchio::FrameIndex frame_id,
-                          const Scalar slope,
-                          const std::size_t nu);
+                          const Scalar slope, const std::size_t nu);
 
   /**
    * @brief Initialize the residual model

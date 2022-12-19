@@ -43,7 +43,7 @@ class RobotDesigner {
   Eigen::Vector3d com_position_;
   Eigen::Vector3d LF_position_;
   Eigen::Vector3d RF_position_;
-  pinocchio::FrameIndex toeLeftId_,toeRightId_,heelLeftId_,heelRightId_;
+  pinocchio::FrameIndex toeLeftId_, toeRightId_, heelLeftId_, heelRightId_;
 
   // Memori allocations
   double mass_ = 0;
@@ -56,7 +56,8 @@ class RobotDesigner {
 
   void updateReducedModel(const Eigen::VectorXd &x);
   void updateCompleteModel(const Eigen::VectorXd &x);
-  void addToeAndHeel(const double &heel_translation,const double &toe_translation);
+  void addToeAndHeel(const double &heel_translation,
+                     const double &toe_translation);
   void set_q0(const Eigen::VectorXd &q0);
 
   void addEndEffectorFrame(std::string endEffectorName, std::string parentName,
@@ -97,7 +98,7 @@ class RobotDesigner {
   const Eigen::Vector3d &get_LF_position() { return LF_position_; }
   const Eigen::Vector3d &get_RF_position() { return RF_position_; }
   const Eigen::Vector3d &get_com_position() { return com_position_; }
-  
+
   void changeInertia(const size_t &i, const double &offset);
 };
 

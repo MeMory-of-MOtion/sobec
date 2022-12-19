@@ -91,9 +91,11 @@ void exposeWBC() {
            bp::args("self", "modelMaker"))
       .def("generateStandingCycle", &WBC::generateStandingCycle,
            bp::args("self", "modelMaker"))
-      .def("generateWalkingCycleNoThinking", &WBC::generateWalkingCycleNoThinking,
+      .def("generateWalkingCycleNoThinking",
+           &WBC::generateWalkingCycleNoThinking,
            bp::args("self", "modelMakerNoThinking"))
-      .def("generateStandingCycleNoThinking", &WBC::generateStandingCycleNoThinking,
+      .def("generateStandingCycleNoThinking",
+           &WBC::generateStandingCycleNoThinking,
            bp::args("self", "modelMakerNoThinking"))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
@@ -124,8 +126,8 @@ void exposeWBC() {
                             bp::args("self"))
       .def<void (WBC::*)(HorizonManager &)>(
           "recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
-      .def<void (WBC::*)()>("goToNextDoubleSupport", &WBC::goToNextDoubleSupport,
-                            bp::args("self"))
+      .def<void (WBC::*)()>("goToNextDoubleSupport",
+                            &WBC::goToNextDoubleSupport, bp::args("self"))
       .add_property(
           "x0",
           bp::make_function(
@@ -175,22 +177,19 @@ void exposeWBC() {
           bp::make_function(
               &WBC::ref_com,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(
-              &WBC::setCoMRef))
+          static_cast<void (WBC::*)(eVector3)>(&WBC::setCoMRef))
       .add_property(
           "ref_com_vel",
           bp::make_function(
               &WBC::ref_com_vel,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(
-              &WBC::setVelRef_COM))
+          static_cast<void (WBC::*)(eVector3)>(&WBC::setVelRef_COM))
       .add_property(
           "ref_base_rot",
           bp::make_function(
               &WBC::ref_base_rot,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(Eigen::Matrix3d)>(
-              &WBC::setBaseRotRef))
+          static_cast<void (WBC::*)(Eigen::Matrix3d)>(&WBC::setBaseRotRef))
       .def("switchToWalk", &WBC::switchToWalk)
       .def("switchToStand", &WBC::switchToStand)
       .def("current_motion_type", &WBC::currentLocomotion)
@@ -211,21 +210,17 @@ void exposeWBC() {
                &WBC::get_takeoff_RF,
                bp::return_value_policy<bp::reference_existing_object>()))
       .def("land_LF_cycle",
-           make_function(
-               &WBC::get_land_LF_cycle,
-               bp::return_value_policy<bp::copy_const_reference>()))
+           make_function(&WBC::get_land_LF_cycle,
+                         bp::return_value_policy<bp::copy_const_reference>()))
       .def("land_RF_cycle",
-           make_function(
-               &WBC::get_land_RF_cycle,
-               bp::return_value_policy<bp::copy_const_reference>()))
+           make_function(&WBC::get_land_RF_cycle,
+                         bp::return_value_policy<bp::copy_const_reference>()))
       .def("takeoff_LF_cycle",
-           make_function(
-               &WBC::get_takeoff_LF_cycle,
-               bp::return_value_policy<bp::copy_const_reference>()))
+           make_function(&WBC::get_takeoff_LF_cycle,
+                         bp::return_value_policy<bp::copy_const_reference>()))
       .def("takeoff_RF_cycle",
-           make_function(
-               &WBC::get_takeoff_RF_cycle,
-               bp::return_value_policy<bp::copy_const_reference>()));
+           make_function(&WBC::get_takeoff_RF_cycle,
+                         bp::return_value_policy<bp::copy_const_reference>()));
 }
 }  // namespace python
 }  // namespace sobec

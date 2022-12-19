@@ -55,12 +55,10 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] nu     Dimension of the control vector
    */
   ResidualModel2DSurfaceTpl(boost::shared_ptr<StateMultibody> state,
-                          const pinocchio::FrameIndex frame_id,
-                          const Vector2s support_translation,
-                          const Scalar separation,
-                          const Scalar orientation,
-                          const Scalar alpha,
-                          const std::size_t nu);
+                            const pinocchio::FrameIndex frame_id,
+                            const Vector2s support_translation,
+                            const Scalar separation, const Scalar orientation,
+                            const Scalar alpha, const std::size_t nu);
 
   /**
    * @brief Initialize the residual model
@@ -73,11 +71,10 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] slope  Slope value, ie altitude multiplier.
    */
   ResidualModel2DSurfaceTpl(boost::shared_ptr<StateMultibody> state,
-                          const pinocchio::FrameIndex frame_id,
-                          const Vector2s support_translation,
-                          const Scalar separation,
-                          const Scalar orientation,
-                          const Scalar alpha);
+                            const pinocchio::FrameIndex frame_id,
+                            const Vector2s support_translation,
+                            const Scalar separation, const Scalar orientation,
+                            const Scalar alpha);
   virtual ~ResidualModel2DSurfaceTpl();
 
   /**
@@ -113,21 +110,19 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @brief Modify the frame index.
    */
   void set_frame_id(const pinocchio::FrameIndex& fid);
-  
+
   /**
    * @brief Modify the matrix A and vector b
    */
-  
-  void set_Ab(
-    const Vector2s support_translation,
-    const Scalar orientation);
- 
-  const MatrixXs& get_A() const {return A_;}
-  const Vector2s& get_b() const {return b_;}
-  
-  void set_A(const MatrixXs& A) { A_ = A;}
-  void set_b(const Vector2s& b) { b_ = b;}
- 
+
+  void set_Ab(const Vector2s support_translation, const Scalar orientation);
+
+  const MatrixXs& get_A() const { return A_; }
+  const Vector2s& get_b() const { return b_; }
+
+  void set_A(const MatrixXs& A) { A_ = A; }
+  void set_b(const Vector2s& b) { b_ = b; }
+
  protected:
   using Base::nu_;
   using Base::state_;
@@ -137,11 +132,12 @@ class ResidualModel2DSurfaceTpl : public ResidualModelAbstractTpl<_Scalar> {
 
  private:
   pinocchio::FrameIndex frame_id;
-  boost::shared_ptr<typename StateMultibody::PinocchioModel> pin_model_;  //!< Pinocchio model used for internal computations
-  Vector2s support_translation_; // Coordinates of the support foot
-  Scalar separation_; // Separation between flying foot and support foot
-  Scalar orientation_; // Angle of support foot
-  Scalar alpha_; // Angle of cone limit
+  boost::shared_ptr<typename StateMultibody::PinocchioModel>
+      pin_model_;  //!< Pinocchio model used for internal computations
+  Vector2s support_translation_;  // Coordinates of the support foot
+  Scalar separation_;   // Separation between flying foot and support foot
+  Scalar orientation_;  // Angle of support foot
+  Scalar alpha_;        // Angle of cone limit
   Vector2s pointA_;
   Vector2s pointB_;
   Vector2s pointF_;
@@ -163,9 +159,9 @@ struct ResidualData2DSurfaceTpl : public ResidualDataAbstractTpl<_Scalar> {
 
   template <template <typename Scalar> class Model>
   ResidualData2DSurfaceTpl(Model<Scalar>* const model,
-                         DataCollectorAbstract* const data)
+                           DataCollectorAbstract* const data)
       : Base(model, data), fJf(6, model->get_state()->get_nv()) {
-	fJf.setZero();
+    fJf.setZero();
     //  Check that proper shared data has been passed
     DataCollectorMultibodyTpl<Scalar>* d =
         dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);

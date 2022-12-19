@@ -58,7 +58,7 @@ Tstep = TsingleSupport + TdoubleSupport
 
 simulator = (
     "bullet"
-    #"pinocchio"
+    # "pinocchio"
 )
 
 
@@ -120,7 +120,7 @@ omega = np.sqrt(-gravity[2] / normal_height)
 
 
 # ##### CROCO - CONFIGURATION ########
-typeOfCommand= 1 # 0 for StepTracker, 1 for NonThinking
+typeOfCommand = 1  # 0 for StepTracker, 1 for NonThinking
 # relevant frame names
 
 rightFoot = rf_frame_name = "leg_right_sole_fix_joint"
@@ -146,7 +146,7 @@ wBaseRot = 200
 
 weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
-weightLegPos = [.1, .1, .1, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
+weightLegPos = [0.1, 0.1, 0.1, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
 weightArmPos = [10, 10, 10, 10]  # [z, x, z, y, z, x, y]
 weightArmVel = [100, 100, 100, 100]  # [z, x, z, y, z, x, y]
@@ -156,30 +156,61 @@ stateWeights = np.array(
     weightBasePos
     + weightLegPos * 2
     + weightTorsoPos
-    #+ weightArmPos * 2
+    # + weightArmPos * 2
     + weightBaseVel
     + weightLegVel * 2
     + weightTorsoVel
-    #+ weightArmVel * 2
+    # + weightArmVel * 2
 )
 
 weightuBase = "not actuated"
 weightuLeg = [1, 1, 1, 1, 1, 1]
 weightuArm = [10, 10, 10, 10]
 weightuTorso = [1, 1]
-controlWeight = np.array(weightuLeg * 2 
-                        + weightuTorso 
-                        #+ weightuArm * 2
+controlWeight = np.array(
+    weightuLeg * 2
+    + weightuTorso
+    # + weightuArm * 2
 )
 
 
-forceWeights = np.array([1,1,1,10,10,10])
-lowKinematicLimits = np.array([-0.35, -0.52,-2.10, 0.0,-1.31,-0.52, # left leg
-                               -1.57,-0.52,-2.10,0.0,-1.31,-0.52, # right leg
-                               -1.3,-0.1])  # torso
-highKinematicLimits = np.array([1.57, 0.52, 0.7, 2.62, 0.77, 0.52, # left leg
-                               0.35,0.52,0.7,2.62,0.77,0.52, # right leg
-                               1.3,0.2])  # torso 
+forceWeights = np.array([1, 1, 1, 10, 10, 10])
+lowKinematicLimits = np.array(
+    [
+        -0.35,
+        -0.52,
+        -2.10,
+        0.0,
+        -1.31,
+        -0.52,  # left leg
+        -1.57,
+        -0.52,
+        -2.10,
+        0.0,
+        -1.31,
+        -0.52,  # right leg
+        -1.3,
+        -0.1,
+    ]
+)  # torso
+highKinematicLimits = np.array(
+    [
+        1.57,
+        0.52,
+        0.7,
+        2.62,
+        0.77,
+        0.52,  # left leg
+        0.35,
+        0.52,
+        0.7,
+        2.62,
+        0.77,
+        0.52,  # right leg
+        1.3,
+        0.2,
+    ]
+)  # torso
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.

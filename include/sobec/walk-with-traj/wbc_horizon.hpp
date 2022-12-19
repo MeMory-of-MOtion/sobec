@@ -33,10 +33,10 @@ struct WBCHorizonSettings {
 
   double Dt = 1e-2;
   double simu_step = 1e-3;
-  
+
   double min_force = 150;
   double support_force = 1000;
-  
+
   int Nc = (int)round(Dt / simu_step);
 };
 class WBCHorizon {
@@ -52,7 +52,7 @@ class WBCHorizon {
   RobotDesigner designer_;
   HorizonManager horizon_;
   HorizonManager fullHorizon_;
-  
+
   eVector3 ref_com_vel_;
   eVector3 ref_com_;
   eVector3 ref_dcm_;
@@ -86,22 +86,23 @@ class WBCHorizon {
  public:
   WBCHorizon();
   WBCHorizon(const WBCHorizonSettings &settings, const RobotDesigner &design,
-      const HorizonManager &horizon, const Eigen::VectorXd &q0, 
-      const Eigen::VectorXd &v0, const std::string &actuationCostName);
+             const HorizonManager &horizon, const Eigen::VectorXd &q0,
+             const Eigen::VectorXd &v0, const std::string &actuationCostName);
 
-  void initialize(const WBCHorizonSettings &settings, const RobotDesigner &design,
-                  const HorizonManager &horizon, const Eigen::VectorXd &q0,
-                  const Eigen::VectorXd &v0, const std::string &actuationCostName);
+  void initialize(const WBCHorizonSettings &settings,
+                  const RobotDesigner &design, const HorizonManager &horizon,
+                  const Eigen::VectorXd &q0, const Eigen::VectorXd &v0,
+                  const std::string &actuationCostName);
 
   void updateSupportTiming();
 
   const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
                                     const Eigen::VectorXd &v);
-  
+
   void setForceAlongHorizon();
-  
+
   std::vector<Support> generateSupportCycle();
-  
+
   void generateFullHorizon(ModelMaker &mm, const Experiment &experiment);
 
   bool timeToSolveDDP(int iteration);
@@ -112,14 +113,13 @@ class WBCHorizon {
   void iterate(int iteration, const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, bool is_feasible);
   void iterateNoThinking(const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, bool is_feasible);
+                         const Eigen::VectorXd &v_current, bool is_feasible);
 
   void iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, bool is_feasible);
+                         const Eigen::VectorXd &v_current, bool is_feasible);
   void iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
-                                  const Eigen::VectorXd &v_current,  
-                                  bool contact_left, 
-                                  bool contact_right,
+                                  const Eigen::VectorXd &v_current,
+                                  bool contact_left, bool contact_right,
                                   bool is_feasible);
   void recedeWithCycle();
   void goToNextDoubleSupport();
@@ -145,7 +145,7 @@ class WBCHorizon {
   const std::vector<int> &get_land_RF() { return land_RF_; }
   const std::vector<int> &get_takeoff_LF() { return takeoff_LF_; }
   const std::vector<int> &get_takeoff_RF() { return takeoff_RF_; }
-  
+
   const int &get_horizon_iteration() { return horizon_iteration_; }
 
   // USER REFERENCE SETTERS AND GETTERS
@@ -170,21 +170,17 @@ class WBCHorizon {
   void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) {
     ref_RF_poses_[time] = ref_RF_pose;
   }
-  
-  const eVector3 &getCoMRef() { return ref_com_;}
-  void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com;}
-  
-  const Eigen::Matrix3d &getBaseRotRef() { return ref_base_rotation_;}
-  void setBaseRotRef(Eigen::Matrix3d ref_base_rotation) { 
-	  ref_base_rotation_ = ref_base_rotation;
+
+  const eVector3 &getCoMRef() { return ref_com_; }
+  void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com; }
+
+  const Eigen::Matrix3d &getBaseRotRef() { return ref_base_rotation_; }
+  void setBaseRotRef(Eigen::Matrix3d ref_base_rotation) {
+    ref_base_rotation_ = ref_base_rotation;
   }
-  
-  const eVector3 &getVelRef_COM() {
-    return ref_com_vel_;
-  }
-  void setVelRef_COM(eVector3 ref_com_vel) {
-    ref_com_vel_ = ref_com_vel;
-  }
+
+  const eVector3 &getVelRef_COM() { return ref_com_vel_; }
+  void setVelRef_COM(eVector3 ref_com_vel) { ref_com_vel_ = ref_com_vel; }
   bool horizonEnd() { return horizon_iteration_ == fullHorizon_.size(); }
 
   // For the python bindings:
@@ -193,7 +189,6 @@ class WBCHorizon {
   eVector3 &ref_com() { return ref_com_; }
   Eigen::Matrix3d &ref_base_rot() { return ref_base_rotation_; }
   eVector3 &ref_com_vel() { return ref_com_vel_; }
-
 };
 }  // namespace sobec
 

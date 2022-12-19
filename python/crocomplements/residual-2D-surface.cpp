@@ -30,35 +30,30 @@ void exposeResidual2DSurface() {
       "This residual function defines the inequalities to keep the effector "
       "into a given 2D surface placed with respect to the opposite effector"
       "r = A * translation.head(2) ",
-      bp::init<boost::shared_ptr<StateMultibody>, 
-               pinocchio::FrameIndex, 
-               Eigen::Vector2d,
-               double,
-               double,
-               double,
-               std::size_t>(
-          bp::args("self", "state", "frame_id", "support_translation", "separation", "orientation", "nu"),
+      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex,
+               Eigen::Vector2d, double, double, double, std::size_t>(
+          bp::args("self", "state", "frame_id", "support_translation",
+                   "separation", "orientation", "nu"),
           "Initialize the 2D surface residual model.\n\n"
           ":param state: state of the multibody system\n"
           ":param frame_id: reference frame\n"
           ":param support_translation: position of the opposite foot\n"
-          ":param separation: distance separating the surface and the opposite foot\n"
+          ":param separation: distance separating the surface and the opposite "
+          "foot\n"
           ":param orientation: yaw of the opposite foot\n"
           ":param alpha: orientation of cone limits\n"
           ":param nu: dimension of control vector"))
-      .def(bp::init<boost::shared_ptr<StateMultibody>,
-                    pinocchio::FrameIndex, 
-                    Eigen::Vector2d,
-                    double,
-                    double,
-                    double>(
-          bp::args("self", "state", "frame_id", "support_translation", "separation", "orientation"),
+      .def(bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex,
+                    Eigen::Vector2d, double, double, double>(
+          bp::args("self", "state", "frame_id", "support_translation",
+                   "separation", "orientation"),
           "Initialize the 2D surface residual model.\n\n"
           "The default nu is obtained from state.nv.\n"
           ":param state: state of the multibody system\n"
           ":param frame_id: reference frame\n"
           ":param support_translation: position of the opposite foot\n"
-          ":param separation: distance separating the surface and the opposite foot\n"
+          ":param separation: distance separating the surface and the opposite "
+          "foot\n"
           ":param orientation: yaw of the opposite foot\n"
           ":param alpha: orientation of cone limits"))
       .def<void (ResidualModel2DSurface::*)(
@@ -100,18 +95,16 @@ void exposeResidual2DSurface() {
            "returns the allocated data for a predefined residual.\n"
            ":param data: shared data\n"
            ":return residual data.")
-      .def("set_Ab",&ResidualModel2DSurface::set_Ab, bp::args("self", 
-                                                              "support_translation",
-                                                              "orientation"))
-      .add_property(
-          "A",
-          bp::make_function(&ResidualModel2DSurface::get_A, bp::return_internal_reference<>()),
-          &ResidualModel2DSurface::set_A, "Inequality matrix")
-     .add_property(
-          "b",
-          bp::make_function(&ResidualModel2DSurface::get_b, bp::return_internal_reference<>()),
-          &ResidualModel2DSurface::set_b, "Inequality vector");
-           
+      .def("set_Ab", &ResidualModel2DSurface::set_Ab,
+           bp::args("self", "support_translation", "orientation"))
+      .add_property("A",
+                    bp::make_function(&ResidualModel2DSurface::get_A,
+                                      bp::return_internal_reference<>()),
+                    &ResidualModel2DSurface::set_A, "Inequality matrix")
+      .add_property("b",
+                    bp::make_function(&ResidualModel2DSurface::get_b,
+                                      bp::return_internal_reference<>()),
+                    &ResidualModel2DSurface::set_b, "Inequality vector");
 
   bp::register_ptr_to_python<boost::shared_ptr<ResidualData2DSurface> >();
 

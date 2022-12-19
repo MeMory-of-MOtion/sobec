@@ -14,11 +14,11 @@
 #include <crocoddyl/multibody/residuals/control-gravity.hpp>
 #include <crocoddyl/multibody/residuals/state.hpp>
 
+#include "sobec/crocomplements/residual-2D-surface.hpp"
 #include "sobec/crocomplements/residual-com-velocity.hpp"
 #include "sobec/crocomplements/residual-dcm-position.hpp"
-#include "sobec/crocomplements/residual-fly-high.hpp"
 #include "sobec/crocomplements/residual-fly-angle.hpp"
-#include "sobec/crocomplements/residual-2D-surface.hpp"
+#include "sobec/crocomplements/residual-fly-high.hpp"
 // #include "crocoddyl/multibody/residuals/centroidal-momentum.hpp"
 #include <crocoddyl/core/costs/cost-sum.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
@@ -40,24 +40,24 @@ const std::vector<CostModelNoFFTypes::Type> CostModelNoFFTypes::all(
 
 std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
   switch (type) {
-    // case CostModelTypes::CostModelResidualState:
-    //   os << "CostModelResidualState";
-    //   break;
-   case CostModelTypes::CostModelResidualControl:
+      // case CostModelTypes::CostModelResidualState:
+      //   os << "CostModelResidualState";
+      //   break;
+    case CostModelTypes::CostModelResidualControl:
       os << "CostModelResidualControl";
       break;
-   case CostModelTypes::CostModelResidualCoMPosition:
+    case CostModelTypes::CostModelResidualCoMPosition:
       os << "CostModelResidualCoMPosition";
       break;
-   case CostModelTypes::CostModelResidualCoMVelocity:
+    case CostModelTypes::CostModelResidualCoMVelocity:
       os << "CostModelResidualCoMVelocity";
       break;
-   //case CostModelTypes::CostModelResidualFlyHigh:
-   //   os << "CostModelResidualFlyHigh";
-   //   break;
-   //case CostModelTypes::CostModelResidualFlyAngle:
-   //   os << "CostModelResidualFlyAngle";
-   //   break;
+      // case CostModelTypes::CostModelResidualFlyHigh:
+      //    os << "CostModelResidualFlyHigh";
+      //    break;
+      // case CostModelTypes::CostModelResidualFlyAngle:
+      //    os << "CostModelResidualFlyAngle";
+      //    break;
     case CostModelTypes::CostModelResidual2DSurface:
       os << "CostModelResidual2DSurface";
       break;
@@ -70,9 +70,9 @@ std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
     case CostModelTypes::CostModelResidualFrameTranslation:
       os << "CostModelResidualFrameTranslation";
       break;
-    //case CostModelTypes::CostModelResidualDCMPosition:
-    //  os << "CostModelResidualDCMPosition";
-    //  break;
+    // case CostModelTypes::CostModelResidualDCMPosition:
+    //   os << "CostModelResidualDCMPosition";
+    //   break;
     case CostModelTypes::CostModelResidualFrameVelocity:
       os << "CostModelResidualFrameVelocity";
       break;
@@ -146,24 +146,27 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
           boost::make_shared<sobec::ResidualModelCoMVelocity>(
               state, Eigen::Vector3d::Random(), nu));
       break;
-    //case CostModelTypes::CostModelResidualFlyHigh: {
-    //  cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //      state, activation_factory.create(activation_type, 2),
-    //      boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index, 1, nu));
-    //  break;
-    //}
-    //case CostModelTypes::CostModelResidualFlyAngle: {
-    //  cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //      state, activation_factory.create(activation_type, 2),
-    //      boost::make_shared<sobec::ResidualModelFlyAngle>(state, frame_index, 1, alpha,
-    //                                                      beta, gamma,nu));
-    //  break;
-    //}
+    // case CostModelTypes::CostModelResidualFlyHigh: {
+    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
+    //       state, activation_factory.create(activation_type, 2),
+    //       boost::make_shared<sobec::ResidualModelFlyHigh>(state, frame_index,
+    //       1, nu));
+    //   break;
+    // }
+    // case CostModelTypes::CostModelResidualFlyAngle: {
+    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
+    //       state, activation_factory.create(activation_type, 2),
+    //       boost::make_shared<sobec::ResidualModelFlyAngle>(state,
+    //       frame_index, 1, alpha,
+    //                                                       beta, gamma,nu));
+    //   break;
+    // }
     case CostModelTypes::CostModelResidual2DSurface: {
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 2),
-          boost::make_shared<sobec::ResidualModel2DSurface>(state, frame_index, Eigen::Vector2d::Random(), 
-                                                            0.2, 0.2, 0.1, nu));
+          boost::make_shared<sobec::ResidualModel2DSurface>(
+              state, frame_index, Eigen::Vector2d::Random(), 0.2, 0.2, 0.1,
+              nu));
       break;
     }
     case CostModelTypes::CostModelResidualFramePlacement:
@@ -184,11 +187,12 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
               state, frame_index, frame_SE3.translation(), nu));
       break;
-    //case CostModelTypes::CostModelResidualDCMPosition:
-    //  cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //      state, activation_factory.create(activation_type, 3),
-    //      boost::make_shared<sobec::ResidualModelDCMPosition>(state, Eigen::Vector3d::Random(), alpha, nu));
-    //  break;
+    // case CostModelTypes::CostModelResidualDCMPosition:
+    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
+    //       state, activation_factory.create(activation_type, 3),
+    //       boost::make_shared<sobec::ResidualModelDCMPosition>(state,
+    //       Eigen::Vector3d::Random(), alpha, nu));
+    //   break;
     case CostModelTypes::CostModelResidualFrameVelocity:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 6),

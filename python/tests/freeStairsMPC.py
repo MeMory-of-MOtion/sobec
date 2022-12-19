@@ -15,18 +15,29 @@ from cricket.virtual_talos import VirtualPhysics
 # from pyMPC import CrocoWBC
 # from pyModelMaker import modeller
 import pinocchio as pin
-from sobec import RobotDesigner, WBCHorizon, HorizonManager, ModelMaker, Flex, Support, Experiment, FootTrajectory
+from sobec import (
+    RobotDesigner,
+    WBCHorizon,
+    HorizonManager,
+    ModelMaker,
+    Flex,
+    Support,
+    Experiment,
+    FootTrajectory,
+)
 import ndcurves
 import numpy as np
 import time
 
-DEFAULT_SAVE_DIR = '/local/src/sobec/python/tests'
+DEFAULT_SAVE_DIR = "/local/src/sobec/python/tests"
+
 
 def yawRotation(yaw):
     Ro = np.array(
         [[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]]
     )
     return Ro
+
 
 def q_mult(q1, q2):
     x1, y1, z1, w1 = q1[0], q1[1], q1[2], q1[3]
@@ -37,6 +48,7 @@ def q_mult(q1, q2):
     z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
     return np.array([x, y, z, w])
 
+
 def axisangle_to_q(v, theta):
     x, y, z = v
     theta /= 2
@@ -45,6 +57,7 @@ def axisangle_to_q(v, theta):
     y = y * np.sin(theta)
     z = z * np.sin(theta)
     return [x, y, z, w]
+
 
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
@@ -70,19 +83,19 @@ design_conf = dict(
         "leg_right_6_joint",
         "torso_1_joint",
         "torso_2_joint",
-        #"arm_left_1_joint",
-        #"arm_left_2_joint",
-        #"arm_left_3_joint",
-        #"arm_left_4_joint",
-        #"arm_right_1_joint",
-        #"arm_right_2_joint",
-        #"arm_right_3_joint",
-        #"arm_right_4_joint",
+        # "arm_left_1_joint",
+        # "arm_left_2_joint",
+        # "arm_left_3_joint",
+        # "arm_left_4_joint",
+        # "arm_right_1_joint",
+        # "arm_right_2_joint",
+        # "arm_right_3_joint",
+        # "arm_right_4_joint",
     ],
 )
 design = RobotDesigner()
 design.initialize(design_conf)
-'''
+"""
 design.get_rModel().inertias[1].lever[1] +=0.02
 design.get_rModel().inertias[2].lever[1] +=0.02
 design.get_rModel().inertias[3].lever[1] +=0.02
@@ -94,7 +107,7 @@ design.get_rModel().inertias[8].lever[1] -=0.02
 design.get_rModel().inertias[9].lever[1] -=0.02
 design.get_rModel().inertias[10].lever[1] -=0.02
 design.get_rModel().inertias[11].lever[1] -=0.02
-design.get_rModel().inertias[12].lever[1] -=0.02'''
+design.get_rModel().inertias[12].lever[1] -=0.02"""
 
 # Vector of Formulations
 alpha = 6 * np.pi / 180
@@ -107,12 +120,12 @@ MM_conf = dict(
     maxNforce=conf.maxNforce,
     comHeight=conf.normal_height,
     omega=conf.omega,
-    footSize = conf.footSize,
-    height = conf.height,
-    dist = conf.dist,
-    width = conf.width,
-    flyHighSlope = conf.flyHighSlope,
-    footMinimalDistance = conf.footMinimalDistance,
+    footSize=conf.footSize,
+    height=conf.height,
+    dist=conf.dist,
+    width=conf.width,
+    flyHighSlope=conf.flyHighSlope,
+    footMinimalDistance=conf.footMinimalDistance,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
@@ -122,12 +135,12 @@ MM_conf = dict(
     wWrenchCone=conf.wWrenchCone,
     wForceTask=0,
     wFootRot=conf.wFootRot,
-    wCoP = conf.wCoP,
-    wFlyHigh = conf.wFlyHigh,
-    wVelFoot = conf.wVelFoot,
-    wColFeet = conf.wColFeet,
-    wDCM = conf.wDCM,
-    wBaseRot = conf.wBaseRot,
+    wCoP=conf.wCoP,
+    wFlyHigh=conf.wFlyHigh,
+    wVelFoot=conf.wVelFoot,
+    wColFeet=conf.wColFeet,
+    wDCM=conf.wDCM,
+    wBaseRot=conf.wBaseRot,
     stateWeights=conf.stateWeights,
     controlWeights=conf.controlWeight,
     forceWeights=conf.forceWeights,
@@ -140,8 +153,10 @@ MM_conf = dict(
 formuler = ModelMaker()
 formuler.initialize(MM_conf, design)
 cycles = [Support.DOUBLE for i in range(conf.T)]
-all_models = formuler.formulateHorizon(supports=cycles,experiment=Experiment.WWT_STAIRS)
-ter_model = formuler.formulateTerminalWWT(Support.DOUBLE,True)
+all_models = formuler.formulateHorizon(
+    supports=cycles, experiment=Experiment.WWT_STAIRS
+)
+ter_model = formuler.formulateTerminalWWT(Support.DOUBLE, True)
 
 # Horizon
 H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
@@ -159,7 +174,7 @@ wbc_conf = dict(
     Dt=conf.DT,
     simu_step=conf.simu_period,
     min_force=150,
-    support_force = -design.getRobotMass() * conf.gravity[2],
+    support_force=-design.getRobotMass() * conf.gravity[2],
     Nc=conf.Nc,
 )
 
@@ -189,7 +204,7 @@ mpc.initialize(
     design.get_v0Complete(),
     "actuationTask",
 )
-mpc.generateFullHorizon(formuler,Experiment.WWT_STAIRS)
+mpc.generateFullHorizon(formuler, Experiment.WWT_STAIRS)
 print("mpc generated")
 
 # ### SIMULATION LOOP ###
@@ -207,33 +222,33 @@ LF_ref = [starting_position_left for i in range(horizon.size())]
 RF_ref = [starting_position_right for i in range(horizon.size())]
 
 for i in range(len(mpc.ref_LF_poses)):
-	mpc.ref_LF_poses[i] = starting_position_left
-	mpc.ref_RF_poses[i] = starting_position_right
+    mpc.ref_LF_poses[i] = starting_position_left
+    mpc.ref_RF_poses[i] = starting_position_right
 
 comRef[0] += 0.3
 comRef[1] += 0
-comRef[2] += 0.
+comRef[2] += 0.0
 baseRotation = design.get_root_frame().rotation @ yawRotation(np.pi / 6)
-ref_com_vel = np.array([0.,0.,0])
+ref_com_vel = np.array([0.0, 0.0, 0])
 mpc.ref_com = comRef
-#mpc.ref_base_rot = baseRotation
+# mpc.ref_base_rot = baseRotation
 
 T_total = conf.total_steps * conf.Tstep + 5 * conf.T
 
-v1 = [0,-1,0]
-v2 = [0,0,1]
+v1 = [0, -1, 0]
+v2 = [0, 0, 1]
 
-q1 = axisangle_to_q(v1,alpha)
-q2 = axisangle_to_q(v2,np.pi / 2)
-qtot = q_mult(q1,q2)
+q1 = axisangle_to_q(v1, alpha)
+q2 = axisangle_to_q(v2, np.pi / 2)
+qtot = q_mult(q1, q2)
 
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
     device.initializeJoints(design.get_q0Complete().copy())
     device.showTargetToTrack(starting_position_left, starting_position_right)
-    #device.addStairs(DEFAULT_SAVE_DIR, [0.5,-0.75,-0.03], qtot)
-    device.addStairs(DEFAULT_SAVE_DIR, [0.6,-0.8,0.0], q2)
+    # device.addStairs(DEFAULT_SAVE_DIR, [0.5,-0.75,-0.03], qtot)
+    device.addStairs(DEFAULT_SAVE_DIR, [0.6, -0.8, 0.0], q2)
     q_current, v_current = device.measureState()
 
 elif conf.simulator == "pinocchio":
@@ -248,93 +263,73 @@ elif conf.simulator == "pinocchio":
     v_current = init_state["dq"]
 
 for s in range(T_total * conf.Nc):
-	#    time.sleep(0.001)
-	if (s // conf.Nc == conf.TdoubleSupport + conf.T):
-		mpc.ref_com_vel = ref_com_vel 
-	if mpc.timeToSolveDDP(s):
+    #    time.sleep(0.001)
+    if s // conf.Nc == conf.TdoubleSupport + conf.T:
+        mpc.ref_com_vel = ref_com_vel
+    if mpc.timeToSolveDDP(s):
 
-		land_LF = (
-			mpc.land_LF()[0]
-			if mpc.land_LF()
-			else (
-				-1
-			)
-		)
-		land_RF = (
-			mpc.land_RF()[0]
-			if mpc.land_RF()
-			else (
-				-1
-			)
-		)
-		takeoff_LF = (
-			mpc.takeoff_LF()[0]
-			if mpc.takeoff_LF()
-			else (
-				-1
-			)
-		)
-		takeoff_RF = (
-			mpc.takeoff_RF()[0]
-			if mpc.takeoff_RF()
-			else (
-				-1
-			)
-		)
-		print("takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ", str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ", str(land_LF))
-	
-	start = time.time()
-	mpc.iterateNoThinking(s, q_current, v_current)
-	end = time.time()
-	'''if end-start > 0.01:
+        land_LF = mpc.land_LF()[0] if mpc.land_LF() else (-1)
+        land_RF = mpc.land_RF()[0] if mpc.land_RF() else (-1)
+        takeoff_LF = mpc.takeoff_LF()[0] if mpc.takeoff_LF() else (-1)
+        takeoff_RF = mpc.takeoff_RF()[0] if mpc.takeoff_RF() else (-1)
+        print(
+            "takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ",
+            str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ",
+            str(land_LF),
+        )
+
+    start = time.time()
+    mpc.iterateNoThinking(s, q_current, v_current)
+    end = time.time()
+    """if end-start > 0.01:
 		print(end-start)
-		moyenne += end - start'''
-	torques = horizon.currentTorques(mpc.x0)
-	'''if (s == 100 * 10):
+		moyenne += end - start"""
+    torques = horizon.currentTorques(mpc.x0)
+    """if (s == 100 * 10):
 		for t in range(conf.T):
 			print("t = " + str(t))
 			time.sleep(0.1)
 			device.resetState(mpc.horizon.ddp.xs[t])
-		exit()'''
-	if conf.simulator == "bullet":
-		device.execute(torques)
-		q_current, v_current = device.measureState()
-		device.moveMarkers(starting_position_left, starting_position_right)
+		exit()"""
+    if conf.simulator == "bullet":
+        device.execute(torques)
+        q_current, v_current = device.measureState()
+        device.moveMarkers(starting_position_left, starting_position_right)
 
-	elif conf.simulator == "pinocchio":
+    elif conf.simulator == "pinocchio":
 
-		correct_contacts = mpc.horizon.get_contacts(0)
-		command = {"tau": torques}
-		real_state, _ = device.execute(command, correct_contacts, s)
+        correct_contacts = mpc.horizon.get_contacts(0)
+        command = {"tau": torques}
+        real_state, _ = device.execute(command, correct_contacts, s)
 
-		######## Generating the forces ########## TODO: cast it in functions.
+        ######## Generating the forces ########## TODO: cast it in functions.
 
-		LW = mpc.horizon.pinData(0).f[2].linear
-		RW = mpc.horizon.pinData(0).f[8].linear
-		TW = mpc.horizon.pinData(0).f[1].linear
+        LW = mpc.horizon.pinData(0).f[2].linear
+        RW = mpc.horizon.pinData(0).f[8].linear
+        TW = mpc.horizon.pinData(0).f[1].linear
 
-		if not all(correct_contacts.values()):
-			Lforce = TW - LW if correct_contacts["leg_left_sole_fix_joint"] else -LW
-			Rforce = TW - RW if correct_contacts["leg_right_sole_fix_joint"] else -RW
-		else:
-			Lforce = TW / 2 - LW
-			Rforce = TW / 2 - RW
+        if not all(correct_contacts.values()):
+            Lforce = TW - LW if correct_contacts["leg_left_sole_fix_joint"] else -LW
+            Rforce = TW - RW if correct_contacts["leg_right_sole_fix_joint"] else -RW
+        else:
+            Lforce = TW / 2 - LW
+            Rforce = TW / 2 - RW
 
-		if conf.model_name == "talos_flex":
-			qc, dqc = flex.correctEstimatedDeflections(
-				torques, real_state["q"][7:], real_state["dq"][6:], Lforce, Rforce
-			)
+        if conf.model_name == "talos_flex":
+            qc, dqc = flex.correctEstimatedDeflections(
+                torques, real_state["q"][7:], real_state["dq"][6:], Lforce, Rforce
+            )
 
-			q_current = np.hstack([real_state["q"][:7], qc])
-			v_current = np.hstack([real_state["dq"][:6], dqc])
+            q_current = np.hstack([real_state["q"][:7], qc])
+            v_current = np.hstack([real_state["dq"][:6], dqc])
 
-		elif conf.model_name == "talos":
+        elif conf.model_name == "talos":
 
-			q_current = real_state["q"]
-			v_current = real_state["dq"]
+            q_current = real_state["q"]
+            v_current = real_state["dq"]
 
-    # if s == 0:
-    # stop
+            # if s == 0:
+            # stop
 
 if conf.simulator == "bullet":
     device.close()

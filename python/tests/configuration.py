@@ -61,7 +61,7 @@ ddpIteration = 1  # Number of DDP iterations
 
 simulator = (
     "bullet"
-    #"pinocchio"
+    # "pinocchio"
 )
 
 
@@ -130,7 +130,7 @@ wFootPlacement = 10000
 wStateReg = 100
 wControlReg = 0.001
 wLimit = 1e3
-wWrenchCone = 1 # 0.05
+wWrenchCone = 1  # 0.05
 wForceTask = 0
 wCoP = 10
 wDCM = 0
@@ -164,8 +164,8 @@ controlWeight = np.array(
     # + weightuArm * 2
 )
 
-forceWeights = np.array([1,1,1,1,1,1])
-                     
+forceWeights = np.array([1, 1, 1, 1, 1, 1])
+
 lowKinematicLimits = np.array(
     [
         -0.35,

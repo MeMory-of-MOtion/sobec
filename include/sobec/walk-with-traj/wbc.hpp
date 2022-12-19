@@ -53,7 +53,7 @@ class WBC {
   HorizonManager horizon_;
   HorizonManager walkingCycle_;
   HorizonManager standingCycle_;
-  
+
   eVector3 ref_com_vel_;
   eVector3 ref_com_;
   eVector3 ref_dcm_;
@@ -68,7 +68,7 @@ class WBC {
 
   // timings
   std::vector<int> takeoff_RF_, takeoff_LF_, land_RF_, land_LF_;
-  
+
   int takeoff_RF_cycle_, takeoff_LF_cycle_, land_RF_cycle_, land_LF_cycle_;
 
   // INTERNAL UPDATING functions
@@ -131,10 +131,10 @@ class WBC {
   void iterate(int iteration, const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, bool is_feasible);
   void iterateNoThinking(const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, bool is_feasible);
+                         const Eigen::VectorXd &v_current, bool is_feasible);
 
   void iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, bool is_feasible);
+                         const Eigen::VectorXd &v_current, bool is_feasible);
 
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
@@ -166,7 +166,7 @@ class WBC {
   const std::vector<int> &get_land_RF() { return land_RF_; }
   const std::vector<int> &get_takeoff_LF() { return takeoff_LF_; }
   const std::vector<int> &get_takeoff_RF() { return takeoff_RF_; }
-  
+
   const int &get_land_LF_cycle() { return land_LF_cycle_; }
   const int &get_land_RF_cycle() { return land_RF_cycle_; }
   const int &get_takeoff_LF_cycle() { return takeoff_LF_cycle_; }
@@ -194,21 +194,17 @@ class WBC {
   void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) {
     ref_RF_poses_[time] = ref_RF_pose;
   }
-  
-  const eVector3 &getCoMRef() { return ref_com_;}
-  void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com;}
-  
-  const Eigen::Matrix3d &getBaseRotRef() { return ref_base_rotation_;}
-  void setBaseRotRef(Eigen::Matrix3d ref_base_rotation) { 
-	  ref_base_rotation_ = ref_base_rotation;
+
+  const eVector3 &getCoMRef() { return ref_com_; }
+  void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com; }
+
+  const Eigen::Matrix3d &getBaseRotRef() { return ref_base_rotation_; }
+  void setBaseRotRef(Eigen::Matrix3d ref_base_rotation) {
+    ref_base_rotation_ = ref_base_rotation;
   }
-  
-  const eVector3 &getVelRef_COM() {
-    return ref_com_vel_;
-  }
-  void setVelRef_COM(eVector3 ref_com_vel) {
-    ref_com_vel_ = ref_com_vel;
-  }
+
+  const eVector3 &getVelRef_COM() { return ref_com_vel_; }
+  void setVelRef_COM(eVector3 ref_com_vel) { ref_com_vel_ = ref_com_vel; }
 
   // For the python bindings:
   std::vector<pinocchio::SE3> &ref_LF_poses() { return ref_LF_poses_; }

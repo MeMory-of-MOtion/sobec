@@ -34,13 +34,12 @@ void ResidualModelCenterOfPressureTpl<Scalar>::calc(
   Data *d = static_cast<Data *>(data.get());
   Force f = d->contact->jMf.actInv(d->contact->f);
 
-  if (f.linear()[2] != 0.0){
-	  data->r[0] = f.angular()[1] / f.linear()[2];
-	  data->r[1] = -f.angular()[0] / f.linear()[2];
-  }
-  else{
-	  data->r[0] = 0;
-	  data->r[1] = 0;
+  if (f.linear()[2] != 0.0) {
+    data->r[0] = f.angular()[1] / f.linear()[2];
+    data->r[1] = -f.angular()[0] / f.linear()[2];
+  } else {
+    data->r[0] = 0;
+    data->r[1] = 0;
   }
 }
 
@@ -55,22 +54,21 @@ void ResidualModelCenterOfPressureTpl<Scalar>::calcDiff(
 
   // r = tau/f
   // r'= tau'/f - tau/f^2 f' = (tau'-cop.f')/f
-  if (f.linear()[2] != 0.0){
-	  data->Rx.row(0) = df_dx.row(4);
-	  data->Rx.row(1) = -df_dx.row(3);
-	  data->Rx.row(0) -= data->r[0] * df_dx.row(2);
-	  data->Rx.row(1) -= data->r[1] * df_dx.row(2);
-	  data->Rx /= f.linear()[2];
+  if (f.linear()[2] != 0.0) {
+    data->Rx.row(0) = df_dx.row(4);
+    data->Rx.row(1) = -df_dx.row(3);
+    data->Rx.row(0) -= data->r[0] * df_dx.row(2);
+    data->Rx.row(1) -= data->r[1] * df_dx.row(2);
+    data->Rx /= f.linear()[2];
 
-	  data->Ru.row(0) = df_du.row(4);
-	  data->Ru.row(1) = -df_du.row(3);
-	  data->Ru.row(0) -= data->r[0] * df_du.row(2);
-	  data->Ru.row(1) -= data->r[1] * df_du.row(2);
-	  data->Ru /= f.linear()[2];
-  }
-  else{
-	  data->Ru.setZero();
-	  data->Rx.setZero();
+    data->Ru.row(0) = df_du.row(4);
+    data->Ru.row(1) = -df_du.row(3);
+    data->Ru.row(0) -= data->r[0] * df_du.row(2);
+    data->Ru.row(1) -= data->r[1] * df_du.row(2);
+    data->Ru /= f.linear()[2];
+  } else {
+    data->Ru.setZero();
+    data->Rx.setZero();
   }
 }
 

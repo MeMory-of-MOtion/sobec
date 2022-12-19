@@ -55,8 +55,10 @@ class ResidualModelFlyAngleTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] nu     Dimension of the control vector
    */
   ResidualModelFlyAngleTpl(boost::shared_ptr<StateMultibody> state,
-                          const pinocchio::FrameIndex frame_id,
-                          const Scalar slope, const Scalar height, const Scalar dist, const Scalar width, const std::size_t nu);
+                           const pinocchio::FrameIndex frame_id,
+                           const Scalar slope, const Scalar height,
+                           const Scalar dist, const Scalar width,
+                           const std::size_t nu);
 
   /**
    * @brief Initialize the residual model
@@ -69,8 +71,9 @@ class ResidualModelFlyAngleTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] slope  Slope value, ie altitude multiplier.
    */
   ResidualModelFlyAngleTpl(boost::shared_ptr<StateMultibody> state,
-                          const pinocchio::FrameIndex frame_id,
-                          const Scalar slope, const Scalar height, const Scalar dist, const Scalar width);
+                           const pinocchio::FrameIndex frame_id,
+                           const Scalar slope, const Scalar height,
+                           const Scalar dist, const Scalar width);
   virtual ~ResidualModelFlyAngleTpl();
 
   /**
@@ -142,7 +145,7 @@ struct ResidualDataFlyAngleTpl : public ResidualDataAbstractTpl<_Scalar> {
 
   template <template <typename Scalar> class Model>
   ResidualDataFlyAngleTpl(Model<Scalar>* const model,
-                         DataCollectorAbstract* const data)
+                          DataCollectorAbstract* const data)
       : Base(model, data),
         d_dq(6, model->get_state()->get_nv()),
         d_dv(6, model->get_state()->get_nv()),
