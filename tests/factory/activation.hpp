@@ -50,8 +50,8 @@ class ActivationModelFactory {
   explicit ActivationModelFactory();
   ~ActivationModelFactory();
 
-  boost::shared_ptr<crocoddyl::ActivationModelAbstract> create(
-      ActivationModelTypes::Type activation_type, Eigen::Index nr = 5) const;
+  boost::shared_ptr<crocoddyl::ActivationModelAbstract> create(ActivationModelTypes::Type activation_type,
+                                                               Eigen::Index nr = 5) const;
 };
 
 }  // namespace unittest

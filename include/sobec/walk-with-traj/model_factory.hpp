@@ -88,50 +88,37 @@ class ModelMaker {
  public:
   ModelMaker();
   ModelMaker(const ModelMakerSettings &settings, const RobotDesigner &design);
-  void initialize(const ModelMakerSettings &settings,
-                  const RobotDesigner &design);
+  void initialize(const ModelMakerSettings &settings, const RobotDesigner &design);
   bool initialized_ = false;
 
   AMA formulateStepTracker(const Support &support = Support::DOUBLE);
   AMA formulateTerminalStepTracker(const Support &support = Support::DOUBLE);
-  AMA formulateWWT(const Support &support = Support::DOUBLE,
-                   const bool &stairs = false);
-  AMA formulateTerminalWWT(const Support &support = Support::DOUBLE,
-                           const bool &stairs = false);
+  AMA formulateWWT(const Support &support = Support::DOUBLE, const bool &stairs = false);
+  AMA formulateTerminalWWT(const Support &support = Support::DOUBLE, const bool &stairs = false);
   AMA formulatePointingTask();
 
-  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports,
-                                    const Experiment &experiment);
+  std::vector<AMA> formulateHorizon(const std::vector<Support> &supports, const Experiment &experiment);
   std::vector<AMA> formulateHorizon(const int &T);
   ModelMakerSettings &get_settings() { return settings_; }
 
   // formulation parts:
-  void defineFeetForceTask(Cost &costCollector,
-                           const Support &support = Support::DOUBLE);
-  void defineFeetContact(Contact &contactCollector,
-                         const Support &support = Support::DOUBLE);
-  void defineFeetWrenchCost(Cost &costCollector,
-                            const Support &support = Support::DOUBLE);
-  void defineFeetTracking(Cost &costCollector,
-                          const Support &support = Support::DOUBLE);
-  void defineFeetTranslation(Cost &costCollector,
-                             const Support &support = Support::DOUBLE,
+  void defineFeetForceTask(Cost &costCollector, const Support &support = Support::DOUBLE);
+  void defineFeetContact(Contact &contactCollector, const Support &support = Support::DOUBLE);
+  void defineFeetWrenchCost(Cost &costCollector, const Support &support = Support::DOUBLE);
+  void defineFeetTracking(Cost &costCollector, const Support &support = Support::DOUBLE);
+  void defineFeetTranslation(Cost &costCollector, const Support &support = Support::DOUBLE,
                              const bool &stairs = false);
   void definePostureTask(Cost &costCollector);
   void defineRotationBase(Cost &costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
-  void defineCoPTask(Cost &costCollector,
-                     const Support &support = Support::DOUBLE);
-  void defineDCMTask(Cost &costCollector,
-                     const Support &support = Support::DOUBLE);
-  void defineVelFootTask(Cost &costCollector,
-                         const Support &support = Support::DOUBLE);
+  void defineCoPTask(Cost &costCollector, const Support &support = Support::DOUBLE);
+  void defineDCMTask(Cost &costCollector, const Support &support = Support::DOUBLE);
+  void defineVelFootTask(Cost &costCollector, const Support &support = Support::DOUBLE);
   void defineFeetRotation(Cost &costCollector);
   void defineFeetZRotation(Cost &costCollector);
   void defineFootCollisionTask(Cost &costCollector);
-  void defineFlyHighTask(Cost &costCollector,
-                         const Support &support = Support::DOUBLE);
+  void defineFlyHighTask(Cost &costCollector, const Support &support = Support::DOUBLE);
 
   void defineCoMPosition(Cost &costCollector);
   void defineCoMVelocity(Cost &costCollector);
@@ -139,15 +126,9 @@ class ModelMaker {
   void defineGripperVelocity(Cost &costCollector);
 
   boost::shared_ptr<crocoddyl::StateMultibody> getState() { return state_; }
-  void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) {
-    state_ = new_state;
-  }
-  boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> getActuation() {
-    return actuation_;
-  }
-  void setActuation(
-      const boost::shared_ptr<crocoddyl::ActuationModelFloatingBase>
-          &new_actuation) {
+  void setState(const boost::shared_ptr<crocoddyl::StateMultibody> &new_state) { state_ = new_state; }
+  boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> getActuation() { return actuation_; }
+  void setActuation(const boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> &new_actuation) {
     actuation_ = new_actuation;
   }
 };

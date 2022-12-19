@@ -33,10 +33,8 @@ namespace sobec {
 namespace unittest {
 using namespace crocoddyl;
 
-const std::vector<CostModelTypes::Type> CostModelTypes::all(
-    CostModelTypes::init_all());
-const std::vector<CostModelNoFFTypes::Type> CostModelNoFFTypes::all(
-    CostModelNoFFTypes::init_all());
+const std::vector<CostModelTypes::Type> CostModelTypes::all(CostModelTypes::init_all());
+const std::vector<CostModelNoFFTypes::Type> CostModelNoFFTypes::all(CostModelNoFFTypes::init_all());
 
 std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
   switch (type) {
@@ -102,15 +100,15 @@ std::ostream& operator<<(std::ostream& os, CostModelNoFFTypes::Type type) {
 CostModelFactory::CostModelFactory() {}
 CostModelFactory::~CostModelFactory() {}
 
-boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
-    CostModelTypes::Type cost_type, StateModelTypes::Type state_type,
-    ActivationModelTypes::Type activation_type, std::size_t nu) const {
+boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(CostModelTypes::Type cost_type,
+                                                                         StateModelTypes::Type state_type,
+                                                                         ActivationModelTypes::Type activation_type,
+                                                                         std::size_t nu) const {
   StateModelFactory state_factory;
   ActivationModelFactory activation_factory;
   boost::shared_ptr<crocoddyl::CostModelAbstract> cost;
   boost::shared_ptr<crocoddyl::StateMultibody> state =
-      boost::static_pointer_cast<crocoddyl::StateMultibody>(
-          state_factory.create(state_type));
+      boost::static_pointer_cast<crocoddyl::StateMultibody>(state_factory.create(state_type));
   double alpha = fabs(Eigen::VectorXd::Random(1)[0]);
   double beta = fabs(Eigen::VectorXd::Random(1)[0]);
   double gamma = fabs(Eigen::VectorXd::Random(1)[0]);
@@ -131,20 +129,17 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
     case CostModelTypes::CostModelResidualControl:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, nu),
-          boost::make_shared<crocoddyl::ResidualModelControl>(
-              state, Eigen::VectorXd::Random(nu)));
+          boost::make_shared<crocoddyl::ResidualModelControl>(state, Eigen::VectorXd::Random(nu)));
       break;
     case CostModelTypes::CostModelResidualCoMPosition:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 3),
-          boost::make_shared<crocoddyl::ResidualModelCoMPosition>(
-              state, Eigen::Vector3d::Random(), nu));
+          boost::make_shared<crocoddyl::ResidualModelCoMPosition>(state, Eigen::Vector3d::Random(), nu));
       break;
     case CostModelTypes::CostModelResidualCoMVelocity:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 3),
-          boost::make_shared<sobec::ResidualModelCoMVelocity>(
-              state, Eigen::Vector3d::Random(), nu));
+          boost::make_shared<sobec::ResidualModelCoMVelocity>(state, Eigen::Vector3d::Random(), nu));
       break;
     // case CostModelTypes::CostModelResidualFlyHigh: {
     //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
@@ -164,28 +159,25 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
     case CostModelTypes::CostModelResidual2DSurface: {
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 2),
-          boost::make_shared<sobec::ResidualModel2DSurface>(
-              state, frame_index, Eigen::Vector2d::Random(), 0.2, 0.2, 0.1,
-              nu));
+          boost::make_shared<sobec::ResidualModel2DSurface>(state, frame_index, Eigen::Vector2d::Random(), 0.2, 0.2,
+                                                            0.1, nu));
       break;
     }
     case CostModelTypes::CostModelResidualFramePlacement:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 6),
-          boost::make_shared<crocoddyl::ResidualModelFramePlacement>(
-              state, frame_index, frame_SE3, nu));
+          boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state, frame_index, frame_SE3, nu));
       break;
     case CostModelTypes::CostModelResidualFrameRotation:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 3),
-          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
-              state, frame_index, frame_SE3.rotation(), nu));
+          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(state, frame_index, frame_SE3.rotation(), nu));
       break;
     case CostModelTypes::CostModelResidualFrameTranslation:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 3),
-          boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
-              state, frame_index, frame_SE3.translation(), nu));
+          boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(state, frame_index, frame_SE3.translation(),
+                                                                       nu));
       break;
     // case CostModelTypes::CostModelResidualDCMPosition:
     //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
@@ -196,9 +188,8 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
     case CostModelTypes::CostModelResidualFrameVelocity:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 6),
-          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
-              state, frame_index, pinocchio::Motion::Random(),
-              pinocchio::ReferenceFrame::LOCAL, nu));
+          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(state, frame_index, pinocchio::Motion::Random(),
+                                                                    pinocchio::ReferenceFrame::LOCAL, nu));
       break;
     default:
       throw_pretty(__FILE__ ": Wrong CostModelTypes::Type given");
@@ -207,15 +198,14 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
   return cost;
 }
 
-boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
-    CostModelNoFFTypes::Type cost_type,
-    ActivationModelTypes::Type activation_type, std::size_t nu) const {
+boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(CostModelNoFFTypes::Type cost_type,
+                                                                         ActivationModelTypes::Type activation_type,
+                                                                         std::size_t nu) const {
   StateModelFactory state_factory;
   ActivationModelFactory activation_factory;
   boost::shared_ptr<crocoddyl::CostModelAbstract> cost;
-  boost::shared_ptr<crocoddyl::StateMultibody> state =
-      boost::static_pointer_cast<crocoddyl::StateMultibody>(
-          state_factory.create(StateModelTypes::StateMultibody_TalosArm));
+  boost::shared_ptr<crocoddyl::StateMultibody> state = boost::static_pointer_cast<crocoddyl::StateMultibody>(
+      state_factory.create(StateModelTypes::StateMultibody_TalosArm));
   if (nu == std::numeric_limits<std::size_t>::max()) {
     nu = state->get_nv();
   }
@@ -223,9 +213,7 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
   switch (cost_type) {
     case CostModelNoFFTypes::CostModelResidualControlGrav:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
-          state,
-          activation_factory.create(activation_type,
-                                    static_cast<Eigen::Index>(state->get_nv())),
+          state, activation_factory.create(activation_type, static_cast<Eigen::Index>(state->get_nv())),
           boost::make_shared<ResidualModelControlGrav>(state, nu));
       break;
     default:
@@ -235,8 +223,7 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(
   return cost;
 }
 
-boost::shared_ptr<crocoddyl::CostModelAbstract> create_random_cost(
-    StateModelTypes::Type state_type, std::size_t nu) {
+boost::shared_ptr<crocoddyl::CostModelAbstract> create_random_cost(StateModelTypes::Type state_type, std::size_t nu) {
   static bool once = true;
   if (once) {
     srand((unsigned)time(NULL));
@@ -244,10 +231,8 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> create_random_cost(
   }
 
   CostModelFactory factory;
-  CostModelTypes::Type rand_type = static_cast<CostModelTypes::Type>(
-      rand() % CostModelTypes::NbCostModelTypes);
-  return factory.create(rand_type, state_type,
-                        ActivationModelTypes::ActivationModelQuad, nu);
+  CostModelTypes::Type rand_type = static_cast<CostModelTypes::Type>(rand() % CostModelTypes::NbCostModelTypes);
+  return factory.create(rand_type, state_type, ActivationModelTypes::ActivationModelQuad, nu);
 }
 
 }  // namespace unittest

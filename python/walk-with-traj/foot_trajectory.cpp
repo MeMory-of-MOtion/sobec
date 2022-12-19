@@ -17,12 +17,10 @@ namespace bp = boost::python;
 
 void exposeFootTrajectory() {
   bp::class_<FootTrajectory>("FootTrajectory",
-                             bp::init<double, double, double>(bp::args(
-                                 "self", "swing_leg_height",
-                                 "swing_pose_penetration", "landing_advance")))
+                             bp::init<double, double, double>(
+                                 bp::args("self", "swing_leg_height", "swing_pose_penetration", "landing_advance")))
       .def("generate", &FootTrajectory::generate,
-           bp::args("self", "t_init", "t_end", "pose_init", "pose_end",
-                    "constant"))
+           bp::args("self", "t_init", "t_end", "pose_init", "pose_end", "constant"))
       .def("compute", &FootTrajectory::compute, bp::args("self", "time"));
 }
 }  // namespace python

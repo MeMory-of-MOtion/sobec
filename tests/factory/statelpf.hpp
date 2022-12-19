@@ -21,13 +21,7 @@ namespace sobec {
 namespace unittest {
 
 struct StateLPFModelTypes {
-  enum Type {
-    StateLPF_TalosArm,
-    StateLPF_HyQ,
-    StateLPF_Talos,
-    StateLPF_RandomHumanoid,
-    NbStateLPFModelTypes
-  };
+  enum Type { StateLPF_TalosArm, StateLPF_HyQ, StateLPF_Talos, StateLPF_RandomHumanoid, NbStateLPFModelTypes };
   static std::vector<Type> init_all() {
     std::vector<Type> v;
     v.clear();
@@ -48,22 +42,16 @@ class LPFJointListFactory {
   explicit LPFJointListFactory();
   ~LPFJointListFactory();
 
-  std::vector<std::string> create_names(
-      boost::shared_ptr<pinocchio::Model> model,
-      LPFJointMaskType lpf_mask_type) const;
-  std::vector<int> create_ids(boost::shared_ptr<pinocchio::Model> model,
-                              LPFJointMaskType lpf_mask_type) const;
+  std::vector<std::string> create_names(boost::shared_ptr<pinocchio::Model> model,
+                                        LPFJointMaskType lpf_mask_type) const;
+  std::vector<int> create_ids(boost::shared_ptr<pinocchio::Model> model, LPFJointMaskType lpf_mask_type) const;
 };
 
-const std::map<StateLPFModelTypes::Type, StateModelTypes::Type>
-    mapStateLPFToStateMultibody{
-        {StateLPFModelTypes::StateLPF_TalosArm,
-         StateModelTypes::StateMultibody_TalosArm},
-        {StateLPFModelTypes::StateLPF_HyQ, StateModelTypes::StateMultibody_HyQ},
-        {StateLPFModelTypes::StateLPF_Talos,
-         StateModelTypes::StateMultibody_Talos},
-        {StateLPFModelTypes::StateLPF_RandomHumanoid,
-         StateModelTypes::StateMultibody_RandomHumanoid}};
+const std::map<StateLPFModelTypes::Type, StateModelTypes::Type> mapStateLPFToStateMultibody{
+    {StateLPFModelTypes::StateLPF_TalosArm, StateModelTypes::StateMultibody_TalosArm},
+    {StateLPFModelTypes::StateLPF_HyQ, StateModelTypes::StateMultibody_HyQ},
+    {StateLPFModelTypes::StateLPF_Talos, StateModelTypes::StateMultibody_Talos},
+    {StateLPFModelTypes::StateLPF_RandomHumanoid, StateModelTypes::StateMultibody_RandomHumanoid}};
 
 std::ostream& operator<<(std::ostream& os, StateLPFModelTypes::Type type);
 
@@ -74,9 +62,8 @@ class StateLPFModelFactory {
   explicit StateLPFModelFactory();
   ~StateLPFModelFactory();
 
-  boost::shared_ptr<sobec::StateLPF> create(
-      StateLPFModelTypes::Type state_type,
-      LPFJointMaskType lpf_mask_type = LPFJointMaskType::ALL) const;
+  boost::shared_ptr<sobec::StateLPF> create(StateLPFModelTypes::Type state_type,
+                                            LPFJointMaskType lpf_mask_type = LPFJointMaskType::ALL) const;
 };
 
 }  // namespace unittest

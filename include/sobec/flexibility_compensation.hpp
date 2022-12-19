@@ -92,13 +92,12 @@ class Flex {
   eMatrixRot rigidRotC_, rigidRotD_, M_;
 
   const eVector3 &equivalentAngles(const eMatrixRot &fullRotation);
-  void correctHip(const eVector2 &delta, const eVector2 &deltaDot, eVectorX &q,
-                  eVectorX &dq, const Eigen::Array3i &hipIndices);
+  void correctHip(const eVector2 &delta, const eVector2 &deltaDot, eVectorX &q, eVectorX &dq,
+                  const Eigen::Array3i &hipIndices);
 
   // const eArray2 &movingAverage(const eArray2 &x, std::deque<eArray2> &queue);
 
-  const eArray2 &movingAverage(const eArray2 &x, std::deque<eArray2> &queue,
-                               eArray2 &summation);
+  const eArray2 &movingAverage(const eArray2 &x, std::deque<eArray2> &queue, eArray2 &summation);
 
  public:
   Flex();
@@ -107,29 +106,21 @@ class Flex {
 
   void initialize(const FlexSettings &settings);
 
-  const eVector2 &computeDeflection(const eArray2 &torques,
-                                    const eArray2 &delta0,
-                                    const eArray2 &stiffness,
+  const eVector2 &computeDeflection(const eArray2 &torques, const eArray2 &delta0, const eArray2 &stiffness,
                                     const eArray2 &damping, const double dt);
 
-  void correctDeflections(const eVector2 &leftFlexingTorque,
-                          const eVector2 &rightFlexingTorque, eVectorX &q,
+  void correctDeflections(const eVector2 &leftFlexingTorque, const eVector2 &rightFlexingTorque, eVectorX &q,
                           eVectorX &dq);
 
-  void correctEstimatedDeflections(const eVectorX &desiredTorque, eVectorX &q,
-                                   eVectorX &dq);
+  void correctEstimatedDeflections(const eVectorX &desiredTorque, eVectorX &q, eVectorX &dq);
 
   const FlexSettings &getSettings() { return settings_; }
 
   void resetLeftFlex0() { leftFlex0_ = eVector2::Zero(); }    // is it used?
   void resetRightFlex0() { rightFlex0_ = eVector2::Zero(); }  // is it used?
 
-  void setLeftFlex0(const eVector2 &delta0) {
-    leftFlex0_ = delta0;
-  }  // is it used?
-  void setRightFlex0(const eVector2 &delta0) {
-    rightFlex0_ = delta0;
-  }  // is it used?
+  void setLeftFlex0(const eVector2 &delta0) { leftFlex0_ = delta0; }    // is it used?
+  void setRightFlex0(const eVector2 &delta0) { rightFlex0_ = delta0; }  // is it used?
 };
 }  // namespace sobec
 

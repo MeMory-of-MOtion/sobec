@@ -20,8 +20,7 @@ namespace sobec {
 using namespace crocoddyl;
 
 template <typename _Scalar>
-class ActivationModelWeightedLogTpl
-    : public ActivationModelAbstractTpl<_Scalar> {
+class ActivationModelWeightedLogTpl : public ActivationModelAbstractTpl<_Scalar> {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -33,8 +32,7 @@ class ActivationModelWeightedLogTpl
   typedef typename MathBase::VectorXs VectorXs;
   typedef typename MathBase::MatrixXs MatrixXs;
 
-  explicit ActivationModelWeightedLogTpl(const VectorXs &weights,
-                                         const Scalar &alpha = Scalar(1.))
+  explicit ActivationModelWeightedLogTpl(const VectorXs &weights, const Scalar &alpha = Scalar(1.))
       : Base(weights.size()), weights_(weights), alpha_(alpha) {
     if (alpha < Scalar(0.)) {
       throw_pretty("Invalid argument: "
@@ -43,12 +41,10 @@ class ActivationModelWeightedLogTpl
   };
   virtual ~ActivationModelWeightedLogTpl(){};
 
-  virtual void calc(const boost::shared_ptr<ActivationDataAbstract> &data,
-                    const Eigen::Ref<const VectorXs> &r) {
+  virtual void calc(const boost::shared_ptr<ActivationDataAbstract> &data, const Eigen::Ref<const VectorXs> &r) {
     if (static_cast<std::size_t>(r.size()) != nr_) {
       throw_pretty("Invalid argument: "
-                   << "r has wrong dimension (it should be " +
-                          std::to_string(nr_) + ")");
+                   << "r has wrong dimension (it should be " + std::to_string(nr_) + ")");
     }
     boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
     d->Wr = weights_.cwiseProduct(r);
@@ -56,12 +52,10 @@ class ActivationModelWeightedLogTpl
     data->a_value = log(Scalar(1.0) + d->a0);
   };
 
-  virtual void calcDiff(const boost::shared_ptr<ActivationDataAbstract> &data,
-                        const Eigen::Ref<const VectorXs> &r) {
+  virtual void calcDiff(const boost::shared_ptr<ActivationDataAbstract> &data, const Eigen::Ref<const VectorXs> &r) {
     if (static_cast<std::size_t>(r.size()) != nr_) {
       throw_pretty("Invalid argument: "
-                   << "r has wrong dimension (it should be " +
-                          std::to_string(nr_) + ")");
+                   << "r has wrong dimension (it should be " + std::to_string(nr_) + ")");
     }
     boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
 
@@ -72,8 +66,7 @@ class ActivationModelWeightedLogTpl
   };
 
   virtual boost::shared_ptr<ActivationDataAbstract> createData() {
-    boost::shared_ptr<Data> data =
-        boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this);
+    boost::shared_ptr<Data> data = boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this);
     return data;
   };
 
@@ -83,8 +76,7 @@ class ActivationModelWeightedLogTpl
   void set_weights(const VectorXs &weights) {
     if (weights.size() != weights_.size()) {
       throw_pretty("Invalid argument: "
-                   << "weight vector has wrong dimension (it should be " +
-                          std::to_string(weights_.size()) + ")");
+                   << "weight vector has wrong dimension (it should be " + std::to_string(weights_.size()) + ")");
     }
 
     weights_ = weights;
@@ -103,8 +95,7 @@ class ActivationModelWeightedLogTpl
 };
 
 template <typename _Scalar>
-struct ActivationDataWeightedLogTpl
-    : public ActivationDataAbstractTpl<_Scalar> {
+struct ActivationDataWeightedLogTpl : public ActivationDataAbstractTpl<_Scalar> {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;
@@ -114,10 +105,7 @@ struct ActivationDataWeightedLogTpl
 
   template <typename Activation>
   explicit ActivationDataWeightedLogTpl(Activation *const activation)
-      : Base(activation),
-        a0(0),
-        a1(0),
-        Wr(VectorXs::Zero(activation->get_nr())) {}
+      : Base(activation), a0(0), a1(0), Wr(VectorXs::Zero(activation->get_nr())) {}
 
   Scalar a0;
   Scalar a1;

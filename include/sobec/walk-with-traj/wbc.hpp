@@ -94,24 +94,19 @@ class WBC {
 
  public:
   WBC();
-  WBC(const WBCSettings &settings, const RobotDesigner &design,
-      const HorizonManager &horizon, const Eigen::VectorXd &q0,
-      const Eigen::VectorXd &v0, const std::string &actuationCostName);
+  WBC(const WBCSettings &settings, const RobotDesigner &design, const HorizonManager &horizon,
+      const Eigen::VectorXd &q0, const Eigen::VectorXd &v0, const std::string &actuationCostName);
 
-  void initialize(const WBCSettings &settings, const RobotDesigner &design,
-                  const HorizonManager &horizon, const Eigen::VectorXd &q0,
-                  const Eigen::VectorXd &v0,
-                  const std::string &actuationCostName);
+  void initialize(const WBCSettings &settings, const RobotDesigner &design, const HorizonManager &horizon,
+                  const Eigen::VectorXd &q0, const Eigen::VectorXd &v0, const std::string &actuationCostName);
 
   void initializeSupportTiming();
 
   void updateSupportTiming();
 
-  const supportSwitch &getSwitches(const unsigned long before,
-                                   const unsigned long after);
+  const supportSwitch &getSwitches(const unsigned long before, const unsigned long after);
 
-  const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
-                                    const Eigen::VectorXd &v);
+  const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q, const Eigen::VectorXd &v);
 
   void generateWalkingCycle(ModelMaker &mm);
 
@@ -125,16 +120,13 @@ class WBC {
 
   bool timeToSolveDDP(int iteration);
 
-  void iterate(const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, bool is_feasible);
+  void iterate(const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current, bool is_feasible);
 
-  void iterate(int iteration, const Eigen::VectorXd &q_current,
-               const Eigen::VectorXd &v_current, bool is_feasible);
-  void iterateNoThinking(const Eigen::VectorXd &q_current,
-                         const Eigen::VectorXd &v_current, bool is_feasible);
+  void iterate(int iteration, const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current, bool is_feasible);
+  void iterateNoThinking(const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current, bool is_feasible);
 
-  void iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
-                         const Eigen::VectorXd &v_current, bool is_feasible);
+  void iterateNoThinking(int iteration, const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current,
+                         bool is_feasible);
 
   void recedeWithCycle();
   void recedeWithCycle(HorizonManager &cycle);
@@ -147,14 +139,10 @@ class WBC {
   void set_x0(const Eigen::VectorXd &x0) { x0_ = x0; }
 
   HorizonManager &get_walkingCycle() { return walkingCycle_; }
-  void set_walkingCycle(const HorizonManager &walkingCycle) {
-    walkingCycle_ = walkingCycle;
-  }
+  void set_walkingCycle(const HorizonManager &walkingCycle) { walkingCycle_ = walkingCycle; }
 
   HorizonManager &get_standingCycle() { return standingCycle_; }
-  void set_standingCycle(const HorizonManager &standingCycle) {
-    standingCycle_ = standingCycle;
-  }
+  void set_standingCycle(const HorizonManager &standingCycle) { standingCycle_ = standingCycle; }
 
   HorizonManager &get_horizon() { return horizon_; }
   void set_horizon(const HorizonManager &horizon) { horizon_ = horizon; }
@@ -174,34 +162,20 @@ class WBC {
 
   // USER REFERENCE SETTERS AND GETTERS
   const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
-  const pinocchio::SE3 &getPoseRef_LF(unsigned long time) {
-    return ref_LF_poses_[time];
-  }
-  void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) {
-    ref_LF_poses_ = ref_LF_poses;
-  }
-  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose, unsigned long time) {
-    ref_LF_poses_[time] = ref_LF_pose;
-  }
+  const pinocchio::SE3 &getPoseRef_LF(unsigned long time) { return ref_LF_poses_[time]; }
+  void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) { ref_LF_poses_ = ref_LF_poses; }
+  void setPoseRef_LF(const pinocchio::SE3 &ref_LF_pose, unsigned long time) { ref_LF_poses_[time] = ref_LF_pose; }
 
   const std::vector<pinocchio::SE3> &getPoseRef_RF() { return ref_RF_poses_; }
-  const pinocchio::SE3 &getPoseRef_RF(unsigned long time) {
-    return ref_RF_poses_[time];
-  }
-  void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses) {
-    ref_RF_poses_ = ref_RF_poses;
-  }
-  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) {
-    ref_RF_poses_[time] = ref_RF_pose;
-  }
+  const pinocchio::SE3 &getPoseRef_RF(unsigned long time) { return ref_RF_poses_[time]; }
+  void setPoseRef_RF(const std::vector<pinocchio::SE3> &ref_RF_poses) { ref_RF_poses_ = ref_RF_poses; }
+  void setPoseRef_RF(const pinocchio::SE3 &ref_RF_pose, unsigned long time) { ref_RF_poses_[time] = ref_RF_pose; }
 
   const eVector3 &getCoMRef() { return ref_com_; }
   void setCoMRef(eVector3 ref_com) { ref_com_ = ref_com; }
 
   const Eigen::Matrix3d &getBaseRotRef() { return ref_base_rotation_; }
-  void setBaseRotRef(Eigen::Matrix3d ref_base_rotation) {
-    ref_base_rotation_ = ref_base_rotation;
-  }
+  void setBaseRotRef(Eigen::Matrix3d ref_base_rotation) { ref_base_rotation_ = ref_base_rotation; }
 
   const eVector3 &getVelRef_COM() { return ref_com_vel_; }
   void setVelRef_COM(eVector3 ref_com_vel) { ref_com_vel_ = ref_com_vel; }

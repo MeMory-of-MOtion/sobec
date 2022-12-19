@@ -46,8 +46,7 @@ struct DifferentialActionModelTypes {
   static const std::vector<Type> all;
 };
 
-std::ostream& operator<<(std::ostream& os,
-                         DifferentialActionModelTypes::Type type);
+std::ostream& operator<<(std::ostream& os, DifferentialActionModelTypes::Type type);
 
 class DifferentialActionModelFactory {
  public:
@@ -57,29 +56,23 @@ class DifferentialActionModelFactory {
   ~DifferentialActionModelFactory();
 
   boost::shared_ptr<crocoddyl::DifferentialActionModelAbstract> create(
-      DifferentialActionModelTypes::Type type,
-      PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
+      DifferentialActionModelTypes::Type type, PinocchioReferenceTypes::Type ref_type = PinocchioReferenceTypes::LOCAL,
       ContactModelMaskTypes::Type mask_type = ContactModelMaskTypes::X) const;
 
-  boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics>
-  create_freeFwdDynamics(StateModelTypes::Type state_type,
-                         ActuationModelTypes::Type actuation_type) const;
+  boost::shared_ptr<crocoddyl::DifferentialActionModelFreeFwdDynamics> create_freeFwdDynamics(
+      StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type) const;
 
-  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
-  create_contact6DFwdDynamics(StateModelTypes::Type state_type,
-                              ActuationModelTypes::Type actuation_type,
-                              PinocchioReferenceTypes::Type ref_type) const;
+  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics> create_contact6DFwdDynamics(
+      StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
+      PinocchioReferenceTypes::Type ref_type) const;
 
-  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
-  create_contact3DFwdDynamics(StateModelTypes::Type state_type,
-                              ActuationModelTypes::Type actuation_type,
-                              PinocchioReferenceTypes::Type ref_type) const;
+  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics> create_contact3DFwdDynamics(
+      StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
+      PinocchioReferenceTypes::Type ref_type) const;
 
-  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics>
-  create_contact1DFwdDynamics(StateModelTypes::Type state_type,
-                              ActuationModelTypes::Type actuation_type,
-                              PinocchioReferenceTypes::Type ref_type,
-                              ContactModelMaskTypes::Type mask_type) const;
+  boost::shared_ptr<newcontacts::DifferentialActionModelContactFwdDynamics> create_contact1DFwdDynamics(
+      StateModelTypes::Type state_type, ActuationModelTypes::Type actuation_type,
+      PinocchioReferenceTypes::Type ref_type, ContactModelMaskTypes::Type mask_type) const;
 };
 
 }  // namespace unittest

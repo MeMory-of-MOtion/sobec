@@ -16,10 +16,8 @@ namespace sobec {
 namespace python {
 namespace bp = boost::python;
 
-void initialize(WBC &self, const bp::dict &settings,
-                const RobotDesigner &designer, const HorizonManager &horizon,
-                const Eigen::VectorXd &q0, const Eigen::VectorXd &v0,
-                const std::string &actuationCostName) {
+void initialize(WBC &self, const bp::dict &settings, const RobotDesigner &designer, const HorizonManager &horizon,
+                const Eigen::VectorXd &q0, const Eigen::VectorXd &v0, const std::string &actuationCostName) {
   WBCSettings conf;
 
   conf.totalSteps = bp::extract<int>(settings["totalSteps"]);
@@ -56,9 +54,7 @@ std::string displayVector(std::vector<T> &self) {
   return oss.str();
 }
 
-bool timeToSolveDDP(WBC &self, const int iteration) {
-  return self.timeToSolveDDP(iteration);
-}
+bool timeToSolveDDP(WBC &self, const int iteration) { return self.timeToSolveDDP(iteration); }
 
 void exposeWBC() {
   bp::enum_<LocomotionType>("LocomotionType")
@@ -66,8 +62,7 @@ void exposeWBC() {
       .value("STANDING", LocomotionType::STANDING);
   bp::class_<std::vector<pinocchio::SE3>>("vector_pinocchio_se3_")
       .def(bp::vector_indexing_suite<std::vector<pinocchio::SE3>>())
-      .def("__init__",
-           make_constructor(constructVectorFromList<pinocchio::SE3>))
+      .def("__init__", make_constructor(constructVectorFromList<pinocchio::SE3>))
       .def("__repr__", &displayVector<pinocchio::SE3>);
 
   bp::class_<std::vector<eVector3>>("vector_eigen_vector3_")
@@ -77,150 +72,86 @@ void exposeWBC() {
 
   bp::class_<WBC>("WBC", bp::init<>())
       .def("initialize", &initialize,
-           bp::args("self", "settings", "design", "horizon", "q0", "v0",
-                    "actuationCostName"),
+           bp::args("self", "settings", "design", "horizon", "q0", "v0", "actuationCostName"),
            "The posture required here is the full robot posture in the order "
            "of pinocchio")
       .def("shapeState",
-           bp::make_function(
-               &WBC::shapeState,
-               bp::return_value_policy<
-                   bp::reference_existing_object>()))  //, bp::args("self", "q",
-                                                       //"v")
-      .def("generateWalkingCycle", &WBC::generateWalkingCycle,
-           bp::args("self", "modelMaker"))
-      .def("generateStandingCycle", &WBC::generateStandingCycle,
-           bp::args("self", "modelMaker"))
-      .def("generateWalkingCycleNoThinking",
-           &WBC::generateWalkingCycleNoThinking,
+           bp::make_function(&WBC::shapeState,
+                             bp::return_value_policy<bp::reference_existing_object>()))  //, bp::args("self", "q",
+                                                                                         //"v")
+      .def("generateWalkingCycle", &WBC::generateWalkingCycle, bp::args("self", "modelMaker"))
+      .def("generateStandingCycle", &WBC::generateStandingCycle, bp::args("self", "modelMaker"))
+      .def("generateWalkingCycleNoThinking", &WBC::generateWalkingCycleNoThinking,
            bp::args("self", "modelMakerNoThinking"))
-      .def("generateStandingCycleNoThinking",
-           &WBC::generateStandingCycleNoThinking,
+      .def("generateStandingCycleNoThinking", &WBC::generateStandingCycleNoThinking,
            bp::args("self", "modelMakerNoThinking"))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
-           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
+           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
                &WBC::iterate),
-           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
-            bp::arg("v_current"), bp::arg("is_feasible") = false))
+           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"), bp::arg("v_current"),
+            bp::arg("is_feasible") = false))
       .def("iterate",
-           static_cast<void (WBC::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBC::iterate),
-           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
+           static_cast<void (WBC::*)(const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(&WBC::iterate),
+           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"), bp::arg("is_feasible") = false))
+      .def("iterateNoThinking",
+           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
+               &WBC::iterateNoThinking),
+           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
       .def("iterateNoThinking",
-           static_cast<void (WBC::*)(const int, const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
+           static_cast<void (WBC::*)(const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
                &WBC::iterateNoThinking),
-           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
-            bp::arg("v_current"), bp::arg("is_feasible") = false))
-      .def("iterateNoThinking",
-           static_cast<void (WBC::*)(const Eigen::VectorXd &,
-                                     const Eigen::VectorXd &, const bool)>(
-               &WBC::iterateNoThinking),
-           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
-            bp::arg("is_feasible") = false))
-      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle,
-                            bp::args("self"))
-      .def<void (WBC::*)(HorizonManager &)>(
-          "recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
-      .def<void (WBC::*)()>("goToNextDoubleSupport",
-                            &WBC::goToNextDoubleSupport, bp::args("self"))
-      .add_property(
-          "x0",
-          bp::make_function(
-              &WBC::get_x0,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_x0)
+           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"), bp::arg("is_feasible") = false))
+      .def<void (WBC::*)()>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self"))
+      .def<void (WBC::*)(HorizonManager &)>("recedeWithCycle", &WBC::recedeWithCycle, bp::args("self", "cycle"))
+      .def<void (WBC::*)()>("goToNextDoubleSupport", &WBC::goToNextDoubleSupport, bp::args("self"))
+      .add_property("x0", bp::make_function(&WBC::get_x0, bp::return_value_policy<bp::reference_existing_object>()),
+                    &WBC::set_x0)
       .add_property(
           "walkingCycle",
-          bp::make_function(
-              &WBC::get_walkingCycle,
-              bp::return_value_policy<bp::reference_existing_object>()),
+          bp::make_function(&WBC::get_walkingCycle, bp::return_value_policy<bp::reference_existing_object>()),
           &WBC::set_walkingCycle)
       .add_property(
           "standingCycle",
-          bp::make_function(
-              &WBC::get_standingCycle,
-              bp::return_value_policy<bp::reference_existing_object>()),
+          bp::make_function(&WBC::get_standingCycle, bp::return_value_policy<bp::reference_existing_object>()),
           &WBC::set_standingCycle)
-      .add_property(
-          "horizon",
-          bp::make_function(
-              &WBC::get_horizon,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_horizon)
-      .add_property(
-          "designer",
-          bp::make_function(
-              &WBC::get_designer,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          &WBC::set_designer)
-      .add_property(
-          "ref_LF_poses",
-          bp::make_function(
-              &WBC::ref_LF_poses,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(
-              &WBC::setPoseRef_LF))
-      .add_property(
-          "ref_RF_poses",
-          bp::make_function(
-              &WBC::ref_RF_poses,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(
-              &WBC::setPoseRef_RF))
-      .add_property(
-          "ref_com",
-          bp::make_function(
-              &WBC::ref_com,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(&WBC::setCoMRef))
-      .add_property(
-          "ref_com_vel",
-          bp::make_function(
-              &WBC::ref_com_vel,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(eVector3)>(&WBC::setVelRef_COM))
-      .add_property(
-          "ref_base_rot",
-          bp::make_function(
-              &WBC::ref_base_rot,
-              bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBC::*)(Eigen::Matrix3d)>(&WBC::setBaseRotRef))
+      .add_property("horizon",
+                    bp::make_function(&WBC::get_horizon, bp::return_value_policy<bp::reference_existing_object>()),
+                    &WBC::set_horizon)
+      .add_property("designer",
+                    bp::make_function(&WBC::get_designer, bp::return_value_policy<bp::reference_existing_object>()),
+                    &WBC::set_designer)
+      .add_property("ref_LF_poses",
+                    bp::make_function(&WBC::ref_LF_poses, bp::return_value_policy<bp::reference_existing_object>()),
+                    static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(&WBC::setPoseRef_LF))
+      .add_property("ref_RF_poses",
+                    bp::make_function(&WBC::ref_RF_poses, bp::return_value_policy<bp::reference_existing_object>()),
+                    static_cast<void (WBC::*)(const std::vector<pinocchio::SE3> &)>(&WBC::setPoseRef_RF))
+      .add_property("ref_com",
+                    bp::make_function(&WBC::ref_com, bp::return_value_policy<bp::reference_existing_object>()),
+                    static_cast<void (WBC::*)(eVector3)>(&WBC::setCoMRef))
+      .add_property("ref_com_vel",
+                    bp::make_function(&WBC::ref_com_vel, bp::return_value_policy<bp::reference_existing_object>()),
+                    static_cast<void (WBC::*)(eVector3)>(&WBC::setVelRef_COM))
+      .add_property("ref_base_rot",
+                    bp::make_function(&WBC::ref_base_rot, bp::return_value_policy<bp::reference_existing_object>()),
+                    static_cast<void (WBC::*)(Eigen::Matrix3d)>(&WBC::setBaseRotRef))
       .def("switchToWalk", &WBC::switchToWalk)
       .def("switchToStand", &WBC::switchToStand)
       .def("current_motion_type", &WBC::currentLocomotion)
-      .def("land_LF",
-           make_function(
-               &WBC::get_land_LF,
-               bp::return_value_policy<bp::reference_existing_object>()))
-      .def("land_RF",
-           make_function(
-               &WBC::get_land_RF,
-               bp::return_value_policy<bp::reference_existing_object>()))
-      .def("takeoff_LF",
-           make_function(
-               &WBC::get_takeoff_LF,
-               bp::return_value_policy<bp::reference_existing_object>()))
-      .def("takeoff_RF",
-           make_function(
-               &WBC::get_takeoff_RF,
-               bp::return_value_policy<bp::reference_existing_object>()))
+      .def("land_LF", make_function(&WBC::get_land_LF, bp::return_value_policy<bp::reference_existing_object>()))
+      .def("land_RF", make_function(&WBC::get_land_RF, bp::return_value_policy<bp::reference_existing_object>()))
+      .def("takeoff_LF", make_function(&WBC::get_takeoff_LF, bp::return_value_policy<bp::reference_existing_object>()))
+      .def("takeoff_RF", make_function(&WBC::get_takeoff_RF, bp::return_value_policy<bp::reference_existing_object>()))
       .def("land_LF_cycle",
-           make_function(&WBC::get_land_LF_cycle,
-                         bp::return_value_policy<bp::copy_const_reference>()))
+           make_function(&WBC::get_land_LF_cycle, bp::return_value_policy<bp::copy_const_reference>()))
       .def("land_RF_cycle",
-           make_function(&WBC::get_land_RF_cycle,
-                         bp::return_value_policy<bp::copy_const_reference>()))
+           make_function(&WBC::get_land_RF_cycle, bp::return_value_policy<bp::copy_const_reference>()))
       .def("takeoff_LF_cycle",
-           make_function(&WBC::get_takeoff_LF_cycle,
-                         bp::return_value_policy<bp::copy_const_reference>()))
+           make_function(&WBC::get_takeoff_LF_cycle, bp::return_value_policy<bp::copy_const_reference>()))
       .def("takeoff_RF_cycle",
-           make_function(&WBC::get_takeoff_RF_cycle,
-                         bp::return_value_policy<bp::copy_const_reference>()));
+           make_function(&WBC::get_takeoff_RF_cycle, bp::return_value_policy<bp::copy_const_reference>()));
 }
 }  // namespace python
 }  // namespace sobec

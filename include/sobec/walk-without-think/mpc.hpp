@@ -69,14 +69,12 @@ class MPCWalk {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  explicit MPCWalk(boost::shared_ptr<MPCWalkParams> params,
-                   boost::shared_ptr<ShootingProblem> problem);
+  explicit MPCWalk(boost::shared_ptr<MPCWalkParams> params, boost::shared_ptr<ShootingProblem> problem);
 
   virtual ~MPCWalk() {}
 
   /// @brief once all fields are set, init the mpc manager with guess traj
-  void initialize(const std::vector<Eigen::VectorXd>& xs,
-                  const std::vector<Eigen::VectorXd>& us);
+  void initialize(const std::vector<Eigen::VectorXd>& xs, const std::vector<Eigen::VectorXd>& us);
 
   /// @brief calc the OCP solution. Init must be called first.
   void calc(const Eigen::Ref<const VectorXd>& x, const int t);

@@ -23,44 +23,27 @@ using namespace sobec::unittest;
 
 void test_state_dimension(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Checking the dimension of zero and random states
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->zero().size()) ==
-              stateLPFAll->get_ny());
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->rand().size()) ==
-              stateLPFAll->get_ny());
-  BOOST_CHECK(stateLPFAll->get_ny() ==
-              (stateLPFAll->get_nq() + stateLPFAll->get_nv() +
-               stateLPFAll->get_ntau()));
-  BOOST_CHECK(stateLPFAll->get_ndy() ==
-              (2 * stateLPFAll->get_nv() + stateLPFAll->get_ntau()));
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->get_lb().size()) ==
-              stateLPFAll->get_ny());
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->get_ub().size()) ==
-              stateLPFAll->get_ny());
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->zero().size()) == stateLPFAll->get_ny());
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->rand().size()) == stateLPFAll->get_ny());
+  BOOST_CHECK(stateLPFAll->get_ny() == (stateLPFAll->get_nq() + stateLPFAll->get_nv() + stateLPFAll->get_ntau()));
+  BOOST_CHECK(stateLPFAll->get_ndy() == (2 * stateLPFAll->get_nv() + stateLPFAll->get_ntau()));
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->get_lb().size()) == stateLPFAll->get_ny());
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFAll->get_ub().size()) == stateLPFAll->get_ny());
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->zero().size()) ==
-              stateLPFRand->get_ny());
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->rand().size()) ==
-              stateLPFRand->get_ny());
-  BOOST_CHECK(stateLPFRand->get_ny() ==
-              (stateLPFRand->get_nq() + stateLPFRand->get_nv() +
-               stateLPFRand->get_ntau()));
-  BOOST_CHECK(stateLPFRand->get_ndy() ==
-              (2 * stateLPFRand->get_nv() + stateLPFRand->get_ntau()));
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->get_lb().size()) ==
-              stateLPFRand->get_ny());
-  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->get_ub().size()) ==
-              stateLPFRand->get_ny());
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->zero().size()) == stateLPFRand->get_ny());
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->rand().size()) == stateLPFRand->get_ny());
+  BOOST_CHECK(stateLPFRand->get_ny() == (stateLPFRand->get_nq() + stateLPFRand->get_nv() + stateLPFRand->get_ntau()));
+  BOOST_CHECK(stateLPFRand->get_ndy() == (2 * stateLPFRand->get_nv() + stateLPFRand->get_ntau()));
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->get_lb().size()) == stateLPFRand->get_ny());
+  BOOST_CHECK(static_cast<std::size_t>(stateLPFRand->get_ub().size()) == stateLPFRand->get_ny());
 
   // Check that dimensions matches multibody dimensions when nu=0 (no LPF joint)
   StateModelFactory factoryMultibody;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone =
-      factory.create(state_type, LPFJointMaskType::NONE);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone = factory.create(state_type, LPFJointMaskType::NONE);
   const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
       factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
   BOOST_CHECK(stateLPFNone->get_ny() == stateMultibody->get_nx());
@@ -72,8 +55,7 @@ void test_state_dimension(StateLPFModelTypes::Type state_type) {
 
 void test_integrate_against_difference(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random states
   const Eigen::VectorXd& x1 = stateLPFAll->rand();
   const Eigen::VectorXd& x2 = stateLPFAll->rand();
@@ -88,8 +70,7 @@ void test_integrate_against_difference(StateLPFModelTypes::Type state_type) {
   BOOST_CHECK(dxi.isZero(1e-9));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random states
   const Eigen::VectorXd& x1rand = stateLPFRand->rand();
   const Eigen::VectorXd& x2rand = stateLPFRand->rand();
@@ -105,8 +86,7 @@ void test_integrate_against_difference(StateLPFModelTypes::Type state_type) {
 
   // Check diff against state multibody diff when nu=0
   StateModelFactory factoryMultibody;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone =
-      factory.create(state_type, LPFJointMaskType::NONE);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone = factory.create(state_type, LPFJointMaskType::NONE);
   const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
       factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
   // Generating random states
@@ -123,8 +103,7 @@ void test_integrate_against_difference(StateLPFModelTypes::Type state_type) {
 
 void test_difference_against_integrate(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random states
   const Eigen::VectorXd& x = stateLPFAll->rand();
   const Eigen::VectorXd& dx = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
@@ -137,11 +116,9 @@ void test_difference_against_integrate(StateLPFModelTypes::Type state_type) {
   BOOST_CHECK((dxd - dx).isZero(1e-9));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   const Eigen::VectorXd& xrand = stateLPFRand->rand();
-  const Eigen::VectorXd& dxrand =
-      Eigen::VectorXd::Random(stateLPFRand->get_ndy());
+  const Eigen::VectorXd& dxrand = Eigen::VectorXd::Random(stateLPFRand->get_ndy());
   // Computing dx by differentiation of its integrate
   Eigen::VectorXd xidxrand(stateLPFRand->get_ny());
   stateLPFRand->integrate(xrand, dxrand, xidxrand);
@@ -152,8 +129,7 @@ void test_difference_against_integrate(StateLPFModelTypes::Type state_type) {
 
   // Check integrate against state multibody integrate when nu=0
   StateModelFactory factoryMultibody;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone =
-      factory.create(state_type, LPFJointMaskType::NONE);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone = factory.create(state_type, LPFJointMaskType::NONE);
   const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
       factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
   // Generating random states
@@ -170,95 +146,68 @@ void test_difference_against_integrate(StateLPFModelTypes::Type state_type) {
 
 void test_Jdiff_firstsecond(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x1 = stateLPFAll->rand();
   const Eigen::VectorXd& x2 = stateLPFAll->rand();
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jdiff_tmp(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_tmp(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jdiff(x1, x2, Jdiff_first, Jdiff_tmp, crocoddyl::first);
   stateLPFAll->Jdiff(x1, x2, Jdiff_tmp, Jdiff_second, crocoddyl::second);
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jdiff_both_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_both_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_both_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_both_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jdiff(x1, x2, Jdiff_both_first, Jdiff_both_second);
   BOOST_CHECK((Jdiff_first - Jdiff_both_first).isZero(1e-9));
   BOOST_CHECK((Jdiff_second - Jdiff_both_second).isZero(1e-9));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x1rand = stateLPFRand->rand();
   const Eigen::VectorXd& x2rand = stateLPFRand->rand();
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jdiff_tmprand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdiff_firstrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdiff_secondrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_firstrand, Jdiff_tmprand,
-                      crocoddyl::first);
-  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_tmprand, Jdiff_secondrand,
-                      crocoddyl::second);
+  Eigen::MatrixXd Jdiff_tmprand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_firstrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_secondrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_firstrand, Jdiff_tmprand, crocoddyl::first);
+  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_tmprand, Jdiff_secondrand, crocoddyl::second);
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jdiff_both_firstrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdiff_both_secondrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_both_firstrand,
-                      Jdiff_both_secondrand);
+  Eigen::MatrixXd Jdiff_both_firstrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_both_secondrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_both_firstrand, Jdiff_both_secondrand);
   BOOST_CHECK((Jdiff_firstrand - Jdiff_both_firstrand).isZero(1e-9));
   BOOST_CHECK((Jdiff_secondrand - Jdiff_both_secondrand).isZero(1e-9));
 
   // Check Jdiff against state multibody when nu=0
   StateModelFactory factoryMultibody;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone =
-      factory.create(state_type, LPFJointMaskType::NONE);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone = factory.create(state_type, LPFJointMaskType::NONE);
   const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
       factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
   const Eigen::VectorXd& x3 = stateLPFNone->rand();
   const Eigen::VectorXd& x4 = stateLPFNone->rand();
   // Jdiff LPF
-  Eigen::MatrixXd Jdiff_tmpLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  Eigen::MatrixXd Jdiff_firstLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  Eigen::MatrixXd Jdiff_secondLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jdiff_tmpLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jdiff_firstLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jdiff_secondLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
   stateLPFNone->Jdiff(x3, x4, Jdiff_firstLPF, Jdiff_tmpLPF, crocoddyl::first);
   stateLPFNone->Jdiff(x3, x4, Jdiff_tmpLPF, Jdiff_secondLPF, crocoddyl::second);
-  Eigen::MatrixXd Jdiff_both_firstLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  Eigen::MatrixXd Jdiff_both_secondLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jdiff_both_firstLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jdiff_both_secondLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
   stateLPFNone->Jdiff(x3, x4, Jdiff_both_firstLPF, Jdiff_both_secondLPF);
   // Jdiff multibody
-  Eigen::MatrixXd Jdiff_tmpMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  Eigen::MatrixXd Jdiff_firstMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  Eigen::MatrixXd Jdiff_secondMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  stateMultibody->Jdiff(x3, x4, Jdiff_firstMultibody, Jdiff_tmpMultibody,
-                        crocoddyl::first);
-  stateMultibody->Jdiff(x3, x4, Jdiff_tmpMultibody, Jdiff_secondMultibody,
-                        crocoddyl::second);
-  Eigen::MatrixXd Jdiff_both_firstMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  Eigen::MatrixXd Jdiff_both_secondMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  stateMultibody->Jdiff(x3, x4, Jdiff_both_firstMultibody,
-                        Jdiff_both_secondMultibody);
+  Eigen::MatrixXd Jdiff_tmpMultibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jdiff_firstMultibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jdiff_secondMultibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jdiff(x3, x4, Jdiff_firstMultibody, Jdiff_tmpMultibody, crocoddyl::first);
+  stateMultibody->Jdiff(x3, x4, Jdiff_tmpMultibody, Jdiff_secondMultibody, crocoddyl::second);
+  Eigen::MatrixXd Jdiff_both_firstMultibody(
+      Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jdiff_both_secondMultibody(
+      Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jdiff(x3, x4, Jdiff_both_firstMultibody, Jdiff_both_secondMultibody);
 
   BOOST_CHECK((Jdiff_firstLPF - Jdiff_firstMultibody).isZero(1e-9));
   BOOST_CHECK((Jdiff_secondLPF - Jdiff_secondMultibody).isZero(1e-9));
@@ -268,98 +217,68 @@ void test_Jdiff_firstsecond(StateLPFModelTypes::Type state_type) {
 
 void test_Jint_firstsecond(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x = stateLPFAll->rand();
   const Eigen::VectorXd& dx = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jint_tmp(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_tmp(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jintegrate(x, dx, Jint_first, Jint_tmp, crocoddyl::first);
   stateLPFAll->Jintegrate(x, dx, Jint_tmp, Jint_second, crocoddyl::second);
   // Computing the partial derivatives of the integrate function separately
-  Eigen::MatrixXd Jint_both_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_both_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_both_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_both_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jintegrate(x, dx, Jint_both_first, Jint_both_second);
   BOOST_CHECK((Jint_first - Jint_both_first).isZero(1e-9));
   BOOST_CHECK((Jint_second - Jint_both_second).isZero(1e-9));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& xrand = stateLPFAll->rand();
-  const Eigen::VectorXd& dxrand =
-      Eigen::VectorXd::Random(stateLPFAll->get_ndy());
+  const Eigen::VectorXd& dxrand = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jint_tmprand(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_firstrand(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_secondrand(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  stateLPFAll->Jintegrate(xrand, dxrand, Jint_firstrand, Jint_tmprand,
-                          crocoddyl::first);
-  stateLPFAll->Jintegrate(xrand, dxrand, Jint_tmprand, Jint_secondrand,
-                          crocoddyl::second);
+  Eigen::MatrixXd Jint_tmprand(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_firstrand(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_secondrand(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  stateLPFAll->Jintegrate(xrand, dxrand, Jint_firstrand, Jint_tmprand, crocoddyl::first);
+  stateLPFAll->Jintegrate(xrand, dxrand, Jint_tmprand, Jint_secondrand, crocoddyl::second);
   // Computing the partial derivatives of the integrate function separately
-  Eigen::MatrixXd Jint_both_firstrand(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_both_secondrand(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  stateLPFAll->Jintegrate(xrand, dxrand, Jint_both_firstrand,
-                          Jint_both_secondrand);
+  Eigen::MatrixXd Jint_both_firstrand(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_both_secondrand(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  stateLPFAll->Jintegrate(xrand, dxrand, Jint_both_firstrand, Jint_both_secondrand);
   BOOST_CHECK((Jint_firstrand - Jint_both_firstrand).isZero(1e-9));
   BOOST_CHECK((Jint_secondrand - Jint_both_secondrand).isZero(1e-9));
 
   // Check Jintegrate against state multibody Jintegrate when nu=0
   StateModelFactory factoryMultibody;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone =
-      factory.create(state_type, LPFJointMaskType::NONE);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone = factory.create(state_type, LPFJointMaskType::NONE);
   const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
       factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
   const Eigen::VectorXd& x1 = stateLPFNone->rand();
   const Eigen::VectorXd& dx1 = Eigen::VectorXd::Random(stateLPFNone->get_ndy());
   // Jint LPF
-  Eigen::MatrixXd Jint_tmpLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  Eigen::MatrixXd Jint_firstLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  Eigen::MatrixXd Jint_secondLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  stateLPFNone->Jintegrate(x1, dx1, Jint_firstLPF, Jint_tmpLPF,
-                           crocoddyl::first);
-  stateLPFNone->Jintegrate(x1, dx1, Jint_tmpLPF, Jint_secondLPF,
-                           crocoddyl::second);
-  Eigen::MatrixXd Jint_both_firstLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  Eigen::MatrixXd Jint_both_secondLPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jint_tmpLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jint_firstLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jint_secondLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  stateLPFNone->Jintegrate(x1, dx1, Jint_firstLPF, Jint_tmpLPF, crocoddyl::first);
+  stateLPFNone->Jintegrate(x1, dx1, Jint_tmpLPF, Jint_secondLPF, crocoddyl::second);
+  Eigen::MatrixXd Jint_both_firstLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jint_both_secondLPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
   stateLPFNone->Jintegrate(x1, dx1, Jint_both_firstLPF, Jint_both_secondLPF);
   // Jint multibody
-  Eigen::MatrixXd Jint_tmpMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  Eigen::MatrixXd Jint_firstMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  Eigen::MatrixXd Jint_secondMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  stateMultibody->Jintegrate(x1, dx1, Jint_firstMultibody, Jint_tmpMultibody,
-                             crocoddyl::first);
-  stateMultibody->Jintegrate(x1, dx1, Jint_tmpMultibody, Jint_secondMultibody,
-                             crocoddyl::second);
-  Eigen::MatrixXd Jint_both_firstMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  Eigen::MatrixXd Jint_both_secondMultibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  stateMultibody->Jintegrate(x1, dx1, Jint_both_firstMultibody,
-                             Jint_both_secondMultibody);
+  Eigen::MatrixXd Jint_tmpMultibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_firstMultibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_secondMultibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jintegrate(x1, dx1, Jint_firstMultibody, Jint_tmpMultibody, crocoddyl::first);
+  stateMultibody->Jintegrate(x1, dx1, Jint_tmpMultibody, Jint_secondMultibody, crocoddyl::second);
+  Eigen::MatrixXd Jint_both_firstMultibody(
+      Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_both_secondMultibody(
+      Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  stateMultibody->Jintegrate(x1, dx1, Jint_both_firstMultibody, Jint_both_secondMultibody);
 
   BOOST_CHECK((Jint_firstLPF - Jint_firstMultibody).isZero(1e-9));
   BOOST_CHECK((Jint_secondLPF - Jint_secondMultibody).isZero(1e-9));
@@ -369,150 +288,107 @@ void test_Jint_firstsecond(StateLPFModelTypes::Type state_type) {
 
 void test_Jdiff_num_diff_firstsecond(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x1 = stateLPFAll->rand();
   const Eigen::VectorXd& x2 = stateLPFAll->rand();
   // Get the num diff stateLPFAll
   crocoddyl::StateNumDiff state_num_diff(stateLPFAll);
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jdiff_num_diff_tmp(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_num_diff_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_num_diff_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  state_num_diff.Jdiff(x1, x2, Jdiff_num_diff_first, Jdiff_num_diff_tmp,
-                       crocoddyl::first);
-  state_num_diff.Jdiff(x1, x2, Jdiff_num_diff_tmp, Jdiff_num_diff_second,
-                       crocoddyl::second);
+  Eigen::MatrixXd Jdiff_num_diff_tmp(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_diff_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_diff_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  state_num_diff.Jdiff(x1, x2, Jdiff_num_diff_first, Jdiff_num_diff_tmp, crocoddyl::first);
+  state_num_diff.Jdiff(x1, x2, Jdiff_num_diff_tmp, Jdiff_num_diff_second, crocoddyl::second);
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jdiff_num_diff_both_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_num_diff_both_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  state_num_diff.Jdiff(x1, x2, Jdiff_num_diff_both_first,
-                       Jdiff_num_diff_both_second);
+  Eigen::MatrixXd Jdiff_num_diff_both_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_diff_both_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  state_num_diff.Jdiff(x1, x2, Jdiff_num_diff_both_first, Jdiff_num_diff_both_second);
   BOOST_CHECK((Jdiff_num_diff_first - Jdiff_num_diff_both_first).isZero(1e-9));
-  BOOST_CHECK(
-      (Jdiff_num_diff_second - Jdiff_num_diff_both_second).isZero(1e-9));
+  BOOST_CHECK((Jdiff_num_diff_second - Jdiff_num_diff_both_second).isZero(1e-9));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x1rand = stateLPFRand->rand();
   const Eigen::VectorXd& x2rand = stateLPFRand->rand();
   // Get the num diff stateLPFRand
   crocoddyl::StateNumDiff state_num_diffrand(stateLPFRand);
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jdiff_num_diff_tmprand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdiff_num_diff_firstrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdiff_num_diff_secondrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  state_num_diffrand.Jdiff(x1rand, x2rand, Jdiff_num_diff_firstrand,
-                           Jdiff_num_diff_tmprand, crocoddyl::first);
-  state_num_diffrand.Jdiff(x1rand, x2rand, Jdiff_num_diff_tmprand,
-                           Jdiff_num_diff_secondrand, crocoddyl::second);
+  Eigen::MatrixXd Jdiff_num_diff_tmprand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_diff_firstrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_diff_secondrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  state_num_diffrand.Jdiff(x1rand, x2rand, Jdiff_num_diff_firstrand, Jdiff_num_diff_tmprand, crocoddyl::first);
+  state_num_diffrand.Jdiff(x1rand, x2rand, Jdiff_num_diff_tmprand, Jdiff_num_diff_secondrand, crocoddyl::second);
   // Computing the partial derivatives of the difference function separately
   Eigen::MatrixXd Jdiff_num_diff_both_firstrand(
       Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   Eigen::MatrixXd Jdiff_num_diff_both_secondrand(
       Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  state_num_diffrand.Jdiff(x1rand, x2rand, Jdiff_num_diff_both_firstrand,
-                           Jdiff_num_diff_both_secondrand);
-  BOOST_CHECK(
-      (Jdiff_num_diff_firstrand - Jdiff_num_diff_both_firstrand).isZero(1e-9));
-  BOOST_CHECK((Jdiff_num_diff_secondrand - Jdiff_num_diff_both_secondrand)
-                  .isZero(1e-9));
+  state_num_diffrand.Jdiff(x1rand, x2rand, Jdiff_num_diff_both_firstrand, Jdiff_num_diff_both_secondrand);
+  BOOST_CHECK((Jdiff_num_diff_firstrand - Jdiff_num_diff_both_firstrand).isZero(1e-9));
+  BOOST_CHECK((Jdiff_num_diff_secondrand - Jdiff_num_diff_both_secondrand).isZero(1e-9));
 }
 
 void test_Jint_num_diff_firstsecond(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x = stateLPFAll->rand();
   const Eigen::VectorXd& dx = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
   // Get the num diff stateLPFAll
   crocoddyl::StateNumDiff state_num_diff(stateLPFAll);
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jint_num_diff_tmp(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_num_diff_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_num_diff_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  state_num_diff.Jintegrate(x, dx, Jint_num_diff_first, Jint_num_diff_tmp,
-                            crocoddyl::first);
-  state_num_diff.Jintegrate(x, dx, Jint_num_diff_tmp, Jint_num_diff_second,
-                            crocoddyl::second);
+  Eigen::MatrixXd Jint_num_diff_tmp(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_num_diff_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_num_diff_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  state_num_diff.Jintegrate(x, dx, Jint_num_diff_first, Jint_num_diff_tmp, crocoddyl::first);
+  state_num_diff.Jintegrate(x, dx, Jint_num_diff_tmp, Jint_num_diff_second, crocoddyl::second);
   // Computing the partial derivatives of the given function separately
-  Eigen::MatrixXd Jint_num_diff_both_first(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_num_diff_both_second(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  state_num_diff.Jintegrate(x, dx, Jint_num_diff_both_first,
-                            Jint_num_diff_both_second);
+  Eigen::MatrixXd Jint_num_diff_both_first(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_num_diff_both_second(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  state_num_diff.Jintegrate(x, dx, Jint_num_diff_both_first, Jint_num_diff_both_second);
   BOOST_CHECK((Jint_num_diff_first - Jint_num_diff_both_first).isZero(1e-9));
   BOOST_CHECK((Jint_num_diff_second - Jint_num_diff_both_second).isZero(1e-9));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& xrand = stateLPFRand->rand();
-  const Eigen::VectorXd& dxrand =
-      Eigen::VectorXd::Random(stateLPFRand->get_ndy());
+  const Eigen::VectorXd& dxrand = Eigen::VectorXd::Random(stateLPFRand->get_ndy());
   // Get the num diff stateLPFRand
   crocoddyl::StateNumDiff state_num_diffrand(stateLPFRand);
   // Computing the partial derivatives of the difference function separately
-  Eigen::MatrixXd Jint_num_diff_tmprand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jint_num_diff_firstrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jint_num_diff_secondrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  state_num_diffrand.Jintegrate(xrand, dxrand, Jint_num_diff_firstrand,
-                                Jint_num_diff_tmprand, crocoddyl::first);
-  state_num_diffrand.Jintegrate(xrand, dxrand, Jint_num_diff_tmprand,
-                                Jint_num_diff_secondrand, crocoddyl::second);
+  Eigen::MatrixXd Jint_num_diff_tmprand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_num_diff_firstrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_num_diff_secondrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  state_num_diffrand.Jintegrate(xrand, dxrand, Jint_num_diff_firstrand, Jint_num_diff_tmprand, crocoddyl::first);
+  state_num_diffrand.Jintegrate(xrand, dxrand, Jint_num_diff_tmprand, Jint_num_diff_secondrand, crocoddyl::second);
   // Computing the partial derivatives of the given function separately
   Eigen::MatrixXd Jint_num_diff_both_firstrand(
       Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   Eigen::MatrixXd Jint_num_diff_both_secondrand(
       Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  state_num_diffrand.Jintegrate(xrand, dxrand, Jint_num_diff_both_firstrand,
-                                Jint_num_diff_both_secondrand);
-  BOOST_CHECK(
-      (Jint_num_diff_firstrand - Jint_num_diff_both_firstrand).isZero(1e-9));
-  BOOST_CHECK(
-      (Jint_num_diff_secondrand - Jint_num_diff_both_secondrand).isZero(1e-9));
+  state_num_diffrand.Jintegrate(xrand, dxrand, Jint_num_diff_both_firstrand, Jint_num_diff_both_secondrand);
+  BOOST_CHECK((Jint_num_diff_firstrand - Jint_num_diff_both_firstrand).isZero(1e-9));
+  BOOST_CHECK((Jint_num_diff_secondrand - Jint_num_diff_both_secondrand).isZero(1e-9));
 }
 
 void test_Jdiff_against_numdiff(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x1 = stateLPFAll->rand();
   const Eigen::VectorXd& x2 = stateLPFAll->rand();
   // Computing the partial derivatives of the difference function analytically
-  Eigen::MatrixXd Jdiff_1(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_2(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_1(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_2(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jdiff(x1, x2, Jdiff_1, Jdiff_2, crocoddyl::first);
   stateLPFAll->Jdiff(x1, x2, Jdiff_1, Jdiff_2, crocoddyl::second);
   // Computing the partial derivatives of the difference function numerically
   crocoddyl::StateNumDiff state_num_diff(stateLPFAll);
-  Eigen::MatrixXd Jdiff_num_1(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdiff_num_2(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_1(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_2(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   state_num_diff.Jdiff(x1, x2, Jdiff_num_1, Jdiff_num_2);
   // Checking the partial derivatives against NumDiff
   // The previous tolerance was 10*disturbance
@@ -521,54 +397,41 @@ void test_Jdiff_against_numdiff(StateLPFModelTypes::Type state_type) {
   BOOST_CHECK((Jdiff_2 - Jdiff_num_2).isZero(tol));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random values for the initial and terminal states
   const Eigen::VectorXd& x1rand = stateLPFRand->rand();
   const Eigen::VectorXd& x2rand = stateLPFRand->rand();
   // Computing the partial derivatives of the difference function analytically
-  Eigen::MatrixXd Jdiff_1rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdiff_2rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_1rand, Jdiff_2rand,
-                      crocoddyl::first);
-  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_1rand, Jdiff_2rand,
-                      crocoddyl::second);
+  Eigen::MatrixXd Jdiff_1rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_2rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_1rand, Jdiff_2rand, crocoddyl::first);
+  stateLPFRand->Jdiff(x1rand, x2rand, Jdiff_1rand, Jdiff_2rand, crocoddyl::second);
   // Computing the partial derivatives of the difference function numerically
   crocoddyl::StateNumDiff state_num_diffrand(stateLPFRand);
-  Eigen::MatrixXd Jdiff_num_1rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdiff_num_2rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_1rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdiff_num_2rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   state_num_diffrand.Jdiff(x1rand, x2rand, Jdiff_num_1rand, Jdiff_num_2rand);
   // Checking the partial derivatives against NumDiff
   // The previous tolerance was 10*disturbance
-  double tolrand =
-      NUMDIFF_MODIFIER * sqrt(state_num_diffrand.get_disturbance());
+  double tolrand = NUMDIFF_MODIFIER * sqrt(state_num_diffrand.get_disturbance());
   BOOST_CHECK((Jdiff_1rand - Jdiff_num_1rand).isZero(tolrand));
   BOOST_CHECK((Jdiff_2rand - Jdiff_num_2rand).isZero(tolrand));
 }
 
 void test_Jintegrate_against_numdiff(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random values for the initial stateLPFAll and its rate of change
   const Eigen::VectorXd& x = stateLPFAll->rand();
   const Eigen::VectorXd& dx = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
   // Computing the partial derivatives of the difference function analytically
-  Eigen::MatrixXd Jint_1(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_2(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_1(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_2(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jintegrate(x, dx, Jint_1, Jint_2);
   // Computing the partial derivatives of the difference function numerically
   crocoddyl::StateNumDiff state_num_diff(stateLPFAll);
-  Eigen::MatrixXd Jint_num_1(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_num_2(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_num_1(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_num_2(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   state_num_diff.Jintegrate(x, dx, Jint_num_1, Jint_num_2);
   // Checking the partial derivatives against NumDiff
   // The previous tolerance was 10*disturbance
@@ -577,24 +440,18 @@ void test_Jintegrate_against_numdiff(StateLPFModelTypes::Type state_type) {
   BOOST_CHECK((Jint_2 - Jint_num_2).isZero(tol));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random values for the initial stateLPFAll and its rate of change
   const Eigen::VectorXd& xrand = stateLPFRand->rand();
-  const Eigen::VectorXd& dxrand =
-      Eigen::VectorXd::Random(stateLPFRand->get_ndy());
+  const Eigen::VectorXd& dxrand = Eigen::VectorXd::Random(stateLPFRand->get_ndy());
   // Computing the partial derivatives of the difference function analytically
-  Eigen::MatrixXd Jint_1rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jint_2rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_1rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_2rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   stateLPFRand->Jintegrate(xrand, dxrand, Jint_1rand, Jint_2rand);
   // Computing the partial derivatives of the difference function numerically
   crocoddyl::StateNumDiff state_num_diffrand(stateLPFRand);
-  Eigen::MatrixXd Jint_num_1rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jint_num_2rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_num_1rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_num_2rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   state_num_diffrand.Jintegrate(xrand, dxrand, Jint_num_1rand, Jint_num_2rand);
   // Checking the partial derivatives against NumDiff
   // The previous tolerance was 10*disturbance
@@ -604,19 +461,14 @@ void test_Jintegrate_against_numdiff(StateLPFModelTypes::Type state_type) {
 
   // Check Jdiff against state multibody when nu=0
   StateModelFactory factoryMultibody;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone =
-      factory.create(state_type, LPFJointMaskType::NONE);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone = factory.create(state_type, LPFJointMaskType::NONE);
   const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
       factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
-  Eigen::MatrixXd Jint_1LPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
-  Eigen::MatrixXd Jint_2LPF(
-      Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jint_1LPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
+  Eigen::MatrixXd Jint_2LPF(Eigen::MatrixXd::Zero(stateLPFNone->get_ndy(), stateLPFNone->get_ndy()));
   stateLPFNone->Jintegrate(x, dx, Jint_1LPF, Jint_2LPF);
-  Eigen::MatrixXd Jint_1Multibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
-  Eigen::MatrixXd Jint_2Multibody(Eigen::MatrixXd::Zero(
-      stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_1Multibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
+  Eigen::MatrixXd Jint_2Multibody(Eigen::MatrixXd::Zero(stateMultibody->get_ndx(), stateMultibody->get_ndx()));
   stateMultibody->Jintegrate(x, dx, Jint_1Multibody, Jint_2Multibody);
   BOOST_CHECK((Jint_1LPF - Jint_1Multibody).isZero(tol));
   BOOST_CHECK((Jint_2LPF - Jint_2Multibody).isZero(tol));
@@ -624,19 +476,15 @@ void test_Jintegrate_against_numdiff(StateLPFModelTypes::Type state_type) {
 
 void test_JintegrateTransport(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random values for the initial stateLPFAll and its rate of change
   const Eigen::VectorXd& x = stateLPFAll->rand();
   const Eigen::VectorXd& dx = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
   // Computing the partial derivatives of the difference function analytically
-  Eigen::MatrixXd Jint_1(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jint_2(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_1(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jint_2(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jintegrate(x, dx, Jint_1, Jint_2);
-  Eigen::MatrixXd Jref(Eigen::MatrixXd::Random(stateLPFAll->get_ndy(),
-                                               2 * stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jref(Eigen::MatrixXd::Random(stateLPFAll->get_ndy(), 2 * stateLPFAll->get_ndy()));
   const Eigen::MatrixXd Jtest(Jref);
   stateLPFAll->JintegrateTransport(x, dx, Jref, crocoddyl::first);
   BOOST_CHECK((Jref - Jint_1 * Jtest).isZero(1e-10));
@@ -645,20 +493,15 @@ void test_JintegrateTransport(StateLPFModelTypes::Type state_type) {
   BOOST_CHECK((Jref - Jint_2 * Jtest).isZero(1e-10));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random values for the initial stateLPFAll and its rate of change
   const Eigen::VectorXd& xrand = stateLPFRand->rand();
-  const Eigen::VectorXd& dxrand =
-      Eigen::VectorXd::Random(stateLPFRand->get_ndy());
+  const Eigen::VectorXd& dxrand = Eigen::VectorXd::Random(stateLPFRand->get_ndy());
   // Computing the partial derivatives of the difference function analytically
-  Eigen::MatrixXd Jint_1rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jint_2rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_1rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jint_2rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   stateLPFRand->Jintegrate(xrand, dxrand, Jint_1rand, Jint_2rand);
-  Eigen::MatrixXd Jrefrand(Eigen::MatrixXd::Random(
-      stateLPFRand->get_ndy(), 2 * stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jrefrand(Eigen::MatrixXd::Random(stateLPFRand->get_ndy(), 2 * stateLPFRand->get_ndy()));
   const Eigen::MatrixXd Jtestrand(Jrefrand);
   stateLPFRand->JintegrateTransport(xrand, dxrand, Jrefrand, crocoddyl::first);
   BOOST_CHECK((Jrefrand - Jint_1rand * Jtestrand).isZero(1e-10));
@@ -669,14 +512,12 @@ void test_JintegrateTransport(StateLPFModelTypes::Type state_type) {
   // Check JintegrateTransport against state multibody JintegrateTransport when
   // nu=0
   StateModelFactory factoryMultibody;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone =
-      factory.create(state_type, LPFJointMaskType::NONE);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFNone = factory.create(state_type, LPFJointMaskType::NONE);
   const boost::shared_ptr<crocoddyl::StateAbstract>& stateMultibody =
       factoryMultibody.create(mapStateLPFToStateMultibody.at(state_type));
   const Eigen::VectorXd& x1 = stateLPFNone->rand();
   const Eigen::VectorXd& dx1 = Eigen::VectorXd::Random(stateLPFNone->get_ndy());
-  Eigen::MatrixXd JrefLPF(Eigen::MatrixXd::Random(stateLPFNone->get_ndy(),
-                                                  2 * stateLPFNone->get_ndy()));
+  Eigen::MatrixXd JrefLPF(Eigen::MatrixXd::Random(stateLPFNone->get_ndy(), 2 * stateLPFNone->get_ndy()));
   Eigen::MatrixXd JrefMultibody(JrefLPF);
   const Eigen::MatrixXd Jtest1(JrefLPF);
   // test first
@@ -688,31 +529,24 @@ void test_JintegrateTransport(StateLPFModelTypes::Type state_type) {
   JrefMultibody = Jtest1;
   // test second
   stateLPFNone->JintegrateTransport(x1, dx1, JrefLPF, crocoddyl::second);
-  stateMultibody->JintegrateTransport(x1, dx1, JrefMultibody,
-                                      crocoddyl::second);
+  stateMultibody->JintegrateTransport(x1, dx1, JrefMultibody, crocoddyl::second);
   BOOST_CHECK((JrefLPF - JrefMultibody).isZero(1e-10));
 }
 
-void test_Jdiff_and_Jintegrate_are_inverses(
-    StateLPFModelTypes::Type state_type) {
+void test_Jdiff_and_Jintegrate_are_inverses(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random states
   const Eigen::VectorXd& x1 = stateLPFAll->rand();
   const Eigen::VectorXd& dx = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
   Eigen::VectorXd x2(stateLPFAll->get_ny());
   stateLPFAll->integrate(x1, dx, x2);
   // Computing the partial derivatives of the integrate and difference function
-  Eigen::MatrixXd Jx(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdx(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jx(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdx(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jintegrate(x1, dx, Jx, Jdx);
-  Eigen::MatrixXd J1(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd J2(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd J2(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jdiff(x1, x2, J1, J2);
   // Checking that Jdiff and Jintegrate are inverses
   Eigen::MatrixXd dX_dDX = Jdx;
@@ -720,24 +554,18 @@ void test_Jdiff_and_Jintegrate_are_inverses(
   BOOST_CHECK((dX_dDX - dDX_dX.inverse()).isZero(1e-9));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random states
   const Eigen::VectorXd& x1rand = stateLPFRand->rand();
-  const Eigen::VectorXd& dxrand =
-      Eigen::VectorXd::Random(stateLPFRand->get_ndy());
+  const Eigen::VectorXd& dxrand = Eigen::VectorXd::Random(stateLPFRand->get_ndy());
   Eigen::VectorXd x2rand(stateLPFRand->get_ny());
   stateLPFRand->integrate(x1rand, dxrand, x2rand);
   // Computing the partial derivatives of the integrate and difference function
-  Eigen::MatrixXd Jxrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdxrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jxrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdxrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   stateLPFRand->Jintegrate(x1rand, dxrand, Jxrand, Jdxrand);
-  Eigen::MatrixXd J1rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd J2rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd J1rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd J2rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   stateLPFRand->Jdiff(x1rand, x2rand, J1rand, J2rand);
   // Checking that Jdiff and Jintegrate are inverses
   Eigen::MatrixXd dX_dDXrand = Jdxrand;
@@ -747,8 +575,7 @@ void test_Jdiff_and_Jintegrate_are_inverses(
 
 void test_velocity_from_Jintegrate_Jdiff(StateLPFModelTypes::Type state_type) {
   StateLPFModelFactory factory;
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll =
-      factory.create(state_type, LPFJointMaskType::ALL);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFAll = factory.create(state_type, LPFJointMaskType::ALL);
   // Generating random states
   const Eigen::VectorXd& x1 = stateLPFAll->rand();
   Eigen::VectorXd dx = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
@@ -757,15 +584,11 @@ void test_velocity_from_Jintegrate_Jdiff(StateLPFModelTypes::Type state_type) {
   Eigen::VectorXd eps = Eigen::VectorXd::Random(stateLPFAll->get_ndy());
   double h = 1e-8;
   // Computing the partial derivatives of the integrate and difference function
-  Eigen::MatrixXd Jx(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd Jdx(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jx(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd Jdx(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jintegrate(x1, dx, Jx, Jdx);
-  Eigen::MatrixXd J1(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
-  Eigen::MatrixXd J2(
-      Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
+  Eigen::MatrixXd J2(Eigen::MatrixXd::Zero(stateLPFAll->get_ndy(), stateLPFAll->get_ndy()));
   stateLPFAll->Jdiff(x1, x2, J1, J2);
   // Checking that computed velocity from Jintegrate
   const Eigen::MatrixXd& dX_dDX = Jdx;
@@ -788,8 +611,7 @@ void test_velocity_from_Jintegrate_Jdiff(StateLPFModelTypes::Type state_type) {
   BOOST_CHECK((J2 * eps - (-dx + dxi) / h).isZero(1e-3));
 
   // Check for random LPF joint in stateLPF
-  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand =
-      factory.create(state_type, LPFJointMaskType::RAND);
+  const boost::shared_ptr<sobec::StateLPF>& stateLPFRand = factory.create(state_type, LPFJointMaskType::RAND);
   // Generating random states
   const Eigen::VectorXd& x1rand = stateLPFRand->rand();
   Eigen::VectorXd dxrand = Eigen::VectorXd::Random(stateLPFRand->get_ndy());
@@ -798,15 +620,11 @@ void test_velocity_from_Jintegrate_Jdiff(StateLPFModelTypes::Type state_type) {
   Eigen::VectorXd epsrand = Eigen::VectorXd::Random(stateLPFRand->get_ndy());
   double hrand = 1e-8;
   // Computing the partial derivatives of the integrate and difference function
-  Eigen::MatrixXd Jxrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd Jdxrand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jxrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd Jdxrand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   stateLPFRand->Jintegrate(x1rand, dxrand, Jxrand, Jdxrand);
-  Eigen::MatrixXd J1rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
-  Eigen::MatrixXd J2rand(
-      Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd J1rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
+  Eigen::MatrixXd J2rand(Eigen::MatrixXd::Zero(stateLPFRand->get_ndy(), stateLPFRand->get_ndy()));
   stateLPFRand->Jdiff(x1rand, x2rand, J1rand, J2rand);
   // Checking that computed velocity from Jintegrate
   const Eigen::MatrixXd& dX_dDXrand = Jdxrand;
@@ -837,25 +655,17 @@ void register_state_unit_tests(StateLPFModelTypes::Type state_type) {
   std::cout << "Running " << test_name.str() << std::endl;
   test_suite* ts = BOOST_TEST_SUITE(test_name.str());
   ts->add(BOOST_TEST_CASE(boost::bind(&test_state_dimension, state_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_integrate_against_difference, state_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_difference_against_integrate, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_integrate_against_difference, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_difference_against_integrate, state_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_Jdiff_firstsecond, state_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_Jint_firstsecond, state_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_Jdiff_num_diff_firstsecond, state_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_Jint_num_diff_firstsecond, state_type)));
-  ts->add(
-      BOOST_TEST_CASE(boost::bind(&test_Jdiff_against_numdiff, state_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_Jintegrate_against_numdiff, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_Jdiff_num_diff_firstsecond, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_Jint_num_diff_firstsecond, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_Jdiff_against_numdiff, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_Jintegrate_against_numdiff, state_type)));
   ts->add(BOOST_TEST_CASE(boost::bind(&test_JintegrateTransport, state_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_Jdiff_and_Jintegrate_are_inverses, state_type)));
-  ts->add(BOOST_TEST_CASE(
-      boost::bind(&test_velocity_from_Jintegrate_Jdiff, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_Jdiff_and_Jintegrate_are_inverses, state_type)));
+  ts->add(BOOST_TEST_CASE(boost::bind(&test_velocity_from_Jintegrate_Jdiff, state_type)));
   framework::master_test_suite().add(ts);
 }
 
@@ -868,6 +678,4 @@ bool init_function() {
   return true;
 }
 
-int main(int argc, char** argv) {
-  return ::boost::unit_test::unit_test_main(&init_function, argc, argv);
-}
+int main(int argc, char** argv) { return ::boost::unit_test::unit_test_main(&init_function, argc, argv); }

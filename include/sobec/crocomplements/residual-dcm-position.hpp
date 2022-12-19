@@ -55,8 +55,7 @@ class ResidualModelDCMPositionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] cref   Reference CoM position
    * @param[in] nu     Dimension of the control vector
    */
-  ResidualModelDCMPositionTpl(boost::shared_ptr<StateMultibody> state,
-                              const Vector3s& cref, const double alpha,
+  ResidualModelDCMPositionTpl(boost::shared_ptr<StateMultibody> state, const Vector3s& cref, const double alpha,
                               const std::size_t nu);
 
   /**
@@ -67,8 +66,7 @@ class ResidualModelDCMPositionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] state  State of the multibody system
    * @param[in] cref   Reference CoM position
    */
-  ResidualModelDCMPositionTpl(boost::shared_ptr<StateMultibody> state,
-                              const Vector3s& cref, const double alpha);
+  ResidualModelDCMPositionTpl(boost::shared_ptr<StateMultibody> state, const Vector3s& cref, const double alpha);
   virtual ~ResidualModelDCMPositionTpl();
 
   /**
@@ -78,8 +76,7 @@ class ResidualModelDCMPositionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data,
-                    const Eigen::Ref<const VectorXs>& x,
+  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
                     const Eigen::Ref<const VectorXs>& u);
 
   /**
@@ -89,11 +86,9 @@ class ResidualModelDCMPositionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
-                        const Eigen::Ref<const VectorXs>& x,
+  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data, const Eigen::Ref<const VectorXs>& x,
                         const Eigen::Ref<const VectorXs>& u);
-  virtual boost::shared_ptr<ResidualDataAbstract> createData(
-      DataCollectorAbstract* const data);
+  virtual boost::shared_ptr<ResidualDataAbstract> createData(DataCollectorAbstract* const data);
 
   /**
    * @brief Return the DCM position reference
@@ -120,10 +115,9 @@ class ResidualModelDCMPositionTpl : public ResidualModelAbstractTpl<_Scalar> {
   using Base::v_dependent_;
 
  private:
-  Vector3s cref_;  //!< Reference DCM position
-  double alpha_;   //!< Inverse of the time constant for the DCM position
-  typename StateMultibody::PinocchioModel
-      pin_model_;  //!< Pinocchio model used for internal computations
+  Vector3s cref_;                                      //!< Reference DCM position
+  double alpha_;                                       //!< Inverse of the time constant for the DCM position
+  typename StateMultibody::PinocchioModel pin_model_;  //!< Pinocchio model used for internal computations
 };
 
 template <typename _Scalar>
@@ -137,13 +131,11 @@ struct ResidualDataDCMPositionTpl : public ResidualDataAbstractTpl<_Scalar> {
   typedef typename MathBase::Matrix3xs Matrix3xs;
 
   template <template <typename Scalar> class Model>
-  ResidualDataDCMPositionTpl(Model<Scalar>* const model,
-                             DataCollectorAbstract* const data)
+  ResidualDataDCMPositionTpl(Model<Scalar>* const model, DataCollectorAbstract* const data)
       : Base(model, data), dvcom_dq(3, model->get_state()->get_nv()) {
     dvcom_dq.setZero();
     // Check that proper shared data has been passed
-    DataCollectorMultibodyTpl<Scalar>* d =
-        dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
+    DataCollectorMultibodyTpl<Scalar>* d = dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
     if (d == NULL) {
       throw_pretty(
           "Invalid argument: the shared data should be derived from "

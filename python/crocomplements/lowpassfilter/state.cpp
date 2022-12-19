@@ -41,8 +41,7 @@ void exposeStateLPF() {
            ":param x0: current state (dim state.nx()).\n"
            ":param x1: next state (dim state.nx()).\n"
            ":return x1 - x0 value (dim state.nx()).")
-      .def("integrate", &sobec::StateLPF::integrate_x,
-           bp::args("self", "x", "dx"),
+      .def("integrate", &sobec::StateLPF::integrate_x, bp::args("self", "x", "dx"),
            "Operator that integrates the current robot state.\n\n"
            "It returns the value of x [+] dx operation. This operator uses the "
            "Lie\n"
@@ -53,8 +52,7 @@ void exposeStateLPF() {
            ":param x: current state (dim state.nx()).\n"
            ":param dx: displacement of the state (dim state.ndx()).\n"
            ":return x + dx value (dim state.nx()).")
-      .def("Jdiff", &sobec::StateLPF::Jdiff_Js,
-           bp::args("self", "x0", "x1", "firstsecond"),
+      .def("Jdiff", &sobec::StateLPF::Jdiff_Js, bp::args("self", "x0", "x1", "firstsecond"),
            "Compute the partial derivatives of the diff operator.\n\n"
            "Both Jacobian matrices are represented throught an identity "
            "matrix, with the exception\n"
@@ -69,8 +67,7 @@ void exposeStateLPF() {
            ":param x1: next state (dim state.nx()).\n"
            ":param firstsecond: derivative w.r.t x0 or x1 or both\n"
            ":return the partial derivative(s) of the diff(x0, x1) function")
-      .def("Jintegrate", &sobec::StateLPF::Jintegrate_Js,
-           bp::args("self", "x", "dx", "firstsecond"),
+      .def("Jintegrate", &sobec::StateLPF::Jintegrate_Js, bp::args("self", "x", "dx", "firstsecond"),
            "Compute the partial derivatives of arithmetic addition.\n\n"
            "Both Jacobian matrices are represented throught an identity "
            "matrix. with the exception\n"
@@ -96,11 +93,9 @@ void exposeStateLPF() {
            ":param dx: velocity vector (dim state.ndx).\n"
            ":param Jin: input matrix (number of rows = state.nv).\n"
            ":param firstsecond: derivative w.r.t x or dx")
-      .add_property(
-          "pinocchio",
-          bp::make_function(&StateMultibody::get_pinocchio,
-                            bp::return_value_policy<bp::return_by_value>()),
-          "pinocchio model");
+      .add_property("pinocchio",
+                    bp::make_function(&StateMultibody::get_pinocchio, bp::return_value_policy<bp::return_by_value>()),
+                    "pinocchio model");
 }
 
 }  // namespace python

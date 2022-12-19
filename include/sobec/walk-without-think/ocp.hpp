@@ -76,14 +76,12 @@ struct OCPRobotWrapper {
   Eigen::Vector3d com0;
   double robotGravityForce;
 
-  OCPRobotWrapper(boost::shared_ptr<pinocchio::Model> model,
-                  const std::string& contactKey,
+  OCPRobotWrapper(boost::shared_ptr<pinocchio::Model> model, const std::string& contactKey,
                   const std::string& referencePosture = "half_sitting");
 };
 
-Eigen::MatrixXd computeWeightShareSmoothProfile(
-    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration,
-    double saturation);
+Eigen::MatrixXd computeWeightShareSmoothProfile(const Eigen::Ref<const Eigen::MatrixXd> contact_pattern, int duration,
+                                                double saturation);
 
 class OCPWalk {
   typedef typename MathBaseTpl<double>::VectorXs VectorXd;
@@ -91,15 +89,12 @@ class OCPWalk {
   typedef typename Eigen::Matrix<double, Eigen::Dynamic, 2> MatrixX2d;
   typedef typename Eigen::Matrix<double, Eigen::Dynamic, 6> MatrixX6d;
   typedef std::vector<AMA> ActionList;
-  typedef
-      typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double>
-          DAM;
+  typedef typename crocoddyl::DifferentialActionModelContactFwdDynamicsTpl<double> DAM;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  explicit OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot,
-                   boost::shared_ptr<OCPWalkParams> params,
+  explicit OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot, boost::shared_ptr<OCPWalkParams> params,
                    const Eigen::Ref<const Eigen::MatrixXd> contact_pattern);
 
   virtual ~OCPWalk() {}
@@ -107,8 +102,7 @@ class OCPWalk {
   std::vector<AMA> buildRunningModels();
   AMA buildTerminalModel();
   void buildSolver();
-  std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
-  buildInitialGuess();
+  std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>> buildInitialGuess();
 
   void computeReferenceForces();
 

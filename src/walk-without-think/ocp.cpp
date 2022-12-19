@@ -10,8 +10,7 @@
 
 namespace sobec {
 
-OCPWalk::OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot,
-                 boost::shared_ptr<OCPWalkParams> params,
+OCPWalk::OCPWalk(boost::shared_ptr<OCPRobotWrapper> robot, boost::shared_ptr<OCPWalkParams> params,
                  const Eigen::Ref<const Eigen::MatrixXd> contact_pattern)
     : contact_pattern(contact_pattern), params(params), robot(robot) {
   computeReferenceForces();
@@ -25,8 +24,7 @@ void OCPWalk::buildSolver() {
   solver->set_th_stop(params->solver_th_stop);
 }
 
-std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
-OCPWalk::buildInitialGuess() {
+std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>> OCPWalk::buildInitialGuess() {
   std::vector<Eigen::VectorXd> x0s, u0s;
 
   // TODO: load guessfile
@@ -40,8 +38,7 @@ OCPWalk::buildInitialGuess() {
       x0s.push_back(problem->get_x0());
       u0s.push_back(models[i]->quasiStatic_x(datas[i], problem->get_x0()));
     }
-    x0s.push_back(
-        problem->get_x0());  // Final state for the terminal node (no U)
+    x0s.push_back(problem->get_x0());  // Final state for the terminal node (no U)
   }
   return std::make_pair(x0s, u0s);
 }

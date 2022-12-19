@@ -38,8 +38,7 @@ using namespace crocoddyl;
  * \sa `ResidualModelAbstractTpl`, `calc()`, `calcDiff()`, `createData()`
  */
 template <typename _Scalar>
-class ResidualModelCenterOfFrictionTpl
-    : public ResidualModelAbstractTpl<_Scalar> {
+class ResidualModelCenterOfFrictionTpl : public ResidualModelAbstractTpl<_Scalar> {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -67,8 +66,7 @@ class ResidualModelCenterOfFrictionTpl
    * @param[in] joint_id    Index of the nearest joint on which the collision
    * link is attached
    */
-  ResidualModelCenterOfFrictionTpl(boost::shared_ptr<StateMultibody> state,
-                                   const pinocchio::FrameIndex contact_id,
+  ResidualModelCenterOfFrictionTpl(boost::shared_ptr<StateMultibody> state, const pinocchio::FrameIndex contact_id,
                                    const std::size_t nu);
 
   virtual ~ResidualModelCenterOfFrictionTpl();
@@ -80,8 +78,7 @@ class ResidualModelCenterOfFrictionTpl
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ResidualDataAbstract> &data,
-                    const Eigen::Ref<const VectorXs> &x,
+  virtual void calc(const boost::shared_ptr<ResidualDataAbstract> &data, const Eigen::Ref<const VectorXs> &x,
                     const Eigen::Ref<const VectorXs> &u);
 
   /**
@@ -91,12 +88,10 @@ class ResidualModelCenterOfFrictionTpl
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract> &data,
-                        const Eigen::Ref<const VectorXs> &x,
+  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract> &data, const Eigen::Ref<const VectorXs> &x,
                         const Eigen::Ref<const VectorXs> &u);
 
-  virtual boost::shared_ptr<ResidualDataAbstract> createData(
-      DataCollectorAbstract *const data);
+  virtual boost::shared_ptr<ResidualDataAbstract> createData(DataCollectorAbstract *const data);
 
   /**
    * @brief Return the reference contact id
@@ -115,8 +110,7 @@ class ResidualModelCenterOfFrictionTpl
 };
 
 template <typename _Scalar>
-struct ResidualDataCenterOfFrictionTpl
-    : public ResidualDataAbstractTpl<_Scalar> {
+struct ResidualDataCenterOfFrictionTpl : public ResidualDataAbstractTpl<_Scalar> {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;
@@ -128,39 +122,31 @@ struct ResidualDataCenterOfFrictionTpl
   typedef typename MathBase::Matrix6xs Matrix6xs;
 
   template <template <typename Scalar> class Model>
-  ResidualDataCenterOfFrictionTpl(Model<Scalar> *const model,
-                                  DataCollectorAbstract *const data)
-      : Base(model, data) {
+  ResidualDataCenterOfFrictionTpl(Model<Scalar> *const model, DataCollectorAbstract *const data) : Base(model, data) {
     // Check that proper shared data has been passed
-    DataCollectorContactTpl<Scalar> *d =
-        dynamic_cast<DataCollectorContactTpl<Scalar> *>(this->shared);
+    DataCollectorContactTpl<Scalar> *d = dynamic_cast<DataCollectorContactTpl<Scalar> *>(this->shared);
     if (d == NULL) {
       throw_pretty(
           "Invalid argument: the shared data should be derived from "
           "DataCollectorContact");
     }
     const pinocchio::FrameIndex id = model->get_contact_id();
-    const boost::shared_ptr<StateMultibody> &state =
-        boost::static_pointer_cast<StateMultibody>(model->get_state());
+    const boost::shared_ptr<StateMultibody> &state = boost::static_pointer_cast<StateMultibody>(model->get_state());
     std::string frame_name = state->get_pinocchio()->frames[id].name;
     bool found_contact = false;
     for (auto &it : d->contacts->contacts) {
       if (it.second->frame == id) {
-        ContactData6DTpl<Scalar> *d6d =
-            dynamic_cast<ContactData6DTpl<Scalar> *>(it.second.get());
+        ContactData6DTpl<Scalar> *d6d = dynamic_cast<ContactData6DTpl<Scalar> *>(it.second.get());
         if (d6d != NULL) {
           found_contact = true;
           this->contact = it.second;
           break;
         }
-        throw_pretty(
-            "Domain error: there isn't defined at least a 6d contact for " +
-            frame_name);
+        throw_pretty("Domain error: there isn't defined at least a 6d contact for " + frame_name);
       }
     }
     if (!found_contact) {
-      throw_pretty("Domain error: there isn't defined contact data for " +
-                   frame_name);
+      throw_pretty("Domain error: there isn't defined contact data for " + frame_name);
     }
   }
   boost::shared_ptr<ForceDataAbstractTpl<Scalar> > contact;

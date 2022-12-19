@@ -23,12 +23,10 @@ int main() {
       "/opt/openrobots/share/example-robot-data/robots/talos_data/srdf/"
       "talos.srdf";
   auto fullmodel = boost::make_shared<pinocchio::Model>();
-  pinocchio::urdf::buildModel(urdf, pinocchio::JointModelFreeFlyer(),
-                              *fullmodel);
+  pinocchio::urdf::buildModel(urdf, pinocchio::JointModelFreeFlyer(), *fullmodel);
 
   // -- REDUCED MODEL
-  std::vector<pinocchio::JointIndex> jointToLock_ids =
-      getAutomaticallyGeneratedJointIdsToLock();
+  std::vector<pinocchio::JointIndex> jointToLock_ids = getAutomaticallyGeneratedJointIdsToLock();
   std::cout << "I am going to lock the following joints: " << std::endl;
   for (pinocchio::JointIndex i : jointToLock_ids) {
     std::cout << i << " => " << fullmodel->names[i] << std::endl;
@@ -41,15 +39,12 @@ int main() {
   pinocchio::srdf::loadReferenceConfigurations(*model, srdf);
 
   // --- ROBOT WRAPPER
-  auto robot = boost::make_shared<sobec::OCPRobotWrapper>(model, "sole_link",
-                                                          "half_sitting");
+  auto robot = boost::make_shared<sobec::OCPRobotWrapper>(model, "sole_link", "half_sitting");
   if (!checkAutomaticallyGeneratedCodeCompatibility(robot)) {
-    std::cout << "Robot dimension not compatible with param file. "
+    std::cout << "Robot dimension not compatible with param file. " << std::endl;
+    std::cout << ">>> The robot build here as nq=" << robot->model->nq << " and nv=" << robot->model->nv << "."
               << std::endl;
-    std::cout << ">>> The robot build here as nq=" << robot->model->nq
-              << " and nv=" << robot->model->nv << "." << std::endl;
-    std::cout << ">>> Robot name is '" << robot->model->name << "'."
-              << std::endl;
+    std::cout << ">>> Robot name is '" << robot->model->name << "'." << std::endl;
     std::cout << "Exit!" << std::endl;
     std::exit(-1);
   }
@@ -77,13 +72,10 @@ int main() {
   patternRight.topRows<1>().fill(1);
   patternRight.bottomRows<1>().fill(0);
 
-  int T = mpcparams->Tstart + mpcparams->Tdouble * 3 + mpcparams->Tsingle * 2 +
-          mpcparams->Tend + 1;
+  int T = mpcparams->Tstart + mpcparams->Tdouble * 3 + mpcparams->Tsingle * 2 + mpcparams->Tend + 1;
   Eigen::MatrixXd contactPattern(2, T);
-  contactPattern << patternStart, patternDouble, patternLeft, patternDouble,
-      patternRight, patternDouble, patternEnd;
-  std::cout << "Contact pattern = \n"
-            << contactPattern.transpose() << std::endl;
+  contactPattern << patternStart, patternDouble, patternLeft, patternDouble, patternRight, patternDouble, patternEnd;
+  std::cout << "Contact pattern = \n" << contactPattern.transpose() << std::endl;
 
   // --- OCP
   std::cout << "Init OCP" << std::endl;
@@ -132,22 +124,18 @@ int main() {
 
     // Recover contact activation
     auto iam =
-        boost::dynamic_pointer_cast<crocoddyl::IntegratedActionModelEuler>(
-            mpc->problem->get_runningModels()[0]);
-    auto dam = boost::dynamic_pointer_cast<
-        crocoddyl::DifferentialActionModelContactFwdDynamics>(
-        iam->get_differential());
+        boost::dynamic_pointer_cast<crocoddyl::IntegratedActionModelEuler>(mpc->problem->get_runningModels()[0]);
+    auto dam =
+        boost::dynamic_pointer_cast<crocoddyl::DifferentialActionModelContactFwdDynamics>(iam->get_differential());
     auto contacts = dam->get_contacts();
     auto contactMap = contacts->get_contacts();
     std::string rightContactName = "right_sole_link_contact";
     std::string leftContactName = "left_sole_link_contact";
 
-    bool rightContactActive =
-        (contactMap.find(rightContactName) != contactMap.end());
-    bool leftContactActive =
-        (contactMap.find(leftContactName) != contactMap.end());
+    bool rightContactActive = (contactMap.find(rightContactName) != contactMap.end());
+    bool leftContactActive = (contactMap.find(leftContactName) != contactMap.end());
 
-    std::cout << "=== " << t << " === contact=[" << (int)rightContactActive
-              << (int)leftContactActive << "]" << std::endl;
+    std::cout << "=== " << t << " === contact=[" << (int)rightContactActive << (int)leftContactActive << "]"
+              << std::endl;
   }
 }

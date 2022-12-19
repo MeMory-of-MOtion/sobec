@@ -26,46 +26,37 @@ void exposeResidualFeetCollision() {
 
   bp::class_<ResidualModelFeetCollision, bp::bases<ResidualModelAbstract> >(
       "ResidualModelFeetCollision",
-      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double,
-               std::size_t>(
+      bp::init<boost::shared_ptr<StateMultibody>, pinocchio::FrameIndex, double, std::size_t>(
           bp::args("self", "state", "frame_id", "slope", "nu"),
           "Initialize the residual model.\n\n"
           ":param state: state of the multibody system\n"
           ":param frame_id: reference colliding frame\n"
           ":param slope: slope ie altitude multiplier."
           ":param nu: dimension of control vector"))
-      .def<void (ResidualModelFeetCollision::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calc", &ResidualModelFeetCollision::calc,
-          bp::args("self", "data", "x", "u"),
+      .def<void (ResidualModelFeetCollision::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                                const Eigen::Ref<const Eigen::VectorXd>&,
+                                                const Eigen::Ref<const Eigen::VectorXd>&)>(
+          "calc", &ResidualModelFeetCollision::calc, bp::args("self", "data", "x", "u"),
           "Compute the residual.\n\n"
           ":param data: residual data\n"
           ":param x: time-discrete state vector\n"
           ":param u: time-discrete control input")
-      .def<void (ResidualModelFeetCollision::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
+      .def<void (ResidualModelFeetCollision::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                                const Eigen::Ref<const Eigen::VectorXd>&)>(
           "calc", &ResidualModelAbstract::calc, bp::args("self", "data", "x"))
-      .def<void (ResidualModelFeetCollision::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calcDiff", &ResidualModelFeetCollision::calcDiff,
-          bp::args("self", "data", "x", "u"),
+      .def<void (ResidualModelFeetCollision::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                                const Eigen::Ref<const Eigen::VectorXd>&,
+                                                const Eigen::Ref<const Eigen::VectorXd>&)>(
+          "calcDiff", &ResidualModelFeetCollision::calcDiff, bp::args("self", "data", "x", "u"),
           "Compute the Jacobians of the residual.\n\n"
           "It assumes that calc has been run first.\n"
           ":param data: action data\n"
           ":param x: time-discrete state vector\n"
           ":param u: time-discrete control input\n")
-      .def<void (ResidualModelFeetCollision::*)(
-          const boost::shared_ptr<ResidualDataAbstract>&,
-          const Eigen::Ref<const Eigen::VectorXd>&)>(
-          "calcDiff", &ResidualModelAbstract::calcDiff,
-          bp::args("self", "data", "x"))
-      .def("createData", &ResidualModelFeetCollision::createData,
-           bp::with_custodian_and_ward_postcall<0, 2>(),
+      .def<void (ResidualModelFeetCollision::*)(const boost::shared_ptr<ResidualDataAbstract>&,
+                                                const Eigen::Ref<const Eigen::VectorXd>&)>(
+          "calcDiff", &ResidualModelAbstract::calcDiff, bp::args("self", "data", "x"))
+      .def("createData", &ResidualModelFeetCollision::createData, bp::with_custodian_and_ward_postcall<0, 2>(),
            bp::args("self", "data"),
            "Create the residual data.\n\n"
            "Each residual model has its own data that needs to be allocated. "
@@ -88,11 +79,9 @@ void exposeResidualFeetCollision() {
           bp::args("self", "model", "data"),
           "Create vel collision residual data.\n\n"
           ":param model: pair collision residual model\n"
-          ":param data: shared data")[bp::with_custodian_and_ward<
-          1, 2, bp::with_custodian_and_ward<1, 3> >()])
+          ":param data: shared data")[bp::with_custodian_and_ward<1, 2, bp::with_custodian_and_ward<1, 3> >()])
       .add_property("pinocchio",
-                    bp::make_getter(&ResidualDataFeetCollision::pinocchio,
-                                    bp::return_internal_reference<>()),
+                    bp::make_getter(&ResidualDataFeetCollision::pinocchio, bp::return_internal_reference<>()),
                     "pinocchio data");
 }
 

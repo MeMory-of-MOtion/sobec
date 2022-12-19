@@ -35,37 +35,30 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
       : Base(static_cast<std::size_t>(reference.size())), ref(reference){};
   virtual ~ActivationModelQuadRefTpl(){};
 
-  virtual void calc(const boost::shared_ptr<ActivationDataAbstract>& data,
-                    const Eigen::Ref<const VectorXs>& r) {
+  virtual void calc(const boost::shared_ptr<ActivationDataAbstract>& data, const Eigen::Ref<const VectorXs>& r) {
     if (static_cast<std::size_t>(r.size()) != nr_) {
       throw_pretty("Invalid argument: "
-                   << "r has wrong dimension (it should be " +
-                          std::to_string(nr_) + ")");
+                   << "r has wrong dimension (it should be " + std::to_string(nr_) + ")");
     }
     data->a_value = (Scalar(0.5) * (r - ref).transpose() * (r - ref))[0];
   };
 
-  virtual void calcDiff(const boost::shared_ptr<ActivationDataAbstract>& data,
-                        const Eigen::Ref<const VectorXs>& r) {
+  virtual void calcDiff(const boost::shared_ptr<ActivationDataAbstract>& data, const Eigen::Ref<const VectorXs>& r) {
     if (static_cast<std::size_t>(r.size()) != nr_) {
       throw_pretty("Invalid argument: "
-                   << "r has wrong dimension (it should be " +
-                          std::to_string(nr_) + ")");
+                   << "r has wrong dimension (it should be " + std::to_string(nr_) + ")");
     }
 
     data->Ar = r - ref;
     // The Hessian has constant values which were set in createData.
-    assert_pretty(
-        MatrixXs(data->Arr.diagonal().asDiagonal())
-            .isApprox(MatrixXs::Identity(static_cast<Eigen::Index>(nr_),
-                                         static_cast<Eigen::Index>(nr_))),
-        "Arr has wrong value");
+    assert_pretty(MatrixXs(data->Arr.diagonal().asDiagonal())
+                      .isApprox(MatrixXs::Identity(static_cast<Eigen::Index>(nr_), static_cast<Eigen::Index>(nr_))),
+                  "Arr has wrong value");
   };
 
   virtual boost::shared_ptr<ActivationDataAbstract> createData() {
     boost::shared_ptr<ActivationDataAbstract> data =
-        boost::allocate_shared<ActivationDataAbstract>(
-            Eigen::aligned_allocator<ActivationDataAbstract>(), this);
+        boost::allocate_shared<ActivationDataAbstract>(Eigen::aligned_allocator<ActivationDataAbstract>(), this);
     data->Arr.diagonal().fill((Scalar)1.);
     return data;
   };
@@ -74,8 +67,7 @@ class ActivationModelQuadRefTpl : public ActivationModelAbstractTpl<_Scalar> {
   void set_reference(const VectorXs& reference) {
     if (ref.size() != reference.size()) {
       throw_pretty("Invalid argument: "
-                   << "weight vector has wrong dimension (it should be " +
-                          std::to_string(ref.size()) + ")");
+                   << "weight vector has wrong dimension (it should be " + std::to_string(ref.size()) + ")");
     }
 
     ref = reference;

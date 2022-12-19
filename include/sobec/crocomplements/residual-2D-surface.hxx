@@ -15,11 +15,11 @@
 namespace sobec {
 using namespace crocoddyl;
 template <typename Scalar>
-ResidualModel2DSurfaceTpl<Scalar>::ResidualModel2DSurfaceTpl(
-    boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, const Vector2s support_translation,
-    const Scalar separation, const Scalar orientation, const Scalar alpha,
-    const std::size_t nu)
+ResidualModel2DSurfaceTpl<Scalar>::ResidualModel2DSurfaceTpl(boost::shared_ptr<StateMultibody> state,
+                                                             const pinocchio::FrameIndex frame_id,
+                                                             const Vector2s support_translation,
+                                                             const Scalar separation, const Scalar orientation,
+                                                             const Scalar alpha, const std::size_t nu)
     : Base(state, 2, nu, true, false, false),
       frame_id(frame_id),
       support_translation_(support_translation),
@@ -48,10 +48,11 @@ ResidualModel2DSurfaceTpl<Scalar>::ResidualModel2DSurfaceTpl(
 }
 
 template <typename Scalar>
-ResidualModel2DSurfaceTpl<Scalar>::ResidualModel2DSurfaceTpl(
-    boost::shared_ptr<StateMultibody> state,
-    const pinocchio::FrameIndex frame_id, const Vector2s support_translation,
-    const Scalar separation, const Scalar orientation, const Scalar alpha)
+ResidualModel2DSurfaceTpl<Scalar>::ResidualModel2DSurfaceTpl(boost::shared_ptr<StateMultibody> state,
+                                                             const pinocchio::FrameIndex frame_id,
+                                                             const Vector2s support_translation,
+                                                             const Scalar separation, const Scalar orientation,
+                                                             const Scalar alpha)
     : Base(state, 2, true, false, false),
       frame_id(frame_id),
       support_translation_(support_translation),
@@ -83,10 +84,9 @@ template <typename Scalar>
 ResidualModel2DSurfaceTpl<Scalar>::~ResidualModel2DSurfaceTpl() {}
 
 template <typename Scalar>
-void ResidualModel2DSurfaceTpl<Scalar>::calc(
-    const boost::shared_ptr<ResidualDataAbstract>& data,
-    const Eigen::Ref<const VectorXs>& /*x*/,
-    const Eigen::Ref<const VectorXs>&) {
+void ResidualModel2DSurfaceTpl<Scalar>::calc(const boost::shared_ptr<ResidualDataAbstract>& data,
+                                             const Eigen::Ref<const VectorXs>& /*x*/,
+                                             const Eigen::Ref<const VectorXs>&) {
   // Compute the residual residual give the reference CoM velocity
 
   Data* d = static_cast<Data*>(data.get());
@@ -97,43 +97,35 @@ void ResidualModel2DSurfaceTpl<Scalar>::calc(
 }
 
 template <typename Scalar>
-void ResidualModel2DSurfaceTpl<Scalar>::calcDiff(
-    const boost::shared_ptr<ResidualDataAbstract>& data,
-    const Eigen::Ref<const VectorXs>& /*x*/,
-    const Eigen::Ref<const VectorXs>&) {
+void ResidualModel2DSurfaceTpl<Scalar>::calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
+                                                 const Eigen::Ref<const VectorXs>& /*x*/,
+                                                 const Eigen::Ref<const VectorXs>&) {
   Data* d = static_cast<Data*>(data.get());
   const std::size_t nv = state_->get_nv();
 
-  pinocchio::getFrameJacobian(*pin_model_.get(), *d->pinocchio, frame_id,
-                              pinocchio::LOCAL, d->fJf);
+  pinocchio::getFrameJacobian(*pin_model_.get(), *d->pinocchio, frame_id, pinocchio::LOCAL, d->fJf);
   data->Rx.leftCols(nv).noalias() =
-      A_ * d->pinocchio->oMf[frame_id].rotation().topLeftCorner(2, 3) *
-      d->fJf.template topRows<3>();
+      A_ * d->pinocchio->oMf[frame_id].rotation().topLeftCorner(2, 3) * d->fJf.template topRows<3>();
 }
 
 template <typename Scalar>
-boost::shared_ptr<ResidualDataAbstractTpl<Scalar> >
-ResidualModel2DSurfaceTpl<Scalar>::createData(
+boost::shared_ptr<ResidualDataAbstractTpl<Scalar> > ResidualModel2DSurfaceTpl<Scalar>::createData(
     DataCollectorAbstract* const data) {
-  return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this,
-                                      data);
+  return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this, data);
 }
 
 template <typename Scalar>
-const typename pinocchio::FrameIndex&
-ResidualModel2DSurfaceTpl<Scalar>::get_frame_id() const {
+const typename pinocchio::FrameIndex& ResidualModel2DSurfaceTpl<Scalar>::get_frame_id() const {
   return frame_id;
 }
 
 template <typename Scalar>
-void ResidualModel2DSurfaceTpl<Scalar>::set_frame_id(
-    const pinocchio::FrameIndex& fid) {
+void ResidualModel2DSurfaceTpl<Scalar>::set_frame_id(const pinocchio::FrameIndex& fid) {
   frame_id = fid;
 }
 
 template <typename Scalar>
-void ResidualModel2DSurfaceTpl<Scalar>::set_Ab(
-    const Vector2s support_translation, const Scalar orientation) {
+void ResidualModel2DSurfaceTpl<Scalar>::set_Ab(const Vector2s support_translation, const Scalar orientation) {
   pointF_ = support_translation;
   pointF_(0) -= separation_ * sin(orientation);
   pointF_(1) += separation_ * cos(orientation);

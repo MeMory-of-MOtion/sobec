@@ -4,16 +4,13 @@ namespace sobec {
 
 OCP::OCP() {}
 
-OCP::OCP(const OCPSettings &settings, const ModelMakerSettings &model_settings,
-         const RobotDesignerSettings &design, const Eigen::VectorXd &q0,
-         const Eigen::VectorXd &v0) {
+OCP::OCP(const OCPSettings &settings, const ModelMakerSettings &model_settings, const RobotDesignerSettings &design,
+         const Eigen::VectorXd &q0, const Eigen::VectorXd &v0) {
   initialize(settings, model_settings, design, q0, v0);
 }
 
-void OCP::initialize(const OCPSettings &settings,
-                     const ModelMakerSettings &model_settings,
-                     const RobotDesignerSettings &design,
-                     const Eigen::VectorXd &q0, const Eigen::VectorXd &v0) {
+void OCP::initialize(const OCPSettings &settings, const ModelMakerSettings &model_settings,
+                     const RobotDesignerSettings &design, const Eigen::VectorXd &q0, const Eigen::VectorXd &v0) {
   OCP_settings_ = settings;
   designer_ = sobec::RobotDesigner(design);
   modelMaker_ = sobec::ModelMaker(model_settings, designer_);
@@ -26,13 +23,10 @@ void OCP::initialize(const OCPSettings &settings,
   xc_ << q0, v0;
 
   std::cout << "left contact name = " << designer_.get_LF_name() << std::endl;
-  sobec::HorizonManagerSettings horizonSettings = {designer_.get_LF_name(),
-                                                   designer_.get_RF_name()};
-  horizon_ =
-      sobec::HorizonManager(horizonSettings, xc_, runningModels, terminalModel);
+  sobec::HorizonManagerSettings horizonSettings = {designer_.get_LF_name(), designer_.get_RF_name()};
+  horizon_ = sobec::HorizonManager(horizonSettings, xc_, runningModels, terminalModel);
 
-  std::cout << "horizon left contact is "
-            << horizon_.contacts(0)->getContactStatus(designer_.get_LF_name())
+  std::cout << "horizon left contact is " << horizon_.contacts(0)->getContactStatus(designer_.get_LF_name())
             << std::endl;
 
   std::vector<Eigen::VectorXd> x_init;
@@ -50,30 +44,22 @@ void OCP::initialize(const OCPSettings &settings,
   designer_.updateReducedModel(q0);
 
   // Initialize first foot trajectory
-  starting_position_right_ =
-      pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);
-  final_position_right_ =
-      pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);
+  starting_position_right_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);
+  final_position_right_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);
   final_position_right_.translation()[0] += OCP_settings_.stepSize;
   final_position_right_.translation()[1] -= OCP_settings_.stepYCorrection;
 
-  starting_position_left_ =
-      pinocchio::SE3(designer_.get_rData().oMf[designer_.get_LF_id()]);
-  final_position_left_ =
-      pinocchio::SE3(designer_.get_rData().oMf[designer_.get_LF_id()]);
+  starting_position_left_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_LF_id()]);
+  final_position_left_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_LF_id()]);
   final_position_left_.translation()[0] += OCP_settings_.stepSize * 2;
   final_position_left_.translation()[1] += OCP_settings_.stepYCorrection;
 
-  swing_trajectory_left_ = std::make_shared<sobec::FootTrajectory>(
-      OCP_settings_.stepHeight, OCP_settings_.stepDepth);
-  swing_trajectory_right_ = std::make_shared<sobec::FootTrajectory>(
-      OCP_settings_.stepHeight, OCP_settings_.stepDepth);
-  swing_trajectory_left_->generate(
-      0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt,
-      starting_position_left_, final_position_left_);
-  swing_trajectory_right_->generate(
-      0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt,
-      starting_position_right_, final_position_right_);
+  swing_trajectory_left_ = std::make_shared<sobec::FootTrajectory>(OCP_settings_.stepHeight, OCP_settings_.stepDepth);
+  swing_trajectory_right_ = std::make_shared<sobec::FootTrajectory>(OCP_settings_.stepHeight, OCP_settings_.stepDepth);
+  swing_trajectory_left_->generate(0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt, starting_position_left_,
+                                   final_position_left_);
+  swing_trajectory_right_->generate(0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt, starting_position_right_,
+                                    final_position_right_);
 
   // Initialize varying parameters
   TswitchPhase_ = OCP_settings_.Tstep;
@@ -96,14 +82,11 @@ void OCP::initialize(const OCPSettings &settings,
   std::vector<unsigned long> double_contacts(OCP_settings_.TdoubleSupport, 0);
 
   for (std::size_t i = 0; i < OCP_settings_.totalSteps; i++) {
-    contacts_sequence_.insert(contacts_sequence_.end(), double_contacts.begin(),
-                              double_contacts.end());
-    contacts_sequence_.insert(contacts_sequence_.end(), simple_contacts.begin(),
-                              simple_contacts.end());
+    contacts_sequence_.insert(contacts_sequence_.end(), double_contacts.begin(), double_contacts.end());
+    contacts_sequence_.insert(contacts_sequence_.end(), simple_contacts.begin(), simple_contacts.end());
   }
   std::vector<unsigned long> end_contacts(OCP_settings_.T, 0);
-  contacts_sequence_.insert(contacts_sequence_.end(), end_contacts.begin(),
-                            end_contacts.end());
+  contacts_sequence_.insert(contacts_sequence_.end(), end_contacts.begin(), end_contacts.end());
 }
 
 void OCP::updateEndPhase() {
@@ -117,31 +100,23 @@ void OCP::updateEndPhase() {
   if (TswitchTraj_ == 0) {
     steps_ += 1;
     if (swingRightTraj_) {
-      starting_position_left_ =
-          designer_.get_rData().oMf[designer_.get_LF_id()];
-      final_position_left_ =
-          pinocchio::SE3(designer_.get_rData().oMf[designer_.get_LF_id()]);
+      starting_position_left_ = designer_.get_rData().oMf[designer_.get_LF_id()];
+      final_position_left_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_LF_id()]);
       final_position_left_.translation()[0] += OCP_settings_.stepSize;
       final_position_left_.translation()[1] += OCP_settings_.stepYCorrection;
-      swing_trajectory_left_.reset(new sobec::FootTrajectory(
-          OCP_settings_.stepHeight, OCP_settings_.stepDepth));
-      swing_trajectory_left_->generate(
-          0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt,
-          starting_position_left_, final_position_left_);
+      swing_trajectory_left_.reset(new sobec::FootTrajectory(OCP_settings_.stepHeight, OCP_settings_.stepDepth));
+      swing_trajectory_left_->generate(0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt, starting_position_left_,
+                                       final_position_left_);
 
       std::cout << "TswitchTraj = 0 update left traj" << std::endl;
     } else {
-      starting_position_right_ =
-          designer_.get_rData().oMf[designer_.get_RF_id()];
-      final_position_right_ =
-          pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);
+      starting_position_right_ = designer_.get_rData().oMf[designer_.get_RF_id()];
+      final_position_right_ = pinocchio::SE3(designer_.get_rData().oMf[designer_.get_RF_id()]);
       final_position_right_.translation()[0] += OCP_settings_.stepSize;
       final_position_right_.translation()[1] -= OCP_settings_.stepYCorrection;
-      swing_trajectory_right_.reset(new sobec::FootTrajectory(
-          OCP_settings_.stepHeight, OCP_settings_.stepDepth));
-      swing_trajectory_right_->generate(
-          0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt,
-          starting_position_right_, final_position_right_);
+      swing_trajectory_right_.reset(new sobec::FootTrajectory(OCP_settings_.stepHeight, OCP_settings_.stepDepth));
+      swing_trajectory_right_->generate(0., OCP_settings_.TsimpleSupport * OCP_settings_.Dt, starting_position_right_,
+                                        final_position_right_);
 
       std::cout << "TswitchTraj = 0 update right traj" << std::endl;
     }
@@ -166,31 +141,26 @@ void OCP::updateOCP(const Eigen::VectorXd &qc, const Eigen::VectorXd &vc) {
                 << ", and TswitchPhase = " << TswitchPhase_ << std::endl;
       // Get desired foot reference for the end of the horizon
       if (swingRightPhase_) {
-        starting_position_right_ = swing_trajectory_right_->compute(
-            static_cast<double>(contacts_sequence_[0]) * OCP_settings_.Dt);
-        horizon_.setSwingingRF(0, designer_.get_LF_name(),
-                               designer_.get_RF_name(), "wrench_RF");
+        starting_position_right_ =
+            swing_trajectory_right_->compute(static_cast<double>(contacts_sequence_[0]) * OCP_settings_.Dt);
+        horizon_.setSwingingRF(0, designer_.get_LF_name(), designer_.get_RF_name(), "wrench_RF");
         horizon_.setForceReferenceLF(0, "wrench_LF", wrench_reference_simple_);
         horizon_.setPoseReferenceLF(0, "placement_LF", starting_position_left_);
-        horizon_.setPoseReferenceRF(0, "placement_RF",
-                                    starting_position_right_);
+        horizon_.setPoseReferenceRF(0, "placement_RF", starting_position_right_);
       } else {
-        starting_position_left_ = swing_trajectory_left_->compute(
-            static_cast<double>(contacts_sequence_[0]) * OCP_settings_.Dt);
-        horizon_.setSwingingLF(0, designer_.get_LF_name(),
-                               designer_.get_RF_name(), "wrench_LF");
+        starting_position_left_ =
+            swing_trajectory_left_->compute(static_cast<double>(contacts_sequence_[0]) * OCP_settings_.Dt);
+        horizon_.setSwingingLF(0, designer_.get_LF_name(), designer_.get_RF_name(), "wrench_LF");
         horizon_.setForceReferenceRF(0, "wrench_RF", wrench_reference_simple_);
         horizon_.setPoseReferenceLF(0, "placement_LF", starting_position_left_);
-        horizon_.setPoseReferenceRF(0, "placement_RF",
-                                    starting_position_right_);
+        horizon_.setPoseReferenceRF(0, "placement_RF", starting_position_right_);
       }
     }
     // else, this is a double support phase
     else {
       std::cout << "Double support phase with TswitchTraj = " << TswitchTraj_
                 << ", and TswitchPhase = " << TswitchPhase_ << std::endl;
-      horizon_.setDoubleSupport(0, designer_.get_LF_name(),
-                                designer_.get_LF_name());
+      horizon_.setDoubleSupport(0, designer_.get_LF_name(), designer_.get_LF_name());
       horizon_.setForceReferenceRF(0, "wrench_RF", wrench_reference_double_);
       horizon_.setForceReferenceLF(0, "wrench_LF", wrench_reference_double_);
       horizon_.setPoseReferenceLF(0, "placement_LF", starting_position_left_);

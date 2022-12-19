@@ -4,19 +4,13 @@ namespace sobec {
 
 WBCHorizon::WBCHorizon() {}
 
-WBCHorizon::WBCHorizon(const WBCHorizonSettings &settings,
-                       const RobotDesigner &design,
-                       const HorizonManager &horizon, const Eigen::VectorXd &q0,
-                       const Eigen::VectorXd &v0,
-                       const std::string &actuationCostName) {
+WBCHorizon::WBCHorizon(const WBCHorizonSettings &settings, const RobotDesigner &design, const HorizonManager &horizon,
+                       const Eigen::VectorXd &q0, const Eigen::VectorXd &v0, const std::string &actuationCostName) {
   initialize(settings, design, horizon, q0, v0, actuationCostName);
 }
 
-void WBCHorizon::initialize(const WBCHorizonSettings &settings,
-                            const RobotDesigner &design,
-                            const HorizonManager &horizon,
-                            const Eigen::VectorXd &q0,
-                            const Eigen::VectorXd &v0,
+void WBCHorizon::initialize(const WBCHorizonSettings &settings, const RobotDesigner &design,
+                            const HorizonManager &horizon, const Eigen::VectorXd &q0, const Eigen::VectorXd &v0,
                             const std::string &actuationCostName) {
   /** The posture required here is the full robot posture in the order of
    * pinicchio*/
@@ -78,10 +72,8 @@ void WBCHorizon::setForceAlongHorizon() {
 
   // Set force reference for first cycle
   for (int i = 0; i < settings_.TdoubleSupport; i++) {
-    ref_force = mean_force * (settings_.TdoubleSupport - i - 1) /
-                    static_cast<double>(settings_.TdoubleSupport) +
-                settings_.min_force * (i + 1) /
-                    static_cast<double>(settings_.TdoubleSupport);
+    ref_force = mean_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
+                settings_.min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
     wrench_reference_right[2] = ref_force;
     wrench_reference_left[2] = settings_.support_force - ref_force;
     fullHorizon_.setWrenchReference(i, "wrench_LF", wrench_reference_left);
@@ -90,10 +82,8 @@ void WBCHorizon::setForceAlongHorizon() {
   // Set force reference for following cycles
   for (int j = 1; j < settings_.totalSteps; j++) {
     for (int i = 0; i < settings_.TdoubleSupport; i++) {
-      ref_force = max_force * (settings_.TdoubleSupport - i - 1) /
-                      static_cast<double>(settings_.TdoubleSupport) +
-                  settings_.min_force * (i + 1) /
-                      static_cast<double>(settings_.TdoubleSupport);
+      ref_force = max_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
+                  settings_.min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
       if (j % 2 == 0) {
         wrench_reference_right[2] = ref_force;
         wrench_reference_left[2] = settings_.support_force - ref_force;
@@ -101,18 +91,14 @@ void WBCHorizon::setForceAlongHorizon() {
         wrench_reference_left[2] = ref_force;
         wrench_reference_right[2] = settings_.support_force - ref_force;
       }
-      fullHorizon_.setWrenchReference(i + j * settings_.Tstep, "wrench_LF",
-                                      wrench_reference_left);
-      fullHorizon_.setWrenchReference(i + j * settings_.Tstep, "wrench_RF",
-                                      wrench_reference_right);
+      fullHorizon_.setWrenchReference(i + j * settings_.Tstep, "wrench_LF", wrench_reference_left);
+      fullHorizon_.setWrenchReference(i + j * settings_.Tstep, "wrench_RF", wrench_reference_right);
     }
   }
   // Set force reference for last cycle
   for (int i = 0; i < settings_.TdoubleSupport; i++) {
-    ref_force =
-        max_force * (settings_.TdoubleSupport - i - 1) /
-            static_cast<double>(settings_.TdoubleSupport) +
-        mean_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
+    ref_force = max_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
+                mean_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
     if (settings_.totalSteps % 2 == 0) {
       wrench_reference_right[2] = ref_force;
       wrench_reference_left[2] = settings_.support_force - ref_force;
@@ -120,10 +106,8 @@ void WBCHorizon::setForceAlongHorizon() {
       wrench_reference_right[2] = ref_force;
       wrench_reference_left[2] = settings_.support_force - ref_force;
     }
-    fullHorizon_.setWrenchReference(i + settings_.totalSteps * settings_.Tstep,
-                                    "wrench_LF", wrench_reference_left);
-    fullHorizon_.setWrenchReference(i + settings_.totalSteps * settings_.Tstep,
-                                    "wrench_RF", wrench_reference_right);
+    fullHorizon_.setWrenchReference(i + settings_.totalSteps * settings_.Tstep, "wrench_LF", wrench_reference_left);
+    fullHorizon_.setWrenchReference(i + settings_.totalSteps * settings_.Tstep, "wrench_RF", wrench_reference_right);
   }
 }
 
@@ -132,12 +116,10 @@ std::vector<Support> WBCHorizon::generateSupportCycle() {
 
   for (int j = 0; j < settings_.totalSteps; j++) {
     if (j % 2 == 0) {
-      takeoff_RF_.push_back(j * settings_.Tstep + settings_.TdoubleSupport +
-                            settings_.T);
+      takeoff_RF_.push_back(j * settings_.Tstep + settings_.TdoubleSupport + settings_.T);
       land_RF_.push_back((j + 1) * settings_.Tstep + settings_.T);
     } else {
-      takeoff_LF_.push_back(j * settings_.Tstep + settings_.TdoubleSupport +
-                            settings_.T);
+      takeoff_LF_.push_back(j * settings_.Tstep + settings_.TdoubleSupport + settings_.T);
       land_LF_.push_back((j + 1) * settings_.Tstep + settings_.T);
     }
     for (int i = 0; i < settings_.Tstep; i++) {
@@ -157,13 +139,11 @@ std::vector<Support> WBCHorizon::generateSupportCycle() {
   return cycle;
 }
 
-void WBCHorizon::generateFullHorizon(ModelMaker &mm,
-                                     const Experiment &experiment) {
+void WBCHorizon::generateFullHorizon(ModelMaker &mm, const Experiment &experiment) {
   std::vector<Support> cycle = generateSupportCycle();
   std::vector<AMA> cyclicModels;
   cyclicModels = mm.formulateHorizon(cycle, experiment);
-  HorizonManagerSettings names = {designer_.get_LF_name(),
-                                  designer_.get_RF_name()};
+  HorizonManagerSettings names = {designer_.get_LF_name(), designer_.get_RF_name()};
   fullHorizon_ = HorizonManager(names, x0_, cyclicModels, cyclicModels.back());
   setForceAlongHorizon();
 }
@@ -173,8 +153,7 @@ bool WBCHorizon::timeToSolveDDP(int iteration) {
   return time_to_solve_ddp_;
 }
 
-void WBCHorizon::iterate(const Eigen::VectorXd &q_current,
-                         const Eigen::VectorXd &v_current, bool is_feasible) {
+void WBCHorizon::iterate(const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
 
   // ~~TIMING~~ //
@@ -190,16 +169,15 @@ void WBCHorizon::iterate(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBCHorizon::iterate(int iteration, const Eigen::VectorXd &q_current,
-                         const Eigen::VectorXd &v_current, bool is_feasible) {
+void WBCHorizon::iterate(int iteration, const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current,
+                         bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterate(q_current, v_current, is_feasible);
   } else
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBCHorizon::iterateNoThinking(const Eigen::VectorXd &q_current,
-                                   const Eigen::VectorXd &v_current,
+void WBCHorizon::iterateNoThinking(const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current,
                                    bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
 
@@ -215,9 +193,7 @@ void WBCHorizon::iterateNoThinking(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBCHorizon::iterateNoThinking(int iteration,
-                                   const Eigen::VectorXd &q_current,
-                                   const Eigen::VectorXd &v_current,
+void WBCHorizon::iterateNoThinking(int iteration, const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current,
                                    bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterateNoThinking(q_current, v_current, is_feasible);
@@ -225,11 +201,8 @@ void WBCHorizon::iterateNoThinking(int iteration,
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
-                                            const Eigen::VectorXd &v_current,
-                                            bool contact_left,
-                                            bool contact_right,
-                                            bool is_feasible) {
+void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current,
+                                            bool contact_left, bool contact_right, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
   designer_.updateReducedModel(x0_);
 
@@ -238,8 +211,7 @@ void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
       // std::cout << "delay left contact" << std::endl;
       horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
       return;
-    } else if (contact_left and contact_right and
-               land_LF_[0] < settings_.TsingleSupport / 2) {
+    } else if (contact_left and contact_right and land_LF_[0] < settings_.TsingleSupport / 2) {
       // std::cout << "go to next double left" << std::endl;
       goToNextDoubleSupport();
       horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
@@ -251,8 +223,7 @@ void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
       // std::cout << "delay right contact" << std::endl;
       horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
       return;
-    } else if (contact_left and contact_right and
-               land_RF_[0] < settings_.TsingleSupport / 2) {
+    } else if (contact_left and contact_right and land_RF_[0] < settings_.TsingleSupport / 2) {
       // std::cout << "go to next double right" << std::endl;
       goToNextDoubleSupport();
       horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
@@ -276,23 +247,15 @@ void WBCHorizon::updateStepTrackerReferences() {
     horizon_.setPoseReference(time, "placement_RF", getPoseRef_RF(time));
     ///@todo: the names must be provided by the user
   }
-  horizon_.setTerminalPoseReference("placement_LF",
-                                    getPoseRef_LF(horizon_.size()));
-  horizon_.setTerminalPoseReference("placement_RF",
-                                    getPoseRef_RF(horizon_.size()));
+  horizon_.setTerminalPoseReference("placement_LF", getPoseRef_LF(horizon_.size()));
+  horizon_.setTerminalPoseReference("placement_RF", getPoseRef_RF(horizon_.size()));
 
-  if (horizon_.contacts(horizon_.size() - 1)
-          ->getContactStatus(designer_.get_LF_name()) and
-      horizon_.contacts(horizon_.size() - 1)
-          ->getContactStatus(designer_.get_RF_name())) {
-    ref_dcm_ = (getPoseRef_LF(horizon_.size()).translation() +
-                getPoseRef_RF(horizon_.size()).translation()) /
-               2;
-  } else if (horizon_.contacts(horizon_.size() - 1)
-                 ->getContactStatus(designer_.get_LF_name())) {
+  if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and
+      horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
+    ref_dcm_ = (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2;
+  } else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name())) {
     ref_dcm_ = getPoseRef_LF(horizon_.size()).translation();
-  } else if (horizon_.contacts(horizon_.size() - 1)
-                 ->getContactStatus(designer_.get_RF_name())) {
+  } else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
     ref_dcm_ = getPoseRef_RF(horizon_.size()).translation();
   }
   ref_dcm_[2] = 0.87;
@@ -300,14 +263,10 @@ void WBCHorizon::updateStepTrackerReferences() {
 }
 
 void WBCHorizon::updateStepTrackerLastReference() {
-  horizon_.setPoseReference(horizon_.size() - 1, "placement_LF",
-                            getPoseRef_LF(horizon_.size() - 1));
-  horizon_.setPoseReference(horizon_.size() - 1, "placement_RF",
-                            getPoseRef_RF(horizon_.size() - 1));
-  horizon_.setTerminalPoseReference("placement_LF",
-                                    getPoseRef_LF(horizon_.size()));
-  horizon_.setTerminalPoseReference("placement_RF",
-                                    getPoseRef_RF(horizon_.size()));
+  horizon_.setPoseReference(horizon_.size() - 1, "placement_LF", getPoseRef_LF(horizon_.size() - 1));
+  horizon_.setPoseReference(horizon_.size() - 1, "placement_RF", getPoseRef_RF(horizon_.size() - 1));
+  horizon_.setTerminalPoseReference("placement_LF", getPoseRef_LF(horizon_.size()));
+  horizon_.setTerminalPoseReference("placement_RF", getPoseRef_RF(horizon_.size()));
   ref_LF_poses_.erase(ref_LF_poses_.begin());
   ref_LF_poses_.push_back(ref_LF_poses_[horizon_.size() - 1]);
   ref_RF_poses_.erase(ref_RF_poses_.begin());
@@ -318,35 +277,25 @@ void WBCHorizon::updateNonThinkingReferences() {
   horizon_.setTerminalPoseCoM("comTask", ref_com_);
   for (unsigned long time = 0; time < horizon_.size(); time++) {
     horizon_.setVelocityRefCOM(time, "comVelocity", ref_com_vel_);
-    horizon_.setTranslationReference(time, "translation_LF",
-                                     getPoseRef_LF(time).translation());
-    horizon_.setTranslationReference(time, "translation_RF",
-                                     getPoseRef_RF(time).translation());
+    horizon_.setTranslationReference(time, "translation_LF", getPoseRef_LF(time).translation());
+    horizon_.setTranslationReference(time, "translation_RF", getPoseRef_RF(time).translation());
     // horizon_.setRotationReference(time, "rotation_LF",
     // designer_.get_root_frame().rotation());
     // horizon_.setRotationReference(time, "rotation_RF",
     // designer_.get_root_frame().rotation());
   }
-  horizon_.setTerminalTranslationReference(
-      "translation_LF", getPoseRef_LF(horizon_.size()).translation());
-  horizon_.setTerminalTranslationReference(
-      "translation_RF", getPoseRef_RF(horizon_.size()).translation());
+  horizon_.setTerminalTranslationReference("translation_LF", getPoseRef_LF(horizon_.size()).translation());
+  horizon_.setTerminalTranslationReference("translation_RF", getPoseRef_RF(horizon_.size()).translation());
   // horizon_.setTerminalRotationReference("rotation_base",ref_base_rotation_);
   // horizon_.setTerminalRotationReference("rotation_LF", ref_base_rotation_);
   // horizon_.setTerminalRotationReference("rotation_RF", ref_base_rotation_);
 
-  if (horizon_.contacts(horizon_.size() - 1)
-          ->getContactStatus(designer_.get_LF_name()) and
-      horizon_.contacts(horizon_.size() - 1)
-          ->getContactStatus(designer_.get_RF_name())) {
-    ref_dcm_ = (getPoseRef_LF(horizon_.size()).translation() +
-                getPoseRef_RF(horizon_.size()).translation()) /
-               2;
-  } else if (horizon_.contacts(horizon_.size() - 1)
-                 ->getContactStatus(designer_.get_LF_name())) {
+  if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name()) and
+      horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
+    ref_dcm_ = (getPoseRef_LF(horizon_.size()).translation() + getPoseRef_RF(horizon_.size()).translation()) / 2;
+  } else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_LF_name())) {
     ref_dcm_ = getPoseRef_LF(horizon_.size()).translation();
-  } else if (horizon_.contacts(horizon_.size() - 1)
-                 ->getContactStatus(designer_.get_RF_name())) {
+  } else if (horizon_.contacts(horizon_.size() - 1)->getContactStatus(designer_.get_RF_name())) {
     ref_dcm_ = getPoseRef_RF(horizon_.size()).translation();
   }
   ref_dcm_[2] = 0.87;
@@ -355,31 +304,25 @@ void WBCHorizon::updateNonThinkingReferences() {
 
 void WBCHorizon::recedeWithCycle() {
   if (horizon_iteration_ < fullHorizon_.size()) {
-    horizon_.recede(fullHorizon_.ama(horizon_iteration_),
-                    fullHorizon_.ada(horizon_iteration_));
+    horizon_.recede(fullHorizon_.ama(horizon_iteration_), fullHorizon_.ada(horizon_iteration_));
     horizon_iteration_++;
   } else
     horizon_.recede();
 }
 
 void WBCHorizon::goToNextDoubleSupport() {
-  while (horizon_.supportSize(0) != 2 and
-         horizon_iteration_ < fullHorizon_.size()) {
-    horizon_.recede(fullHorizon_.ama(horizon_iteration_),
-                    fullHorizon_.ada(horizon_iteration_));
+  while (horizon_.supportSize(0) != 2 and horizon_iteration_ < fullHorizon_.size()) {
+    horizon_.recede(fullHorizon_.ama(horizon_iteration_), fullHorizon_.ada(horizon_iteration_));
     horizon_iteration_++;
     updateSupportTiming();
   }
-  horizon_.recede(fullHorizon_.ama(horizon_iteration_),
-                  fullHorizon_.ada(horizon_iteration_));
+  horizon_.recede(fullHorizon_.ama(horizon_iteration_), fullHorizon_.ada(horizon_iteration_));
   horizon_iteration_++;
   updateSupportTiming();
 }
 
-const Eigen::VectorXd &WBCHorizon::shapeState(const Eigen::VectorXd &q,
-                                              const Eigen::VectorXd &v) {
-  if (q.size() == designer_.get_rModelComplete().nq &&
-      v.size() == designer_.get_rModelComplete().nv) {
+const Eigen::VectorXd &WBCHorizon::shapeState(const Eigen::VectorXd &q, const Eigen::VectorXd &v) {
+  if (q.size() == designer_.get_rModelComplete().nq && v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
     x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
 
@@ -391,13 +334,11 @@ const Eigen::VectorXd &WBCHorizon::shapeState(const Eigen::VectorXd &q,
         i++;
       }
     return x_internal_;
-  } else if (q.size() == designer_.get_rModel().nq &&
-             v.size() == designer_.get_rModel().nv) {
+  } else if (q.size() == designer_.get_rModel().nq && v.size() == designer_.get_rModel().nv) {
     x_internal_ << q, v;
     return x_internal_;
   } else
-    throw std::runtime_error(
-        "q and v must have the dimentions of the reduced or complete model.");
+    throw std::runtime_error("q and v must have the dimentions of the reduced or complete model.");
 }
 
 void WBCHorizon::updateSupportTiming() {
@@ -410,11 +351,9 @@ void WBCHorizon::updateSupportTiming() {
 
   if (land_RF_.size() > 0 && land_RF_[0] < 0) land_RF_.erase(land_RF_.begin());
 
-  if (takeoff_LF_.size() > 0 && takeoff_LF_[0] < 0)
-    takeoff_LF_.erase(takeoff_LF_.begin());
+  if (takeoff_LF_.size() > 0 && takeoff_LF_[0] < 0) takeoff_LF_.erase(takeoff_LF_.begin());
 
-  if (takeoff_RF_.size() > 0 && takeoff_RF_[0] < 0)
-    takeoff_RF_.erase(takeoff_RF_.begin());
+  if (takeoff_RF_.size() > 0 && takeoff_RF_[0] < 0) takeoff_RF_.erase(takeoff_RF_.begin());
 }
 
 }  // namespace sobec

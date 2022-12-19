@@ -9,6 +9,8 @@
 #ifndef SOBEC_FWD_HPP_
 #define SOBEC_FWD_HPP_
 
+#include <pinocchio/fwd.hpp>
+
 #include <crocoddyl/core/action-base.hpp>
 #include <crocoddyl/core/activations/quadratic-barrier.hpp>
 #include <crocoddyl/core/activations/quadratic-flat-log.hpp>
@@ -41,7 +43,6 @@
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/algorithm/model.hpp>
-#include <pinocchio/fwd.hpp>
 #include <pinocchio/multibody/data.hpp>
 #include <pinocchio/multibody/model.hpp>
 
@@ -135,8 +136,7 @@ template <typename Scalar>
 struct ActivationDataWeightedLogTpl;
 typedef ActivationModelWeightedLogTpl<double> ActivationModelWeightedLog;
 typedef ActivationDataWeightedLogTpl<double> ActivationDataWeightedLog;
-typedef boost::shared_ptr<ActivationModelWeightedLog>
-    ActivationModelWeightedLogPtr;
+typedef boost::shared_ptr<ActivationModelWeightedLog> ActivationModelWeightedLogPtr;
 
 typedef Eigen::Matrix<double, 6, 1> eVector6;
 typedef Eigen::Matrix<double, 4, 1> eVector4;
@@ -146,18 +146,14 @@ typedef boost::shared_ptr<crocoddyl::IntegratedActionModelEuler> IAM;
 typedef boost::shared_ptr<crocoddyl::IntegratedActionDataEuler> IAD;
 typedef boost::shared_ptr<crocoddyl::ActionModelAbstract> AMA;
 typedef boost::shared_ptr<crocoddyl::ActionDataAbstract> ADA;
-typedef boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics>
-    DAM;
-typedef boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics>
-    DAD;
+typedef boost::shared_ptr<crocoddyl::DifferentialActionModelContactFwdDynamics> DAM;
+typedef boost::shared_ptr<crocoddyl::DifferentialActionDataContactFwdDynamics> DAD;
 typedef boost::shared_ptr<crocoddyl::CostModelSum> Cost;
 typedef boost::shared_ptr<crocoddyl::ContactModelMultiple> Contact;
 typedef boost::shared_ptr<crocoddyl::SolverFDDP> DDP;
 
-typedef boost::shared_ptr<crocoddyl::ResidualModelFramePlacement>
-    ResidualModelFramePlacementPtr;
-typedef boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone>
-    ResidualModelContactWrenchConePtr;
+typedef boost::shared_ptr<crocoddyl::ResidualModelFramePlacement> ResidualModelFramePlacementPtr;
+typedef boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> ResidualModelContactWrenchConePtr;
 
 // State LPF
 template <typename Scalar>
@@ -215,21 +211,14 @@ typedef ContactModelMultipleTpl<double> ContactModelMultiple;
 // DAM contact fwd dynamics
 template <typename Scalar>
 class DifferentialActionModelContactFwdDynamicsTpl;
-typedef DifferentialActionModelContactFwdDynamicsTpl<double>
-    DifferentialActionModelContactFwdDynamics;
+typedef DifferentialActionModelContactFwdDynamicsTpl<double> DifferentialActionModelContactFwdDynamics;
 
 // Residual contact force
 template <typename Scalar>
 class ResidualModelContactForceTpl;
 typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
 
-enum ContactType {
-  ContactUndefined,
-  Contact1D,
-  Contact2D,
-  Contact3D,
-  Contact6D
-};
+enum ContactType { ContactUndefined, Contact1D, Contact2D, Contact3D, Contact6D };
 
 }  // namespace newcontacts
 }  // namespace sobec

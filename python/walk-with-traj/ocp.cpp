@@ -13,14 +13,11 @@ namespace sobec {
 namespace python {
 namespace bp = boost::python;
 template <typename T>
-inline void py_list_to_std_vector(const bp::object &iterable,
-                                  std::vector<T> &out) {
-  out = std::vector<T>(boost::python::stl_input_iterator<T>(iterable),
-                       boost::python::stl_input_iterator<T>());
+inline void py_list_to_std_vector(const bp::object &iterable, std::vector<T> &out) {
+  out = std::vector<T>(boost::python::stl_input_iterator<T>(iterable), boost::python::stl_input_iterator<T>());
 }
 
-void initialize(OCP &self, const bp::dict &settings,
-                const bp::dict &model_settings, const bp::dict &design,
+void initialize(OCP &self, const bp::dict &settings, const bp::dict &model_settings, const bp::dict &design,
                 const Eigen::VectorXd &q0, const Eigen::VectorXd &v0) {
   OCPSettings conf;
 
@@ -53,8 +50,7 @@ void initialize(OCP &self, const bp::dict &settings,
   model_conf.omega = bp::extract<double>(model_settings["omega"]);
 
   // gains
-  model_conf.wFootPlacement =
-      bp::extract<double>(model_settings["wFootPlacement"]);
+  model_conf.wFootPlacement = bp::extract<double>(model_settings["wFootPlacement"]);
   model_conf.wStateReg = bp::extract<double>(model_settings["wStateReg"]);
   model_conf.wControlReg = bp::extract<double>(model_settings["wControlReg"]);
   model_conf.wLimit = bp::extract<double>(model_settings["wLimit"]);
@@ -64,10 +60,8 @@ void initialize(OCP &self, const bp::dict &settings,
   model_conf.wFootXYTrans = bp::extract<double>(model_settings["wFootXYTrans"]);
   model_conf.wFootRot = bp::extract<double>(model_settings["wFootRot"]);
   model_conf.wGroundCol = bp::extract<double>(model_settings["wGroundCol"]);
-  model_conf.stateWeights =
-      bp::extract<Eigen::VectorXd>(model_settings["stateWeights"]);
-  model_conf.controlWeights =
-      bp::extract<Eigen::VectorXd>(model_settings["controlWeights"]);
+  model_conf.stateWeights = bp::extract<Eigen::VectorXd>(model_settings["stateWeights"]);
+  model_conf.controlWeights = bp::extract<Eigen::VectorXd>(model_settings["controlWeights"]);
   model_conf.th_grad = bp::extract<double>(model_settings["th_grad"]);
   model_conf.th_stop = bp::extract<double>(model_settings["th_stop"]);
 
@@ -76,10 +70,8 @@ void initialize(OCP &self, const bp::dict &settings,
   robot_conf.srdfPath = bp::extract<std::string>(design["srdfPath"]);
   robot_conf.leftFootName = bp::extract<std::string>(design["leftFootName"]);
   robot_conf.rightFootName = bp::extract<std::string>(design["rightFootName"]);
-  robot_conf.robotDescription =
-      bp::extract<std::string>(design["robotDescription"]);
-  py_list_to_std_vector(design["controlledJointsNames"],
-                        robot_conf.controlledJointsNames);
+  robot_conf.robotDescription = bp::extract<std::string>(design["robotDescription"]);
+  py_list_to_std_vector(design["controlledJointsNames"], robot_conf.controlledJointsNames);
 
   self.initialize(conf, model_conf, robot_conf, q0, v0);
 }
@@ -87,13 +79,11 @@ HorizonManager get_horizon(OCP &self) { return self.get_horizon(); }
 
 void exposeOCP() {
   bp::class_<OCP>("OCP", bp::init<>())
-      .def("initialize", &initialize,
-           bp::args("self", "settings", "model_settings", "design", "q0", "v0"),
+      .def("initialize", &initialize, bp::args("self", "settings", "model_settings", "design", "q0", "v0"),
            "The posture required here is the full robot posture in the order "
            "of pin0cchio")
       .def("updateEndPhase", &OCP::updateEndPhase, bp::args("self"))
-      .def("updateOCP", &OCP::updateOCP,
-           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current")))
+      .def("updateOCP", &OCP::updateOCP, (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current")))
       .def("get_horizon", &OCP::get_horizon, bp::args("self"));
 }
 

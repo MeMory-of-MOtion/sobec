@@ -9,42 +9,31 @@ namespace sobec {
 
 ModelMaker::ModelMaker() {}
 
-ModelMaker::ModelMaker(const ModelMakerSettings &settings,
-                       const RobotDesigner &designer) {
+ModelMaker::ModelMaker(const ModelMakerSettings &settings, const RobotDesigner &designer) {
   initialize(settings, designer);
 }
 
-void ModelMaker::initialize(const ModelMakerSettings &settings,
-                            const RobotDesigner &designer) {
+void ModelMaker::initialize(const ModelMakerSettings &settings, const RobotDesigner &designer) {
   settings_ = settings;
   designer_ = designer;
 
-  state_ = boost::make_shared<crocoddyl::StateMultibody>(
-      boost::make_shared<pinocchio::Model>(designer_.get_rModel()));
-  actuation_ =
-      boost::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
+  state_ = boost::make_shared<crocoddyl::StateMultibody>(boost::make_shared<pinocchio::Model>(designer_.get_rModel()));
+  actuation_ = boost::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
 
   x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
   x0_ << designer_.get_q0(), Eigen::VectorXd::Zero(designer_.get_rModel().nv);
   initialized_ = true;
 }
 
-void ModelMaker::defineFeetContact(Contact &contactCollector,
-                                   const Support &support) {
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelLeft =
-      boost::make_shared<crocoddyl::ContactModel6D>(
-          state_, designer_.get_LF_id(), designer_.get_LF_frame(),
-          actuation_->get_nu(), eVector2(0., 50.));
+void ModelMaker::defineFeetContact(Contact &contactCollector, const Support &support) {
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelLeft = boost::make_shared<crocoddyl::ContactModel6D>(
+      state_, designer_.get_LF_id(), designer_.get_LF_frame(), actuation_->get_nu(), eVector2(0., 50.));
 
-  boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelRight =
-      boost::make_shared<crocoddyl::ContactModel6D>(
-          state_, designer_.get_RF_id(), designer_.get_RF_frame(),
-          actuation_->get_nu(), eVector2(0., 50.));
+  boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelRight = boost::make_shared<crocoddyl::ContactModel6D>(
+      state_, designer_.get_RF_id(), designer_.get_RF_frame(), actuation_->get_nu(), eVector2(0., 50.));
 
-  contactCollector->addContact(designer_.get_LF_name(), ContactModelLeft,
-                               false);
-  contactCollector->addContact(designer_.get_RF_name(), ContactModelRight,
-                               false);
+  contactCollector->addContact(designer_.get_LF_name(), ContactModelLeft, false);
+  contactCollector->addContact(designer_.get_RF_name(), ContactModelRight, false);
 
   if (support == Support::LEFT || support == Support::DOUBLE)
     contactCollector->changeContactStatus(designer_.get_LF_name(), true);
@@ -53,8 +42,7 @@ void ModelMaker::defineFeetContact(Contact &contactCollector,
     contactCollector->changeContactStatus(designer_.get_RF_name(), true);
 }
 
-void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
-                                      const Support &support) {
+void ModelMaker::defineFeetWrenchCost(Cost &costCollector, const Support &support) {
   double Mg = -designer_.getRobotMass() * settings_.gravity(2);
   double Fz_ref;
   support == Support::DOUBLE ? Fz_ref = Mg / 2 : Fz_ref = Mg;
@@ -65,18 +53,14 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
       designer_.get_RF_frame().rotation().transpose();*/
 
   crocoddyl::WrenchCone wrenchCone_LF = crocoddyl::WrenchCone(
-      Eigen::Matrix3d::Identity(), settings_.mu, settings_.coneBox, 4, true,
-      settings_.minNforce, settings_.maxNforce);
+      Eigen::Matrix3d::Identity(), settings_.mu, settings_.coneBox, 4, true, settings_.minNforce, settings_.maxNforce);
   crocoddyl::WrenchCone wrenchCone_RF = crocoddyl::WrenchCone(
-      Eigen::Matrix3d::Identity(), settings_.mu, settings_.coneBox, 4, true,
-      settings_.minNforce, settings_.maxNforce);
+      Eigen::Matrix3d::Identity(), settings_.mu, settings_.coneBox, 4, true, settings_.minNforce, settings_.maxNforce);
 
   eVector6 refWrench_LF = eVector6::Zero();
   eVector6 refWrench_RF = eVector6::Zero();
-  if (support == Support::LEFT || support == Support::DOUBLE)
-    refWrench_LF(2) = Fz_ref;
-  if (support == Support::RIGHT || support == Support::DOUBLE)
-    refWrench_RF(2) = Fz_ref;
+  if (support == Support::LEFT || support == Support::DOUBLE) refWrench_LF(2) = Fz_ref;
+  if (support == Support::RIGHT || support == Support::DOUBLE) refWrench_RF(2) = Fz_ref;
 
   Eigen::VectorXd refCost_LF = wrenchCone_LF.get_A() * refWrench_LF;
   Eigen::VectorXd refCost_RF = wrenchCone_LF.get_A() * refWrench_RF;
@@ -86,105 +70,75 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
   boost::shared_ptr<ActivationModelQuadRef> activation_RF_Wrench =
       boost::make_shared<ActivationModelQuadRef>(refCost_RF);
 
-  boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone>
-      residual_LF_Wrench =
-          boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(
-              state_, designer_.get_LF_id(), wrenchCone_LF,
-              actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> residual_LF_Wrench =
+      boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_, designer_.get_LF_id(), wrenchCone_LF,
+                                                                    actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, activation_LF_Wrench, residual_LF_Wrench);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activation_LF_Wrench, residual_LF_Wrench);
 
-  boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone>
-      residual_RF_Wrench =
-          boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(
-              state_, designer_.get_RF_id(), wrenchCone_RF,
-              actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelContactWrenchCone> residual_RF_Wrench =
+      boost::make_shared<crocoddyl::ResidualModelContactWrenchCone>(state_, designer_.get_RF_id(), wrenchCone_RF,
+                                                                    actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelAbstract> wrenchModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, activation_RF_Wrench, residual_RF_Wrench);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activation_RF_Wrench, residual_RF_Wrench);
 
-  costCollector.get()->addCost("wrench_LF", wrenchModel_LF,
-                               settings_.wWrenchCone, false);
-  costCollector.get()->addCost("wrench_RF", wrenchModel_RF,
-                               settings_.wWrenchCone, false);
-  if (support == Support::LEFT || support == Support::DOUBLE)
-    costCollector.get()->changeCostStatus("wrench_LF", true);
+  costCollector.get()->addCost("wrench_LF", wrenchModel_LF, settings_.wWrenchCone, false);
+  costCollector.get()->addCost("wrench_RF", wrenchModel_RF, settings_.wWrenchCone, false);
+  if (support == Support::LEFT || support == Support::DOUBLE) costCollector.get()->changeCostStatus("wrench_LF", true);
   if (support == Support::RIGHT || support == Support::DOUBLE)
     costCollector.get()->changeCostStatus("wrench_RF", true);
 }
 
-void ModelMaker::defineFeetTracking(Cost &costCollector,
-                                    const Support &support) {
+void ModelMaker::defineFeetTracking(Cost &costCollector, const Support &support) {
   boost::shared_ptr<crocoddyl::ActivationModelQuadFlatLog> activationQF =
       boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(6, 0.01);
 
-  boost::shared_ptr<crocoddyl::ResidualModelFramePlacement>
-      residual_LF_Tracking =
-          boost::make_shared<crocoddyl::ResidualModelFramePlacement>(
-              state_, designer_.get_LF_id(), designer_.get_LF_frame(),
-              actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFramePlacement> residual_LF_Tracking =
+      boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state_, designer_.get_LF_id(),
+                                                                 designer_.get_LF_frame(), actuation_->get_nu());
 
-  boost::shared_ptr<crocoddyl::ResidualModelFramePlacement>
-      residual_RF_Tracking =
-          boost::make_shared<crocoddyl::ResidualModelFramePlacement>(
-              state_, designer_.get_RF_id(), designer_.get_RF_frame(),
-              actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFramePlacement> residual_RF_Tracking =
+      boost::make_shared<crocoddyl::ResidualModelFramePlacement>(state_, designer_.get_RF_id(),
+                                                                 designer_.get_RF_frame(), actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> trackingModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF,
-                                                       residual_LF_Tracking);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF, residual_LF_Tracking);
   boost::shared_ptr<crocoddyl::CostModelAbstract> trackingModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF,
-                                                       residual_RF_Tracking);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationQF, residual_RF_Tracking);
 
-  costCollector.get()->addCost("placement_LF", trackingModel_LF,
-                               settings_.wFootPlacement, false);
-  costCollector.get()->addCost("placement_RF", trackingModel_RF,
-                               settings_.wFootPlacement, false);
+  costCollector.get()->addCost("placement_LF", trackingModel_LF, settings_.wFootPlacement, false);
+  costCollector.get()->addCost("placement_RF", trackingModel_RF, settings_.wFootPlacement, false);
   if (support == Support::LEFT || support == Support::DOUBLE)
     costCollector.get()->changeCostStatus("placement_RF", true);
   if (support == Support::RIGHT || support == Support::DOUBLE)
     costCollector.get()->changeCostStatus("placement_LF", true);
 }
 
-void ModelMaker::defineFeetTranslation(Cost &costCollector,
-                                       const Support &support,
-                                       const bool &stairs) {
-  boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation>
-      residual_LF_Tracking =
-          boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
-              state_, designer_.get_LF_id(),
-              designer_.get_LF_frame().translation(), actuation_->get_nu());
+void ModelMaker::defineFeetTranslation(Cost &costCollector, const Support &support, const bool &stairs) {
+  boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation> residual_LF_Tracking =
+      boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
+          state_, designer_.get_LF_id(), designer_.get_LF_frame().translation(), actuation_->get_nu());
 
-  boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation>
-      residual_RF_Tracking =
-          boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
-              state_, designer_.get_RF_id(),
-              designer_.get_RF_frame().translation(), actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation> residual_RF_Tracking =
+      boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
+          state_, designer_.get_RF_id(), designer_.get_RF_frame().translation(), actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::ActivationModelAbstract> activationZ;
   if (stairs) {
-    activationZ =
-        boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.01);
+    activationZ = boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.01);
   } else {
     eVector3 ZFootTrackingVec;
     ZFootTrackingVec << 0, 0, 1;
-    activationZ = boost::make_shared<sobec::ActivationModelWeightedLog>(
-        ZFootTrackingVec, 0.01);
+    activationZ = boost::make_shared<sobec::ActivationModelWeightedLog>(ZFootTrackingVec, 0.01);
   }
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> trackingModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationZ,
-                                                       residual_LF_Tracking);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationZ, residual_LF_Tracking);
   boost::shared_ptr<crocoddyl::CostModelAbstract> trackingModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationZ,
-                                                       residual_RF_Tracking);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationZ, residual_RF_Tracking);
 
-  costCollector.get()->addCost("translation_LF", trackingModel_LF,
-                               settings_.wFootPlacement, false);
-  costCollector.get()->addCost("translation_RF", trackingModel_RF,
-                               settings_.wFootPlacement, false);
+  costCollector.get()->addCost("translation_LF", trackingModel_LF, settings_.wFootPlacement, false);
+  costCollector.get()->addCost("translation_RF", trackingModel_RF, settings_.wFootPlacement, false);
 
   if (stairs) {
     if (support == Support::DOUBLE or support == Support::LEFT)
@@ -192,56 +146,44 @@ void ModelMaker::defineFeetTranslation(Cost &costCollector,
     if (support == Support::DOUBLE or support == Support::RIGHT)
       costCollector.get()->changeCostStatus("translation_LF", true);
   } else {
-    if (support == Support::DOUBLE)
-      costCollector.get()->changeCostStatus("translation_RF", true);
-    if (support == Support::DOUBLE)
-      costCollector.get()->changeCostStatus("translation_LF", true);
+    if (support == Support::DOUBLE) costCollector.get()->changeCostStatus("translation_RF", true);
+    if (support == Support::DOUBLE) costCollector.get()->changeCostStatus("translation_LF", true);
   }
 }
 
-void ModelMaker::defineFeetForceTask(Cost &costCollector,
-                                     const Support &support) {
+void ModelMaker::defineFeetForceTask(Cost &costCollector, const Support &support) {
   double Mg = -designer_.getRobotMass() * settings_.gravity(2);
   double Fz_ref;
   support == Support::DOUBLE ? Fz_ref = Mg / 2 : Fz_ref = Mg;
 
   boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> activationForce =
-      boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(
-          settings_.forceWeights);
+      boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(settings_.forceWeights);
 
   eVector6 refWrench_LF = eVector6::Zero();
   eVector6 refWrench_RF = eVector6::Zero();
-  if (support == Support::LEFT || support == Support::DOUBLE)
-    refWrench_LF(2) = Fz_ref;
-  if (support == Support::RIGHT || support == Support::DOUBLE)
-    refWrench_RF(2) = Fz_ref;
+  if (support == Support::LEFT || support == Support::DOUBLE) refWrench_LF(2) = Fz_ref;
+  if (support == Support::RIGHT || support == Support::DOUBLE) refWrench_RF(2) = Fz_ref;
 
   pinocchio::Force refForce_LF = pinocchio::Force(refWrench_LF);
   pinocchio::Force refForce_RF = pinocchio::Force(refWrench_RF);
 
   boost::shared_ptr<crocoddyl::ResidualModelContactForce> residual_LF_Force =
-      boost::make_shared<crocoddyl::ResidualModelContactForce>(
-          state_, designer_.get_LF_id(), refForce_LF, 6, actuation_->get_nu());
+      boost::make_shared<crocoddyl::ResidualModelContactForce>(state_, designer_.get_LF_id(), refForce_LF, 6,
+                                                               actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::ResidualModelContactForce> residual_RF_Force =
-      boost::make_shared<crocoddyl::ResidualModelContactForce>(
-          state_, designer_.get_RF_id(), refForce_RF, 6, actuation_->get_nu());
+      boost::make_shared<crocoddyl::ResidualModelContactForce>(state_, designer_.get_RF_id(), refForce_RF, 6,
+                                                               actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> forceModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationForce,
-                                                       residual_LF_Force);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationForce, residual_LF_Force);
   boost::shared_ptr<crocoddyl::CostModelAbstract> forceModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationForce,
-                                                       residual_RF_Force);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationForce, residual_RF_Force);
 
-  costCollector.get()->addCost("force_LF", forceModel_LF, settings_.wForceTask,
-                               false);
-  costCollector.get()->addCost("force_RF", forceModel_RF, settings_.wForceTask,
-                               false);
-  if (support == Support::RIGHT || support == Support::DOUBLE)
-    costCollector.get()->changeCostStatus("force_RF", true);
-  if (support == Support::LEFT || support == Support::DOUBLE)
-    costCollector.get()->changeCostStatus("force_LF", true);
+  costCollector.get()->addCost("force_LF", forceModel_LF, settings_.wForceTask, false);
+  costCollector.get()->addCost("force_RF", forceModel_RF, settings_.wForceTask, false);
+  if (support == Support::RIGHT || support == Support::DOUBLE) costCollector.get()->changeCostStatus("force_RF", true);
+  if (support == Support::LEFT || support == Support::DOUBLE) costCollector.get()->changeCostStatus("force_LF", true);
 }
 
 void ModelMaker::definePostureTask(Cost &costCollector) {
@@ -249,31 +191,23 @@ void ModelMaker::definePostureTask(Cost &costCollector) {
     throw std::invalid_argument("State weight size is wrong ");
   }
   boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> activationWQ =
-      boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(
-          settings_.stateWeights);
+      boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(settings_.stateWeights);
 
-  boost::shared_ptr<crocoddyl::CostModelAbstract> postureModel =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, activationWQ,
-          boost::make_shared<crocoddyl::ResidualModelState>(
-              state_, x0_, actuation_->get_nu()));
+  boost::shared_ptr<crocoddyl::CostModelAbstract> postureModel = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, activationWQ, boost::make_shared<crocoddyl::ResidualModelState>(state_, x0_, actuation_->get_nu()));
 
-  costCollector.get()->addCost("postureTask", postureModel, settings_.wStateReg,
-                               true);
+  costCollector.get()->addCost("postureTask", postureModel, settings_.wStateReg, true);
 }
 
 void ModelMaker::defineRotationBase(Cost &costCollector) {
   boost::shared_ptr<crocoddyl::ResidualModelFrameRotation> residual_Rotation =
       boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
-          state_, designer_.get_root_id(),
-          designer_.get_root_frame().rotation(), actuation_->get_nu());
+          state_, designer_.get_root_id(), designer_.get_root_frame().rotation(), actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_,
-                                                       residual_Rotation);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, residual_Rotation);
 
-  costCollector.get()->addCost("rotation_base", rotationModel,
-                               settings_.wBaseRot, true);
+  costCollector.get()->addCost("rotation_base", rotationModel, settings_.wBaseRot, true);
 }
 
 void ModelMaker::defineActuationTask(Cost &costCollector) {
@@ -284,39 +218,27 @@ void ModelMaker::defineActuationTask(Cost &costCollector) {
       boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(
           settings_.controlWeights);  //.tail(actuation->get_nu())
 
-  boost::shared_ptr<crocoddyl::CostModelAbstract> actuationModel =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, activationWQ,
-          boost::make_shared<crocoddyl::ResidualModelControl>(
-              state_, actuation_->get_nu()));
-  costCollector.get()->addCost("actuationTask", actuationModel,
-                               settings_.wControlReg, true);
+  boost::shared_ptr<crocoddyl::CostModelAbstract> actuationModel = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, activationWQ, boost::make_shared<crocoddyl::ResidualModelControl>(state_, actuation_->get_nu()));
+  costCollector.get()->addCost("actuationTask", actuationModel, settings_.wControlReg, true);
 }
 
 void ModelMaker::defineJointLimits(Cost &costCollector) {
-  Eigen::VectorXd lower_bound(2 * state_->get_nv()),
-      upper_bound(2 * state_->get_nv());
+  Eigen::VectorXd lower_bound(2 * state_->get_nv()), upper_bound(2 * state_->get_nv());
 
   double inf = 9999.0;
-  lower_bound << Eigen::VectorXd::Constant(6, -inf),
-      settings_.lowKinematicLimits,
+  lower_bound << Eigen::VectorXd::Constant(6, -inf), settings_.lowKinematicLimits,
       Eigen::VectorXd::Constant(state_->get_nv(), -inf);
-  upper_bound << Eigen::VectorXd::Constant(6, inf),
-      settings_.highKinematicLimits,
+  upper_bound << Eigen::VectorXd::Constant(6, inf), settings_.highKinematicLimits,
       Eigen::VectorXd::Constant(state_->get_nv(), inf);
-  crocoddyl::ActivationBounds bounds =
-      crocoddyl::ActivationBounds(lower_bound, upper_bound, 1.);
+  crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(lower_bound, upper_bound, 1.);
 
   boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationQB =
       boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
-  boost::shared_ptr<crocoddyl::CostModelAbstract> jointLimitCost =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, activationQB,
-          boost::make_shared<crocoddyl::ResidualModelState>(
-              state_, actuation_->get_nu()));
+  boost::shared_ptr<crocoddyl::CostModelAbstract> jointLimitCost = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, activationQB, boost::make_shared<crocoddyl::ResidualModelState>(state_, actuation_->get_nu()));
 
-  costCollector.get()->addCost("jointLimits", jointLimitCost, settings_.wLimit,
-                               true);
+  costCollector.get()->addCost("jointLimits", jointLimitCost, settings_.wLimit, true);
 }
 
 void ModelMaker::defineDCMTask(Cost &costCollector, const Support &support) {
@@ -328,13 +250,11 @@ void ModelMaker::defineDCMTask(Cost &costCollector, const Support &support) {
     ref_position = designer_.get_RF_frame().translation();
   }
   if (support == Support::DOUBLE) {
-    ref_position = (designer_.get_RF_frame().translation() +
-                    designer_.get_LF_frame().translation()) /
-                   2.;
+    ref_position = (designer_.get_RF_frame().translation() + designer_.get_LF_frame().translation()) / 2.;
   }
   boost::shared_ptr<sobec::ResidualModelDCMPosition> residual_DCM =
-      boost::make_shared<sobec::ResidualModelDCMPosition>(
-          state_, ref_position, 1 / settings_.omega, actuation_->get_nu());
+      boost::make_shared<sobec::ResidualModelDCMPosition>(state_, ref_position, 1 / settings_.omega,
+                                                          actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> DCM_model =
       boost::make_shared<crocoddyl::CostModelResidual>(state_, residual_DCM);
@@ -348,32 +268,22 @@ void ModelMaker::defineCoPTask(Cost &costCollector, const Support &support) {
   w_cop << value, value;
 
   // LEFT
-  boost::shared_ptr<crocoddyl::CostModelAbstract> copCostLF =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_,
-          boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop),
-          boost::make_shared<ResidualModelCenterOfPressure>(
-              state_, designer_.get_LF_id(), actuation_->get_nu()));
+  boost::shared_ptr<crocoddyl::CostModelAbstract> copCostLF = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop),
+      boost::make_shared<ResidualModelCenterOfPressure>(state_, designer_.get_LF_id(), actuation_->get_nu()));
 
   // RIGHT
-  boost::shared_ptr<crocoddyl::CostModelAbstract> copCostRF =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_,
-          boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop),
-          boost::make_shared<ResidualModelCenterOfPressure>(
-              state_, designer_.get_RF_id(), actuation_->get_nu()));
+  boost::shared_ptr<crocoddyl::CostModelAbstract> copCostRF = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(w_cop),
+      boost::make_shared<ResidualModelCenterOfPressure>(state_, designer_.get_RF_id(), actuation_->get_nu()));
 
-  costCollector.get()->addCost(designer_.get_LF_name() + "_cop", copCostLF,
-                               settings_.wCoP, false);
-  costCollector.get()->addCost(designer_.get_RF_name() + "_cop", copCostRF,
-                               settings_.wCoP, false);
+  costCollector.get()->addCost(designer_.get_LF_name() + "_cop", copCostLF, settings_.wCoP, false);
+  costCollector.get()->addCost(designer_.get_RF_name() + "_cop", copCostRF, settings_.wCoP, false);
   if (support == Support::LEFT || support == Support::DOUBLE)
-    costCollector.get()->changeCostStatus(designer_.get_LF_name() + "_cop",
-                                          true);
+    costCollector.get()->changeCostStatus(designer_.get_LF_name() + "_cop", true);
 
   if (support == Support::RIGHT || support == Support::DOUBLE)
-    costCollector.get()->changeCostStatus(designer_.get_RF_name() + "_cop",
-                                          true);
+    costCollector.get()->changeCostStatus(designer_.get_RF_name() + "_cop", true);
 }
 
 void ModelMaker::defineFeetRotation(Cost &costCollector) {
@@ -385,29 +295,21 @@ void ModelMaker::defineFeetRotation(Cost &costCollector) {
   boost::shared_ptr<sobec::ActivationModelQuadFlatLog> activationRot =
       boost::make_shared<sobec::ActivationModelQuadFlatLog>(3, 0.01);
 
-  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
-      residual_LF_Rotation =
-          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
-              state_, designer_.get_LF_id(),
-              designer_.get_LF_frame().rotation(), actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation> residual_LF_Rotation =
+      boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+          state_, designer_.get_LF_id(), designer_.get_LF_frame().rotation(), actuation_->get_nu());
 
-  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
-      residual_RF_Rotation =
-          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
-              state_, designer_.get_RF_id(),
-              designer_.get_RF_frame().rotation(), actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation> residual_RF_Rotation =
+      boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+          state_, designer_.get_RF_id(), designer_.get_RF_frame().rotation(), actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_,
-                                                       residual_LF_Rotation);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, residual_LF_Rotation);
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_,
-                                                       residual_RF_Rotation);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, residual_RF_Rotation);
 
-  costCollector.get()->addCost("rotation_LF", rotationModel_LF,
-                               settings_.wFootRot, true);
-  costCollector.get()->addCost("rotation_RF", rotationModel_RF,
-                               settings_.wFootRot, true);
+  costCollector.get()->addCost("rotation_LF", rotationModel_LF, settings_.wFootRot, true);
+  costCollector.get()->addCost("rotation_RF", rotationModel_RF, settings_.wFootRot, true);
 }
 
 void ModelMaker::defineFeetZRotation(Cost &costCollector) {
@@ -416,143 +318,103 @@ void ModelMaker::defineFeetZRotation(Cost &costCollector) {
   boost::shared_ptr<sobec::ActivationModelWeightedQuad> activationRot =
       boost::make_shared<sobec::ActivationModelWeightedQuad>(FootRotationVec);
 
-  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
-      residual_LF_Rotation =
-          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
-              state_, designer_.get_LF_id(),
-              designer_.get_LF_frame().rotation(), actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation> residual_LF_Rotation =
+      boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+          state_, designer_.get_LF_id(), designer_.get_LF_frame().rotation(), actuation_->get_nu());
 
-  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation>
-      residual_RF_Rotation =
-          boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
-              state_, designer_.get_RF_id(),
-              designer_.get_RF_frame().rotation(), actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFrameRotation> residual_RF_Rotation =
+      boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
+          state_, designer_.get_RF_id(), designer_.get_RF_frame().rotation(), actuation_->get_nu());
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_LF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot,
-                                                       residual_LF_Rotation);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, residual_LF_Rotation);
   boost::shared_ptr<crocoddyl::CostModelAbstract> rotationModel_RF =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot,
-                                                       residual_RF_Rotation);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, activationRot, residual_RF_Rotation);
 
-  costCollector.get()->addCost("rotation_LF", rotationModel_LF,
-                               settings_.wBaseRot, true);
-  costCollector.get()->addCost("rotation_RF", rotationModel_RF,
-                               settings_.wBaseRot, true);
+  costCollector.get()->addCost("rotation_LF", rotationModel_LF, settings_.wBaseRot, true);
+  costCollector.get()->addCost("rotation_RF", rotationModel_RF, settings_.wBaseRot, true);
 }
 
 void ModelMaker::defineCoMPosition(Cost &costCollector) {
   boost::shared_ptr<sobec::ActivationModelSmooth1Norm> activation =
       boost::make_shared<sobec::ActivationModelSmooth1Norm>(3, 0.01);
-  boost::shared_ptr<crocoddyl::CostModelAbstract> comCost =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, activation,
-          boost::make_shared<crocoddyl::ResidualModelCoMPosition>(
-              state_, designer_.get_com_position(), actuation_->get_nu()));
+  boost::shared_ptr<crocoddyl::CostModelAbstract> comCost = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, activation,
+      boost::make_shared<crocoddyl::ResidualModelCoMPosition>(state_, designer_.get_com_position(),
+                                                              actuation_->get_nu()));
   costCollector.get()->addCost("comTask", comCost, settings_.wPCoM, true);
 }
 
 void ModelMaker::defineCoMVelocity(Cost &costCollector) {
   eVector3 refVelocity = eVector3::Zero();
-  boost::shared_ptr<crocoddyl::CostModelAbstract> CoMVelocityCost =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, boost::make_shared<ResidualModelCoMVelocity>(
-                      state_, refVelocity, actuation_->get_nu()));
+  boost::shared_ptr<crocoddyl::CostModelAbstract> CoMVelocityCost = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, boost::make_shared<ResidualModelCoMVelocity>(state_, refVelocity, actuation_->get_nu()));
 
-  costCollector.get()->addCost("comVelocity", CoMVelocityCost, settings_.wVCoM,
-                               true);
+  costCollector.get()->addCost("comVelocity", CoMVelocityCost, settings_.wVCoM, true);
 }
 
-void ModelMaker::defineFlyHighTask(Cost &costCollector,
-                                   const Support &support) {
-  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualRight =
-      boost::make_shared<ResidualModelFlyAngle>(
-          state_, designer_.get_RF_toe_id(), settings_.flyHighSlope / 2.0,
-          settings_.height, settings_.dist, settings_.width,
-          actuation_->get_nu());
+void ModelMaker::defineFlyHighTask(Cost &costCollector, const Support &support) {
+  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualRight = boost::make_shared<ResidualModelFlyAngle>(
+      state_, designer_.get_RF_toe_id(), settings_.flyHighSlope / 2.0, settings_.height, settings_.dist,
+      settings_.width, actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelResidual> flyHighCostRight =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_,
-                                                       flyHighResidualRight);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualRight);
 
-  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualLeft =
-      boost::make_shared<ResidualModelFlyAngle>(
-          state_, designer_.get_LF_toe_id(), settings_.flyHighSlope / 2.0,
-          settings_.height, settings_.dist, settings_.width,
-          actuation_->get_nu());
+  boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualLeft = boost::make_shared<ResidualModelFlyAngle>(
+      state_, designer_.get_LF_toe_id(), settings_.flyHighSlope / 2.0, settings_.height, settings_.dist,
+      settings_.width, actuation_->get_nu());
   boost::shared_ptr<crocoddyl::CostModelAbstract> flyHighCostLeft =
-      boost::make_shared<crocoddyl::CostModelResidual>(state_,
-                                                       flyHighResidualLeft);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, flyHighResidualLeft);
 
-  costCollector.get()->addCost("flyHigh_RF", flyHighCostRight,
-                               settings_.wFlyHigh, false);
-  costCollector.get()->addCost("flyHigh_LF", flyHighCostLeft,
-                               settings_.wFlyHigh, false);
-  if (support == Support::LEFT)
-    costCollector.get()->changeCostStatus("flyHigh_RF", true);
-  if (support == Support::RIGHT)
-    costCollector.get()->changeCostStatus("flyHigh_LF", true);
+  costCollector.get()->addCost("flyHigh_RF", flyHighCostRight, settings_.wFlyHigh, false);
+  costCollector.get()->addCost("flyHigh_LF", flyHighCostLeft, settings_.wFlyHigh, false);
+  if (support == Support::LEFT) costCollector.get()->changeCostStatus("flyHigh_RF", true);
+  if (support == Support::RIGHT) costCollector.get()->changeCostStatus("flyHigh_LF", true);
 }
 
-void ModelMaker::defineVelFootTask(Cost &costCollector,
-                                   const Support &support) {
-  boost::shared_ptr<crocoddyl::ResidualModelFrameVelocity>
-      verticalFootVelResidualLeft =
-          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
-              state_, designer_.get_LF_id(), pinocchio::Motion::Zero(),
-              pinocchio::LOCAL_WORLD_ALIGNED, actuation_->get_nu());
-  boost::shared_ptr<crocoddyl::ResidualModelFrameVelocity>
-      verticalFootVelResidualRight =
-          boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
-              state_, designer_.get_RF_id(), pinocchio::Motion::Zero(),
-              pinocchio::LOCAL_WORLD_ALIGNED, actuation_->get_nu());
+void ModelMaker::defineVelFootTask(Cost &costCollector, const Support &support) {
+  boost::shared_ptr<crocoddyl::ResidualModelFrameVelocity> verticalFootVelResidualLeft =
+      boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(state_, designer_.get_LF_id(),
+                                                                pinocchio::Motion::Zero(),
+                                                                pinocchio::LOCAL_WORLD_ALIGNED, actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelFrameVelocity> verticalFootVelResidualRight =
+      boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(state_, designer_.get_RF_id(),
+                                                                pinocchio::Motion::Zero(),
+                                                                pinocchio::LOCAL_WORLD_ALIGNED, actuation_->get_nu());
   eVector6 verticalFootVelActVec;
   verticalFootVelActVec << 1, 1, 1, 1, 1, 1;
   boost::shared_ptr<crocoddyl::ActivationModelWeightedQuad> verticalFootVelAct =
-      boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(
-          verticalFootVelActVec);
+      boost::make_shared<crocoddyl::ActivationModelWeightedQuad>(verticalFootVelActVec);
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> verticalFootVelCostRight =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, verticalFootVelAct, verticalFootVelResidualRight);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, verticalFootVelAct, verticalFootVelResidualRight);
   boost::shared_ptr<crocoddyl::CostModelAbstract> verticalFootVelCostLeft =
-      boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, verticalFootVelAct, verticalFootVelResidualLeft);
-  costCollector.get()->addCost("velFoot_RF", verticalFootVelCostRight,
-                               settings_.wVelFoot, false);
-  costCollector.get()->addCost("velFoot_LF", verticalFootVelCostLeft,
-                               settings_.wVelFoot, false);
-  if (support == Support::LEFT)
-    costCollector.get()->changeCostStatus("velFoot_RF", true);
-  if (support == Support::RIGHT)
-    costCollector.get()->changeCostStatus("velFoot_LF", true);
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, verticalFootVelAct, verticalFootVelResidualLeft);
+  costCollector.get()->addCost("velFoot_RF", verticalFootVelCostRight, settings_.wVelFoot, false);
+  costCollector.get()->addCost("velFoot_LF", verticalFootVelCostLeft, settings_.wVelFoot, false);
+  if (support == Support::LEFT) costCollector.get()->changeCostStatus("velFoot_RF", true);
+  if (support == Support::RIGHT) costCollector.get()->changeCostStatus("velFoot_LF", true);
 }
 
 void ModelMaker::defineFootCollisionTask(Cost &costCollector) {
-  std::list<pinocchio::FrameIndex> leftIds = {designer_.get_LF_id(),
-                                              designer_.get_LF_toe_id(),
+  std::list<pinocchio::FrameIndex> leftIds = {designer_.get_LF_id(), designer_.get_LF_toe_id(),
                                               designer_.get_LF_heel_id()};
-  std::list<pinocchio::FrameIndex> rightIds = {designer_.get_RF_id(),
-                                               designer_.get_RF_toe_id(),
+  std::list<pinocchio::FrameIndex> rightIds = {designer_.get_RF_id(), designer_.get_RF_toe_id(),
                                                designer_.get_RF_heel_id()};
   for (pinocchio::FrameIndex id1 : leftIds) {
     for (pinocchio::FrameIndex id2 : rightIds) {
       boost::shared_ptr<sobec::ResidualModelFeetCollision> feetColResidual =
-          boost::make_shared<sobec::ResidualModelFeetCollision>(
-              state_, id1, id2, actuation_->get_nu());
+          boost::make_shared<sobec::ResidualModelFeetCollision>(state_, id1, id2, actuation_->get_nu());
       Eigen::VectorXd feetColLow(1), feetColUp(1);
       feetColLow << settings_.footMinimalDistance;
       feetColUp << 1000;
-      const crocoddyl::ActivationBounds feetColBounds =
-          crocoddyl::ActivationBounds(feetColLow, feetColUp);
+      const crocoddyl::ActivationBounds feetColBounds = crocoddyl::ActivationBounds(feetColLow, feetColUp);
       boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> feetColAct =
-          boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(
-              feetColBounds);
+          boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(feetColBounds);
       boost::shared_ptr<crocoddyl::CostModelAbstract> feetColCost =
-          boost::make_shared<crocoddyl::CostModelResidual>(state_, feetColAct,
-                                                           feetColResidual);
+          boost::make_shared<crocoddyl::CostModelResidual>(state_, feetColAct, feetColResidual);
       costCollector.get()->addCost(
-          "feetcol_" + designer_.get_rModel().frames[id1].name + "_VS_" +
-              designer_.get_rModel().frames[id2].name,
+          "feetcol_" + designer_.get_rModel().frames[id1].name + "_VS_" + designer_.get_rModel().frames[id2].name,
           feetColCost, settings_.wColFeet, true);
     }
   }
@@ -564,24 +426,19 @@ void ModelMaker::defineGripperPlacement(Cost &costCollector) {
   // Position
   boost::shared_ptr<crocoddyl::CostModelAbstract> gripperPositionCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
-          state_,
-          boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.02),
+          state_, boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.02),
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
-              state_, designer_.get_EndEff_id(), goalPlacement.translation(),
-              actuation_->get_nu()));
+              state_, designer_.get_EndEff_id(), goalPlacement.translation(), actuation_->get_nu()));
 
-  costCollector.get()->addCost("gripperPosition", gripperPositionCost,
-                               settings_.wGripperPos, true);
+  costCollector.get()->addCost("gripperPosition", gripperPositionCost, settings_.wGripperPos, true);
 
   // Orientation
   boost::shared_ptr<crocoddyl::CostModelAbstract> gripperRotationCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
           state_, boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
-                      state_, designer_.get_EndEff_id(),
-                      goalPlacement.rotation(), actuation_->get_nu()));
+                      state_, designer_.get_EndEff_id(), goalPlacement.rotation(), actuation_->get_nu()));
 
-  costCollector.get()->addCost("gripperRotation", gripperRotationCost,
-                               settings_.wGripperRot, true);
+  costCollector.get()->addCost("gripperRotation", gripperRotationCost, settings_.wGripperRot, true);
 }
 
 void ModelMaker::defineGripperVelocity(Cost &costCollector) {
@@ -589,18 +446,14 @@ void ModelMaker::defineGripperVelocity(Cost &costCollector) {
   boost::shared_ptr<crocoddyl::CostModelAbstract> gripperVelocityCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
           state_, boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
-                      state_, designer_.get_EndEff_id(), goalMotion,
-                      pinocchio::WORLD, actuation_->get_nu()));
+                      state_, designer_.get_EndEff_id(), goalMotion, pinocchio::WORLD, actuation_->get_nu()));
 
-  costCollector.get()->addCost("gripperVelocity", gripperVelocityCost,
-                               settings_.wGripperVel, true);
+  costCollector.get()->addCost("gripperVelocity", gripperVelocityCost, settings_.wGripperVel, true);
 }
 
 AMA ModelMaker::formulateStepTracker(const Support &support) {
-  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
-      state_, actuation_->get_nu());
-  Cost costs =
-      boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
 
   defineFeetContact(contacts, support);
 
@@ -612,20 +465,16 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   defineCoPTask(costs, support);
   defineFeetTracking(costs, support);
 
-  DAM runningDAM =
-      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
-          state_, actuation_, contacts, costs, 0., true);
-  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(
-      runningDAM, settings_.timeStep);
+  DAM runningDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_,
+                                                                                            contacts, costs, 0., true);
+  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep);
 
   return runningModel;
 }
 
 AMA ModelMaker::formulateTerminalStepTracker(const Support &support) {
-  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
-      state_, actuation_->get_nu());
-  Cost costs =
-      boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
 
   defineFeetContact(contacts, support);
   defineJointLimits(costs);
@@ -633,20 +482,16 @@ AMA ModelMaker::formulateTerminalStepTracker(const Support &support) {
   defineFeetTracking(costs, support);
   defineDCMTask(costs, support);
 
-  DAM terminalDAM =
-      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
-          state_, actuation_, contacts, costs, 0., true);
-  AMA terminalModel =
-      boost::make_shared<crocoddyl::IntegratedActionModelEuler>(terminalDAM, 0);
+  DAM terminalDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
+      state_, actuation_, contacts, costs, 0., true);
+  AMA terminalModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(terminalDAM, 0);
 
   return terminalModel;
 }
 
 AMA ModelMaker::formulateWWT(const Support &support, const bool &stairs) {
-  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
-      state_, actuation_->get_nu());
-  Cost costs =
-      boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
 
   defineFeetContact(contacts, support);
 
@@ -662,21 +507,16 @@ AMA ModelMaker::formulateWWT(const Support &support, const bool &stairs) {
   defineFlyHighTask(costs, support);
   defineFeetTranslation(costs, support, stairs);
 
-  DAM runningDAM =
-      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
-          state_, actuation_, contacts, costs, 0., true);
-  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(
-      runningDAM, settings_.timeStep);
+  DAM runningDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_,
+                                                                                            contacts, costs, 0., true);
+  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep);
 
   return runningModel;
 }
 
-AMA ModelMaker::formulateTerminalWWT(const Support &support,
-                                     const bool &stairs) {
-  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
-      state_, actuation_->get_nu());
-  Cost costs =
-      boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+AMA ModelMaker::formulateTerminalWWT(const Support &support, const bool &stairs) {
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
 
   defineFeetContact(contacts, support);
 
@@ -691,20 +531,16 @@ AMA ModelMaker::formulateTerminalWWT(const Support &support,
   defineDCMTask(costs, support);
   defineRotationBase(costs);
 
-  DAM terminalDAM =
-      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
-          state_, actuation_, contacts, costs, 0., true);
-  AMA terminalModel =
-      boost::make_shared<crocoddyl::IntegratedActionModelEuler>(terminalDAM, 0);
+  DAM terminalDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
+      state_, actuation_, contacts, costs, 0., true);
+  AMA terminalModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(terminalDAM, 0);
 
   return terminalModel;
 }
 
 AMA ModelMaker::formulatePointingTask() {
-  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
-      state_, actuation_->get_nu());
-  Cost costs =
-      boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
   defineFeetContact(contacts, Support::DOUBLE);
 
   defineFeetWrenchCost(costs, Support::DOUBLE);
@@ -716,17 +552,14 @@ AMA ModelMaker::formulatePointingTask() {
   defineGripperPlacement(costs);
   defineGripperVelocity(costs);
 
-  DAM runningDAM =
-      boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
-          state_, actuation_, contacts, costs, 0., true);
-  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(
-      runningDAM, settings_.timeStep);
+  DAM runningDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_,
+                                                                                            contacts, costs, 0., true);
+  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep);
 
   return runningModel;
 }
 
-std::vector<AMA> ModelMaker::formulateHorizon(
-    const std::vector<Support> &supports, const Experiment &experiment) {
+std::vector<AMA> ModelMaker::formulateHorizon(const std::vector<Support> &supports, const Experiment &experiment) {
   // for loop to generate a vector of IAMs
   std::vector<AMA> models;
   if (experiment == Experiment::WALK) {
