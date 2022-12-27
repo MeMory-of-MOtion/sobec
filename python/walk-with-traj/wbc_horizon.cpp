@@ -69,11 +69,6 @@ void exposeWBCHorizon() {
            make_constructor(constructVectorFromList<pinocchio::SE3>))
       .def("__repr__", &displayVector<pinocchio::SE3>);
 
-  bp::class_<std::vector<eVector3>>("vector_eigen_vector3_")
-      .def(bp::vector_indexing_suite<std::vector<eVector3>>())
-      .def("__init__", make_constructor(constructVectorFromList<eVector3>))
-      .def("__repr__", &displayVector<eVector3>);
-
   bp::class_<WBCHorizon>("WBCHorizon", bp::init<>())
       .def("initialize", &initialize,
            bp::args("self", "settings", "design", "horizon", "q0", "v0",
