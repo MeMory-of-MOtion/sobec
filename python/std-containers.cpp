@@ -35,9 +35,8 @@ struct StdVectorPythonVisitor : pinocchio::python::StdVectorPythonVisitor<
 #endif
 
 void exposeStdContainers() {
-  StdVectorPythonVisitor<std::vector<std::string>>::expose(
-      "StdVectorStdStringIndex_");
-
+  typedef std::vector<std::string> std_vec_str_t;
+  StdVectorPythonVisitor<std_vec_str_t>::expose("StdVec_StdString");
   StdVectorPythonVisitor<std::vector<pinocchio::Force>>::expose(
       "StdVectorPinocchioForce_");
   StdVectorPythonVisitor<std::vector<std::vector<pinocchio::Force>>>::expose(
