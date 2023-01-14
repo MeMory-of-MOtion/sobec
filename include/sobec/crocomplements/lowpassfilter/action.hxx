@@ -914,8 +914,8 @@ void IntegratedActionModelLPFTpl<Scalar>::set_control_lim_cost(
 template <typename Scalar>
 void IntegratedActionModelLPFTpl<Scalar>::quasiStatic(
     const boost::shared_ptr<ActionDataAbstract>& data, Eigen::Ref<VectorXs> u,
-    const Eigen::Ref<const VectorXs>& x, const std::size_t& maxiter,
-    const Scalar& tol) {
+    const Eigen::Ref<const VectorXs>& x, const std::size_t maxiter,
+    const Scalar tol) {
   if (static_cast<std::size_t>(u.size()) != nu_) {
     throw_pretty("Invalid argument: "
                  << "u has wrong dimension (it should be " +

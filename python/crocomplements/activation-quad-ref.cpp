@@ -6,10 +6,10 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "sobec/crocomplements/activation-quad-ref.hpp"
+
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!
-
-#include "sobec/crocomplements/activation-quad-ref.hpp"
 
 namespace sobec {
 namespace python {
