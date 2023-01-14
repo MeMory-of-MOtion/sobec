@@ -1,4 +1,4 @@
-#include "sobec/ocp.hpp"
+#include "sobec/walk-with-traj/ocp.hpp"
 
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
