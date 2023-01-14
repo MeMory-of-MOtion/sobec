@@ -1,10 +1,11 @@
-#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
-#include <sstream>
+#include <pinocchio/multibody/fwd.hpp>
+// Must be included first!
 
-// keep this line on top
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
+#include <sstream>
+// keep this line on top
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <sobec/walk-with-traj/wbc_horizon.hpp>
 
 #include "sobec/fwd.hpp"
