@@ -1,8 +1,5 @@
 #include <pinocchio/fwd.hpp>  // Must be included first!
 // keep this line on top
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <sobec/walk-with-traj/model_factory.hpp>

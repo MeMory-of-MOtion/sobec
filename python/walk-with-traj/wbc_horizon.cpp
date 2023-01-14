@@ -2,9 +2,6 @@
 #include <sstream>
 
 // keep this line on top
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
@@ -40,9 +37,9 @@ void initialize(WBCHorizon &self, const bp::dict &settings,
 template <typename T>
 boost::shared_ptr<std::vector<T>> constructVectorFromList(const bp::list &in) {
   boost::shared_ptr<std::vector<T>> ptr = boost::make_shared<std::vector<T>>();
-  ptr->resize(bp::len(in));
-  for (int i = 0; i < bp::len(in); ++i) {
-    (*ptr)[i] = boost::python::extract<T>(in[i]);
+  ptr->resize((std::size_t)bp::len(in));
+  for (long i = 0; i < bp::len(in); ++i) {
+    (*ptr)[(std::size_t)i] = boost::python::extract<T>(in[i]);
   }
   return ptr;
 }

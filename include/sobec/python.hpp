@@ -1,7 +1,7 @@
 #ifndef __sobec_python__
 #define __sobec_python__
 
-#include <boost/python.hpp>
+#include <eigenpy/eigenpy.hpp>
 #include <pinocchio/fwd.hpp>
 
 namespace sobec {

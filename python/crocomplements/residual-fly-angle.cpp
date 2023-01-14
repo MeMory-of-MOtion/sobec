@@ -8,8 +8,6 @@
 
 #include "sobec/crocomplements/residual-fly-angle.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 

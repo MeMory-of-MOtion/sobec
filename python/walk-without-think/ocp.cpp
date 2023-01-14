@@ -8,8 +8,6 @@
 
 #include "sobec/walk-without-think/ocp.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
 #include <crocoddyl/core/solvers/fddp.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/fwd.hpp>
