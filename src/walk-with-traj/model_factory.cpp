@@ -26,6 +26,17 @@ void ModelMaker::initialize(const ModelMakerSettings &settings,
 
   x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
   x0_ << designer_.get_q0(), Eigen::VectorXd::Zero(designer_.get_rModel().nv);
+
+  if (settings_.lowKinematicLimits.size() == 0) {
+    // Using default values for kinematic bounds
+    settings_.lowKinematicLimits.resize(state_->get_nq() - 7);
+    settings_.highKinematicLimits.resize(state_->get_nq() - 7);
+    settings_.lowKinematicLimits =
+        designer_.get_rModel().lowerPositionLimit.tail(state_->get_nq() - 7);
+    settings_.highKinematicLimits =
+        designer_.get_rModel().upperPositionLimit.tail(state_->get_nq() - 7);
+  }
+
   initialized_ = true;
 }
 
