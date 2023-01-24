@@ -110,7 +110,7 @@ void ResidualModelFlyAngleTpl<Scalar>::calcDiff(const boost::shared_ptr<Residual
   //data->Rx.rightCols(nv) = (d->rotation_alpha * d->o_dv_dv).template topRows<2>();
   data->Rx.leftCols(nv) = d->o_dv_dq.template topRows<2>();
   data->Rx.rightCols(nv) = d->o_dv_dv.template topRows<2>();
-  data->Rx *= d->ez;
+  data->Rx *= (d->ez + height_offset);
 
   // Second term with derivative of z
   data->Rx.leftCols(nv).row(0) -= data->r[0] * slope * (d->o_dv_dv.row(2) - height * d->sig_dt * d->o_dv_dv.row(0));
