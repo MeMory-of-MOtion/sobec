@@ -102,7 +102,7 @@ class ResidualModelFlyAngleTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @brief Modify the frame index.
    */
   void set_frame_id(const pinocchio::FrameIndex& fid);
-  void set_height_dist(const Scalar& h, const Scalar& d);
+  void set_sigmoid(const Scalar& h, const Scalar& d, const Scalar& o);
 
   const Scalar getSlope() const { return slope; }
   void setSlope(const Scalar s) { slope = s; }
@@ -118,6 +118,7 @@ class ResidualModelFlyAngleTpl : public ResidualModelAbstractTpl<_Scalar> {
   Scalar height;
   Scalar dist;
   Scalar width;
+  Scalar height_offset;
   pinocchio::FrameIndex frame_id;
   Scalar slope;                                        // multiplication in front of the altitude in the cost
   typename StateMultibody::PinocchioModel pin_model_;  //!< Pinocchio model used for internal computations

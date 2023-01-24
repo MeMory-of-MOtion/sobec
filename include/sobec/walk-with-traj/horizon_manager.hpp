@@ -90,7 +90,8 @@ class HorizonManager {
   void setSigmoidParameters(const unsigned long time, 
                             const std::string &nameFlyHigh, 
                             const double &height, 
-                            const double &dist);
+                            const double &dist,
+                            const double &height_offset);
   void setTerminalDCMReference(const std::string &nameCost, const eVector3 &ref_translation);
   void setSwingingLF(const unsigned long time, const std::string &nameContactLF, const std::string &nameContactRF,
                      const std::string &nameForceContactLF);

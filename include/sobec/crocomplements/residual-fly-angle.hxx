@@ -25,6 +25,7 @@ ResidualModelFlyAngleTpl<Scalar>::ResidualModelFlyAngleTpl(boost::shared_ptr<Sta
       height(height),
       dist(dist),
       width(width),
+      height_offset(0),
       pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
@@ -37,6 +38,7 @@ ResidualModelFlyAngleTpl<Scalar>::ResidualModelFlyAngleTpl(boost::shared_ptr<Sta
       height(height),
       dist(dist),
       width(width),
+      height_offset(0),
       pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
@@ -56,9 +58,9 @@ void ResidualModelFlyAngleTpl<Scalar>::calc(const boost::shared_ptr<ResidualData
   d->sig_dt = width * d->sig * (1 - d->sig);
   d->alpha = atan(height * d->sig_dt);
 
-  d->rotation_alpha.row(0) << cos(d->alpha), 0, sin(d->alpha);
-  d->rotation_alpha.row(1) << 0, 1, 0;
-  d->rotation_alpha.row(2) << -sin(d->alpha), 0, cos(d->alpha);
+  //d->rotation_alpha.row(0) << cos(d->alpha), 0, sin(d->alpha);
+  //d->rotation_alpha.row(1) << 0, 1, 0;
+  //d->rotation_alpha.row(2) << -sin(d->alpha), 0, cos(d->alpha);
   d->ez = exp(-slope * (d->pinocchio->oMf[frame_id].translation()[2] - height * d->sig));
 
   //data->r = (d->rotation_alpha *
@@ -66,7 +68,7 @@ void ResidualModelFlyAngleTpl<Scalar>::calc(const boost::shared_ptr<ResidualData
   //              .head(2);
    data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id,
                                          pinocchio::LOCAL_WORLD_ALIGNED).linear().head(2);
-  data->r *= d->ez;
+  data->r *= (d->ez + height_offset);
 }
 
 template <typename Scalar>
@@ -92,10 +94,11 @@ void ResidualModelFlyAngleTpl<Scalar>::calcDiff(const boost::shared_ptr<Residual
   const Matrix3s& R = d->pinocchio->oMf[frame_id].rotation();
 
   d->sig_ddt = width * d->sig_dt * (1 - 2 * d->sig);
-  d->alpha_dt = height * d->sig_ddt / (1 + (height * d->sig_dt) * (height * d->sig_dt));
-  d->rotation_alpha_dt.row(0) << -sin(d->alpha), 0, cos(d->alpha);
-  d->rotation_alpha_dt.row(1) << 0, 0, 0;
-  d->rotation_alpha_dt.row(2) << -cos(d->alpha), 0, -sin(d->alpha);
+  //d->alpha_dt = height * d->sig_ddt / (1 + (height * d->sig_dt) * (height * d->sig_dt));
+  //d->rotation_alpha_dt.row(0) << -sin(d->alpha), 0, cos(d->alpha);
+  //d->rotation_alpha_dt.row(1) << 0, 0, 0;
+  //d->rotation_alpha_dt.row(2) << -cos(d->alpha), 0, -sin(d->alpha);
+  
   // First compute LWA derivatives of the velocity
   d->vxJ.noalias() = pinocchio::skew(-v) * d->l_dnu_dv.template bottomRows<3>();
   d->vxJ += d->l_dnu_dq.template topRows<3>();
@@ -140,9 +143,10 @@ void ResidualModelFlyAngleTpl<Scalar>::set_frame_id(const pinocchio::FrameIndex&
 }
 
 template <typename Scalar>
-void ResidualModelFlyAngleTpl<Scalar>::set_height_dist(const Scalar& h, const Scalar& d) { 
+void ResidualModelFlyAngleTpl<Scalar>::set_sigmoid(const Scalar& h, const Scalar& d, const Scalar& o) { 
   height = h;
   dist = d; 
+  height_offset = o;
 }
 
 }  // namespace sobec
