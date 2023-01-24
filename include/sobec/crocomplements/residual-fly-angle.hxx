@@ -139,4 +139,10 @@ void ResidualModelFlyAngleTpl<Scalar>::set_frame_id(const pinocchio::FrameIndex&
   frame_id = fid;
 }
 
+template <typename Scalar>
+void ResidualModelFlyAngleTpl<Scalar>::set_height_dist(const Scalar& h, const Scalar& d) { 
+  height = h;
+  dist = d; 
+}
+
 }  // namespace sobec

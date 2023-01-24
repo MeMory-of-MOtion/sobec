@@ -87,6 +87,10 @@ class HorizonManager {
   void setForceReference(const unsigned long time, const std::string &nameCost, const eVector6 &reference);
   void setWrenchReference(const unsigned long time, const std::string &nameCost, const eVector6 &reference);
   void setTerminalPoseCoM(const std::string &nameCost, const eVector3 &ref_placement);
+  void setSigmoidParameters(const unsigned long time, 
+                            const std::string &nameFlyHigh, 
+                            const double &height, 
+                            const double &dist);
   void setTerminalDCMReference(const std::string &nameCost, const eVector3 &ref_translation);
   void setSwingingLF(const unsigned long time, const std::string &nameContactLF, const std::string &nameContactRF,
                      const std::string &nameForceContactLF);

@@ -171,6 +171,15 @@ void HorizonManager::setTerminalPoseCoM(const std::string &nameCost, const eVect
       ->set_reference(ref_placement);
 }
 
+void HorizonManager::setSigmoidParameters(const unsigned long time, 
+                                          const std::string &nameFlyHigh, 
+                                          const double &height, 
+                                          const double &dist) {
+  boost::static_pointer_cast<sobec::ResidualModelFlyAngle>(
+      costs(time)->get_costs().at(nameFlyHigh)->cost->get_residual())
+      ->set_height_dist(height,dist);
+}
+
 const pinocchio::SE3 &HorizonManager::getFootPoseReference(const unsigned long time,
                                                            const std::string &nameCostFootPose) {
   pose_ = boost::static_pointer_cast<crocoddyl::ResidualModelFramePlacement>(
