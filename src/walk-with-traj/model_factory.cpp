@@ -125,7 +125,8 @@ void ModelMaker::defineFeetTranslation(Cost &costCollector, const Support &suppo
 
   boost::shared_ptr<crocoddyl::ActivationModelAbstract> activationZ;
   if (stairs) {
-    activationZ = boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.01);
+    //activationZ = boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.01);
+    activationZ = boost::make_shared<crocoddyl::ActivationModelQuad>(3);
   } else {
     eVector3 ZFootTrackingVec;
     ZFootTrackingVec << 0, 0, 1;

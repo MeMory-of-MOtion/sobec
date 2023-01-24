@@ -216,9 +216,9 @@ comRef = mpc.designer.get_com_position().copy()
 starting_position_right = design.get_RF_frame().copy()
 starting_position_left = design.get_LF_frame().copy()
 starting_position_right.translation[2] += conf.height - 0.02
-starting_position_right.translation[0] += 0.25
+starting_position_right.translation[0] += 0.3
 starting_position_left.translation[2] += conf.height - 0.02
-starting_position_left.translation[0] += 0.25
+starting_position_left.translation[0] += 0.3
 LF_ref = [starting_position_left for i in range(horizon.size())]
 RF_ref = [starting_position_right for i in range(horizon.size())]
 

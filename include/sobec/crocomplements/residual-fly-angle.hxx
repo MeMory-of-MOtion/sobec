@@ -55,17 +55,17 @@ void ResidualModelFlyAngleTpl<Scalar>::calc(const boost::shared_ptr<ResidualData
   d->sig = 1 / (1 + exp(-width * (d->pinocchio->oMf[frame_id].translation()[0] - dist)));
   d->sig_dt = width * d->sig * (1 - d->sig);
   d->alpha = atan(height * d->sig_dt);
-  // d->alpha = d->sig_dt;
+
   d->rotation_alpha.row(0) << cos(d->alpha), 0, sin(d->alpha);
   d->rotation_alpha.row(1) << 0, 1, 0;
   d->rotation_alpha.row(2) << -sin(d->alpha), 0, cos(d->alpha);
   d->ez = exp(-slope * (d->pinocchio->oMf[frame_id].translation()[2] - height * d->sig));
 
-  data->r = (d->rotation_alpha *
-             pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED).linear())
-                .head(2);
-  // data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id,
-  //                                       pinocchio::LOCAL_WORLD_ALIGNED).linear().head(2);
+  //data->r = (d->rotation_alpha *
+  //           pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED).linear())
+  //              .head(2);
+   data->r = pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id,
+                                         pinocchio::LOCAL_WORLD_ALIGNED).linear().head(2);
   data->r *= d->ez;
 }
 
@@ -103,24 +103,24 @@ void ResidualModelFlyAngleTpl<Scalar>::calcDiff(const boost::shared_ptr<Residual
   d->o_dv_dv = R * d->l_dnu_dv.template topRows<3>();
 
   // First term with derivative of v
-  data->Rx.leftCols(nv) = (d->rotation_alpha * d->o_dv_dq).template topRows<2>();
-  data->Rx.rightCols(nv) = (d->rotation_alpha * d->o_dv_dv).template topRows<2>();
-  // data->Rx.leftCols(nv) = d->o_dv_dq.template topRows<2>();
-  // data->Rx.rightCols(nv) = d->o_dv_dv.template topRows<2>();
+  //data->Rx.leftCols(nv) = (d->rotation_alpha * d->o_dv_dq).template topRows<2>();
+  //data->Rx.rightCols(nv) = (d->rotation_alpha * d->o_dv_dv).template topRows<2>();
+  data->Rx.leftCols(nv) = d->o_dv_dq.template topRows<2>();
+  data->Rx.rightCols(nv) = d->o_dv_dv.template topRows<2>();
   data->Rx *= d->ez;
 
   // Second term with derivative of z
   data->Rx.leftCols(nv).row(0) -= data->r[0] * slope * (d->o_dv_dv.row(2) - height * d->sig_dt * d->o_dv_dv.row(0));
   data->Rx.leftCols(nv).row(1) -= data->r[1] * slope * (d->o_dv_dv.row(2) - height * d->sig_dt * d->o_dv_dv.row(0));
 
-  data->Rx.leftCols(nv).row(0) +=
-      (d->rotation_alpha_dt *
-       pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED).linear())[0] *
-      d->ez * d->alpha_dt * d->o_dv_dv.row(0);
-  data->Rx.leftCols(nv).row(1) +=
-      (d->rotation_alpha_dt *
-       pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED).linear())[1] *
-      d->ez * d->alpha_dt * d->o_dv_dv.row(0);
+  //data->Rx.leftCols(nv).row(0) +=
+  //    (d->rotation_alpha_dt *
+  //     pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED).linear())[0] *
+  //    d->ez * d->alpha_dt * d->o_dv_dv.row(0);
+  //data->Rx.leftCols(nv).row(1) +=
+  //    (d->rotation_alpha_dt *
+  //     pinocchio::getFrameVelocity(pin_model_, *d->pinocchio, frame_id, pinocchio::LOCAL_WORLD_ALIGNED).linear())[1] *
+  //    d->ez * d->alpha_dt * d->o_dv_dv.row(0);
 }
 
 template <typename Scalar>
