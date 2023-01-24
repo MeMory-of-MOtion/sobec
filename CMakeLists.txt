@@ -10,6 +10,8 @@ set(PROJECT_URL https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME})
 option(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 option(BUILD_PY2CPP_INTERFACE "Build the py2cpp library" OFF)
 option(SUFFIX_SO_VERSION "Suffix library name with its version" ON)
+option(GENERATE_PYTHON_STUBS
+       "Generate the Python stubs associated to the Python library" OFF)
 
 # Project configuration
 set(PROJECT_USE_CMAKE_EXPORT TRUE)
@@ -35,6 +37,7 @@ endif()
 # JRL-cmakemodule setup
 include("${JRL_CMAKE_MODULES}/base.cmake")
 include("${JRL_CMAKE_MODULES}/boost.cmake")
+include("${JRL_CMAKE_MODULES}/stubs.cmake")
 
 # Project definition
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)

@@ -1,13 +1,11 @@
-#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
-#include <sstream>
+#include <pinocchio/multibody/fwd.hpp>
+// Must be included first!
 
-// keep this line on top
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/return_internal_reference.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
+#include <sstream>
+// keep this line on top
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <sobec/walk-with-traj/wbc_horizon.hpp>
 
 #include "sobec/fwd.hpp"
@@ -40,9 +38,9 @@ void initialize(WBCHorizon &self, const bp::dict &settings,
 template <typename T>
 boost::shared_ptr<std::vector<T>> constructVectorFromList(const bp::list &in) {
   boost::shared_ptr<std::vector<T>> ptr = boost::make_shared<std::vector<T>>();
-  ptr->resize(bp::len(in));
-  for (int i = 0; i < bp::len(in); ++i) {
-    (*ptr)[i] = boost::python::extract<T>(in[i]);
+  ptr->resize((std::size_t)bp::len(in));
+  for (long i = 0; i < bp::len(in); ++i) {
+    (*ptr)[(std::size_t)i] = boost::python::extract<T>(in[i]);
   }
   return ptr;
 }
@@ -68,11 +66,6 @@ void exposeWBCHorizon() {
       .def("__init__",
            make_constructor(constructVectorFromList<pinocchio::SE3>))
       .def("__repr__", &displayVector<pinocchio::SE3>);
-
-  bp::class_<std::vector<eVector3>>("vector_eigen_vector3_")
-      .def(bp::vector_indexing_suite<std::vector<eVector3>>())
-      .def("__init__", make_constructor(constructVectorFromList<eVector3>))
-      .def("__repr__", &displayVector<eVector3>);
 
   bp::class_<WBCHorizon>("WBCHorizon", bp::init<>())
       .def("initialize", &initialize,

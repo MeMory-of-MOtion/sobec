@@ -8,8 +8,6 @@
 
 #include "sobec/crocomplements/contact/multiple-contacts.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
 #include <eigenpy/eigenpy.hpp>
 
 namespace sobec {

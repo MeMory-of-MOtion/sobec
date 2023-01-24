@@ -8,8 +8,6 @@
 
 #include "sobec/crocomplements/residual-dcm-position.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 

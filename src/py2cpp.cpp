@@ -1,6 +1,5 @@
 #include "sobec/py2cpp.hpp"
 
-#include <boost/python.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
 #include <sobec/walk-without-think/mpc.hpp>
 

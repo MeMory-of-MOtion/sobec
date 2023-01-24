@@ -8,8 +8,6 @@
 
 #include "sobec/crocomplements/contact/contact1d.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
 #include <eigenpy/eigenpy.hpp>
 
 namespace sobec {

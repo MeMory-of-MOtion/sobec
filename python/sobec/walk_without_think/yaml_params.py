@@ -52,8 +52,8 @@ def flattenDictArrayValues(paramsAsDict):
             todel.append(k)
         if isinstance(v, np.ndarray):
             paramsAsDict[k] = v.tolist()
-        elif isinstance(v, sobec.sobec_pywrap.StdVectorStdStringIndex_):
-            paramsAsDict[k] = [str(vi) for vi in v]
+        elif hasattr(v, "tolist"):
+            paramsAsDict[k] = v.tolist()
     for k in todel:
         del paramsAsDict[k]
 

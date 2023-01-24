@@ -8,8 +8,6 @@
 
 #include "sobec/walk-without-think/mpc.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
 #include <crocoddyl/core/solvers/fddp.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!

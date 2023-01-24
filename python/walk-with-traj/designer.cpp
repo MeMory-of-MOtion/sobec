@@ -8,9 +8,6 @@
 
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 // This line must be the first include
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/algorithm/model.hpp>

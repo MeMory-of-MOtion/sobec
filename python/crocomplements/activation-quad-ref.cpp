@@ -6,14 +6,10 @@
 // All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
-// #include "python/crocoddyl/core/core.hpp"
-// #include "python/crocoddyl/core/activation-base.hpp"
-#include <crocoddyl/core/activation-base.hpp>
-
 #include "sobec/crocomplements/activation-quad-ref.hpp"
+
+#include <eigenpy/eigenpy.hpp>
+#include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 
 namespace sobec {
 namespace python {

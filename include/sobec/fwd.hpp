@@ -196,7 +196,7 @@ template <typename Scalar>
 class ContactModel3DTpl;
 typedef ContactModel3DTpl<double> ContactModel3D;
 template <typename Scalar>
-class ContactData3DTpl;
+struct ContactData3DTpl;
 typedef ContactData3DTpl<double> ContactData3D;
 
 // contact 1D
@@ -204,7 +204,7 @@ template <typename Scalar>
 class ContactModel1DTpl;
 typedef ContactModel1DTpl<double> ContactModel1D;
 template <typename Scalar>
-class ContactData1DTpl;
+struct ContactData1DTpl;
 typedef ContactData1DTpl<double> ContactData1D;
 
 // multiple contacts
@@ -223,13 +223,7 @@ template <typename Scalar>
 class ResidualModelContactForceTpl;
 typedef ResidualModelContactForceTpl<double> ResidualModelContactForce;
 
-enum ContactType {
-  ContactUndefined,
-  Contact1D,
-  Contact2D,
-  Contact3D,
-  Contact6D
-};
+using crocoddyl::ContactType;
 
 }  // namespace newcontacts
 }  // namespace sobec

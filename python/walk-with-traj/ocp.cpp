@@ -1,8 +1,5 @@
-#include "sobec/ocp.hpp"
+#include "sobec/walk-with-traj/ocp.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!

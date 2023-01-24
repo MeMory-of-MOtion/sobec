@@ -48,6 +48,11 @@ set(${PY_NAME}_PYTHON
     # talos_low.py
 )
 
+if(GENERATE_PYTHON_STUBS)
+  load_stubgen()
+  generate_stubs(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} ${PYTHON_SITELIB})
+endif(GENERATE_PYTHON_STUBS)
+
 foreach(python ${${PY_NAME}_PYTHON})
   python_install_on_site(${PY_NAME} ${python})
 endforeach()

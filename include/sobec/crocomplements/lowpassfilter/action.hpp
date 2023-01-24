@@ -70,8 +70,8 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
   virtual void quasiStatic(const boost::shared_ptr<ActionDataAbstract>& data,
                            Eigen::Ref<VectorXs> u,
                            const Eigen::Ref<const VectorXs>& x,
-                           const std::size_t& maxiter = 100,
-                           const Scalar& tol = Scalar(1e-9));
+                           const std::size_t maxiter = 100,
+                           const Scalar tol = Scalar(1e-9));
 
   const boost::shared_ptr<DifferentialActionModelAbstract>& get_differential()
       const;
@@ -162,7 +162,8 @@ class IntegratedActionModelLPFTpl : public ActionModelAbstractTpl<_Scalar> {
 };
 
 template <typename _Scalar>
-struct IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
+class IntegratedActionDataLPFTpl : public ActionDataAbstractTpl<_Scalar> {
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef _Scalar Scalar;

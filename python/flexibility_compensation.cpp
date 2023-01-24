@@ -2,10 +2,6 @@
 
 #include "sobec/fwd.hpp"
 // keep this line on top
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/return_internal_reference.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <sobec/flexibility_compensation.hpp>
 

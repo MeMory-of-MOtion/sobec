@@ -3,12 +3,13 @@
 #include "sobec/python.hpp"
 
 BOOST_PYTHON_MODULE(sobec_pywrap) {
-  boost::python::import("pinocchio");
-  boost::python::import("crocoddyl");
-  boost::python::import("pinocchio");
+  namespace bp = boost::python;
+
+  bp::import("pinocchio");
+  bp::import("crocoddyl");
   // Enabling eigenpy support, i.e. numpy/eigen compatibility.
   eigenpy::enableEigenPy();
-  ENABLE_SPECIFIC_MATRIX_TYPE(Eigen::VectorXi);
+  eigenpy::enableEigenPySpecific<Eigen::VectorXi>();
   sobec::python::exposeStdContainers();
   sobec::python::exposeResidualVelCollision();
   sobec::python::exposeResidualCoMVelocity();

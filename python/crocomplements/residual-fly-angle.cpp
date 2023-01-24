@@ -8,8 +8,6 @@
 
 #include "sobec/crocomplements/residual-fly-angle.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/enum.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include <pinocchio/multibody/fwd.hpp>  // Must be included first!
 
@@ -81,7 +79,7 @@ void exposeResidualFlyAngle() {
                     &ResidualModelFlyAngle::setSlope,
                     "Set slope (ie altitude multiplicator)");
 
-  bp::register_ptr_to_python<boost::shared_ptr<ResidualModelFlyAngle> >();
+  bp::register_ptr_to_python<boost::shared_ptr<ResidualDataFlyAngle> >();
 
   bp::class_<ResidualDataFlyAngle, bp::bases<ResidualDataAbstract> >(
       "ResidualDataFlyAngle", "Data for vel collision residual.\n\n",
