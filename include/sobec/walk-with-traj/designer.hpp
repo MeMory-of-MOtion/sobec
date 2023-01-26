@@ -23,6 +23,7 @@ struct RobotDesignerSettings {
 
   std::string leftFootName = "";
   std::string rightFootName = "";
+  std::string endEffectorName = "";
 };
 
 class RobotDesigner {

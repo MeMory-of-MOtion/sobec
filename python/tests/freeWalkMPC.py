@@ -271,6 +271,7 @@ design_conf = dict(
     srdfPath=conf.modelPath + conf.SRDF_SUBPATH,
     leftFootName=conf.lf_frame_name,
     rightFootName=conf.rf_frame_name,
+    endEffectorName="gripper_left_joint",
     robotDescription="",
     controlledJointsNames=[
         "root_joint",
@@ -318,6 +319,9 @@ MM_conf = dict(
     width=1,
     flyHighSlope=conf.flyHighSlope,
     footMinimalDistance=conf.footMinimalDistance,
+    wGripperPos=0,
+	wGripperRot=0,
+	wGripperVel=0,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,

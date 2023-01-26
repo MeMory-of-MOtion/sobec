@@ -2,6 +2,8 @@
 #define SOBEC_MODEL_FACTORY
 
 #include <pinocchio/fwd.hpp>
+#include <pinocchio/multibody/geometry.hpp>
+#include <pinocchio/multibody/fcl.hpp>
 // include pinocchio first
 #include <Eigen/Dense>
 #include <string>
@@ -15,6 +17,14 @@
 #include "sobec/crocomplements/residual-fly-high.hpp"
 #include "sobec/fwd.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
+
+#include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/distance.h>
+#include <hpp/fcl/math/transform.h>
+#include <hpp/fcl/collision.h>
+#include <hpp/fcl/collision_object.h>
+#include <crocoddyl/multibody/residuals/pair-collision.hpp>
+#include <crocoddyl/core/activations/2norm-barrier.hpp>
 
 namespace sobec {
 
@@ -96,6 +106,8 @@ class ModelMaker {
   AMA formulateWWT(const Support &support = Support::DOUBLE, const bool &stairs = false);
   AMA formulateTerminalWWT(const Support &support = Support::DOUBLE, const bool &stairs = false);
   AMA formulatePointingTask();
+  AMA formulateColFullTask();
+  AMA formulateTerminalColFullTask();
 
   std::vector<AMA> formulateHorizon(const std::vector<Support> &supports, const Experiment &experiment);
   std::vector<AMA> formulateHorizon(const int &T);
@@ -118,6 +130,7 @@ class ModelMaker {
   void defineFeetRotation(Cost &costCollector);
   void defineFeetZRotation(Cost &costCollector);
   void defineFootCollisionTask(Cost &costCollector);
+  void defineGripperCollisionTask(Cost &costCollector);
   void defineFlyHighTask(Cost &costCollector, const Support &support = Support::DOUBLE);
 
   void defineCoMPosition(Cost &costCollector);

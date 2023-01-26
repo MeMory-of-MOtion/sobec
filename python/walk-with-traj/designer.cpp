@@ -33,6 +33,7 @@ void initialize(sobec::RobotDesigner &self, bp::dict settings) {
   conf.srdfPath = bp::extract<std::string>(settings["srdfPath"]);
   conf.leftFootName = bp::extract<std::string>(settings["leftFootName"]);
   conf.rightFootName = bp::extract<std::string>(settings["rightFootName"]);
+  conf.endEffectorName = bp::extract<std::string>(settings["endEffectorName"]);
   conf.robotDescription = bp::extract<std::string>(settings["robotDescription"]);
   py_list_to_std_vector(settings["controlledJointsNames"], conf.controlledJointsNames);
 
@@ -46,6 +47,7 @@ bp::dict get_settings(RobotDesigner &self) {
   settings["srdfPath"] = conf.srdfPath;
   settings["leftFootName"] = conf.leftFootName;
   settings["rightFootName"] = conf.rightFootName;
+  settings["endEffectorName"] = conf.endEffectorName;
   settings["robotDescription"] = conf.robotDescription;
 
   return settings;

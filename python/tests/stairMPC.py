@@ -175,6 +175,7 @@ design_conf = dict(
     srdfPath=conf.modelPath + conf.SRDF_SUBPATH,
     leftFootName=conf.lf_frame_name,
     rightFootName=conf.rf_frame_name,
+    endEffectorName="gripper_left_joint",
     robotDescription="",
     controlledJointsNames=[
         "root_joint",
@@ -228,6 +229,9 @@ MM_conf = dict(
     width=1,
     flyHighSlope=1,
     footMinimalDistance=0.2,
+    wGripperPos=0,
+	wGripperRot=0,
+	wGripperVel=0,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
@@ -389,12 +393,12 @@ for s in range(T_total * conf.Nc):
         LF_force.append(
             mpc.horizon.ddp.problem.runningDatas[0]
             .differential.costs.costs["force_LF"]
-            .residual.contact.f.copy()
+            .residual.contact.f
         )
         RF_force.append(
             mpc.horizon.ddp.problem.runningDatas[0]
             .differential.costs.costs["force_RF"]
-            .residual.contact.f.copy()
+            .residual.contact.f
         )
 
         land_LF = mpc.land_LF()[0] if mpc.land_LF() else (-1)

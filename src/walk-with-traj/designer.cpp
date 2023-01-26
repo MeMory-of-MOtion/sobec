@@ -62,6 +62,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   rModel_ = pinocchio::buildReducedModel(rModelComplete_, locked_joints_id, q0Complete_);
   leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
   rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
+  EndEffectorId_ = rModel_.getFrameId(settings_.endEffectorName);
   rootId_ = rModel_.getFrameId("root_joint");
   addToeAndHeel(0.15, 0.15);
   rData_ = pinocchio::Data(rModel_);

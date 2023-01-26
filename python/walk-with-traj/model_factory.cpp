@@ -48,6 +48,9 @@ void initialize(ModelMaker &self, const bp::dict &settings, const RobotDesigner 
   conf.flyHighSlope = bp::extract<double>(settings["flyHighSlope"]);
 
   // gains
+  conf.wGripperPos = bp::extract<double>(settings["wGripperPos"]);
+  conf.wGripperRot = bp::extract<double>(settings["wGripperRot"]);
+  conf.wGripperVel = bp::extract<double>(settings["wGripperVel"]);
   conf.wFootPlacement = bp::extract<double>(settings["wFootPlacement"]);
   conf.wStateReg = bp::extract<double>(settings["wStateReg"]);
   conf.wControlReg = bp::extract<double>(settings["wControlReg"]);
@@ -58,6 +61,7 @@ void initialize(ModelMaker &self, const bp::dict &settings, const RobotDesigner 
   conf.wForceTask = bp::extract<double>(settings["wForceTask"]);
   conf.wVelFoot = bp::extract<double>(settings["wVelFoot"]);
   conf.wColFeet = bp::extract<double>(settings["wColFeet"]);
+  conf.wFootRot = bp::extract<double>(settings["wFootRot"]);
   conf.wFlyHigh = bp::extract<double>(settings["wFlyHigh"]);
   conf.wCoP = bp::extract<double>(settings["wCoP"]);
   conf.wDCM = bp::extract<double>(settings["wDCM"]);
@@ -88,6 +92,9 @@ bp::dict get_settings(ModelMaker &self) {
   settings["height"] = conf.height;
   settings["dist"] = conf.dist;
   settings["width"] = conf.width;
+  settings["wGripperPos"] = conf.wGripperPos;
+  settings["wGripperRot"] = conf.wGripperRot;
+  settings["wGripperVel"] = conf.wGripperVel;
   settings["wFootPlacement"] = conf.wFootPlacement;
   settings["wStateReg"] = conf.wStateReg;
   settings["wControlReg"] = conf.wControlReg;
@@ -98,6 +105,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wForceTask"] = conf.wForceTask;
   settings["wVelFoot"] = conf.wVelFoot;
   settings["wColFeet"] = conf.wColFeet;
+  settings["wFootRot"] = conf.wFootRot;
   settings["wFlyHigh"] = conf.wFlyHigh;
   settings["wCoP"] = conf.wCoP;
   settings["wDCM"] = conf.wDCM;
@@ -239,6 +247,12 @@ void defineFootCollisionTask(ModelMaker &self, crocoddyl::CostModelSum &costColl
   costCollector = *costs;
 }
 
+void defineGripperCollisionTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineGripperCollisionTask(costs);
+  costCollector = *costs;
+}
+
 void defineFlyHighTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
                        const Support &supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
@@ -289,6 +303,7 @@ void exposeModelFactory() {
       .def("defineFlyHighTask", &defineFlyHighTask,
            (bp::arg("self"), bp::arg("costCollector"), bp::arg("supports") = Support::DOUBLE))
       .def("defineFootCollisionTask", &defineFootCollisionTask, bp::args("self", "costCollector"))
+      .def("defineGripperCollisionTask", &defineGripperCollisionTask, bp::args("self", "costCollector"))
       .def("formulateStepTracker", &ModelMaker::formulateStepTracker,
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE))
       .def("formulateTerminalStepTracker", &ModelMaker::formulateTerminalStepTracker,
@@ -297,6 +312,8 @@ void exposeModelFactory() {
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE, bp::arg("stairs") = false))
       .def("formulateTerminalWWT", &ModelMaker::formulateTerminalWWT,
            (bp::arg("self"), bp::arg("supports") = Support::DOUBLE, bp::arg("stairs") = false))
+      .def("formulateColFullTask", &ModelMaker::formulateColFullTask, bp::arg("self"))
+      .def("formulateTerminalColFullTask", &ModelMaker::formulateTerminalColFullTask, bp::arg("self"))
       .def("getState", &ModelMaker::getState, bp::args("self"))
       .def("setState", &ModelMaker::setState, bp::args("self"))
       .def("getActuation", &ModelMaker::getActuation, bp::args("self"))

@@ -421,6 +421,53 @@ void ModelMaker::defineFootCollisionTask(Cost &costCollector) {
   }
 }
 
+void ModelMaker::defineGripperCollisionTask(Cost &costCollector) {
+  std::string link_name = "arm_left_4_joint";
+  pinocchio::FrameIndex pin_link_id = designer_.get_rModel().getFrameId("arm_left_4_link");
+  pinocchio::JointIndex pin_joint_id = designer_.get_rModel().getJointId(link_name);
+  
+  double RADIUS = 0.09;
+  double LENGTH = 0.45;
+  boost::shared_ptr<pinocchio::GeometryModel> geom_model = 
+      boost::make_shared<pinocchio::GeometryModel>(pinocchio::GeometryModel());
+  
+  pinocchio::SE3 se3_pose_arm = pinocchio::SE3::Identity();
+  se3_pose_arm.translation() = Eigen::Vector3d(-0.025,0.,-.225);
+  
+  pinocchio::GeomIndex ig_arm = geom_model->addGeometryObject(pinocchio::GeometryObject("simple_arm",
+                                                              pin_link_id,
+                                                              designer_.get_rModel().frames[pin_link_id].parent, 
+                                                              std::shared_ptr<hpp::fcl::CollisionGeometry>(new hpp::fcl::Capsule(0, LENGTH)), 
+                                                              se3_pose_arm));
+  
+  // Add obstacle in the world
+  pinocchio::GeomIndex ig_obs;
+  pinocchio::SE3 se3_pose_obst = pinocchio::SE3::Identity();
+  se3_pose_obst.translation() = Eigen::Vector3d(0.6,0.3,1.);
+  ig_obs = geom_model->addGeometryObject(pinocchio::GeometryObject("obstacle",
+                                         designer_.get_rModel().getFrameId("universe"),
+                                         designer_.get_rModel().frames[designer_.get_rModel().getFrameId("universe")].parent,
+                                         //boost::shared_ptr <hpp::fcl::CollisionGeometry>(new hpp::fcl::Box(2*box_sizes[i])),
+                                         std::shared_ptr<hpp::fcl::CollisionGeometry>(new hpp::fcl::Capsule(0,2)),
+                                         se3_pose_obst)); 
+  geom_model->addCollisionPair(pinocchio::CollisionPair(ig_arm,ig_obs));
+  
+  // Add collision cost
+  double collision_radius = RADIUS + settings_.dist + 0.02;
+  boost::shared_ptr<crocoddyl::ActivationModel2NormBarrier> actCollision = 
+       boost::make_shared<crocoddyl::ActivationModel2NormBarrier>(3, collision_radius); // We add a threshold to activate BEFORE the collision
+  boost::shared_ptr<crocoddyl::ResidualModelAbstract> residualModel = 
+      boost::make_shared<crocoddyl::ResidualModelPairCollision>(state_, 
+                                                                actuation_->get_nu(),
+                                                                geom_model,
+                                                                0, 
+                                                                pin_joint_id);
+  boost::shared_ptr<crocoddyl::CostModelAbstract> obstacleCost = 
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, actCollision, residualModel);
+  
+  costCollector.get()->addCost("gripper_collision", obstacleCost, settings_.wColFeet, true);
+}  
+
 void ModelMaker::defineGripperPlacement(Cost &costCollector) {
   pinocchio::SE3 goalPlacement = pinocchio::SE3::Identity();
 
@@ -558,6 +605,45 @@ AMA ModelMaker::formulatePointingTask() {
   AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep);
 
   return runningModel;
+}
+
+AMA ModelMaker::formulateColFullTask() {
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+  defineFeetContact(contacts, Support::DOUBLE);
+
+  definePostureTask(costs);
+  defineActuationTask(costs);
+  defineJointLimits(costs);
+  defineCoMPosition(costs);
+  defineGripperPlacement(costs);
+  defineGripperVelocity(costs);
+  defineGripperCollisionTask(costs);
+
+  DAM runningDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_,
+                                                                                            contacts, costs, 0., true);
+  AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep);
+
+  return runningModel;
+}
+
+AMA ModelMaker::formulateTerminalColFullTask() {
+  Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(state_, actuation_->get_nu());
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(state_, actuation_->get_nu());
+  defineFeetContact(contacts, Support::DOUBLE);
+
+  definePostureTask(costs);
+  defineJointLimits(costs);
+  defineCoMPosition(costs);
+  defineGripperPlacement(costs);
+  defineGripperVelocity(costs);
+  defineGripperCollisionTask(costs);
+
+  DAM terminalDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_,
+                                                                                            contacts, costs, 0., true);
+  AMA terminalModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(terminalDAM, 0);
+
+  return terminalModel;
 }
 
 std::vector<AMA> ModelMaker::formulateHorizon(const std::vector<Support> &supports, const Experiment &experiment) {
