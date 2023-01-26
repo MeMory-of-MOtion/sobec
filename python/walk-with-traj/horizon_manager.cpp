@@ -79,6 +79,9 @@ void exposeHorizonManager() {
       .def("activateContactRF", &HorizonManager::activateContactRF, bp::args("self", "time", "contactName"))
       .def("removeContactLF", &HorizonManager::removeContactLF, bp::args("self", "time", "contactName"))
       .def("removeContactRF", &HorizonManager::removeContactRF, bp::args("self", "time", "contactName"))
+      .def("changeCostStatus", &HorizonManager::changeCostStatus, bp::args("self", "time", "costName", "status"))
+      .def("changeTerminalCostStatus", &HorizonManager::changeTerminalCostStatus, bp::args("self", "costName", "status"))
+      .def("removeContactRF", &HorizonManager::removeContactRF, bp::args("self", "time", "contactName"))
       .def("setForceReference", &HorizonManager::setForceReference, bp::args("self", "time", "costName", "ref_wrench"))
       .def("setWrenchReference", &HorizonManager::setWrenchReference,
            bp::args("self", "time", "costName", "ref_wrench"))

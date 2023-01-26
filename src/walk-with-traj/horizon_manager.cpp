@@ -90,6 +90,17 @@ void HorizonManager::removeContactRF(const unsigned long time, const std::string
   contacts(time)->changeContactStatus(nameContactRF, false);
 }
 
+void HorizonManager::changeCostStatus(const unsigned long time, 
+                                      const std::string &costName,
+                                      const bool &status) {
+  costs(time)->changeCostStatus(costName, status);
+}
+
+void HorizonManager::changeTerminalCostStatus(const std::string &costName,
+                                              const bool &status) {
+  terminalCosts()->changeCostStatus(costName, status);
+}
+
 void HorizonManager::setBalancingTorque(const unsigned long time, const std::string &nameCostActuation,
                                         const Eigen::VectorXd &x) {
   Eigen::VectorXd balancingTorque;

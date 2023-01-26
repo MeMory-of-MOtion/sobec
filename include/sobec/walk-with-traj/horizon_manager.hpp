@@ -84,6 +84,11 @@ class HorizonManager {
   void activateContactRF(const unsigned long time, const std::string &nameContactRF);
   void removeContactLF(const unsigned long time, const std::string &nameContactLF);
   void removeContactRF(const unsigned long time, const std::string &nameContactRF);
+  void changeCostStatus(const unsigned long time, 
+                        const std::string &costName,
+                        const bool &status);
+  void changeTerminalCostStatus(const std::string &costName,
+                                const bool &status);                               
   void setForceReference(const unsigned long time, const std::string &nameCost, const eVector6 &reference);
   void setWrenchReference(const unsigned long time, const std::string &nameCost, const eVector6 &reference);
   void setTerminalPoseCoM(const std::string &nameCost, const eVector3 &ref_placement);
