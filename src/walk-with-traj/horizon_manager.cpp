@@ -330,6 +330,20 @@ void HorizonManager::solve(const Eigen::VectorXd &measured_x, const std::size_t 
   ddp_->solve(warm_xs_, warm_us_, ddpIteration, is_feasible);
 }
 
+void HorizonManager::solveWithWarmStart(const std::vector<Eigen::VectorXd> warm_xs,
+                                        const std::vector<Eigen::VectorXd> warm_us,
+                                        const std::size_t ddpIteration, 
+                                        const bool is_feasible) {
+  warm_xs_ = warm_xs;
+  warm_us_ = warm_us;
+
+  // Update initial state
+  ddp_->get_problem()->set_x0(warm_xs_[0]);
+  ddp_->allocateData();
+
+  ddp_->solve(warm_xs_, warm_us_, ddpIteration, is_feasible);
+}
+
 const Eigen::VectorXd &HorizonManager::currentTorques(const Eigen::VectorXd &measured_x) {
   /// @todo: make a boolean -> IT is necessary to have solved at least one time
   /// to use this method.

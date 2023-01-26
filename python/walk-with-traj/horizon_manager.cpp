@@ -109,6 +109,8 @@ void exposeHorizonManager() {
                                                bp::return_value_policy<bp::reference_existing_object>()))
       .def("solve", &HorizonManager::solve,
            (bp::arg("self"), bp::arg("x_measured"), bp::arg("ddpIteration"), bp::arg("is_feasible") = false))
+      .def("solveWithWarmStart", &HorizonManager::solveWithWarmStart,
+           (bp::arg("self"), bp::arg("warm_xs"), bp::arg("warm_us"), bp::arg("ddpIteration"), bp::arg("is_feasible") = false))
       .def<void (HorizonManager::*)(const unsigned long, const std::string &, const std::string &)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque, bp::args("self", "time"))
       .def<void (HorizonManager::*)(const unsigned long, const std::string &, const Eigen::VectorXd &)>(

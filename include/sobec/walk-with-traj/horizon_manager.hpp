@@ -119,6 +119,10 @@ class HorizonManager {
   unsigned long size();
 
   void solve(const Eigen::VectorXd &measured_x, const std::size_t ddpIteration, const bool is_feasible = false);
+  void solveWithWarmStart(const std::vector<Eigen::VectorXd> warm_xs,
+                          const std::vector<Eigen::VectorXd> warm_us,
+                          const std::size_t ddpIteration, 
+                          const bool is_feasible = false);
   const Eigen::VectorXd &currentTorques(const Eigen::VectorXd &measured_x);
 
   DDP get_ddp() { return ddp_; }
