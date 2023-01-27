@@ -76,9 +76,12 @@ class WBCHand {
 
   void iterate(const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, bool is_feasible);
-
+  
   void iterate(int iteration, const Eigen::VectorXd &q_current,
                const Eigen::VectorXd &v_current, bool is_feasible);
+  void iterateWithMemory(const std::vector<Eigen::VectorXd> &xs,
+                         const std::vector<Eigen::VectorXd> &us, 
+                         bool is_feasible);
   void recedeWithCycle();
 
 

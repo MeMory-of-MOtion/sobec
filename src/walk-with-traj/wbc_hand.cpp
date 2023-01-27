@@ -91,6 +91,23 @@ void WBCHand::iterate(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
+void WBCHand::iterateWithMemory(const std::vector<Eigen::VectorXd> &xs,
+                                const std::vector<Eigen::VectorXd> &us, 
+                                bool is_feasible) {
+  x0_ = xs[0];
+
+  // ~~TIMING~~ //
+  if (iteration_ < fullHorizon_.size())
+    recedeWithCycle();
+    iteration_ ++;
+    
+  // ~~REFERENCES~~ //
+  designer_.updateReducedModel(x0_);
+  updateTrackerReferences();
+  // ~~SOLVER~~ //
+  horizon_.solveWithWarmStart(xs, us, settings_.ddpIteration, is_feasible);
+}
+
 void WBCHand::iterate(int iteration, const Eigen::VectorXd &q_current,
                   const Eigen::VectorXd &v_current, bool is_feasible) {
   if (timeToSolveDDP(iteration)) {

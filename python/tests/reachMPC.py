@@ -116,7 +116,7 @@ class conf:
 	wCoP = 0
 	wFlyHigh = 0
 	wVelFoot = 0
-	wColFeet = 0
+	wColFeet = 10000
 	wDCM = 0
 	wBaseRot = 0
 
