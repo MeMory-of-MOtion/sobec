@@ -24,6 +24,7 @@ from .sobec_pywrap import (
     ResidualModelContactForce,
     WBC,
     WBCHorizon,
+    WBCHand,
     FootTrajectory,
     OCPRobotWrapper,
     OCPWalkParams,

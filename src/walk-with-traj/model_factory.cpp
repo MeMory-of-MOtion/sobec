@@ -474,7 +474,7 @@ void ModelMaker::defineGripperPlacement(Cost &costCollector) {
   // Position
   boost::shared_ptr<crocoddyl::CostModelAbstract> gripperPositionCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
-          state_, boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.02),
+          state_, boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.1),
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
               state_, designer_.get_EndEff_id(), goalPlacement.translation(), actuation_->get_nu()));
 
@@ -616,6 +616,7 @@ AMA ModelMaker::formulateColFullTask() {
   defineActuationTask(costs);
   defineJointLimits(costs);
   defineCoMPosition(costs);
+  defineFeetWrenchCost(costs, Support::DOUBLE);
   defineGripperPlacement(costs);
   defineGripperVelocity(costs);
   defineGripperCollisionTask(costs);

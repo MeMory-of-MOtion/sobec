@@ -27,6 +27,7 @@ BOOST_PYTHON_MODULE(sobec_pywrap) {
   sobec::python::exposeStateLPF();
   sobec::python::exposeWBC();
   sobec::python::exposeWBCHorizon();
+  sobec::python::exposeWBCHand();
   sobec::python::exposeOCPWalk();
   sobec::python::exposeMPCWalk();
   sobec::python::exposeFootTrajectory();

@@ -27,6 +27,7 @@ void exposeDAMContactFwdDyn();
 void exposeResidualContactForce();
 void exposeWBC();
 void exposeWBCHorizon();
+void exposeWBCHand();
 void exposeFootTrajectory();
 void exposeFlex();
 void exposeOCPWalk();
