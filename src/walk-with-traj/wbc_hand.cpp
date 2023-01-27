@@ -49,7 +49,7 @@ void WBCHand::initialize(const WBCHandSettings &settings, const RobotDesigner &d
   xs_init.push_back(x0_);
   horizon_.changeTerminalCostStatus("gripperPosition",false);
 
-  horizon_.get_ddp()->solve(xs_init, us_init, 500, false);
+  horizon_.get_ddp()->solve(xs_init, us_init, 100, false);
   
   iteration_ = 0;
   initialized_ = true;
