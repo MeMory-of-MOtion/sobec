@@ -13,7 +13,6 @@ import hppfcl
 
 class PinTalos:
     def __init__(self, conf):
-
         # ## COMPLETE MODEL ##
 
         rmodelComplete = pin.buildModelsFromUrdf(
@@ -145,12 +144,10 @@ class PinTalos:
         return self.rdata.oMf[self.rightFootId]
 
     def update_reduced(self, q):
-
         pin.forwardKinematics(self.rmodel, self.rdata, q)
         pin.updateFramePlacements(self.rmodel, self.rdata)
 
     def update_complete(self, q):
-
         pin.forwardKinematics(self.rmodelComplete, self.rdataComplete, q)
         pin.updateFramePlacements(self.rmodelComplete, self.rdataComplete)
 

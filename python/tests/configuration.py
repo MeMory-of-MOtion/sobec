@@ -82,7 +82,6 @@ compensate_deflections = True
 exact_deflection = False
 
 if model_name == "talos_flex":
-
     H_stiff = [
         2200,
         2200,

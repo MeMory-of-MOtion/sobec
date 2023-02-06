@@ -62,7 +62,6 @@ hu = []
 
 # FOR LOOP
 for s in range(T_total):
-
     # ###############################################################################
     # # Log and display
     viz.display(ocp.ddp.xs[0][: models.rmodel.nq])

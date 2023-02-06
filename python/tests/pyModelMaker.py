@@ -39,7 +39,6 @@ def modeller(conf, design, state, actuation, **form):
 
 
 def define_support_contact(conf, design, state, actuation, support, contacts):
-
     if support == "left" or support == "double":
         frameLeftFoot = crocoddyl.FramePlacement(
             design.leftFootId, design.get_LF_frame().copy()
@@ -122,7 +121,6 @@ def wrench_cone(conf, design, state, actuation, support, costs):
 
 
 def joint_limits(conf, design, state, actuation, costs):
-
     xlb = np.hstack(
         [
             -np.Inf * np.ones(6),  # dimension of the SE(3) manifold
@@ -149,7 +147,6 @@ def joint_limits(conf, design, state, actuation, costs):
 
 
 def control_n_state_regularization(conf, design, state, actuation, costs):
-
     xRegResidual = crocoddyl.ResidualModelState(
         state, design.rmodel.defaultState, actuation.nu
     )
@@ -165,7 +162,6 @@ def control_n_state_regularization(conf, design, state, actuation, costs):
 
 
 def feet_tracking(conf, design, state, actuation, costs):
-
     residualPlacementRight = crocoddyl.ResidualModelFramePlacement(
         state, design.rightFootId, design.get_RF_frame().copy(), actuation.nu
     )
@@ -184,7 +180,6 @@ def feet_tracking(conf, design, state, actuation, costs):
 
 
 def com_velocity_tracking(conf, design, state, actuation, costs):
-
     residualCoMVelocity = crocobec.ResidualModelCoMVelocity(
         state, np.array([0, 0, 0]), actuation.nu
     )
@@ -193,7 +188,6 @@ def com_velocity_tracking(conf, design, state, actuation, costs):
 
 
 def swinging_foot_translation(conf, design, state, actuation, costs):
-
     #    deepFootHeight = 0.04
     #    yCorrection = 0.02
     goalTranslationRight = design.get_RF_frame().copy().translation

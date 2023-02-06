@@ -76,7 +76,6 @@ def yamlWriteParams(filename, *args):
 
 
 def yamlRead(filename):
-
     yaml_version = tuple(int(i) for i in yaml.__version__.split("."))
 
     with open(filename, "r") as infile:

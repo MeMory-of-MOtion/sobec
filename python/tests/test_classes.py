@@ -24,7 +24,6 @@ import configuration as config
 
 class ClasesTestCase(unittest.TestCase):
     def setUp(self):
-
         py_design = PinTalos(config)
         temp_design = PinTalos(config)
         py_mpc = CrocoWBC(config, temp_design)
@@ -200,7 +199,6 @@ class ClasesTestCase(unittest.TestCase):
         )
 
     def test_OCP(self):
-
         self.assertEqual(self.horizon.iam(0).dt, self.py_horizon.IAM(0).dt)
         self.assertEqual(self.horizon.iam(0).nr, self.py_horizon.IAM(0).nr)
         self.assertEqual(self.horizon.iam(0).nu, self.py_horizon.IAM(0).nu)
@@ -227,7 +225,6 @@ class ClasesTestCase(unittest.TestCase):
     #        self.assertTrue(self.horizon.ddp.solve())
 
     def test_MPC(self):
-
         nq = self.design.get_rModelComplete().nq
         nv = self.design.get_rModelComplete().nv
         q = np.random.rand(nq)

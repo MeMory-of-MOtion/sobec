@@ -16,7 +16,6 @@ if sys.version_info.major < 3:
 
 
 def buildRunningModels(robotWrapper, contactPattern, params):
-
     p = params
     robot = robotWrapper
 
@@ -333,7 +332,6 @@ def buildRunningModels(robotWrapper, contactPattern, params):
 
 # ### TERMINAL MODEL ##################################################################
 def buildTerminalModel(robotWrapper, contactPattern, params):
-
     robot = robotWrapper
     p = params
     pattern = contactPattern[-1]

@@ -198,7 +198,6 @@ class BulletTalos:
         )
 
     def moveMarkers(self, LF_pose, RF_pose):
-
         p.resetBasePositionAndOrientation(
             self.sphereIdRight,
             posObj=[
@@ -223,7 +222,6 @@ class BulletTalos:
 
 
 if __name__ == "__main__":
-
     import configuration as config
     from pin_Talos import PinTalos
 

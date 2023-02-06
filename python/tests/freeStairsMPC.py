@@ -268,7 +268,6 @@ for s in range(T_total * conf.Nc):
     if s // conf.Nc == conf.TdoubleSupport + conf.T:
         mpc.ref_com_vel = ref_com_vel
     if mpc.timeToSolveDDP(s):
-
         land_LF = mpc.land_LF()[0] if mpc.land_LF() else (-1)
         land_RF = mpc.land_RF()[0] if mpc.land_RF() else (-1)
         takeoff_LF = mpc.takeoff_LF()[0] if mpc.takeoff_LF() else (-1)
@@ -302,7 +301,6 @@ for s in range(T_total * conf.Nc):
         device.moveMarkers(starting_position_left, starting_position_right)
 
     elif conf.simulator == "pinocchio":
-
         correct_contacts = mpc.horizon.get_contacts(0)
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
@@ -329,7 +327,6 @@ for s in range(T_total * conf.Nc):
             v_current = np.hstack([real_state["dq"][:6], dqc])
 
         elif conf.model_name == "talos":
-
             q_current = real_state["q"]
             v_current = real_state["dq"]
 

@@ -18,7 +18,6 @@ import sobec
 
 class TestFlyHigh(unittest.TestCase):
     def test_fly_high(self):
-
         np.random.seed(0)
 
         # ## LOAD AND DISPLAY SOLO

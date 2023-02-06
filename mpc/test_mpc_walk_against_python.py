@@ -72,7 +72,6 @@ class WalkMPC:
         )
 
     def run(self, x, t):
-
         robot = self.robotWrapper
         p = self.walkParams
         runmodels = self.storage.runningModels

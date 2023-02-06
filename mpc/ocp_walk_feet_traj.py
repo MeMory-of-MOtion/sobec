@@ -66,7 +66,6 @@ wWrenchCone = 0.005
 
 class OCP:
     def __init__(self, rmodel, verbose=True):
-
         self.verbose = verbose
 
         self.rmodel = rmodel
@@ -396,7 +395,6 @@ class OCP:
         self.state = state
 
     def initLocomotionPattern(self):
-
         # Counter until beginning of single phase
         self.Tswitch2single = T + T2contact
         # Counter until beginning of double phase
@@ -407,7 +405,6 @@ class OCP:
         self.xForward = xForward
 
     def updateOCP(self, x):
-
         # Initialize MPC with current state of simulation
         pin.forwardKinematics(self.rmodel, self.rdata, x[: self.rmodel.nq])
         pin.updateFramePlacements(self.rmodel, self.rdata)
@@ -538,7 +535,6 @@ class OCP:
 # ##############################################################################
 
 if __name__ == "__main__":
-
     print("ASSERT receiding horizon behavior against logged files")
 
     import example_robot_data as robex

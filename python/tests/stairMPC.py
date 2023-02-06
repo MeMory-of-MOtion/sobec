@@ -490,7 +490,6 @@ for s in range(T_total * conf.Nc):
         device.moveMarkers(mpc.ref_LF_poses[0], mpc.ref_RF_poses[0])
 
     elif conf.simulator == "pinocchio":
-
         correct_contacts = mpc.horizon.get_contacts(0)
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)
@@ -517,7 +516,6 @@ for s in range(T_total * conf.Nc):
             v_current = np.hstack([real_state["dq"][:6], dqc])
 
         elif conf.model_name == "talos":
-
             q_current = real_state["q"]
             v_current = real_state["dq"]
 
