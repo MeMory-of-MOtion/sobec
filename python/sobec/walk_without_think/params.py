@@ -72,7 +72,6 @@ Robot_2_StateMap = {
 
 
 class WalkParams:
-
     # ### WEIGHTS
     # Weights for the importance of cost functions.  Weights are multiply to
     # the residual squared Importance terms are multiplied during the

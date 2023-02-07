@@ -77,7 +77,6 @@ compensate_deflections = True
 exact_deflection = False
 
 if model_name == "talos_flex":
-
     H_stiff = [2200, 2200, 5000, 5000]  # [LH_pitch, LH_roll, RH_pitch, RH_roll]
     H_damp = 2 * np.sqrt(H_stiff)
 

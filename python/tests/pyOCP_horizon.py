@@ -152,7 +152,6 @@ class ReceidingHorizon:
 
 
 if __name__ == "__main__":
-
     import configuration as config
     from pyRobotWrapper import PinTalos
     from pyModelMaker import modeller

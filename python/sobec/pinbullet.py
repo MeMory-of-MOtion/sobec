@@ -88,7 +88,6 @@ class SimuProxy:
     ################################################################################
     # Load bullet model
     def loadBulletModel(self, guiOpt=pyb.DIRECT):
-
         self.bulletClient = pyb.connect(guiOpt)
 
         pyb.setTimeStep(1e-3)
@@ -145,7 +144,6 @@ class SimuProxy:
             )
 
     def freeze(self, jointNames):
-
         jointIds = [i for (i, n) in enumerate(self.rmodel.names) if n in jointNames]
 
         self.rmodel_full = self.rmodel

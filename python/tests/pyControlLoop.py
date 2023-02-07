@@ -44,7 +44,6 @@ if conf.simulator == "bullet":
     q_current, v_current = device.measureState()
 
 elif conf.simulator == "pinocchio":
-
     device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
     device.initialize(design.rmodelComplete)
     q_current, v_current = device.Cq0, device.Cv0
@@ -62,7 +61,6 @@ for s in range(conf.T_total * conf.Nc):
         x0_meas = wbc.shapeState(q_current, v_current)
 
     elif conf.simulator == "pinocchio":
-
         correct_contacts = wbc.get_current_contact()
         command = {"tau": torques}
         real_state, _ = device.execute(command, correct_contacts, s)

@@ -16,7 +16,6 @@ from horizon_manager import ReceidingHorizon
 
 class CrocoWBC:
     def __init__(self, conf, design):
-
         x0 = np.hstack([design.q0, np.zeros(design.rmodel.nv)])
 
         self.horizon = ReceidingHorizon(conf, design, x0, modeller, conf.T)
@@ -85,7 +84,6 @@ class CrocoWBC:
         self.horizon.ddp.solve(warm_xs, warm_us, self.conf.ddpIteration, is_feasible)
 
     def iterate(self, time, x0, OL_MPC=False):
-
         if self.time_for_croco_solve(time):
             # ~~ timing ~~#
             self.update_step_cycle_timing()
@@ -109,7 +107,6 @@ class CrocoWBC:
         return torques
 
     def planned_contacts_at(self, preview_time):
-
         contacts = self.horizon.get_contacts(preview_time - 1)
         if preview_time in self.t_land_LF:
             contacts[self.conf.leftFoot] = True
@@ -126,7 +123,6 @@ class CrocoWBC:
         return contacts
 
     def set_contacts(self, preview_time):
-
         contacts = self.planned_contacts_at(preview_time)
 
         if contacts[self.conf.leftFoot] and contacts[self.conf.rightFoot]:
@@ -211,7 +207,6 @@ class CrocoWBC:
             self.set_desired_feet_placement(i)
 
     def set_desired_feet_placement(self, preview_time):
-
         planned_land_LFs = self.t_land_LF[self.t_land_LF > preview_time]
         planned_land_RFs = self.t_land_RF[self.t_land_RF > preview_time]
 
@@ -389,7 +384,6 @@ def solve_hip_joints(equivalence):
 
 
 if __name__ == "__main__":
-
     import configuration as config
     from pin_Talos import PinTalos
 
