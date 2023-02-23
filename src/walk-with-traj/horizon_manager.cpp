@@ -22,7 +22,6 @@ void HorizonManager::initialize(const HorizonManagerSettings &settings, const Ei
   new_ref_.resize(17);
 
   tr_error_.resize(state(0)->get_nx() - 1);
-  K_tr_error_.resize(actuation(0)->get_nu());
   command_torque_.resize(actuation(0)->get_nu());
 
   initialized_ = true;
@@ -348,8 +347,7 @@ const Eigen::VectorXd &HorizonManager::currentTorques(const Eigen::VectorXd &mea
   /// @todo: make a boolean -> IT is necessary to have solved at least one time
   /// to use this method.
   tr_error_ = state(0)->diff_dx(measured_x, ddp_->get_xs()[0]);
-  K_tr_error_ = ddp_->get_K()[0] * tr_error_;
-  command_torque_ = ddp_->get_us()[0] + K_tr_error_ * tr_error_;
+  command_torque_ = ddp_->get_us()[0] + ddp_->get_K()[0] * tr_error_;
 
   return command_torque_;
 }

@@ -31,7 +31,6 @@ class HorizonManager {
   unsigned long size_;
   Eigen::VectorXd command_torque_;
   Eigen::VectorXd tr_error_;
-  Eigen::VectorXd K_tr_error_;
   eVector3 foot_torque_, foot_force_;
   pinocchio::SE3 pose_;
   int support_size_;
