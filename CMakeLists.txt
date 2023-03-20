@@ -38,12 +38,15 @@ endif()
 include("${JRL_CMAKE_MODULES}/base.cmake")
 include("${JRL_CMAKE_MODULES}/boost.cmake")
 include("${JRL_CMAKE_MODULES}/stubs.cmake")
+include("${JRL_CMAKE_MODULES}/apple.cmake")
 
 # Project definition
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
 add_compile_options(-Wno-error)
+
+apply_default_apple_configuration()
 
 # Project dependencies
 if(BUILD_PYTHON_INTERFACE)

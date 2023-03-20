@@ -1,5 +1,5 @@
 log/*
-build/*
+build*/
 install/*
 **/__pycache__/*
 .vscode/*
@@ -9,7 +9,6 @@ install/*
 dg*
 *anticipated-state*
 bak
-build
 .old
 mpc/nahuel
 python3
