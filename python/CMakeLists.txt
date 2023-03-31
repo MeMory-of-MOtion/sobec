@@ -50,7 +50,8 @@ set(${PY_NAME}_PYTHON
 
 if(GENERATE_PYTHON_STUBS)
   load_stubgen()
-  generate_stubs(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} ${PYTHON_SITELIB} ${PY_NAME}_pywrap)
+  generate_stubs(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} ${PYTHON_SITELIB}
+                 ${PY_NAME}_pywrap)
 endif(GENERATE_PYTHON_STUBS)
 
 foreach(python ${${PY_NAME}_PYTHON})
