@@ -194,14 +194,14 @@ design_conf = dict(
         "leg_right_6_joint",
         "torso_1_joint",
         "torso_2_joint",
-        # "arm_left_1_joint",
-        # "arm_left_2_joint",
-        # "arm_left_3_joint",
-        # "arm_left_4_joint",
-        # "arm_right_1_joint",
-        # "arm_right_2_joint",
-        # "arm_right_3_joint",
-        # "arm_right_4_joint",
+        "arm_left_1_joint",
+        "arm_left_2_joint",
+        "arm_left_3_joint",
+        "arm_left_4_joint",
+        "arm_right_1_joint",
+        "arm_right_2_joint",
+        "arm_right_3_joint",
+        "arm_right_4_joint",
     ],
 )
 design = RobotDesigner()
@@ -284,6 +284,20 @@ wbc_conf = dict(
     Nc=conf.Nc,
 )
 
+wbc_conf2 = dict(
+    totalSteps=conf.total_steps,
+    T=conf.T,
+    TdoubleSupport=conf.TdoubleSupport,
+    TsingleSupport=conf.TsingleSupport,
+    Tstep=conf.Tstep,
+    ddpIteration=20,
+    Dt=conf.DT,
+    simu_step=0.01,
+    min_force=150,
+    support_force=-design.getRobotMass() * conf.gravity[2],
+    Nc=1,
+)
+
 # Flex
 flex = Flex()
 flex.initialize(
@@ -307,6 +321,12 @@ mpc.initialize(
     wbc_conf, design, horizon, qStartComplete, design.get_v0Complete(), "actuationTask"
 )
 mpc.generateFullHorizon(formuler, Experiment.WALK)
+
+mpc2 = WBCHorizon()
+mpc2.initialize(
+    wbc_conf2, design, horizon, qStartComplete, design.get_v0Complete(), "actuationTask"
+)
+mpc2.generateFullHorizon(formuler, Experiment.WALK)
 
 if conf.simulator == "bullet":
     device = BulletTalos(conf, design.get_rModelComplete())
@@ -371,13 +391,16 @@ RF_pose = []
 LF_force = []
 RF_force = []
 
-for s in range(5 * T_total * conf.Nc):
+device.changeCamera(2,30,-10,np.array([0.5,0.5,0.9]))
+
+for s in range(T_total * conf.Nc):
     #    time.sleep(0.001)
     if mpc.timeToSolveDDP(s):
         xss.append(mpc.horizon.ddp.xs[0])
         uss.append(mpc.horizon.ddp.us[0])
         LF_pose.append(mpc.designer.get_LF_frame().copy())
         RF_pose.append(mpc.designer.get_RF_frame().copy())
+
         LF_force.append(
             mpc.horizon.ddp.problem.runningDatas[0]
             .differential.costs.costs["wrench_LF"]
@@ -407,7 +430,6 @@ for s in range(5 * T_total * conf.Nc):
         takeoff_RF = -1
         if mpc.takeoff_RF():
             takeoff_RF = mpc.takeoff_RF()[0]
-        print("s3")
         print(
             "takeoff_RF = " + str(takeoff_RF) + ", landing_RF = ",
             str(land_RF) + ", takeoff_LF = " + str(takeoff_LF) + ", landing_LF = ",
@@ -494,7 +516,8 @@ for s in range(5 * T_total * conf.Nc):
         # print_trajectory(mpc.ref_LF_poses)
 
     mpc.iterate(s, q_current, v_current)
-    torques = horizon.currentTorques(mpc.x0)
+    #mpc2.iterate(s, q_current, v_current)
+    torques = mpc.horizon.ddp.us[0] #mpc.horizon.currentTorques(mpc.x0)
 
     if conf.simulator == "bullet":
         device.execute(torques)
@@ -538,8 +561,8 @@ for s in range(5 * T_total * conf.Nc):
             # if s == 0:
             # stop
 
-# save_trajectory(
-# xss, uss, LF_pose, RF_pose, LF_force, RF_force, save_name="trajectories_xs_us"
-# )
+#save_trajectory(
+#xss, uss, LF_pose, RF_pose, LF_force, RF_force, save_name="walk_K0_xs_us"
+#)
 if conf.simulator == "bullet":
     device.close()

@@ -254,6 +254,29 @@ mpc.initialize(
 mpc.generateFullHorizon(formuler)
 mpc.ref_hand_pose = target
 
+
+ustar = mpc.horizon.ddp.us[0]
+Kstar = mpc.horizon.ddp.K[0]
+xs0 = mpc.horizon.ddp.xs
+us0 = mpc.horizon.ddp.us
+x0 = design.get_x0()
+ndx = design.get_rModel().nv * 2
+h = 0.001
+Kdiff = np.zeros((design.get_rModel().nv - 6, ndx))
+
+for i in range(ndx):
+	hvec = np.zeros(ndx)
+	hvec[i] = h
+	xh =  mpc.horizon.ddp.problem.runningModels[0].state.integrate(x0,hvec)
+	mpc.horizon.ddp.problem.x0 = xh
+	xs0[0] = xh
+	mpc.horizon.ddp.solve(xs0,us0,100,False)
+	Kdiff[:,i] = (ustar - mpc.horizon.ddp.us[0])/h
+	
+
+print("Diff between K0 and Kdiff = ", np.linalg.norm(Kstar-Kdiff))
+exit()
+
 poseTarget = design.get_EndEff_frame()
 poseTarget.translation = target
 device = BulletTalos(conf, design.get_rModelComplete())

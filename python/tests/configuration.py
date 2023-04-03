@@ -21,17 +21,17 @@ blocked_joints = [
     "universe",
     # "torso_1_joint",
     # "torso_2_joint",
-    "arm_left_1_joint",
-    "arm_left_2_joint",
-    "arm_left_3_joint",
-    "arm_left_4_joint",
+    #"arm_left_1_joint",
+    #"arm_left_2_joint",
+    #"arm_left_3_joint",
+    #"arm_left_4_joint",
     "arm_left_5_joint",
     "arm_left_6_joint",
     "arm_left_7_joint",
-    "arm_right_1_joint",
-    "arm_right_2_joint",
-    "arm_right_3_joint",
-    "arm_right_4_joint",
+    #"arm_right_1_joint",
+    #"arm_right_2_joint",
+    #"arm_right_3_joint",
+    #"arm_right_4_joint",
     "arm_right_5_joint",
     "arm_right_6_joint",
     "arm_right_7_joint",
@@ -42,11 +42,11 @@ blocked_joints = [
 ]
 
 # #### TIMING #####
-total_steps = 2
+total_steps = 4
 DT = 1e-2  # Time step of the DDP
 T = 100  # Time horizon of the DDP (number of nodes)
-TdoubleSupport = 100  # Double support time  # TODO: (check with 20)
-TsingleSupport = 100  # Single support time
+TdoubleSupport = 20  # Double support time  # TODO: (check with 20)
+TsingleSupport = 80  # Single support time
 
 Tstep = TsingleSupport + TdoubleSupport
 
@@ -108,7 +108,7 @@ flex_error = 0.0  # error fraction such that: estimation = real*(1-flex_error)
 flexToJoint = np.array([0, 0, 0.09])
 
 # ###### WALKING GEOMETRY #########
-xForward = 0.0  # step size
+xForward = 0.2  # step size
 sidestep = 0.0
 swingApex = 0.2  # foot height
 footSeparation = 0.2  # 0.005 # Correction in y to push the feet away from each other
@@ -135,23 +135,23 @@ wForceTask = 0
 wCoP = 10
 wDCM = 0
 
-weightBasePos = [0, 0, 0, 100, 100, 0]  # [x, y, z| x, y, z]
+weightBasePos = [0, 0, 0, 10000, 10000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [10, 10, 10, 10, 10, 10]  # [x, y, z| x, y, z]
 weightLegPos = [1, 10, 10, 0.01, 0.1, 1]  # [z, x, y, y, y, x]
 weightLegVel = [10, 10, 1, 0.1, 1, 10]  # [z, x, y, y, y, x]
-weightArmPos = [0.01, 100, 1, 0.1]  # [z, x, z, y, z, x, y]
-weightArmVel = [1, 100, 1, 1]  # [z, x, z, y, z, x, y]
-weightTorsoPos = [10, 5]  # [z, y]
-weightTorsoVel = [10, 5]  # [z, y]
+weightArmPos = [10, 100, 10, 10]  # [z, x, z, y, z, x, y]
+weightArmVel = [10, 100, 10, 10]  # [z, x, z, y, z, x, y]
+weightTorsoPos = [10, 500]  # [z, y]
+weightTorsoVel = [10, 500]  # [z, y]
 stateWeights = np.array(
     weightBasePos
     + weightLegPos * 2
     + weightTorsoPos
-    # + weightArmPos * 2
+    + weightArmPos * 2
     + weightBaseVel
     + weightLegVel * 2
     + weightTorsoVel
-    # + weightArmVel * 2
+    + weightArmVel * 2
 )
 
 weightuBase = "not actuated"
@@ -161,7 +161,7 @@ weightuTorso = [1, 1]
 controlWeight = np.array(
     weightuLeg * 2
     + weightuTorso
-    # + weightuArm * 2
+    + weightuArm * 2
 )
 
 forceWeights = np.array([1, 1, 1, 1, 1, 1])
@@ -181,9 +181,17 @@ lowKinematicLimits = np.array(
         -1.31,
         -0.52,  # right leg
         -1.3,
-        -0.1,
+        -0.1,   # torso
+        -1.57,
+        0.2,
+        -2.44,
+        -2.1,  # left arm
+        -0.52,
+        -2.88,
+        -2.44,
+        -2.1,  # right arm
     ]
-)  # torso
+) 
 highKinematicLimits = np.array(
     [
         1.57,
@@ -199,9 +207,17 @@ highKinematicLimits = np.array(
         0.77,
         0.52,  # right leg
         1.3,
-        0.2,
+        0.2,   # torso
+        0.52,
+        2.88,
+        2.44,
+        0,    # left arm
+        1.57,
+        -0.2,
+        2.44,
+        0,   # right arm
     ]
-)  # torso
+)  
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.

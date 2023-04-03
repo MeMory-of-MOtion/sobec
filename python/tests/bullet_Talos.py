@@ -119,6 +119,12 @@ class BulletTalos:
             forces=torques,
         )
         p.stepSimulation()
+        
+    def changeCamera(self,cameraDistance,cameraYaw,cameraPitch,cameraTargetPos):
+        p.resetDebugVisualizerCamera(cameraDistance,
+                                     cameraYaw,
+                                     cameraPitch,
+                                     cameraTargetPos)
 
     def measureState(self):
         jointStates = p.getJointStates(
