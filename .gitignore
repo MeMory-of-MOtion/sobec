@@ -7,7 +7,6 @@ install/*
 .vscode
 **~
 dg*
-*anticipated-state*
 bak
 build
 .old
