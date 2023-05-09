@@ -18,12 +18,12 @@ template <typename Scalar>
 ResidualModelDCMPositionTpl<Scalar>::ResidualModelDCMPositionTpl(boost::shared_ptr<StateMultibody> state,
                                                                  const Vector3s& cref, const double alpha,
                                                                  const std::size_t nu)
-    : Base(state, 3, nu, true, false, false), cref_(cref), alpha_(alpha), pin_model_(*state->get_pinocchio()) {}
+    : Base(state, 3, nu, true, true, false), cref_(cref), alpha_(alpha), pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelDCMPositionTpl<Scalar>::ResidualModelDCMPositionTpl(boost::shared_ptr<StateMultibody> state,
                                                                  const Vector3s& cref, const double alpha)
-    : Base(state, 3, true, false, false), cref_(cref), alpha_(alpha), pin_model_(*state->get_pinocchio()) {}
+    : Base(state, 3, true, true, false), cref_(cref), alpha_(alpha), pin_model_(*state->get_pinocchio()) {}
 
 template <typename Scalar>
 ResidualModelDCMPositionTpl<Scalar>::~ResidualModelDCMPositionTpl() {}
@@ -50,7 +50,7 @@ void ResidualModelDCMPositionTpl<Scalar>::calcDiff(const boost::shared_ptr<Resid
   // Compute the derivatives of the frame placement
   const std::size_t nv = state_->get_nv();
   pinocchio::getCenterOfMassVelocityDerivatives(pin_model_, *d->pinocchio, d->dvcom_dq);
-  data->Rx.leftCols(nv) = d->pinocchio->Jcom + alpha_ * d->dvcom_dq;
+  data->Rx.leftCols(nv) = d->pinocchio->Jcom + alpha_ * d->dvcom_dq; 
   data->Rx.rightCols(nv) = alpha_ * d->pinocchio->Jcom;
 }
 

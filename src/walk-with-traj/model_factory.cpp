@@ -222,8 +222,8 @@ void ModelMaker::defineActuationTask(Cost &costCollector) {
           settings_.controlWeights);  //.tail(actuation->get_nu())
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> actuationModel = boost::make_shared<crocoddyl::CostModelResidual>(
-      //state_, activationWQ, boost::make_shared<crocoddyl::ResidualModelControl>(state_, actuation_->get_nu()));
-      state_, activationWQ, boost::make_shared<sobec::ResidualModelPower>(state_, actuation_->get_nu()));
+      state_, activationWQ, boost::make_shared<crocoddyl::ResidualModelControl>(state_, actuation_->get_nu()));
+      //state_, activationWQ, boost::make_shared<sobec::ResidualModelPower>(state_, actuation_->get_nu()));
   costCollector.get()->addCost("actuationTask", actuationModel, settings_.wControlReg, true);
 }
 

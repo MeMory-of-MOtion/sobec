@@ -196,12 +196,12 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(CostMod
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(state, frame_index, frame_SE3.translation(),
                                                                        nu));
       break;
-    // case CostModelTypes::CostModelResidualDCMPosition:
-    //   cost = boost::make_shared<crocoddyl::CostModelResidual>(
-    //       state, activation_factory.create(activation_type, 3),
-    //       boost::make_shared<sobec::ResidualModelDCMPosition>(state,
-    //       Eigen::Vector3d::Random(), alpha, nu));
-    //   break;
+    case CostModelTypes::CostModelResidualDCMPosition:
+       cost = boost::make_shared<crocoddyl::CostModelResidual>(
+           state, activation_factory.create(activation_type, 3),
+           boost::make_shared<sobec::ResidualModelDCMPosition>(state,
+           Eigen::Vector3d::Random(), alpha, nu));
+       break;
     case CostModelTypes::CostModelResidualFrameVelocity:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 6),

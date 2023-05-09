@@ -36,7 +36,7 @@ struct CostModelTypes {
     CostModelResidualFramePlacement,
     CostModelResidualFrameRotation,
     CostModelResidualFrameTranslation,
-    // CostModelResidualDCMPosition,
+    CostModelResidualDCMPosition,
     CostModelResidualFrameVelocity,
     NbCostModelTypes
   };
