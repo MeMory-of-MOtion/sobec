@@ -51,7 +51,7 @@ void WBCHorizon::initialize(const WBCHorizonSettings &settings, const RobotDesig
     ///@todo: Remove this from the initialization and provide it as a method.
     xs_init.push_back(x0_);
     us_init.push_back(zero_u);
-    horizon_.setBalancingTorque(i, actuationCostName, x0_);
+    //horizon_.setBalancingTorque(i, actuationCostName, x0_);
   }
   xs_init.push_back(x0_);
 

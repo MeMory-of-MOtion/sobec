@@ -30,6 +30,8 @@ struct CostModelTypes {
     CostModelResidualCoMVelocity,
     // CostModelResidualFlyAngle,
     // CostModelResidualFlyHigh,
+    CostModelResidualPower,
+    CostModelResidualAnticipatedState,
     CostModelResidual2DSurface,
     CostModelResidualFramePlacement,
     CostModelResidualFrameRotation,

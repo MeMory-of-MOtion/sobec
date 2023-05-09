@@ -3,6 +3,8 @@
 #include <crocoddyl/multibody/fwd.hpp>
 
 #include "sobec/crocomplements/residual-cop.hpp"
+#include "sobec/crocomplements/residual-power.hpp"
+#include "sobec/crocomplements/residual-anticipated-state.hpp"
 #include "sobec/walk-with-traj/designer.hpp"
 
 namespace sobec {
@@ -220,7 +222,8 @@ void ModelMaker::defineActuationTask(Cost &costCollector) {
           settings_.controlWeights);  //.tail(actuation->get_nu())
 
   boost::shared_ptr<crocoddyl::CostModelAbstract> actuationModel = boost::make_shared<crocoddyl::CostModelResidual>(
-      state_, activationWQ, boost::make_shared<crocoddyl::ResidualModelControl>(state_, actuation_->get_nu()));
+      //state_, activationWQ, boost::make_shared<crocoddyl::ResidualModelControl>(state_, actuation_->get_nu()));
+      state_, activationWQ, boost::make_shared<sobec::ResidualModelPower>(state_, actuation_->get_nu()));
   costCollector.get()->addCost("actuationTask", actuationModel, settings_.wControlReg, true);
 }
 
@@ -228,17 +231,19 @@ void ModelMaker::defineJointLimits(Cost &costCollector) {
   Eigen::VectorXd lower_bound(2 * state_->get_nv()), upper_bound(2 * state_->get_nv());
 
   double inf = 9999.0;
-  lower_bound << Eigen::VectorXd::Constant(6, -inf), settings_.lowKinematicLimits,
-      Eigen::VectorXd::Constant(state_->get_nv(), -inf);
-  upper_bound << Eigen::VectorXd::Constant(6, inf), settings_.highKinematicLimits,
-      Eigen::VectorXd::Constant(state_->get_nv(), inf);
-  crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(lower_bound, upper_bound, 1.);
+  //lower_bound << Eigen::VectorXd::Constant(6, -inf), settings_.lowKinematicLimits,
+  //    Eigen::VectorXd::Constant(state_->get_nv(), -inf);
+  //upper_bound << Eigen::VectorXd::Constant(6, inf), settings_.highKinematicLimits,
+  //    Eigen::VectorXd::Constant(state_->get_nv(), inf);
+  crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(settings_.lowKinematicLimits, settings_.highKinematicLimits, 1.);
 
   boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationQB =
       boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
+  //boost::shared_ptr<crocoddyl::CostModelAbstract> jointLimitCost = boost::make_shared<crocoddyl::CostModelResidual>(
+  //    state_, activationQB, boost::make_shared<crocoddyl::ResidualModelState>(state_, actuation_->get_nu()));
   boost::shared_ptr<crocoddyl::CostModelAbstract> jointLimitCost = boost::make_shared<crocoddyl::CostModelResidual>(
-      state_, activationQB, boost::make_shared<crocoddyl::ResidualModelState>(state_, actuation_->get_nu()));
-
+      state_, activationQB, boost::make_shared<sobec::ResidualModelAnticipatedState>(state_, actuation_->get_nu(), 0.1));
+  
   costCollector.get()->addCost("jointLimits", jointLimitCost, settings_.wLimit, true);
 }
 

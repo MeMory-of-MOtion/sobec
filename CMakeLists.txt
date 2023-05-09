@@ -66,6 +66,8 @@ set(${PROJECT_NAME}_HEADERS
     include/${PROJECT_NAME}/crocomplements/residual-fly-angle.hpp
     include/${PROJECT_NAME}/crocomplements/residual-dcm-position.hpp
     include/${PROJECT_NAME}/crocomplements/residual-2D-surface.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-power.hpp
+    include/${PROJECT_NAME}/crocomplements/residual-anticipated-state.hpp
     include/${PROJECT_NAME}/crocomplements/activation-quad-ref.hpp
     include/${PROJECT_NAME}/crocomplements/activation-weighted-log.hpp
     include/${PROJECT_NAME}/crocomplements/lowpassfilter/state.hpp
@@ -92,6 +94,8 @@ set(${PROJECT_NAME}_HEADERS
     include/${PROJECT_NAME}/crocomplements/residual-fly-angle.hxx
     include/${PROJECT_NAME}/crocomplements/residual-dcm-position.hxx
     include/${PROJECT_NAME}/crocomplements/residual-2D-surface.hxx
+    include/${PROJECT_NAME}/crocomplements/residual-anticipated-state.hxx
+    include/${PROJECT_NAME}/crocomplements/residual-power.hxx
     include/${PROJECT_NAME}/walk-without-think/ocp.hpp
     include/${PROJECT_NAME}/walk-without-think/mpc.hpp
     include/${PROJECT_NAME}/walk-without-think/mpc.hxx

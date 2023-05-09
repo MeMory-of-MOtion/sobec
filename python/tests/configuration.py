@@ -128,7 +128,7 @@ leftFoot = lf_frame_name = "leg_left_sole_fix_joint"
 
 wFootPlacement = 10000
 wStateReg = 100
-wControlReg = 0.001
+wControlReg = 0
 wLimit = 1e3
 wWrenchCone = 1  # 0.05
 wForceTask = 0

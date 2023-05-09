@@ -19,6 +19,8 @@
 #include "sobec/crocomplements/residual-dcm-position.hpp"
 #include "sobec/crocomplements/residual-fly-angle.hpp"
 #include "sobec/crocomplements/residual-fly-high.hpp"
+#include "sobec/crocomplements/residual-anticipated-state.hpp"
+#include "sobec/crocomplements/residual-power.hpp"
 // #include "crocoddyl/multibody/residuals/centroidal-momentum.hpp"
 #include <crocoddyl/core/costs/cost-sum.hpp>
 #include <crocoddyl/core/utils/exception.hpp>
@@ -56,6 +58,12 @@ std::ostream& operator<<(std::ostream& os, CostModelTypes::Type type) {
       // case CostModelTypes::CostModelResidualFlyAngle:
       //    os << "CostModelResidualFlyAngle";
       //    break;
+    case CostModelTypes::CostModelResidualPower:
+      os << "CostModelResidualPower";
+      break;
+    case CostModelTypes::CostModelResidualAnticipatedState:
+      os << "CostModelResidualAnticipatedState";
+      break;
     case CostModelTypes::CostModelResidual2DSurface:
       os << "CostModelResidual2DSurface";
       break;
@@ -156,13 +164,22 @@ boost::shared_ptr<crocoddyl::CostModelAbstract> CostModelFactory::create(CostMod
     //                                                       beta, gamma,nu));
     //   break;
     // }
-    case CostModelTypes::CostModelResidual2DSurface: {
+    case CostModelTypes::CostModelResidualPower:
+       cost = boost::make_shared<crocoddyl::CostModelResidual>(
+           state, activation_factory.create(activation_type, nu),
+           boost::make_shared<sobec::ResidualModelPower>(state,nu));
+       break;
+    case CostModelTypes::CostModelResidualAnticipatedState: 
+      cost = boost::make_shared<crocoddyl::CostModelResidual>(
+          state, activation_factory.create(activation_type, state->get_nv()),
+          boost::make_shared<sobec::ResidualModelAnticipatedState>(state, nu, alpha));
+      break;
+    case CostModelTypes::CostModelResidual2DSurface: 
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 2),
           boost::make_shared<sobec::ResidualModel2DSurface>(state, frame_index, Eigen::Vector2d::Random(), 0.2, 0.2,
                                                             0.1, nu));
       break;
-    }
     case CostModelTypes::CostModelResidualFramePlacement:
       cost = boost::make_shared<crocoddyl::CostModelResidual>(
           state, activation_factory.create(activation_type, 6),

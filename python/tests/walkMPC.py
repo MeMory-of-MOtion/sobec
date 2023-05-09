@@ -317,9 +317,11 @@ flex.initialize(
 qStartComplete = design.get_q0Complete().copy()
 qStartComplete[3:7] = q_mult(qYaw, qStartComplete[3:7])
 mpc = WBCHorizon()
+
 mpc.initialize(
     wbc_conf, design, horizon, qStartComplete, design.get_v0Complete(), "actuationTask"
 )
+
 mpc.generateFullHorizon(formuler, Experiment.WALK)
 
 mpc2 = WBCHorizon()
