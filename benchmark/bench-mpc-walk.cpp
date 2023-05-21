@@ -1,3 +1,4 @@
+#include <example-robot-data/path.hpp>
 #include <iostream>
 #include <pinocchio/algorithm/model.hpp>
 #include <pinocchio/parsers/srdf.hpp>
@@ -17,11 +18,9 @@ int main() {
   // --- LOAD FROM URDF+SRDF
   // Load full Talos model
   const std::string urdf =
-      "/opt/openrobots/share/example-robot-data/robots/talos_data/robots/"
-      "talos_reduced.urdf";
+      EXAMPLE_ROBOT_DATA_MODEL_DIR "/talos_data/robots/talos_reduced.urdf";
   const std::string srdf =
-      "/opt/openrobots/share/example-robot-data/robots/talos_data/srdf/"
-      "talos.srdf";
+      EXAMPLE_ROBOT_DATA_MODEL_DIR "/talos_data/srdf/talos.srdf";
   auto fullmodel = boost::make_shared<pinocchio::Model>();
   pinocchio::urdf::buildModel(urdf, pinocchio::JointModelFreeFlyer(),
                               *fullmodel);
