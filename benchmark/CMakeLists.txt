@@ -2,8 +2,9 @@ set(${PROJECT_NAME}_BENCHMARK bench-mpc-walk)
 
 foreach(BENCHMARK_NAME ${${PROJECT_NAME}_BENCHMARK})
   add_executable(${BENCHMARK_NAME} ${BENCHMARK_NAME}.cpp)
-  target_link_libraries(${BENCHMARK_NAME} PUBLIC ${PROJECT_NAME}
-                                                 crocoddyl::crocoddyl)
+  target_link_libraries(
+    ${BENCHMARK_NAME} PUBLIC ${PROJECT_NAME}
+                             example-robot-data::example-robot-data)
 endforeach(BENCHMARK_NAME ${${PROJECT_NAME}_BENCHMARK})
 
 if(BUILD_PY2CPP_INTERFACE)
