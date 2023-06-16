@@ -35,10 +35,14 @@ target_include_directories(${PY_NAME}_pywrap SYSTEM
                            PRIVATE ${PYTHON_INCLUDE_DIR})
 set_target_properties(
   ${PY_NAME}_pywrap
-  PROPERTIES INSTALL_RPATH "\$ORIGIN/../../.."
-             LIBRARY_OUTPUT_DIRECTORY ${PY_NAME}
+  PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PY_NAME}
              PREFIX ""
              SUFFIX ${PYTHON_EXT_SUFFIX})
+if(UNIX)
+  get_relative_rpath(${${PY_NAME}_INSTALL_DIR} ${PY_NAME}_INSTALL_RPATH)
+  set_target_properties(${PY_NAME}_pywrap
+                        PROPERTIES INSTALL_RPATH "${${PY_NAME}_INSTALL_RPATH}")
+endif()
 target_link_boost_python(${PY_NAME}_pywrap PRIVATE)
 install(TARGETS ${PY_NAME}_pywrap DESTINATION ${${PY_NAME}_INSTALL_DIR})
 
