@@ -127,7 +127,8 @@ void ModelMaker::defineFeetTranslation(Cost &costCollector, const Support &suppo
 
   boost::shared_ptr<crocoddyl::ActivationModelAbstract> activationZ;
   if (stairs) {
-    activationZ = boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.01);
+    activationZ = boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(3, 0.001);
+    //activationZ = boost::make_shared<sobec::ActivationModelSmooth1Norm>(3, 0.001);
     //activationZ = boost::make_shared<crocoddyl::ActivationModelQuad>(3);
   } else {
     eVector3 ZFootTrackingVec;
@@ -511,6 +512,7 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   defineFeetContact(contacts, support);
 
   defineJointLimits(costs);
+  defineCoMVelocity(costs);
   definePostureTask(costs);
   defineActuationTask(costs);
   defineFeetWrenchCost(costs, support);
