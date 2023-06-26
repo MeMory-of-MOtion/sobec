@@ -25,7 +25,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
 
 add_library(${PROJECT_NAME}_unittest SHARED ${${PROJECT_NAME}_FACTORY_TEST})
 target_link_libraries(${PROJECT_NAME}_unittest PUBLIC ${PROJECT_NAME}
-                                                      crocoddyl::crocoddyl)
+                      crocoddyl::crocoddyl example-robot-data::example-robot-data)
 
 add_unit_test(test_costs test_costs.cpp)
 target_link_libraries(test_costs PUBLIC ${PROJECT_NAME}_unittest yaml-cpp)

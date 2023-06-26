@@ -50,6 +50,7 @@ if(BUILD_PYTHON_INTERFACE)
   set(${PY_NAME}_INSTALL_DIR ${PYTHON_SITELIB}/${PY_NAME})
 endif()
 
+find_package(OpenMP REQUIRED COMPONENTS CXX)
 add_project_dependency(ndcurves REQUIRED)
 add_project_dependency(crocoddyl REQUIRED)
 add_project_dependency(yaml-cpp REQUIRED)
@@ -130,8 +131,8 @@ set(${PROJECT_NAME}_SOURCES
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES}
                                    ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl
-                                             ndcurves::ndcurves yaml-cpp)
+target_link_libraries(${PROJECT_NAME} PUBLIC crocoddyl::crocoddyl ndcurves::ndcurves 
+                                   yaml-cpp OpenMP::OpenMP_CXX)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX
                                                  INSTALL_RPATH "\$ORIGIN")
 
