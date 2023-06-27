@@ -29,10 +29,10 @@ void ModelMaker::initialize(const ModelMakerSettings &settings, const RobotDesig
 
 void ModelMaker::defineFeetContact(Contact &contactCollector, const Support &support) {
   boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelLeft = boost::make_shared<crocoddyl::ContactModel6D>(
-      state_, designer_.get_LF_id(), designer_.get_LF_frame(), actuation_->get_nu(), eVector2(0., 50.));
+      state_, designer_.get_LF_id(), designer_.get_LF_frame(), pinocchio::ReferenceFrame::LOCAL, actuation_->get_nu(), eVector2(0., 50.));
 
   boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelRight = boost::make_shared<crocoddyl::ContactModel6D>(
-      state_, designer_.get_RF_id(), designer_.get_RF_frame(), actuation_->get_nu(), eVector2(0., 50.));
+      state_, designer_.get_RF_id(), designer_.get_RF_frame(), pinocchio::ReferenceFrame::LOCAL, actuation_->get_nu(), eVector2(0., 50.));
 
   contactCollector->addContact(designer_.get_LF_name(), ContactModelLeft, false);
   contactCollector->addContact(designer_.get_RF_name(), ContactModelRight, false);
