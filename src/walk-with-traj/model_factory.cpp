@@ -214,8 +214,7 @@ void ModelMaker::defineRotationBase(Cost &costCollector) {
 }
 
 void ModelMaker::defineTorqueLimits(Cost & costCollector) {
-	Eigen::VectorXd lower_bound = Eigen::VectorXd::Zero(settings_.torqueLimits.size());
-	crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(lower_bound, settings_.torqueLimits, 1.);
+	crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(-settings_.torqueLimits, settings_.torqueLimits, 1.);
 	
 	boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationU =
       boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
@@ -574,7 +573,7 @@ AMA ModelMaker::formulateWWT(const Support &support, const bool &stairs) {
   defineFeetRotation(costs);
   defineFlyHighTask(costs, support);
   defineFeetTranslation(costs, support, stairs);
-
+  
   DAM runningDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_,
                                                                                             contacts, costs, 0., true);
   AMA runningModel = boost::make_shared<crocoddyl::IntegratedActionModelEuler>(runningDAM, settings_.timeStep);
@@ -597,7 +596,8 @@ AMA ModelMaker::formulateTerminalWWT(const Support &support, const bool &stairs)
   defineCoMPosition(costs);
   defineFeetTranslation(costs, support, stairs);
   defineDCMTask(costs, support);
-  defineRotationBase(costs);
+  defineFeetRotation(costs);
+  //defineRotationBase(costs);
 
   DAM terminalDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(
       state_, actuation_, contacts, costs, 0., true);

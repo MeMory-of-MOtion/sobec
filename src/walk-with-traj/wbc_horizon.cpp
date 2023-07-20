@@ -66,14 +66,15 @@ void WBCHorizon::setForceAlongHorizon() {
   Eigen::VectorXd wrench_reference_right(6);
   double ref_force;
   double mean_force = settings_.support_force / 2.;
-  double max_force = settings_.support_force - settings_.min_force;
+  double min_min_force = settings_.min_force / 100.0;
+  double max_min_force = settings_.support_force - settings_.min_force;
   wrench_reference_left << 0, 0, mean_force, 0, 0, 0;
   wrench_reference_right << 0, 0, mean_force, 0, 0, 0;
 
   // Set force reference for first cycle
   for (int i = 0; i < settings_.TdoubleSupport; i++) {
     ref_force = mean_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
-                settings_.min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
+                min_min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
     wrench_reference_right[2] = ref_force;
     wrench_reference_left[2] = settings_.support_force - ref_force;
     fullHorizon_.setWrenchReference(i, "wrench_LF", wrench_reference_left);
@@ -82,8 +83,8 @@ void WBCHorizon::setForceAlongHorizon() {
   // Set force reference for following cycles
   for (int j = 1; j < settings_.totalSteps; j++) {
     for (int i = 0; i < settings_.TdoubleSupport; i++) {
-      ref_force = max_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
-                  settings_.min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
+      ref_force = max_min_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
+                  min_min_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
       if (j % 2 == 0) {
         wrench_reference_right[2] = ref_force;
         wrench_reference_left[2] = settings_.support_force - ref_force;
@@ -97,7 +98,7 @@ void WBCHorizon::setForceAlongHorizon() {
   }
   // Set force reference for last cycle
   for (int i = 0; i < settings_.TdoubleSupport; i++) {
-    ref_force = max_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
+    ref_force = max_min_force * (settings_.TdoubleSupport - i - 1) / static_cast<double>(settings_.TdoubleSupport) +
                 mean_force * (i + 1) / static_cast<double>(settings_.TdoubleSupport);
     if (settings_.totalSteps % 2 == 0) {
       wrench_reference_right[2] = ref_force;
