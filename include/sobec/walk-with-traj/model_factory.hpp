@@ -58,6 +58,7 @@ struct ModelMakerSettings {
   double wStateReg = 0;       // 100;
   double wControlReg = 0;     // 0.001;
   double wLimit = 0;          // 1e3;
+  double wTauLimit = 0;          // 1e3;
   double wWrenchCone = 0;     // 0.05;
   double wForceTask = 0;      // 0.05
   double wCoP = 0;            // 1;
@@ -82,6 +83,7 @@ struct ModelMakerSettings {
 
   Eigen::VectorXd lowKinematicLimits;
   Eigen::VectorXd highKinematicLimits;
+  Eigen::VectorXd torqueLimits;
 
   double th_stop = 1e-6;  // threshold for stopping criterion
   double th_grad = 1e-9;  // threshold for zero gradient.
@@ -122,6 +124,7 @@ class ModelMaker {
                              const bool &stairs = false);
   void definePostureTask(Cost &costCollector);
   void defineRotationBase(Cost &costCollector);
+  void defineTorqueLimits(Cost & costCollector);
   void defineActuationTask(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoPTask(Cost &costCollector, const Support &support = Support::DOUBLE);

@@ -213,6 +213,19 @@ void ModelMaker::defineRotationBase(Cost &costCollector) {
   costCollector.get()->addCost("rotation_base", rotationModel, settings_.wBaseRot, true);
 }
 
+void ModelMaker::defineTorqueLimits(Cost & costCollector) {
+	Eigen::VectorXd lower_bound = Eigen::VectorXd::Zero(settings_.torqueLimits.size());
+	crocoddyl::ActivationBounds bounds = crocoddyl::ActivationBounds(lower_bound, settings_.torqueLimits, 1.);
+	
+	boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activationU =
+      boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds);
+      
+    boost::shared_ptr<crocoddyl::CostModelAbstract> torqueLimitsCost = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, activationU, boost::make_shared<sobec::ResidualModelControl>(state_, actuation_->get_nu()));
+  
+    costCollector.get()->addCost("torqueLimits", torqueLimitsCost, settings_.wTauLimit, true);
+}
+
 void ModelMaker::defineActuationTask(Cost &costCollector) {
   if (settings_.controlWeights.size() != (int)actuation_->get_nu()) {
     throw std::invalid_argument("Control weight size is wrong ");
@@ -552,6 +565,7 @@ AMA ModelMaker::formulateWWT(const Support &support, const bool &stairs) {
   defineCoMVelocity(costs);
   defineJointLimits(costs);
   definePostureTask(costs);
+  defineTorqueLimits(costs);
   defineActuationTask(costs);
   defineFeetWrenchCost(costs, support);
   defineFootCollisionTask(costs);

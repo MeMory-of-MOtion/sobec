@@ -55,6 +55,7 @@ void initialize(ModelMaker &self, const bp::dict &settings, const RobotDesigner 
   conf.wStateReg = bp::extract<double>(settings["wStateReg"]);
   conf.wControlReg = bp::extract<double>(settings["wControlReg"]);
   conf.wLimit = bp::extract<double>(settings["wLimit"]);
+  conf.wTauLimit = bp::extract<double>(settings["wTauLimit"]);
   conf.wVCoM = bp::extract<double>(settings["wVCoM"]);
   conf.wPCoM = bp::extract<double>(settings["wPCoM"]);
   conf.wWrenchCone = bp::extract<double>(settings["wWrenchCone"]);
@@ -71,6 +72,7 @@ void initialize(ModelMaker &self, const bp::dict &settings, const RobotDesigner 
   conf.forceWeights = bp::extract<Eigen::VectorXd>(settings["forceWeights"]);
   conf.lowKinematicLimits = bp::extract<Eigen::VectorXd>(settings["lowKinematicLimits"]);
   conf.highKinematicLimits = bp::extract<Eigen::VectorXd>(settings["highKinematicLimits"]);
+  conf.torqueLimits = bp::extract<Eigen::VectorXd>(settings["torqueLimits"]);
   conf.th_grad = bp::extract<double>(settings["th_grad"]);
   conf.th_stop = bp::extract<double>(settings["th_stop"]);
 
@@ -99,6 +101,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["wStateReg"] = conf.wStateReg;
   settings["wControlReg"] = conf.wControlReg;
   settings["wLimit"] = conf.wLimit;
+  settings["wTauLimit"] = conf.wTauLimit;
   settings["wVCoM"] = conf.wVCoM;
   settings["wPCoM"] = conf.wPCoM;
   settings["wWrenchCone"] = conf.wWrenchCone;
@@ -115,6 +118,7 @@ bp::dict get_settings(ModelMaker &self) {
   settings["forceWeights"] = conf.forceWeights;
   settings["lowKinematicLimits"] = conf.lowKinematicLimits;
   settings["highKinematicLimits"] = conf.highKinematicLimits;
+  settings["torqueLimits"] = conf.torqueLimits;
   settings["th_grad"] = conf.th_grad;
   settings["th_stop"] = conf.th_stop;
   return settings;
@@ -188,6 +192,12 @@ void definePostureTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector)
 void defineRotationBase(ModelMaker &self, crocoddyl::CostModelSum &costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineRotationBase(costs);
+  costCollector = *costs;
+}
+
+void defineTorqueLimits(ModelMaker &self, crocoddyl::CostModelSum &costCollector) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineTorqueLimits(costs);
   costCollector = *costs;
 }
 
@@ -291,6 +301,7 @@ void exposeModelFactory() {
       .def("definePostureTask", &definePostureTask, bp::args("self", "costCollector"))
       .def("defineRotationBase", &defineRotationBase, bp::args("self", "costCollector"))
       .def("defineActuationTask", &defineActuationTask, bp::args("self", "costCollector"))
+      .def("defineTorqueLimits", &defineTorqueLimits, bp::args("self", "costCollector"))
       .def("defineJointLimits", &defineJointLimits, bp::args("self", "costCollector"))
       .def("defineCoPTask", &defineCoPTask,
            (bp::arg("self"), bp::arg("costCollector"), bp::arg("supports") = Support::DOUBLE))
