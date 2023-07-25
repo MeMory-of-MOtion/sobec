@@ -52,6 +52,7 @@ void WBCHorizon::initialize(const WBCHorizonSettings &settings, const RobotDesig
     xs_init.push_back(x0_);
     us_init.push_back(zero_u);
     horizon_.setBalancingTorque(i, actuationCostName, x0_);
+    torqueRef_.push_back(zero_u);
   }
   xs_init.push_back(x0_);
 
@@ -246,6 +247,7 @@ void WBCHorizon::updateStepTrackerReferences() {
   for (unsigned long time = 0; time < horizon_.size(); time++) {
     horizon_.setPoseReference(time, "placement_LF", getPoseRef_LF(time));
     horizon_.setPoseReference(time, "placement_RF", getPoseRef_RF(time));
+    horizon_.setActuationReference(time, "actuationDrift", getTorqueRef(time));
     ///@todo: the names must be provided by the user
   }
   horizon_.setTerminalPoseReference("placement_LF", getPoseRef_LF(horizon_.size()));
@@ -280,6 +282,7 @@ void WBCHorizon::updateNonThinkingReferences() {
     horizon_.setVelocityRefCOM(time, "comVelocity", ref_com_vel_);
     horizon_.setTranslationReference(time, "translation_LF", getPoseRef_LF(time).translation());
     horizon_.setTranslationReference(time, "translation_RF", getPoseRef_RF(time).translation());
+    horizon_.setActuationReference(time, "actuationTask", getTorqueRef(time));
     // horizon_.setRotationReference(time, "rotation_LF",
     // designer_.get_root_frame().rotation());
     // horizon_.setRotationReference(time, "rotation_RF",

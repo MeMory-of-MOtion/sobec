@@ -57,6 +57,7 @@ struct ModelMakerSettings {
   double wFootPlacement = 0;  // 1000;
   double wStateReg = 0;       // 100;
   double wControlReg = 0;     // 0.001;
+  double wControlDriftReg = 0;     // 0.001;
   double wLimit = 0;          // 1e3;
   double wTauLimit = 0;          // 1e3;
   double wWrenchCone = 0;     // 0.05;
@@ -126,6 +127,7 @@ class ModelMaker {
   void defineRotationBase(Cost &costCollector);
   void defineTorqueLimits(Cost & costCollector);
   void defineActuationTask(Cost &costCollector);
+  void defineActuationDrift(Cost &costCollector);
   void defineJointLimits(Cost &costCollector);
   void defineCoPTask(Cost &costCollector, const Support &support = Support::DOUBLE);
   void defineDCMTask(Cost &costCollector, const Support &support = Support::DOUBLE);

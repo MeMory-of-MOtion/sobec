@@ -239,6 +239,12 @@ void ModelMaker::defineActuationTask(Cost &costCollector) {
   costCollector.get()->addCost("actuationTask", actuationModel, settings_.wControlReg, true);
 }
 
+void ModelMaker::defineActuationDrift(Cost &costCollector) {
+  boost::shared_ptr<crocoddyl::CostModelAbstract> actuationModel = boost::make_shared<crocoddyl::CostModelResidual>(
+      state_, boost::make_shared<crocoddyl::ResidualModelControl>(state_, actuation_->get_nu()));
+  costCollector.get()->addCost("actuationDrift", actuationModel, settings_.wControlDriftReg, true);
+}
+
 void ModelMaker::defineJointLimits(Cost &costCollector) {
   Eigen::VectorXd lower_bound(2 * state_->get_nv()), upper_bound(2 * state_->get_nv());
 
@@ -526,6 +532,7 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   defineCoMVelocity(costs);
   definePostureTask(costs);
   defineActuationTask(costs);
+  defineActuationDrift(costs);
   defineFeetWrenchCost(costs, support);
   defineFeetForceTask(costs, support);
   defineCoPTask(costs, support);
@@ -566,6 +573,7 @@ AMA ModelMaker::formulateWWT(const Support &support, const bool &stairs) {
   definePostureTask(costs);
   defineTorqueLimits(costs);
   defineActuationTask(costs);
+  defineActuationDrift(costs);
   defineFeetWrenchCost(costs, support);
   defineFootCollisionTask(costs);
   defineCoPTask(costs, support);

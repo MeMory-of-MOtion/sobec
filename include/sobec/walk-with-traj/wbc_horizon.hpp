@@ -74,6 +74,7 @@ class WBCHorizon {
 
   // References for costs:
   std::vector<pinocchio::SE3> ref_LF_poses_, ref_RF_poses_;
+  std::vector<Eigen::VectorXd> torqueRef_;
 
   // Security management
   bool initialized_ = false;
@@ -138,6 +139,10 @@ class WBCHorizon {
   const int &get_horizon_iteration() { return horizon_iteration_; }
 
   // USER REFERENCE SETTERS AND GETTERS
+  const std::vector<Eigen::VectorXd> &getTorqueRef() { return torqueRef_; }
+  const Eigen::VectorXd &getTorqueRef(unsigned long time) { return torqueRef_[time]; }
+  void setTorqueRef(const std::vector<Eigen::VectorXd> &ref_torque) {torqueRef_ = ref_torque; }
+  
   const std::vector<pinocchio::SE3> &getPoseRef_LF() { return ref_LF_poses_; }
   const pinocchio::SE3 &getPoseRef_LF(unsigned long time) { return ref_LF_poses_[time]; }
   void setPoseRef_LF(const std::vector<pinocchio::SE3> &ref_LF_poses) { ref_LF_poses_ = ref_LF_poses; }
