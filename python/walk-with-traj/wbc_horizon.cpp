@@ -75,10 +75,6 @@ void exposeWBCHorizon() {
            bp::args("self", "settings", "design", "horizon", "q0", "v0", "actuationCostName"),
            "The posture required here is the full robot posture in the order "
            "of pinocchio")
-      .def("shapeState",
-           bp::make_function(&WBCHorizon::shapeState,
-                             bp::return_value_policy<bp::reference_existing_object>()))  //, bp::args("self", "q",
-                                                                                         //"v")
       .def("generateFullHorizon", &WBCHorizon::generateFullHorizon,
            (bp::args("self"), bp::arg("modelMaker"), bp::arg("experiment")))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))

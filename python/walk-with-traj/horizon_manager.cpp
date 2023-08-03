@@ -75,13 +75,12 @@ void exposeHorizonManager() {
            bp::args("self"
                     "costName",
                     "translation"))
-      .def("activateContactLF", &HorizonManager::activateContactLF, bp::args("self", "time", "contactName"))
-      .def("activateContactRF", &HorizonManager::activateContactRF, bp::args("self", "time", "contactName"))
-      .def("removeContactLF", &HorizonManager::removeContactLF, bp::args("self", "time", "contactName"))
-      .def("removeContactRF", &HorizonManager::removeContactRF, bp::args("self", "time", "contactName"))
+      .def("activateContact", &HorizonManager::activateContact,
+           bp::args("self", "time", "contactName"))
+      .def("removeContact", &HorizonManager::removeContact,
+           bp::args("self", "time", "contactName"))
       .def("changeCostStatus", &HorizonManager::changeCostStatus, bp::args("self", "time", "costName", "status"))
       .def("changeTerminalCostStatus", &HorizonManager::changeTerminalCostStatus, bp::args("self", "costName", "status"))
-      .def("removeContactRF", &HorizonManager::removeContactRF, bp::args("self", "time", "contactName"))
       .def("setForceReference", &HorizonManager::setForceReference, bp::args("self", "time", "costName", "ref_wrench"))
       .def("setWrenchReference", &HorizonManager::setWrenchReference,
            bp::args("self", "time", "costName", "ref_wrench"))
@@ -100,6 +99,10 @@ void exposeHorizonManager() {
                                                      bp::return_value_policy<bp::reference_existing_object>()))
       .def("getTerminalFootPoseReference", bp::make_function(&HorizonManager::getTerminalFootPoseReference,
                                                              bp::return_value_policy<bp::reference_existing_object>()))
+      .def("getContactForce", bp::make_function(&HorizonManager::getContactForce,
+                                                bp::return_value_policy<bp::reference_existing_object>()))
+      .def("getContactTorque", bp::make_function(&HorizonManager::getContactTorque,
+                                                 bp::return_value_policy<bp::reference_existing_object>()))
       .def<void (HorizonManager::*)(const AMA &, const ADA &)>("recede", &HorizonManager::recede,
                                                                bp::args("self", "IAM", "IAD"))
       .def<void (HorizonManager::*)(const AMA &)>("recede", &HorizonManager::recede, bp::args("self", "IAM"))

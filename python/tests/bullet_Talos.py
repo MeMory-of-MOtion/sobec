@@ -9,7 +9,7 @@ import pybullet_data
 import pybullet as p  # PyBullet simulator
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-
+import configuration as conf
 # import os
 
 
@@ -151,6 +151,11 @@ class BulletTalos:
         rotation = R.from_quat(q[3:7])
         q[:3] -= rotation.as_matrix() @ self.localInertiaPos
         return q, v
+    
+    def addTable(self, path, position):
+        p.setAdditionalSearchPath(path)
+        self.tableId = p.loadURDF("table/table.urdf")
+        p.resetBasePositionAndOrientation(self.tableId, posObj=position,ornObj=[0,0,0,1])
 
     def showSlope(self, position, orientation):
         visualShapeTarget = p.createVisualShape(
@@ -167,6 +172,27 @@ class BulletTalos:
             baseVisualShapeIndex=visualShapeTarget,
             basePosition=position,
             baseOrientation=orientation,
+            useMaximalCoordinates=True,
+        )
+        
+    def showHandToTrack(self, RH_pose):
+        visualShapeTarget = p.createVisualShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[0.05, 0.05, 0.05],
+            rgbaColor=[0.0, 0.0, 1.0, 1.0],
+            specularColor=[0.4, 0.4, 0],
+            visualFramePosition=[0.0, 0.0, 0.0],
+        )
+
+        self.sphereIdHand = p.createMultiBody(
+            baseMass=0.0,
+            baseInertialFramePosition=[0, 0, 0],
+            baseVisualShapeIndex=visualShapeTarget,
+            basePosition=[
+                RH_pose[0],
+                RH_pose[1],
+                RH_pose[2],
+            ],
             useMaximalCoordinates=True,
         )
 
@@ -223,7 +249,12 @@ class BulletTalos:
             ],
             ornObj=np.array([0.0, 0.0, 0.0, 1.0]),
         )
-
+    
+    def visualizeTrajectory(self, qs, dt=0.1):
+		for q in qs:
+			resetState(q)
+			time.sleep(dt)
+    
     def close(self):
         p.disconnect()
 

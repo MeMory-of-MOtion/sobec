@@ -134,6 +134,7 @@ wWrenchCone = 1  # 0.05
 wForceTask = 0
 wCoP = 10
 wDCM = 0
+wTauLimit = 0
 
 weightBasePos = [0, 0, 0, 10000, 10000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [10, 10, 10, 10, 10, 10]  # [x, y, z| x, y, z]
@@ -218,6 +219,25 @@ highKinematicLimits = np.array(
         0,   # right arm
     ]
 )  
+
+torqueLimits = np.array(
+    [
+        100,
+        160,
+        160,
+        300,
+        160,
+        100,
+        100,
+        160,
+        160,
+        300,
+        160,
+        100,
+        78,
+        78,
+    ]
+)
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.

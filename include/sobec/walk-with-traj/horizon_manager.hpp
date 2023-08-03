@@ -31,7 +31,7 @@ class HorizonManager {
   unsigned long size_;
   Eigen::VectorXd command_torque_;
   Eigen::VectorXd tr_error_;
-  eVector3 foot_torque_, foot_force_;
+  eVector3 contact_torque_, contact_force_;
   pinocchio::SE3 pose_;
   int support_size_;
   std::set<std::string> active_contacts_;
@@ -79,10 +79,10 @@ class HorizonManager {
   void setVelocityRefCOM(const unsigned long time, const std::string &nameCost, const eVector3 &ref_placement);
   void setVelocityRefFeet(const unsigned long time, const std::string &nameCost,
                           const pinocchio::Motion &ref_velocity);
-  void activateContactLF(const unsigned long time, const std::string &nameContacttLF);
-  void activateContactRF(const unsigned long time, const std::string &nameContactRF);
-  void removeContactLF(const unsigned long time, const std::string &nameContactLF);
-  void removeContactRF(const unsigned long time, const std::string &nameContactRF);
+  void activateContact(const unsigned long time,
+                       const std::string &nameContact);
+  void removeContact(const unsigned long time,
+                     const std::string &nameContact);
   void changeCostStatus(const unsigned long time, 
                         const std::string &costName,
                         const bool &status);
@@ -105,8 +105,8 @@ class HorizonManager {
   void setSurfaceInequality(const unsigned long time, const std::string &nameCost, const eVector2 &XYpose,
                             const double &orientation);
 
-  const eVector3 &getFootForce(const unsigned long time, const std::string &nameFootForceCost);
-  const eVector3 &getFootTorque(const unsigned long time, const std::string &nameFootForceCost);
+  const eVector3 &getContactForce(const unsigned long time, const std::string &nameForceCost);
+  const eVector3 &getContactTorque(const unsigned long time, const std::string &nameForceCost);
 
   const std::set<std::string> &get_contacts(const unsigned long time);
 

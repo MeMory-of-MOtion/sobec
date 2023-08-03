@@ -25,8 +25,9 @@ set(${PY_NAME}_SOURCES
     walk-with-traj/model_factory.cpp
     walk-with-traj/wbc.cpp
     walk-with-traj/wbc_horizon.cpp
-    walk-with-traj/wbc_hand.cpp
     walk-with-traj/foot_trajectory.cpp
+    hand_table/wbc_hand.cpp
+    hand_table/model_factory_hand.cpp
     walk-without-think/ocp.cpp
     walk-without-think/mpc.cpp)
 

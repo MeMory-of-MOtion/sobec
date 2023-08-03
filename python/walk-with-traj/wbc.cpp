@@ -75,10 +75,6 @@ void exposeWBC() {
            bp::args("self", "settings", "design", "horizon", "q0", "v0", "actuationCostName"),
            "The posture required here is the full robot posture in the order "
            "of pinocchio")
-      .def("shapeState",
-           bp::make_function(&WBC::shapeState,
-                             bp::return_value_policy<bp::reference_existing_object>()))  //, bp::args("self", "q",
-                                                                                         //"v")
       .def("generateWalkingCycle", &WBC::generateWalkingCycle, bp::args("self", "modelMaker"))
       .def("generateStandingCycle", &WBC::generateStandingCycle, bp::args("self", "modelMaker"))
       .def("generateWalkingCycleNoThinking", &WBC::generateWalkingCycleNoThinking,

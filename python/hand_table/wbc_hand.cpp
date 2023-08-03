@@ -8,7 +8,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <crocoddyl/core/activation-base.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include <sobec/walk-with-traj/wbc_hand.hpp>
+#include <sobec/hand_table/wbc_hand.hpp>
 
 #include "sobec/fwd.hpp"
 
@@ -23,7 +23,8 @@ void initialize(WBCHand &self, const bp::dict &settings,
   WBCHandSettings conf;
 
   conf.T = bp::extract<int>(settings["T"]);
-  conf.Tduration = bp::extract<int>(settings["Tduration"]);
+  conf.TtrackingToContact = bp::extract<int>(settings["TtrackingToContact"]);
+  conf.Tcontact = bp::extract<int>(settings["Tcontact"]);
   conf.ddpIteration = bp::extract<int>(settings["ddpIteration"]);
   conf.Dt = bp::extract<double>(settings["Dt"]);
   conf.simu_step = bp::extract<double>(settings["simu_step"]);
@@ -75,14 +76,8 @@ void exposeWBCHand() {
                     "actuationCostName"),
            "The posture required here is the full robot posture in the order "
            "of pinocchio")
-      .def("shapeState",
-           bp::make_function(
-               &WBCHand::shapeState,
-               bp::return_value_policy<
-                   bp::reference_existing_object>()))  //, bp::args("self", "q",
-                                                       //"v")
       .def("generateFullHorizon", &WBCHand::generateFullHorizon,
-           bp::args("self", "modelMaker"))
+           bp::args("self", "modelMakerHand"))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
       .def("iterate",
            static_cast<void (WBCHand::*)(const int, const Eigen::VectorXd &,
@@ -98,6 +93,14 @@ void exposeWBCHand() {
             bp::arg("is_feasible") = false))
       .def<void (WBCHand::*)()>("recedeWithCycle", &WBCHand::recedeWithCycle,
                             bp::args("self"))
+      .def("land_hand",
+           make_function(
+               &WBCHand::get_land_hand,
+               bp::return_value_policy<bp::copy_const_reference>()))
+      .def("takeoff_hand",
+           make_function(
+               &WBCHand::get_takeoff_hand,
+               bp::return_value_policy<bp::copy_const_reference>()))
       .def("iteration",
            make_function(
                &WBCHand::get_iteration,
@@ -127,19 +130,40 @@ void exposeWBCHand() {
               bp::return_value_policy<bp::reference_existing_object>()),
           &WBCHand::set_designer)
       .add_property(
-          "ref_hand_pose",
+          "ref_LH_pose",
           bp::make_function(
-              &WBCHand::ref_hand_pose,
+              &WBCHand::ref_LH_pose,
               bp::return_value_policy<bp::reference_existing_object>()),
           static_cast<void (WBCHand::*)(const eVector3 &)>(
-              &WBCHand::setPoseRefHand))
+              &WBCHand::setPoseRef_LH))
+      .add_property(
+          "ref_RH_pose",
+          bp::make_function(
+              &WBCHand::ref_RH_pose,
+              bp::return_value_policy<bp::reference_existing_object>()),
+          static_cast<void (WBCHand::*)(const eVector3 &)>(
+              &WBCHand::setPoseRef_RH))
       .add_property(
           "ref_com",
           bp::make_function(
               &WBCHand::ref_com,
               bp::return_value_policy<bp::reference_existing_object>()),
           static_cast<void (WBCHand::*)(eVector3)>(
-              &WBCHand::setCoMRef));
+              &WBCHand::setCoMRef))
+      .add_property(
+          "ref_com_vel",
+          bp::make_function(
+              &WBCHand::ref_com_vel,
+              bp::return_value_policy<bp::reference_existing_object>()),
+          static_cast<void (WBCHand::*)(eVector3)>(
+              &WBCHand::setVelRef_COM))
+      .add_property(
+          "ref_force",
+          bp::make_function(
+              &WBCHand::ref_force,
+              bp::return_value_policy<bp::reference_existing_object>()),
+          static_cast<void (WBCHand::*)(const pinocchio::Force &)>(
+              &WBCHand::setForceRef));
 }
 }  // namespace python
 }  // namespace sobec

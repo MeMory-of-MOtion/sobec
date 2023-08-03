@@ -143,6 +143,7 @@ wVelFoot = 2000
 wColFeet = 3000
 wDCM = 0
 wBaseRot = 200
+wTauLimit = 0
 
 weightBasePos = [0, 0, 0, 1000, 1000, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
@@ -211,6 +212,25 @@ highKinematicLimits = np.array(
         0.2,
     ]
 )  # torso
+
+torqueLimits = np.array(
+    [
+        100,
+        160,
+        160,
+        300,
+        160,
+        100,
+        100,
+        160,
+        160,
+        300,
+        160,
+        100,
+        78,
+        78,
+    ]
+)
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.

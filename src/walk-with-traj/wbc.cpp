@@ -26,7 +26,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design, c
   x_internal_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
 
   x0_.resize(designer_.get_rModel().nq + designer_.get_rModel().nv);
-  x0_ << shapeState(q0, v0);
+  x0_ << designer_.shapeState(q0, v0);
   designer_.updateReducedModel(x0_);
   // designer_.updateCompleteModel(q0);
   ref_LF_poses_.reserve(horizon_.size() + 1);
@@ -136,7 +136,7 @@ bool WBC::timeToSolveDDP(int iteration) {
 }
 
 void WBC::iterate(const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current, bool is_feasible) {
-  x0_ = shapeState(q_current, v_current);
+  x0_ = designer_.shapeState(q_current, v_current);
 
   // ~~TIMING~~ //
   recedeWithCycle();
@@ -156,11 +156,11 @@ void WBC::iterate(int iteration, const Eigen::VectorXd &q_current, const Eigen::
   if (timeToSolveDDP(iteration)) {
     iterate(q_current, v_current, is_feasible);
   } else
-    x0_ = shapeState(q_current, v_current);
+    x0_ = designer_.shapeState(q_current, v_current);
 }
 
 void WBC::iterateNoThinking(const Eigen::VectorXd &q_current, const Eigen::VectorXd &v_current, bool is_feasible) {
-  x0_ = shapeState(q_current, v_current);
+  x0_ = designer_.shapeState(q_current, v_current);
 
   // ~~TIMING~~ //
   recedeWithCycle();
@@ -179,7 +179,7 @@ void WBC::iterateNoThinking(int iteration, const Eigen::VectorXd &q_current, con
   if (timeToSolveDDP(iteration)) {
     iterateNoThinking(q_current, v_current, is_feasible);
   } else
-    x0_ = shapeState(q_current, v_current);
+    x0_ = designer_.shapeState(q_current, v_current);
 }
 
 void WBC::updateStepTrackerReferences() {
@@ -283,26 +283,6 @@ void WBC::goToNextDoubleSupport() {
     walkingCycle_.recede();
     updateSupportTiming();
   }
-}
-
-const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q, const Eigen::VectorXd &v) {
-  if (q.size() == designer_.get_rModelComplete().nq && v.size() == designer_.get_rModelComplete().nv) {
-    x_internal_.head<7>() = q.head<7>();
-    x_internal_.segment<6>(designer_.get_rModel().nq) = v.head<6>();
-
-    int i = 0;
-    for (unsigned long jointID : controlled_joints_id_)
-      if (jointID > 1) {
-        x_internal_(i + 7) = q(jointID + 5);
-        x_internal_(designer_.get_rModel().nq + i + 6) = v(jointID + 4);
-        i++;
-      }
-    return x_internal_;
-  } else if (q.size() == designer_.get_rModel().nq && v.size() == designer_.get_rModel().nv) {
-    x_internal_ << q, v;
-    return x_internal_;
-  } else
-    throw std::runtime_error("q and v must have the dimentions of the reduced or complete model.");
 }
 
 void WBC::initializeSupportTiming() {

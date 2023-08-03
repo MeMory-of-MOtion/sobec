@@ -23,7 +23,8 @@ struct RobotDesignerSettings {
 
   std::string leftFootName = "";
   std::string rightFootName = "";
-  std::string endEffectorName = "";
+  std::string leftHandName = "";
+  std::string rightHandName = "";
 };
 
 class RobotDesigner {
@@ -31,7 +32,8 @@ class RobotDesigner {
   RobotDesignerSettings settings_;
 
   std::vector<unsigned long> controlled_joints_id_;
-  unsigned long leftFootId_, rightFootId_, rootId_, EndEffectorId_;
+  unsigned long leftFootId_, rightFootId_, rootId_;
+  unsigned long leftHandId_, rightHandId_;
 
   pinocchio::Model rModelComplete_, rModel_;
   pinocchio::Data rDataComplete_, rData_;
@@ -40,6 +42,7 @@ class RobotDesigner {
   Eigen::VectorXd q0Complete_, q0_;
   Eigen::VectorXd v0Complete_, v0_;
   Eigen::VectorXd x0_;
+  Eigen::VectorXd x_internal_;
 
   Eigen::Vector3d com_position_;
   Eigen::Vector3d LF_position_;
@@ -57,6 +60,8 @@ class RobotDesigner {
 
   void updateReducedModel(const Eigen::VectorXd &x);
   void updateCompleteModel(const Eigen::VectorXd &x);
+  const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q,
+                                    const Eigen::VectorXd &v);
   void addToeAndHeel(const double &heel_translation, const double &toe_translation);
   void set_q0(const Eigen::VectorXd &q0);
 
@@ -65,7 +70,8 @@ class RobotDesigner {
   const pinocchio::SE3 &get_LF_frame();
   const pinocchio::SE3 &get_RF_frame();
   const pinocchio::SE3 &get_root_frame();
-  const pinocchio::SE3 &get_EndEff_frame();
+  const pinocchio::SE3 &get_LH_frame();
+  const pinocchio::SE3 &get_RH_frame();
 
   double getRobotMass();
 
@@ -81,6 +87,8 @@ class RobotDesigner {
 
   const std::string &get_LF_name() { return settings_.leftFootName; }
   const std::string &get_RF_name() { return settings_.rightFootName; }
+  const std::string &get_LH_name() { return settings_.leftHandName; }
+  const std::string &get_RH_name() { return settings_.rightHandName; }
   const pinocchio::FrameIndex &get_root_id() { return rootId_; }
   const pinocchio::FrameIndex &get_LF_id() { return leftFootId_; }
   const pinocchio::FrameIndex &get_RF_id() { return rightFootId_; }
@@ -88,7 +96,8 @@ class RobotDesigner {
   const pinocchio::FrameIndex &get_RF_heel_id() { return heelRightId_; }
   const pinocchio::FrameIndex &get_LF_toe_id() { return toeLeftId_; }
   const pinocchio::FrameIndex &get_RF_toe_id() { return toeRightId_; }
-  const pinocchio::FrameIndex &get_EndEff_id() { return EndEffectorId_; }
+  const pinocchio::FrameIndex &get_LH_id() { return leftHandId_; }
+  const pinocchio::FrameIndex &get_RH_id() { return rightHandId_; }
   const RobotDesignerSettings &get_settings() { return settings_; }
   const std::vector<unsigned long> &get_controlledJointsIDs() { return controlled_joints_id_; }
 

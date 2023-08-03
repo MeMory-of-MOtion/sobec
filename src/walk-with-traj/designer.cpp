@@ -62,7 +62,8 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   rModel_ = pinocchio::buildReducedModel(rModelComplete_, locked_joints_id, q0Complete_);
   leftFootId_ = rModel_.getFrameId(settings_.leftFootName);
   rightFootId_ = rModel_.getFrameId(settings_.rightFootName);
-  EndEffectorId_ = rModel_.getFrameId(settings_.endEffectorName);
+  leftHandId_ = rModel_.getFrameId(settings_.leftHandName);
+  rightHandId_ = rModel_.getFrameId(settings_.rightHandName);
   rootId_ = rModel_.getFrameId("root_joint");
   addToeAndHeel(0.15, 0.15);
   rData_ = pinocchio::Data(rModel_);
@@ -72,7 +73,9 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   q0_ = rModel_.referenceConfigurations["half_sitting"];
   v0_ = Eigen::VectorXd::Zero(rModel_.nv);
   x0_.resize(rModel_.nq + rModel_.nv);
+  x_internal_.resize(rModel_.nq + rModel_.nv);
   x0_ << q0_, v0_;
+  x_internal_ << q0_, v0_;
   // Generating list of indices for controlled joints //
   for (std::vector<std::string>::const_iterator it = rModel_.names.begin() + 1; it != rModel_.names.end(); ++it) {
     const std::string &joint_name = *it;
@@ -136,6 +139,30 @@ void RobotDesigner::updateCompleteModel(const Eigen::VectorXd &x) {
   RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
+const Eigen::VectorXd &RobotDesigner::shapeState(const Eigen::VectorXd &q,
+                                                 const Eigen::VectorXd &v) {
+  if (q.size() == rModelComplete_.nq &&
+      v.size() == rModelComplete_.nv) {
+    x_internal_.head<7>() = q.head<7>();
+    x_internal_.segment<6>(rModel_.nq) = v.head<6>();
+
+    int i = 0;
+    for (unsigned long jointID : controlled_joints_id_)
+      if (jointID > 1) {
+        x_internal_(i + 7) = q(jointID + 5);
+        x_internal_(rModel_.nq + i + 6) = v(jointID + 4);
+        i++;
+      }
+    return x_internal_;
+  } else if (q.size() == rModel_.nq &&
+             v.size() == rModel_.nv) {
+    x_internal_ << q, v;
+    return x_internal_;
+  } else
+    throw std::runtime_error(
+        "q and v must have the dimentions of the reduced or complete model.");
+}
+
 void RobotDesigner::addEndEffectorFrame(std::string endEffectorName, std::string parentName,
                                         pinocchio::SE3 endEffectorPlacement) {
   pinocchio::FrameIndex parentId = rModel_.getFrameId(parentName);
@@ -144,7 +171,7 @@ void RobotDesigner::addEndEffectorFrame(std::string endEffectorName, std::string
   rModel_.addBodyFrame(endEffectorName, parentFrame.parent, parentFrame.placement.act(endEffectorPlacement),
                        (int)parentId);
 
-  EndEffectorId_ = rModel_.getFrameId(endEffectorName);
+  rightHandId_ = rModel_.getFrameId(endEffectorName);
   rData_ = pinocchio::Data(rModel_);
 }
 
@@ -152,8 +179,15 @@ const pinocchio::SE3 &RobotDesigner::get_LF_frame() { return rData_.oMf[leftFoot
 
 const pinocchio::SE3 &RobotDesigner::get_RF_frame() { return rData_.oMf[rightFootId_]; }
 
+const pinocchio::SE3 &RobotDesigner::get_LH_frame() {
+  return rData_.oMf[leftHandId_];
+}
+
+const pinocchio::SE3 &RobotDesigner::get_RH_frame() {
+  return rData_.oMf[rightHandId_];
+}
+
 const pinocchio::SE3 &RobotDesigner::get_root_frame() { return rData_.oMf[rootId_]; }
-const pinocchio::SE3 &RobotDesigner::get_EndEff_frame() { return rData_.oMf[EndEffectorId_]; }
 
 double RobotDesigner::getRobotMass() {
   mass_ = 0;

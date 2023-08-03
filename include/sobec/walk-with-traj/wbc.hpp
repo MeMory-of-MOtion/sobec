@@ -106,8 +106,6 @@ class WBC {
 
   const supportSwitch &getSwitches(const unsigned long before, const unsigned long after);
 
-  const Eigen::VectorXd &shapeState(const Eigen::VectorXd &q, const Eigen::VectorXd &v);
-
   void generateWalkingCycle(ModelMaker &mm);
 
   void generateStandingCycle(ModelMaker &mm);

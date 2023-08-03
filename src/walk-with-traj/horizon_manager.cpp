@@ -73,20 +73,14 @@ boost::shared_ptr<crocoddyl::ActuationModelFloatingBase> HorizonManager::actuati
   return boost::static_pointer_cast<crocoddyl::ActuationModelFloatingBase>(dam(time)->get_actuation());
 }
 
-void HorizonManager::activateContactLF(const unsigned long time, const std::string &nameContactLF) {
-  contacts(time)->changeContactStatus(nameContactLF, true);
+void HorizonManager::activateContact(const unsigned long time,
+                                     const std::string &nameContact) {
+  contacts(time)->changeContactStatus(nameContact, true);
 }
 
-void HorizonManager::activateContactRF(const unsigned long time, const std::string &nameContactRF) {
-  contacts(time)->changeContactStatus(nameContactRF, true);
-}
-
-void HorizonManager::removeContactLF(const unsigned long time, const std::string &nameContactLF) {
-  contacts(time)->changeContactStatus(nameContactLF, false);
-}
-
-void HorizonManager::removeContactRF(const unsigned long time, const std::string &nameContactRF) {
-  contacts(time)->changeContactStatus(nameContactRF, false);
+void HorizonManager::removeContact(const unsigned long time,
+                                   const std::string &nameContact) {
+  contacts(time)->changeContactStatus(nameContact, false);
 }
 
 void HorizonManager::changeCostStatus(const unsigned long time, 
@@ -246,42 +240,42 @@ void HorizonManager::setWrenchReference(const unsigned long time, const std::str
 
 void HorizonManager::setSwingingLF(const unsigned long time, const std::string &nameContactLF,
                                    const std::string &nameContactRF, const std::string &nameForceCostLF) {
-  removeContactLF(time, nameContactLF);
-  activateContactRF(time, nameContactRF);
+  removeContact(time, nameContactLF);
+  activateContact(time, nameContactRF);
   setWrenchReference(time, nameForceCostLF, eVector6::Zero());
 }
 
 void HorizonManager::setSwingingRF(const unsigned long time, const std::string &nameContactLF,
                                    const std::string &nameContactRF, const std::string &nameForceCostRF) {
-  activateContactLF(time, nameContactLF);
-  removeContactRF(time, nameContactRF);
+  activateContact(time, nameContactLF);
+  removeContact(time, nameContactRF);
   setWrenchReference(time, nameForceCostRF, eVector6::Zero());
 }
 
 void HorizonManager::setDoubleSupport(const unsigned long time, const std::string &nameContactLF,
                                       const std::string &nameContactRF) {
-  activateContactLF(time, nameContactLF);
-  activateContactRF(time, nameContactRF);
+  activateContact(time, nameContactLF);
+  activateContact(time, nameContactRF);
 }
 
-const eVector3 &HorizonManager::getFootForce(const unsigned long time, const std::string &nameFootForceCost) {
-  foot_force_ =
+const eVector3 &HorizonManager::getContactForce(const unsigned long time, const std::string &nameForceCost) {
+  contact_force_ =
       boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
           boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(iad(time)->differential)
-              ->costs->costs.find(nameFootForceCost)
+              ->costs->costs.find(nameForceCost)
               ->second->residual)
           ->contact->f.linear();
-  return foot_force_;
+  return contact_force_;
 }
 
-const eVector3 &HorizonManager::getFootTorque(const unsigned long time, const std::string &nameFootForceCost) {
-  foot_torque_ =
+const eVector3 &HorizonManager::getContactTorque(const unsigned long time, const std::string &nameForceCost) {
+  contact_torque_ =
       boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
           boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(iad(time)->differential)
-              ->costs->costs.find(nameFootForceCost)
+              ->costs->costs.find(nameForceCost)
               ->second->residual)
           ->contact->f.angular();
-  return foot_torque_;
+  return contact_torque_;
 }
 
 void HorizonManager::recede(const AMA &new_model, const ADA &new_data) {

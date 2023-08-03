@@ -155,6 +155,7 @@ class conf:
     wStateReg = 100
     wControlReg = 0.001
     wLimit = 1e3
+    wTauLimit = 0
     wVCoM = 0
     wPCoM = 1000
     wWrenchCone = 0.005
@@ -232,6 +233,25 @@ class conf:
             0.2,
         ]
     )  # torso
+    
+    torqueLimits = np.array(
+		[
+			100,
+			160,
+			160,
+			300,
+			160,
+			100,
+			100,
+			160,
+			160,
+			300,
+			160,
+			100,
+			78,
+			78,
+		]
+	)
 
     th_stop = 1e-6  # threshold for stopping criterion
     th_grad = 1e-9  # threshold for zero gradient.
@@ -271,7 +291,8 @@ design_conf = dict(
     srdfPath=conf.modelPath + conf.SRDF_SUBPATH,
     leftFootName=conf.lf_frame_name,
     rightFootName=conf.rf_frame_name,
-    endEffectorName="gripper_left_joint",
+    rightHandName = "arm_right_7_link",
+	leftHandName = "arm_left_7_link",
     robotDescription="",
     controlledJointsNames=[
         "root_joint",
@@ -319,13 +340,11 @@ MM_conf = dict(
     width=1,
     flyHighSlope=conf.flyHighSlope,
     footMinimalDistance=conf.footMinimalDistance,
-    wGripperPos=0,
-	wGripperRot=0,
-	wGripperVel=0,
     wFootPlacement=conf.wFootPlacement,
     wStateReg=conf.wStateReg,
     wControlReg=conf.wControlReg,
     wLimit=conf.wLimit,
+    wTauLimit=conf.wTauLimit,
     wVCoM=conf.wVCoM,
     wPCoM=conf.wPCoM,
     wWrenchCone=conf.wWrenchCone,
@@ -342,6 +361,7 @@ MM_conf = dict(
     forceWeights=conf.forceWeights,
     lowKinematicLimits=conf.lowKinematicLimits,
     highKinematicLimits=conf.highKinematicLimits,
+    torqueLimits=conf.torqueLimits,
     th_grad=conf.th_grad,
     th_stop=conf.th_stop,
 )
