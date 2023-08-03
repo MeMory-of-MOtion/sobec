@@ -405,7 +405,7 @@ AMA ModelMakerHand::formulatePointingTask() {
   defineActuationTask(costs);
   defineJointLimits(costs);
   defineCoMPosition(costs);
-  defineHandTranslation(costs);
+  defineHandTranslation(costs, TRACKING_LEFT);
   defineHandVelocity(costs);
 
   DAM runningDAM = boost::make_shared<crocoddyl::DifferentialActionModelContactFwdDynamics>(state_, actuation_,
@@ -425,7 +425,7 @@ AMA ModelMakerHand::formulateColFullTask() {
   defineJointLimits(costs);
   defineCoMPosition(costs);
   defineFeetWrenchCost(costs);
-  defineHandTranslation(costs);
+  defineHandTranslation(costs, TRACKING_LEFT);
   defineHandVelocity(costs);
   defineHandCollisionTask(costs);
 
@@ -444,7 +444,7 @@ AMA ModelMakerHand::formulateTerminalColFullTask() {
   definePostureTask(costs);
   defineJointLimits(costs);
   defineCoMPosition(costs);
-  defineHandTranslation(costs);
+  defineHandTranslation(costs, NO_HAND);
   defineHandVelocity(costs);
   defineHandCollisionTask(costs);
 
