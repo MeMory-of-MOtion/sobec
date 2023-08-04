@@ -24,6 +24,7 @@ class HorizonManager {
   // prealocated memory:
   boost::shared_ptr<crocoddyl::CostModelResidual> cone_;
   boost::shared_ptr<crocoddyl::CostModelResidual> force_cost_;
+  boost::shared_ptr<crocoddyl::ResidualDataContactForce> force_data_;
   pinocchio::Force force_;
   std::vector<Eigen::VectorXd> warm_xs_;
   std::vector<Eigen::VectorXd> warm_us_;
@@ -107,6 +108,9 @@ class HorizonManager {
 
   const eVector3 &getContactForce(const unsigned long time, const std::string &nameForceCost);
   const eVector3 &getContactTorque(const unsigned long time, const std::string &nameForceCost);
+  const eVector3 &getContactForceWorld(const unsigned long time, 
+                                       const std::string &nameForceCost,
+                                       const pinocchio::FrameIndex &id);
 
   const std::set<std::string> &get_contacts(const unsigned long time);
 

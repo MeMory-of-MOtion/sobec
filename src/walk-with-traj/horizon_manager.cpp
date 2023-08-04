@@ -278,6 +278,18 @@ const eVector3 &HorizonManager::getContactTorque(const unsigned long time, const
   return contact_torque_;
 }
 
+const eVector3 &HorizonManager::getContactForceWorld(const unsigned long time, 
+                                                     const std::string &nameForceCost,
+                                                     const pinocchio::FrameIndex &id) {
+  force_data_ = boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
+          boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(iad(time)->differential)
+              ->costs->costs.find(nameForceCost)
+              ->second->residual);
+  
+  return boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(iad(time)->differential)
+         ->pinocchio.oMf[id].act(force_data_->contact->jMf.actInv(force_data_->contact->f)).linear();
+}
+
 void HorizonManager::recede(const AMA &new_model, const ADA &new_data) {
   ddp_->get_problem()->circularAppend(new_model, new_data);
 }

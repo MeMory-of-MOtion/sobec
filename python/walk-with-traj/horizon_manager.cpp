@@ -103,6 +103,8 @@ void exposeHorizonManager() {
                                                 bp::return_value_policy<bp::reference_existing_object>()))
       .def("getContactTorque", bp::make_function(&HorizonManager::getContactTorque,
                                                  bp::return_value_policy<bp::reference_existing_object>()))
+      .def("getContactForceWorld", bp::make_function(&HorizonManager::getContactForceWorld,
+                                                 bp::return_value_policy<bp::reference_existing_object>()))
       .def<void (HorizonManager::*)(const AMA &, const ADA &)>("recede", &HorizonManager::recede,
                                                                bp::args("self", "IAM", "IAD"))
       .def<void (HorizonManager::*)(const AMA &)>("recede", &HorizonManager::recede, bp::args("self", "IAM"))

@@ -251,9 +251,9 @@ class BulletTalos:
         )
     
     def visualizeTrajectory(self, qs, dt=0.1):
-		for q in qs:
-			resetState(q)
-			time.sleep(dt)
+        for q in qs:
+            resetState(q)
+            time.sleep(dt)
     
     def close(self):
         p.disconnect()
