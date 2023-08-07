@@ -222,10 +222,9 @@ void HorizonManager::setSurfaceInequality(const unsigned long time, const std::s
 }
 
 void HorizonManager::setForceReference(const unsigned long time, const std::string &nameCost,
-                                       const eVector6 &reference) {
+                                       const pinocchio::Force &reference) {
   force_cost_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at(nameCost)->cost);
-  force_ = pinocchio::Force(reference);
-  boost::static_pointer_cast<crocoddyl::ResidualModelContactForce>(force_cost_->get_residual())->set_reference(force_);
+  boost::static_pointer_cast<crocoddyl::ResidualModelContactForce>(force_cost_->get_residual())->set_reference(reference);
 }
 
 void HorizonManager::setWrenchReference(const unsigned long time, const std::string &nameCost,
@@ -278,16 +277,14 @@ const eVector3 &HorizonManager::getContactTorque(const unsigned long time, const
   return contact_torque_;
 }
 
-const eVector3 &HorizonManager::getContactForceWorld(const unsigned long time, 
-                                                     const std::string &nameForceCost,
-                                                     const pinocchio::FrameIndex &id) {
+const pinocchio::Force &HorizonManager::getContactForceFrame(const unsigned long time, 
+                                                     const std::string &nameForceCost) {
   force_data_ = boost::static_pointer_cast<crocoddyl::ResidualDataContactForce>(
           boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(iad(time)->differential)
               ->costs->costs.find(nameForceCost)
               ->second->residual);
-  
-  return boost::static_pointer_cast<crocoddyl::DifferentialActionDataContactFwdDynamics>(iad(time)->differential)
-         ->pinocchio.oMf[id].act(force_data_->contact->jMf.actInv(force_data_->contact->f)).linear();
+  contact_force_6d_ = force_data_->contact->jMf.actInv(force_data_->contact->f);
+  return contact_force_6d_;
 }
 
 void HorizonManager::recede(const AMA &new_model, const ADA &new_data) {

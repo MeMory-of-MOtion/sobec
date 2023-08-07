@@ -25,9 +25,9 @@ class HorizonManager {
   boost::shared_ptr<crocoddyl::CostModelResidual> cone_;
   boost::shared_ptr<crocoddyl::CostModelResidual> force_cost_;
   boost::shared_ptr<crocoddyl::ResidualDataContactForce> force_data_;
-  pinocchio::Force force_;
   std::vector<Eigen::VectorXd> warm_xs_;
   std::vector<Eigen::VectorXd> warm_us_;
+  pinocchio::Force contact_force_6d_;
   Eigen::VectorXd new_ref_;
   unsigned long size_;
   Eigen::VectorXd command_torque_;
@@ -89,7 +89,7 @@ class HorizonManager {
                         const bool &status);
   void changeTerminalCostStatus(const std::string &costName,
                                 const bool &status);                               
-  void setForceReference(const unsigned long time, const std::string &nameCost, const eVector6 &reference);
+  void setForceReference(const unsigned long time, const std::string &nameCost, const pinocchio::Force &reference);
   void setWrenchReference(const unsigned long time, const std::string &nameCost, const eVector6 &reference);
   void setTerminalPoseCoM(const std::string &nameCost, const eVector3 &ref_placement);
   void setSigmoidParameters(const unsigned long time, 
@@ -108,9 +108,8 @@ class HorizonManager {
 
   const eVector3 &getContactForce(const unsigned long time, const std::string &nameForceCost);
   const eVector3 &getContactTorque(const unsigned long time, const std::string &nameForceCost);
-  const eVector3 &getContactForceWorld(const unsigned long time, 
-                                       const std::string &nameForceCost,
-                                       const pinocchio::FrameIndex &id);
+  const pinocchio::Force &getContactForceFrame(const unsigned long time, 
+                                               const std::string &nameForceCost);
 
   const std::set<std::string> &get_contacts(const unsigned long time);
 
