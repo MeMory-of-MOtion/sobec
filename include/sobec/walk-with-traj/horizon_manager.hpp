@@ -68,6 +68,8 @@ class HorizonManager {
   void setBalancingTorque(const unsigned long time, const std::string &nameCostActuation, const Eigen::VectorXd &x);
   void setBalancingTorque(const unsigned long time, const std::string &nameCostActuation,
                           const std::string &nameCostState);
+  void setStateReference(const unsigned long time, const std::string &nameCostState,
+                         const Eigen::VectorXd &reference);
   void setPoseReference(const unsigned long time, const std::string &nameCost, const pinocchio::SE3 &ref_placement);
   void setRotationReference(const unsigned long time, const std::string &nameCost,
                             const Eigen::Matrix3d &ref_rotation);

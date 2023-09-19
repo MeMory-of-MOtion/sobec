@@ -118,6 +118,13 @@ void HorizonManager::setActuationReference(const unsigned long time, const std::
       ->set_reference(reference);
 }
 
+void HorizonManager::setStateReference(const unsigned long time, const std::string &nameCostState,
+                                           const Eigen::VectorXd &reference) {
+  boost::static_pointer_cast<crocoddyl::ResidualModelState>(
+      costs(time)->get_costs().at(nameCostState)->cost->get_residual())
+      ->set_reference(reference);
+}
+
 Eigen::VectorXd HorizonManager::getActuationReference(const unsigned long time, const std::string &nameCostActuation) {
   return boost::static_pointer_cast<crocoddyl::ResidualModelControl>(
              costs(time)->get_costs().at(nameCostActuation)->cost->get_residual())

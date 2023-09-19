@@ -33,12 +33,12 @@ void ModelMakerHand::defineFeetContact(Contact &contactCollector) {
   boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelLeft =
       boost::make_shared<crocoddyl::ContactModel6D>(
           state_, designer_.get_LF_id(), designer_.get_LF_frame(),
-          actuation_->get_nu(), eVector2(0., 50.));
+          pinocchio::LOCAL, actuation_->get_nu(), eVector2(0., 50.));
 
   boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelRight =
       boost::make_shared<crocoddyl::ContactModel6D>(
           state_, designer_.get_RF_id(), designer_.get_RF_frame(),
-          actuation_->get_nu(), eVector2(0., 50.));
+          pinocchio::LOCAL, actuation_->get_nu(), eVector2(0., 50.));
 
   contactCollector->addContact(designer_.get_LF_name(), ContactModelLeft,
                                true);
@@ -51,12 +51,12 @@ void ModelMakerHand::defineHandContact(Contact &contactCollector,
   boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelHandRight =
       boost::make_shared<crocoddyl::ContactModel3D>(
           state_, designer_.get_RH_id(), designer_.get_RH_frame().translation(),
-          actuation_->get_nu(), eVector2(0., 4.));
+          pinocchio::LOCAL, actuation_->get_nu(), eVector2(0., 4.));
           
   boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelHandLeft =
       boost::make_shared<crocoddyl::ContactModel3D>(
           state_, designer_.get_LH_id(), designer_.get_LH_frame().translation(),
-          actuation_->get_nu(), eVector2(0., 4.));
+          pinocchio::LOCAL, actuation_->get_nu(), eVector2(0., 4.));
           
   contactCollector->addContact(designer_.get_RH_name(), ContactModelHandRight,
                                false);

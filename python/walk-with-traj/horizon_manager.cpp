@@ -82,6 +82,7 @@ void exposeHorizonManager() {
       .def("changeCostStatus", &HorizonManager::changeCostStatus, bp::args("self", "time", "costName", "status"))
       .def("changeTerminalCostStatus", &HorizonManager::changeTerminalCostStatus, bp::args("self", "costName", "status"))
       .def("setForceReference", &HorizonManager::setForceReference, bp::args("self", "time", "costName", "ref_wrench"))
+      .def("setStateReference", &HorizonManager::setStateReference, bp::args("self", "time", "nameCostState", "reference"))
       .def("setWrenchReference", &HorizonManager::setWrenchReference,
            bp::args("self", "time", "costName", "ref_wrench"))
       .def("setTerminalPoseCoM", &HorizonManager::setTerminalPoseCoM, bp::args("self", "costName", "ref_placement"))
