@@ -92,6 +92,7 @@ class HorizonManager {
   void changeTerminalCostStatus(const std::string &costName,
                                 const bool &status);                               
   void setForceReference(const unsigned long time, const std::string &nameCost, const pinocchio::Force &reference);
+  void setFrictionReference(const unsigned long time, const std::string &nameCost, const crocoddyl::FrictionCone &reference);
   void setWrenchReference(const unsigned long time, const std::string &nameCost, const eVector6 &reference);
   void setTerminalPoseCoM(const std::string &nameCost, const eVector3 &ref_placement);
   void setSigmoidParameters(const unsigned long time, 

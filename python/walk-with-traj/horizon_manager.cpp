@@ -81,10 +81,12 @@ void exposeHorizonManager() {
            bp::args("self", "time", "contactName"))
       .def("changeCostStatus", &HorizonManager::changeCostStatus, bp::args("self", "time", "costName", "status"))
       .def("changeTerminalCostStatus", &HorizonManager::changeTerminalCostStatus, bp::args("self", "costName", "status"))
-      .def("setForceReference", &HorizonManager::setForceReference, bp::args("self", "time", "costName", "ref_wrench"))
+      .def("setForceReference", &HorizonManager::setForceReference, bp::args("self", "time", "costName", "reference"))
       .def("setStateReference", &HorizonManager::setStateReference, bp::args("self", "time", "nameCostState", "reference"))
+      .def("setFrictionReference", &HorizonManager::setFrictionReference,
+           bp::args("self", "time", "costName", "reference"))
       .def("setWrenchReference", &HorizonManager::setWrenchReference,
-           bp::args("self", "time", "costName", "ref_wrench"))
+           bp::args("self", "time", "costName", "reference"))
       .def("setTerminalPoseCoM", &HorizonManager::setTerminalPoseCoM, bp::args("self", "costName", "ref_placement"))
       .def("setTerminalDCMReference", &HorizonManager::setTerminalDCMReference,
            bp::args("self", "costName", "ref_translation"))

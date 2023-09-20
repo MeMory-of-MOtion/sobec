@@ -234,6 +234,12 @@ void HorizonManager::setForceReference(const unsigned long time, const std::stri
   boost::static_pointer_cast<crocoddyl::ResidualModelContactForce>(force_cost_->get_residual())->set_reference(reference);
 }
 
+void HorizonManager::setFrictionReference(const unsigned long time, const std::string &nameCost,
+                                          const crocoddyl::FrictionCone &reference) {
+  force_cost_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at(nameCost)->cost);
+  boost::static_pointer_cast<crocoddyl::ResidualModelContactFrictionCone>(force_cost_->get_residual())->set_reference(reference);
+}
+
 void HorizonManager::setWrenchReference(const unsigned long time, const std::string &nameCost,
                                         const eVector6 &reference) {
   cone_ = boost::static_pointer_cast<crocoddyl::CostModelResidual>(costs(time)->get_costs().at(nameCost)->cost);
