@@ -52,6 +52,7 @@ void initialize(ModelMakerHand &self, const bp::dict &settings,
   conf.wControlReg = bp::extract<double>(settings["wControlReg"]);
   conf.wLimit = bp::extract<double>(settings["wLimit"]);
   conf.wForceHand = bp::extract<double>(settings["wForceHand"]);
+  conf.wFrictionHand = bp::extract<double>(settings["wFrictionHand"]);
   conf.wDCM = bp::extract<double>(settings["wDCM"]);
   conf.wCoM = bp::extract<double>(settings["wCoM"]);
   conf.stateWeights = bp::extract<Eigen::VectorXd>(settings["stateWeights"]);
@@ -82,6 +83,7 @@ bp::dict get_settings(ModelMakerHand &self) {
   settings["wControlReg"] = conf.wControlReg;
   settings["wLimit"] = conf.wLimit;
   settings["wForceHand"] = conf.wForceHand;
+  settings["wFrictionHand"] = conf.wFrictionHand;
   settings["wDCM"] = conf.wDCM;
   settings["wCoM"] = conf.wCoM;
   settings["stateWeights"] = conf.stateWeights;
@@ -134,6 +136,14 @@ void defineHandForceTask(ModelMakerHand &self,
                           const Phase &phases = Phase::NO_HAND) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineHandForceTask(costs, phases);
+  costCollector = *costs;
+}
+
+void defineHandFrictionTask(ModelMakerHand &self,
+                          crocoddyl::CostModelSum &costCollector,
+                          const Phase &phases = Phase::NO_HAND) {
+  Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
+  self.defineHandFrictionTask(costs, phases);
   costCollector = *costs;
 }
 
@@ -211,6 +221,9 @@ void exposeModelFactoryHand() {
            (bp::arg("self"), bp::arg("contactCollector"),
             bp::arg("phases") = Phase::CONTACT_RIGHT))
       .def("defineHandForceTask", &defineHandForceTask,
+           (bp::arg("self"), bp::arg("costCollector"),
+            bp::arg("phases") = Phase::NO_HAND))
+      .def("defineHandFrictionTask", &defineHandFrictionTask,
            (bp::arg("self"), bp::arg("costCollector"),
             bp::arg("phases") = Phase::NO_HAND))
       .def("defineHandTranslation", &defineHandTranslation,

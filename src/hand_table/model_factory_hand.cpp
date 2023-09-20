@@ -152,6 +152,48 @@ void ModelMakerHand::defineHandForceTask(Cost &costCollector, const Phase &phase
     costCollector.get()->changeCostStatus("force_RH",true);
 }
 
+void ModelMakerHand::defineHandFrictionTask(Cost &costCollector, const Phase &phase) {
+  crocoddyl::FrictionCone frictionConeRight = 
+      crocoddyl::FrictionCone(designer_.get_RH_frame().rotation(), 0.1, 4,true, 20, 200);
+  crocoddyl::FrictionCone frictionConeLeft = 
+      crocoddyl::FrictionCone(designer_.get_LH_frame().rotation(), 0.1, 4,true, 20, 200);
+  
+  crocoddyl::ActivationBounds bounds_LH = 
+      crocoddyl::ActivationBounds(frictionConeLeft.get_lb(),frictionConeLeft.get_ub(),1.);
+  crocoddyl::ActivationBounds bounds_RH = 
+      crocoddyl::ActivationBounds(frictionConeRight.get_lb(),frictionConeRight.get_ub(),1.);
+  boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activation_LH = 
+      boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds_LH);
+  boost::shared_ptr<crocoddyl::ActivationModelQuadraticBarrier> activation_RH = 
+      boost::make_shared<crocoddyl::ActivationModelQuadraticBarrier>(bounds_RH);
+      
+  boost::shared_ptr<crocoddyl::ResidualModelContactFrictionCone> frictionResidualModelRight = 
+      boost::make_shared<crocoddyl::ResidualModelContactFrictionCone>(state_,
+            designer_.get_RH_id(),frictionConeRight,actuation_->get_nu());
+  boost::shared_ptr<crocoddyl::ResidualModelContactFrictionCone> frictionResidualModelLeft = 
+      boost::make_shared<crocoddyl::ResidualModelContactFrictionCone>(state_,
+            designer_.get_LH_id(),frictionConeLeft,actuation_->get_nu());
+  
+  
+  boost::shared_ptr<crocoddyl::CostModelAbstract> frictionModel_RH = 
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, 
+      activation_RH,
+      frictionResidualModelRight);
+  boost::shared_ptr<crocoddyl::CostModelAbstract> frictionModel_LH = 
+      boost::make_shared<crocoddyl::CostModelResidual>(state_, 
+      activation_LH,
+      frictionResidualModelLeft);
+  
+  costCollector.get()->addCost("friction_LH", frictionModel_LH,
+                               settings_.wFrictionHand, false);
+  costCollector.get()->addCost("friction_RH", frictionModel_RH,
+                               settings_.wFrictionHand, false);
+  if (phase == Phase::CONTACT_LEFT)
+    costCollector.get()->changeCostStatus("friction_LH",true);
+  if (phase == Phase::CONTACT_RIGHT)
+    costCollector.get()->changeCostStatus("friction_RH",true);
+}
+
 void ModelMakerHand::definePostureTask(Cost &costCollector) {
   if (settings_.stateWeights.size() != designer_.get_rModel().nv * 2) {
     throw std::invalid_argument("State weight size is wrong ");
@@ -361,6 +403,7 @@ AMA ModelMakerHand::formulateHandTracker(const Phase &phase) {
   defineHandTranslation(costs, phase);
   defineHandVelocity(costs);
   defineHandForceTask(costs,phase);
+  defineHandFrictionTask(costs,phase);
   defineFeetWrenchCost(costs); 
   defineCoMPosition(costs);
   defineHandCollisionTask(costs);

@@ -44,6 +44,7 @@ struct ModelMakerHandSettings {
   double wControlReg = 0;     // 0.001;
   double wLimit = 0;          // 1e3;
   double wForceHand = 0;      // 0.05
+  double wFrictionHand = 0;      // 0.05
   double wWrenchCone = 0;
   double wDCM = 0;
   double wCoM = 0;
@@ -92,6 +93,8 @@ class ModelMakerHand {
                           const Phase &phase = Phase::CONTACT_RIGHT);
   void defineHandForceTask(Cost &costCollector,
                            const Phase &phase = Phase::CONTACT_RIGHT);
+  void defineHandFrictionTask(Cost &costCollector, 
+                              const Phase &phase = Phase::CONTACT_RIGHT);
   void defineHandRotation(Cost &costCollector);
   void defineHandVelocity(Cost &costCollector);
   void defineHandCollisionTask(Cost &costCollector);

@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 
 from bullet_Talos import BulletTalos
-from cricket.virtual_talos import VirtualPhysics
 
 import pinocchio as pin
 import example_robot_data
@@ -198,6 +197,7 @@ MM_conf = dict(
     wControlReg=conf.wControlReg,
     wLimit=conf.wLimit,
     wForceHand=conf.wForceHand,
+    wFrictionHand=0,
     wWrenchCone=conf.wWrenchCone,
     wDCM = conf.wDCM,
     wCoM = conf.wCoM,
@@ -254,12 +254,12 @@ fullq0[design.get_rModelComplete().getJointId("arm_right_4_joint")+5] = -1.5
 fullq0[design.get_rModelComplete().getJointId("arm_right_6_joint")+5] = -1.2
 fullq0[design.get_rModelComplete().getJointId("arm_right_7_joint")+5] = -0.5
 
-if conf.simulator == "bullet":
-    device = BulletTalos(conf, design.get_rModelComplete())
-    device.initializeJoints(fullq0)
-    device.addTable("/local/src/bullet3/data",[1.0,-0.5,0.28])
-    device.showHandToTrack(targetContact)
-    q_current, v_current = device.measureState()
+# Initialize Bullet simulator
+device = BulletTalos(conf, design.get_rModelComplete())
+device.initializeJoints(fullq0)
+device.addTable("/local/src/bullet3/data",[1.0,-0.5,0.28])
+device.showHandToTrack(targetContact)
+q_current, v_current = device.measureState()
 
 T_total = 1000
 for s in range(T_total * conf.Nc):
@@ -268,10 +268,8 @@ for s in range(T_total * conf.Nc):
 		print("iteration " + str(mpc.iteration()) + ", time to land " + str(mpc.land_hand() + conf.T) + ", time to takeoff " + str(mpc.takeoff_hand() + conf.T))
 	mpc.iterate(s, q_current, v_current)
 	torques = horizon.currentTorques(mpc.x0)
-	if conf.simulator == "bullet":
-		device.execute(torques)
-		q_current, v_current = device.measureState()
-		xMeasured = np.concatenate((q_current,v_current))
+	device.execute(torques)
+	q_current, v_current = device.measureState()
+	xMeasured = np.concatenate((q_current,v_current))
 		 
-if conf.simulator == "bullet":
-    device.close()
+device.close()
