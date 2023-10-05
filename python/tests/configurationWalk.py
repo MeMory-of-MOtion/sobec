@@ -4,8 +4,8 @@ Created on Mon May  9 17:15:22 2022
 
 @author: nvilla
 """
-import example_robot_data
 import numpy as np
+import example_robot_data
 
 # PATHS
 
@@ -13,8 +13,8 @@ URDF_FILENAME = "talos_reduced.urdf"
 SRDF_FILENAME = "talos.srdf"
 SRDF_SUBPATH = "/talos_data/srdf/" + SRDF_FILENAME
 URDF_SUBPATH = "/talos_data/robots/" + URDF_FILENAME
-modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
+modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 # Joint settings
 
 blocked_joints = [

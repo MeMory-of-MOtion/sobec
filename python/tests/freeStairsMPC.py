@@ -9,7 +9,7 @@ Created on Sat Jun 11 17:42:39 2022
 import configurationFree as conf
 
 from bullet_Talos import BulletTalos
-from cricket.virtual_talos import VirtualPhysics
+from utils import axisangle_to_q, q_mult, yawRotation, DEFAULT_SAVE_DIR
 
 # from pyRobotWrapper import PinTalos
 # from pyMPC import CrocoWBC
@@ -29,35 +29,6 @@ from sobec import (
 # import ndcurves
 import numpy as np
 import time
-
-DEFAULT_SAVE_DIR = "/local/src/sobec/python/tests"
-
-
-def yawRotation(yaw):
-    Ro = np.array(
-        [[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]]
-    )
-    return Ro
-
-
-def q_mult(q1, q2):
-    x1, y1, z1, w1 = q1[0], q1[1], q1[2], q1[3]
-    x2, y2, z2, w2 = q2[0], q2[1], q2[2], q2[3]
-    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
-    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
-    return np.array([x, y, z, w])
-
-
-def axisangle_to_q(v, theta):
-    x, y, z = v
-    theta /= 2
-    w = np.cos(theta)
-    x = x * np.sin(theta)
-    y = y * np.sin(theta)
-    z = z * np.sin(theta)
-    return [x, y, z, w]
 
 
 # ####### CONFIGURATION  ############
@@ -142,7 +113,7 @@ MM_conf = dict(
     wCoP=conf.wCoP,
     wFlyHigh=conf.wFlyHigh,
     wVelFoot=conf.wVelFoot,
-    wColFeet=conf.wColFeet,
+    wColFeet=0,
     wDCM=conf.wDCM,
     wBaseRot=conf.wBaseRot,
     stateWeights=conf.stateWeights,
@@ -255,17 +226,6 @@ if conf.simulator == "bullet":
     # device.addStairs(DEFAULT_SAVE_DIR, [0.5,-0.75,-0.03], qtot)
     device.addStairs(DEFAULT_SAVE_DIR, [0.6, -0.8, 0.0], q2)
     q_current, v_current = device.measureState()
-
-elif conf.simulator == "pinocchio":
-    design.rmodelComplete = design.get_rModelComplete()
-    design.rmodelComplete.q0 = design.get_q0Complete()
-    design.rmodelComplete.v0 = design.get_v0Complete()
-
-    device = VirtualPhysics(conf, view=True, block_joints=conf.blocked_joints)
-    device.initialize(design.rmodelComplete)
-    init_state = device.measure_state(device.Cq0, device.Cv0, device.Cv0 * 0)
-    q_current = init_state["q"]
-    v_current = init_state["dq"]
 
 for s in range(T_total * conf.Nc):
     #    time.sleep(0.001)

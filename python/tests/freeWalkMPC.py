@@ -7,12 +7,7 @@ Created on Sat Jun 11 17:42:39 2022
 # import matplotlib.pyplot as plt
 
 from bullet_Talos import BulletTalos
-from cricket.virtual_talos import VirtualPhysics
 
-# from pyRobotWrapper import PinTalos
-# from pyMPC import CrocoWBC
-# from pyModelMaker import modeller
-# import pinocchio as pin
 import example_robot_data
 from sobec import (
     RobotDesigner,
@@ -22,10 +17,9 @@ from sobec import (
     Flex,
     Support,
     Experiment,
-    # FootTrajectory,
 )
 
-# import ndcurves
+from utils import yawRotation
 import numpy as np
 import time
 
@@ -257,33 +251,6 @@ class conf:
     th_grad = 1e-9  # threshold for zero gradient.
 
 
-def yawRotation(yaw):
-    Ro = np.array(
-        [[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]]
-    )
-    return Ro
-
-
-def q_mult(q1, q2):
-    x1, y1, z1, w1 = q1[0], q1[1], q1[2], q1[3]
-    x2, y2, z2, w2 = q2[0], q2[1], q2[2], q2[3]
-    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
-    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
-    return np.array([x, y, z, w])
-
-
-def axisangle_to_q(v, theta):
-    x, y, z = v
-    theta /= 2
-    w = np.cos(theta)
-    x = x * np.sin(theta)
-    y = y * np.sin(theta)
-    z = z * np.sin(theta)
-    return [x, y, z, w]
-
-
 # ####### CONFIGURATION  ############
 # ### RobotWrapper
 design_conf = dict(
@@ -421,7 +388,7 @@ mpc.initialize(
 mpc.generateFullHorizon(formuler, Experiment.WWT)
 print("mpc generated")
 
-ustar = mpc.horizon.ddp.us[0]
+""" ustar = mpc.horizon.ddp.us[0]
 Kstar = mpc.horizon.ddp.K[0]
 xs0 = mpc.horizon.ddp.xs
 us0 = mpc.horizon.ddp.us
@@ -441,7 +408,7 @@ for i in range(ndx):
 	
 
 print("Diff between K0 and Kdiff = ", np.linalg.norm(Kstar-Kdiff)/np.linalg.norm(Kstar))
-exit()
+exit() """
 
 # ### SIMULATION LOOP ###
 moyenne = 0
@@ -493,20 +460,8 @@ for s in range(T_total * conf.Nc):
     start = time.time()
     mpc.iterateNoThinking(s, q_current, v_current)
     end = time.time()
-    """
-    if end - start > 0.01:
-        print(end - start)
-        moyenne += end - start
-    """
+
     torques = horizon.currentTorques(mpc.x0)
-    """
-    if s == 100 * 10:
-        for t in range(conf.T):
-            print("t = " + str(t))
-            time.sleep(0.1)
-            device.resetState(mpc.horizon.ddp.xs[t])
-        exit()
-    """
     if conf.simulator == "bullet":
         device.execute(torques)
         q_current, v_current = device.measureState()

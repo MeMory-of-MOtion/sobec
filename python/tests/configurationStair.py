@@ -13,10 +13,10 @@ URDF_FILENAME = "talos_reduced.urdf"
 SRDF_FILENAME = "talos.srdf"
 SRDF_SUBPATH = "/talos_data/srdf/" + SRDF_FILENAME
 URDF_SUBPATH = "/talos_data/robots/" + URDF_FILENAME
+
 modelPath = example_robot_data.getModelPath(URDF_SUBPATH)
 
 # Joint settings
-
 blocked_joints = [
     "universe",
     # "torso_1_joint",
@@ -135,6 +135,7 @@ wWrenchCone = 1  # 0.05
 wForceTask = 0
 wCoP = 10
 wDCM = 0
+wTauLimit = 0
 
 weightBasePos = [0, 0, 0, 100, 100, 0]  # [x, y, z| x, y, z]
 weightBaseVel = [10, 10, 10, 10, 10, 10]  # [x, y, z| x, y, z]
@@ -204,6 +205,25 @@ highKinematicLimits = np.array(
         0.2,
     ]
 )  # torso
+
+torqueLimits = np.array(
+    [
+        100,
+        160,
+        160,
+        300,
+        160,
+        100,
+        100,
+        160,
+        160,
+        300,
+        160,
+        100,
+        78,
+        78,
+    ]
+)
 
 th_stop = 1e-6  # threshold for stopping criterion
 th_grad = 1e-9  # threshold for zero gradient.

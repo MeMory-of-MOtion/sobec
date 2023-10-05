@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-import time
-import pinocchio as pin
-import crocoddyl
 import example_robot_data
-from pinocchio.utils import rand,zero
 from bullet_Talos import BulletTalos
 
 import numpy as np
@@ -11,11 +7,8 @@ from sobec import (
     RobotDesigner,
     HorizonManager,
     WBCHand,
-    ModelMaker
+    ModelMakerHand
 )
-
-
-ROBOT_PATH= "/opt/openrobots/share/example-robot-data/robots/talos_data/robots/talos_reduced.urdf"
 
 
 # =====================================================================
@@ -88,8 +81,10 @@ class conf:
 	minNforce = 200
 	maxNforce = 1200  # This may be still too low
 
-	# ###### WALKING GEOMETRY #########
-	dist = 0.06 # collision threshold
+	# ###### Reaching GEOMETRY #########
+	obstacleRadius = 0.3
+	obstaclePosition = np.array([0.6,0.3,1])
+	obstacleHeight = 2
 	normal_height = 0.87
 	omega = np.sqrt(-gravity[2] / normal_height)
 
@@ -103,22 +98,19 @@ class conf:
 
 	# Weights for all costs
 
-	wGripperPos = 10
-	wGripperRot = 0
-	wGripperVel = 10
+	wHandTranslation = 50
+	wHandRotation = 0
+	wHandVelocity = 10
+	wHandCollision = 0
 	wStateReg = 0.1
-	wControlReg = 0.0001
+	wControlReg = 0.001
 	wLimit = 1e3
-	wVCoM = 0
-	wPCoM = 100
+	wCoM = 100
 	wWrenchCone = 0.05
-	wFootRot = 0
-	wCoP = 0
-	wFlyHigh = 0
-	wVelFoot = 0
-	wColFeet = 10000
+	wForceHand = 0
+	wFrictionHand = 0
 	wDCM = 0
-	wBaseRot = 0
+
 
 	weightBasePos = [10, 10, 10, 500, 500, 500]  # [x, y, z| x, y, z]
 	weightBaseVel = [0, 0, 10, 100, 100, 10]  # [x, y, z| x, y, z]
@@ -158,7 +150,10 @@ class conf:
 							   1.3,0.2,  # torso     
 							   0.52,2.88,2.44,0, # left arm
 							   1.57,-0.2,2.44,0]) # right arm              
-
+	torqueLimits = np.array([100, 160, 160, 300, 160, 100, 100, 160, 
+						  160, 300, 160, 100, 78, 78,
+						  100,100,100,100,
+						  100,100,100,100])
 	th_stop = 1e-6  # threshold for stopping criterion
 	th_grad = 1e-9  # threshold for zero gradient.
 
@@ -170,7 +165,8 @@ design_conf = dict(
 	srdfPath=conf.modelPath + conf.SRDF_SUBPATH,
 	leftFootName=conf.lf_frame_name,
 	rightFootName=conf.rf_frame_name,
-	endEffectorName=conf.end_effector_name,
+	rightHandName = "arm_right_7_link",
+	leftHandName = "arm_left_7_link",
 	robotDescription="",
 	controlledJointsNames=conf.controlledJointsNames,
 )
@@ -189,40 +185,30 @@ MM_conf = dict(
 	maxNforce=conf.maxNforce,
 	comHeight=conf.normal_height,
 	omega=conf.omega,
-	footSize=conf.footSize,
-	height=0,
-	dist=conf.dist,
-	width=1,
-	flyHighSlope=0,
-	footMinimalDistance=0.,
-	wGripperPos=conf.wGripperPos,
-	wGripperRot=0,
-	wGripperVel=conf.wGripperVel,
-	wFootPlacement=0,
+	obstacleRadius=conf.obstacleRadius,
+	obstaclePosition=conf.obstaclePosition,
+	obstacleHeight=conf.obstacleHeight,
+	wHandTranslation=conf.wHandTranslation,
+	wHandRotation=conf.wHandRotation,
+	wHandCollision=conf.wHandCollision,
+	wHandVelocity=conf.wHandVelocity,
 	wStateReg=conf.wStateReg,
 	wControlReg=conf.wControlReg,
 	wLimit=conf.wLimit,
-	wVCoM=0,
-	wPCoM=conf.wPCoM,
+	wForceHand=conf.wForceHand,
+	wFrictionHand=conf.wFrictionHand,
 	wWrenchCone=conf.wWrenchCone,
-	wForceTask=0,
-	wFootRot=0,
-	wCoP=0,
-	wFlyHigh=0,
-	wVelFoot=0,
-	wColFeet=conf.wColFeet,
 	wDCM=0,
-	wBaseRot=0,
+	wCoM=conf.wCoM,
 	stateWeights=conf.stateWeights,
 	controlWeights=conf.controlWeights,
-	forceWeights=conf.forceWeights,
 	lowKinematicLimits=conf.lowKinematicLimits,
 	highKinematicLimits=conf.highKinematicLimits,
 	th_grad=conf.th_grad,
 	th_stop=conf.th_stop,
 )
 
-formuler = ModelMaker()
+formuler = ModelMakerHand()
 formuler.initialize(MM_conf, design)
 	
 run_models = [formuler.formulateColFullTask() for i in range(conf.T)]
@@ -233,67 +219,41 @@ H_conf = dict(leftFootName=conf.lf_frame_name, rightFootName=conf.rf_frame_name)
 horizon = HorizonManager()
 horizon.initialize(H_conf, design.get_x0(), run_models, ter_model)
 
-wbc_conf = dict(
-    T=conf.T,
-    Tduration=conf.Tduration,
-    ddpIteration=conf.ddpIteration,
-    Dt=conf.DT,
-    simu_step=conf.simu_period,
-    Nc=conf.Nc
-)
+poseTarget = np.array([0.7,0.3,1.2])
+for i in range(horizon.size()):
+	horizon.changeCostStatus(i, 'position_RH', False)
+	horizon.changeCostStatus(i, 'position_LH', False)
+	horizon.setTranslationReference(i,'position_LH',poseTarget)
+horizon.changeTerminalCostStatus('position_LH', False)
+horizon.setTerminalTranslationReference('position_LH', poseTarget)
+xs_init = []
+us_init = []
+for i in range(conf.T):
+	xs_init.append(design.get_x0())
+	us_init.append(np.zeros(len(conf.controlWeights)))
+xs_init.append(design.get_x0())
 
-mpc = WBCHand()
-mpc.initialize(
-    wbc_conf,
-    design,
-    horizon,
-    design.get_q0Complete(),
-    design.get_v0Complete(),
-    "actuationTask",
-)
-mpc.generateFullHorizon(formuler)
-mpc.ref_hand_pose = target
+horizon.ddp.solve(xs_init, us_init, 500, False)
 
 
-ustar = mpc.horizon.ddp.us[0]
-Kstar = mpc.horizon.ddp.K[0]
-xs0 = mpc.horizon.ddp.xs
-us0 = mpc.horizon.ddp.us
-x0 = design.get_x0()
-ndx = design.get_rModel().nv * 2
-h = 0.001
-Kdiff = np.zeros((design.get_rModel().nv - 6, ndx))
-
-for i in range(ndx):
-	hvec = np.zeros(ndx)
-	hvec[i] = h
-	xh =  mpc.horizon.ddp.problem.runningModels[0].state.integrate(x0,hvec)
-	mpc.horizon.ddp.problem.x0 = xh
-	xs0[0] = xh
-	mpc.horizon.ddp.solve(xs0,us0,100,False)
-	Kdiff[:,i] = (ustar - mpc.horizon.ddp.us[0])/h
-	
-
-print("Diff between K0 and Kdiff = ", np.linalg.norm(Kstar-Kdiff))
-exit()
-
-poseTarget = design.get_EndEff_frame()
-poseTarget.translation = target
 device = BulletTalos(conf, design.get_rModelComplete())
 device.initializeJoints(design.get_q0Complete())
-device.showTargetToTrack(poseTarget,poseTarget)
+device.showHandToTrack(poseTarget)
 q_current, v_current = device.measureState()
+xMeasured = design.shapeState(q_current,v_current)
 
-'''for i in range(horizon.size()):
-	time.sleep(0.1)
-	print("i = ", i)
-	device.resetState(horizon.ddp.xs[i][:design.get_rModel().nq])
-exit()'''
-for s in range(10*(conf.Tduration + 500)):
-	if mpc.timeToSolveDDP(s):
-		print("iteration " + str(mpc.iteration()))
-	mpc.iterate(s, q_current, v_current)
-	torques = horizon.currentTorques(mpc.x0)
+T_total = 1000
+itrack = 0
+for s in range(T_total * conf.Nc):
+	#time.sleep(0.001)
+	if s % 10 == 0:
+		itrack += 1
+		if itrack <= conf.T:
+			horizon.changeCostStatus(conf.T - itrack, 'position_LH', True)
+		horizon.solve(xMeasured,1,False)
+	torques = horizon.currentTorques(xMeasured)
+	# Send torque and recover robot state
 	device.execute(torques)
 	q_current, v_current = device.measureState()
+	xMeasured = design.shapeState(q_current,v_current)
 
