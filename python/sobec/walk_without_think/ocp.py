@@ -434,16 +434,18 @@ class Solution:
             np.concatenate(
                 [
                     (
-                        d.differential.multibody.contacts.contacts[
-                            "%s_contact" % robotWrapper.model.frames[cid].name
-                        ].jMf.inverse()
-                        * d.differential.multibody.contacts.contacts[
-                            "%s_contact" % robotWrapper.model.frames[cid].name
-                        ].f
-                    ).vector
-                    if "%s_contact" % robotWrapper.model.frames[cid].name
-                    in d.differential.multibody.contacts.contacts
-                    else np.zeros(6)
+                        (
+                            d.differential.multibody.contacts.contacts[
+                                "%s_contact" % robotWrapper.model.frames[cid].name
+                            ].jMf.inverse()
+                            * d.differential.multibody.contacts.contacts[
+                                "%s_contact" % robotWrapper.model.frames[cid].name
+                            ].f
+                        ).vector
+                        if "%s_contact" % robotWrapper.model.frames[cid].name
+                        in d.differential.multibody.contacts.contacts
+                        else np.zeros(6)
+                    )
                     for cid in robotWrapper.contactIds
                 ]
             )
