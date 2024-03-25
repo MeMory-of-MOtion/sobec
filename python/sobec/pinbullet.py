@@ -56,9 +56,7 @@ class SimuProxy:
         self.rmodel.upperPositionLimit[:7] = 1
         self.rmodel.lowerPositionLimit[:7] = -1
 
-        self.rmodel.armature = (
-            self.rmodel.rotorInertia * self.rmodel.rotorGearRatio**2
-        )
+        self.rmodel.armature = self.rmodel.rotorInertia * self.rmodel.rotorGearRatio**2
         self.rmodel.q0 = self.rmodel.referenceConfigurations["half_sitting"]
         self.rdata = self.rmodel.createData()
 
