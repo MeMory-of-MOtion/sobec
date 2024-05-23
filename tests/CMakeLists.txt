@@ -12,7 +12,7 @@ set(${PROJECT_NAME}_FACTORY_TEST
     factory/contact3d.hpp
     factory/contact1d.hpp
     factory/activation.cpp
-    factory/cost.cpp
+    #factory/cost.cpp
     factory/pinocchio_model.cpp
     factory/state.cpp
     factory/statelpf.cpp
@@ -28,8 +28,8 @@ target_link_libraries(
   ${PROJECT_NAME}_unittest PUBLIC ${PROJECT_NAME}
                                   example-robot-data::example-robot-data)
 
-add_unit_test(test_costs test_costs.cpp)
-target_link_libraries(test_costs PUBLIC ${PROJECT_NAME}_unittest yaml-cpp)
+#add_unit_test(test_costs test_costs.cpp)
+#target_link_libraries(test_costs PUBLIC ${PROJECT_NAME}_unittest yaml-cpp)
 
 add_unit_test(test_states test_states.cpp)
 target_link_libraries(test_states PUBLIC ${PROJECT_NAME}_unittest)

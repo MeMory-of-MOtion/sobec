@@ -145,4 +145,4 @@ if walkParams.saveFile is not None:
 pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 
-viz.play(np.array(ddp.xs)[:, : robot.model.nq].T, walkParams.DT)
+viz.play(np.array(ddp.xs)[:, : robot.model.nq], walkParams.DT)

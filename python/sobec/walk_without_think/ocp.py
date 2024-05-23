@@ -41,7 +41,7 @@ def buildRunningModels(robotWrapper, contactPattern, params):
             if not pattern[k]:
                 continue
             contact = croc.ContactModel6D(
-                state, cid, pin.SE3.Identity(), actuation.nu, p.baumgartGains
+                state, cid, pin.SE3.Identity(), pin.WORLD, actuation.nu, p.baumgartGains
             )
             contacts.addContact(robot.model.frames[cid].name + "_contact", contact)
 
@@ -348,7 +348,7 @@ def buildTerminalModel(robotWrapper, contactPattern, params):
         if not pattern[k]:
             continue
         contact = croc.ContactModel6D(
-            state, cid, pin.SE3.Identity(), actuation.nu, p.baumgartGains
+            state, cid, pin.SE3.Identity(), pin.WORLD, actuation.nu, p.baumgartGains
         )
         contacts.addContact(robot.model.frames[cid].name + "_contact", contact)
 

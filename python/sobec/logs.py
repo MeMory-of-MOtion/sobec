@@ -5,13 +5,14 @@ from numpy.linalg import norm
 def logsToDict(logs):
     dlogs = {}
     for k in dir(logs):
-        if k.startswith("__"):
+        if k.startswith("__") or k=='copy':
             continue
         dlogs[k] = np.array(getattr(logs, k))
     return dlogs
 
 
 def save(dlogs, filename="/tmp/logs.npy", verbose=True):
+    print(dlogs)
     with open(filename, "wb") as f:
         np.save(f, dlogs, allow_pickle=True)
     print('Logs save in "%s"!' % filename)

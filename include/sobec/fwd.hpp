@@ -25,7 +25,7 @@
 #include <crocoddyl/multibody/actuations/floating-base.hpp>
 #include <crocoddyl/multibody/contacts/contact-6d.hpp>
 #include <crocoddyl/multibody/contacts/multiple-contacts.hpp>
-#include <crocoddyl/multibody/frames.hpp>
+//#include <crocoddyl/multibody/frames.hpp>
 #include <crocoddyl/multibody/fwd.hpp>
 #include <crocoddyl/multibody/residuals/com-position.hpp>
 #include <crocoddyl/multibody/residuals/contact-control-gravity.hpp>
