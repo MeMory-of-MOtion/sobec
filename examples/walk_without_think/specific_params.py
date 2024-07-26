@@ -31,6 +31,46 @@ class WalkOCPParams(swparams.WalkParams):
         swparams.WalkParams.__init__(self, name)
 
 
+
+class WalkForWanOCPParams(swparams.WalkParams):
+    """
+    Params quickly tune for the OCP example (ie single traj optim,
+    no MPC). I guess we could discard this set and only use the next
+    one (but I am lazy to do that now -- yeah, I know, but it is friday
+    night and I am tired).
+    """
+
+    # copWeight = 0
+    coneAxisWeight = 0
+    conePenaltyWeight = 0
+    flyHighWeight = 0
+    # impactVelocityWeight = 200
+    # refFootFlyingAltitude = 0.03
+    # flyHighSlope = 5 / refFootFlyingAltitude
+    vcomRef = np.array([0.3, 0, 0])
+    baumgartGains = np.array([0, 0])
+    # minimalNormalForce = 0.0
+    # vcomWeight = 0
+    def __init__(self, name="talos_low"):
+        swparams.WalkParams.__init__(self, name)
+
+class WalkBattobotParams(swparams.WalkParams):
+    '''
+    Specialization for Virigle proto
+    '''
+    mainJointIds = [
+        'right_hip_z',
+        'right_hip_y',
+        'right_free_knee',
+        'left_hip_z',
+        'left_hip_y',
+        'left_free_knee',
+    ]
+
+    def __init__(self):
+        swparams.WalkParams.__init__(self, "talos_legs")
+
+    
 class WalkParams(swparams.WalkParams):
     """
     Specialization of the basic parameters for the MPC example of this folder.

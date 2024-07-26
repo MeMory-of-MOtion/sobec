@@ -18,7 +18,7 @@ import specific_params
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-walkParams = specific_params.WalkForWanOCPParams("talos_low")
+walkParams = specific_params.WalkBattobotParams()
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
@@ -28,8 +28,15 @@ walkParams = specific_params.WalkForWanOCPParams("talos_low")
 # Load the robot model from example robot data and display it if possible in
 # Gepetto-viewer
 
-urdf = sobec.talos_collections.robexLoadAndReduce("talos", walkParams.robotName)
-robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="sole_link")
+#urdf = sobec.talos_collections.robexLoadAndReduce("talos", walkParams.robotName)
+urdffile= "robot.urdf"
+urdfpath = "model_robot_virgile/model_simplified"
+urdf = pin.RobotWrapper.BuildFromURDF(urdfpath + "/" + urdffile,urdfpath,
+                                      root_joint=pin.JointModelFreeFlyer())
+urdf.q0 = pin.neutral(urdf.model)
+urdf.q0[2] = +0.52773579 ## So that the feet are at z=0
+urdf.model.referenceConfigurations['half_sitting'] = urdf.q0.copy()
+robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="free_ankle_x")
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 # #####################################################################################
@@ -98,7 +105,7 @@ with open("/tmp/wan-repr.ascii", "w") as f:
 croc.enable_profiler()
 ddp.solve(x0s, u0s, 200)
 
-#assert sobec.logs.checkGitRefs(ddp.getCallbacks()[1], "refs/wan-logs.npy")
+# assert sobec.logs.checkGitRefs(ddp.getCallbacks()[1], "refs/wan-logs.npy")
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
