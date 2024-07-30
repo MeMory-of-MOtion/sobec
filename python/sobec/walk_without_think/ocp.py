@@ -426,9 +426,12 @@ class Solution:
         self.fs = [
             [
                 (cd.data().jMf.inverse() * cd.data().f).vector
-                for cd in d.differential.multibody.contacts.contacts
+                if cm.data().contact.type == pin.LOCAL
+                else cd.data().f.vector
+                for cm,cd in zip(m.differential.contacts.contacts,
+                                 d.differential.multibody.contacts.contacts)
             ]
-            for d in ddp.problem.runningDatas
+            for m,d in zip(ddp.problem.runningModels,ddp.problem.runningDatas)
         ]
         self.fs0 = [
             np.concatenate(
@@ -438,6 +441,13 @@ class Solution:
                             "%s_contact" % robotWrapper.model.frames[cid].name
                         ].jMf.inverse()
                         * d.differential.multibody.contacts.contacts[
+                            "%s_contact" % robotWrapper.model.frames[cid].name
+                        ].f
+                        if m.differential.contacts.contacts[
+                            "%s_contact" % robotWrapper.model.frames[cid].name
+                        ].contact.type == pin.LOCAL
+                        else
+                         d.differential.multibody.contacts.contacts[
                             "%s_contact" % robotWrapper.model.frames[cid].name
                         ].f
                     ).vector
