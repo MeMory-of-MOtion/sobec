@@ -67,9 +67,45 @@ class WalkBattobotParams(swparams.WalkParams):
         'left_free_knee',
     ]
 
+    DT = 0.015
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.7 / DT)  # 60
+    Tdouble = roundToOdd(0.11 / DT)  # 11
+    Tend = int(0.3 / DT)
+    transitionDuration = (Tdouble - 1) // 2
+
+    vcomRef = np.r_[ 0.1, 0,0 ]
+    
+    centerOfFrictionWeight = 0
+    comWeight = 0
+    coneAxisWeight =  0.0002
+    conePenaltyWeight = 0
+    copWeight = 2
+    feetCollisionWeight = 0 # 1000
+    flyHighWeight =  200
+    groundColWeight = 200
+    impactAltitudeWeight = 20000
+    impactRotationWeight = 200
+    impactVelocityWeight = 10000
+    refForceWeight = 10
+    refMainJointsAtImpactWeight = 0
+    refStateWeight = 0.1
+    refTorqueWeight = 0
+    stateTerminalWeight = 1000 # 20
+    vcomWeight =  1
+    verticalFootVelWeight = 0 # 20
+
+    flyHighSlope = 3/2e-2
+    
     def __init__(self):
         swparams.WalkParams.__init__(self, "talos_legs")
-
+        # self.stateTerminalImportance = np.array(
+        #     [
+        #   3. ,  3. ,  0. ,  0. ,  0. , 30. ,
+        #   0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,
+        #   1. ,  1. ,  1. ,  1. ,  1. ,  1. ,
+        #   1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1.
+        #     ])
     
 class WalkParams(swparams.WalkParams):
     """

@@ -33,10 +33,18 @@ urdffile= "robot.urdf"
 urdfpath = "model_robot_virgile/model_simplified"
 urdf = pin.RobotWrapper.BuildFromURDF(urdfpath + "/" + urdffile,urdfpath,
                                       root_joint=pin.JointModelFreeFlyer())
-urdf.q0 = pin.neutral(urdf.model)
-urdf.q0[2] = +0.52773579 ## So that the feet are at z=0
+# urdf.q0 = pin.neutral(urdf.model)
+# urdf.q0[2] = +0.5507357853479324 ## So that the feet are at z=0
+
+# Optimized with compute_init_config_virgile (pin3) so that:
+# - both foot flat on the ground
+# - COM in between the two feet
+# - torso at 0 orientation
+urdf.q0 = np.array([ 0.085858,  0.000065,  0.570089,  0.      ,  0.      ,  1.      ,  0.      , -0.      , -0.00009 , -0.208644, -0.043389,  0.252034, -0.00009 ,  0.      , -0.00009 ,  0.208644, -0.043389,  0.252034, -0.00009 ])
+
 urdf.model.referenceConfigurations['half_sitting'] = urdf.q0.copy()
-robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="free_ankle_x")
+# robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="ankle_x")
+robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="foot_frame")
 assert len(walkParams.stateImportance) == robot.model.nv * 2
 
 # #####################################################################################
@@ -52,18 +60,16 @@ except (KeyError, FileNotFoundError):
     # When the config file is not found ...
     # Initial config, also used for warm start, both taken from robot wrapper.
     # Contact are specified with the order chosen in <contactIds>.
+    cycle = ( [[1, 0]] * walkParams.Tsingle
+              + [[1, 1]] * walkParams.Tdouble
+              + [[0, 1]] * walkParams.Tsingle
+              + [[1, 1]] * walkParams.Tdouble
+             )
     contactPattern = (
         []
-        + [[1, 1]] * 40
-        + [[1, 0]] * 50
-        + [[1, 1]] * 11
-        + [[0, 1]] * 50
-        + [[1, 1]] * 11
-        + [[1, 0]] * 50
-        + [[1, 1]] * 11
-        + [[0, 1]] * 50
-        + [[1, 1]] * 11
-        + [[1, 1]] * 40
+        + [[1, 1]] * walkParams.Tstart
+        + (cycle * 1)
+        + [[1, 1]] * walkParams.Tend
         + [[1, 1]]
     )
 
@@ -98,14 +104,14 @@ problem = ddp.problem
 x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose(), croc.CallbackLogger()])
 
-with open("/tmp/wan-repr.ascii", "w") as f:
+with open("/tmp/virgile-repr.ascii", "w") as f:
     f.write(sobec.reprProblem(ddp.problem))
-    print("OCP described in /tmp/wan-repr.ascii")
+    print("OCP described in /tmp/virgile-repr.ascii")
 
 croc.enable_profiler()
 ddp.solve(x0s, u0s, 200)
 
-# assert sobec.logs.checkGitRefs(ddp.getCallbacks()[1], "refs/wan-logs.npy")
+# assert sobec.logs.checkGitRefs(ddp.getCallbacks()[1], "refs/virgile-logs.npy")
 
 # ### PLOT ######################################################################
 # ### PLOT ######################################################################
@@ -133,7 +139,7 @@ plotter.plotCom(robot.com0)
 plotter.plotFeet()
 plotter.plotFootCollision(walkParams.footMinimalDistance)
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
-
+plt.show()
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
@@ -142,3 +148,11 @@ pin.SE3.__repr__ = pin.SE3.__str__
 np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 
 viz.play(np.array(ddp.xs)[:, : robot.model.nq], walkParams.DT)
+
+'''
+for x in ddp.xs:
+    viz.display(x[:robot.model.nq])
+    ims.append( viz.viewer.get_image())
+import imageio # pip install imageio[ffmpeg]
+imageio.mimsave("/tmp/battobot.mp4", imgs, 1//walkParams.DT)
+'''
