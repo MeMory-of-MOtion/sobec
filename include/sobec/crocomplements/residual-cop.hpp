@@ -156,6 +156,13 @@ struct ResidualDataCenterOfPressureTpl
         throw_pretty(
             "Domain error: there isn't defined at least a 6d contact for " +
             frame_name);
+
+        // The frame of contact should be asserted!
+        // if (this->contact->get_type()!=pinocchio::WORLD)
+        //   throw_pretty(
+        //                "Domain error: contact should be defined in WORLD for COP " +
+        //                frame_name);
+        
       }
     }
     if (!found_contact) {
