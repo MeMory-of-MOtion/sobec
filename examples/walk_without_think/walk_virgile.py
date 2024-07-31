@@ -139,6 +139,7 @@ plotter.plotForces(forceRef)
 plotter.plotCom(robot.com0)
 plotter.plotFeet()
 plotter.plotFootCollision(walkParams.footMinimalDistance)
+plotter.plotJointTorques()
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
 plt.ion(); plt.show()
 # ## DEBUG ######################################################################
