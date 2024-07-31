@@ -40,7 +40,8 @@ urdf = pin.RobotWrapper.BuildFromURDF(urdfpath + "/" + urdffile,urdfpath,
 # - both foot flat on the ground
 # - COM in between the two feet
 # - torso at 0 orientation
-urdf.q0 = np.array([ 0.085858,  0.000065,  0.570089,  0.      ,  0.      ,  1.      ,  0.      , -0.      , -0.00009 , -0.208644, -0.043389,  0.252034, -0.00009 ,  0.      , -0.00009 ,  0.208644, -0.043389,  0.252034, -0.00009 ])
+#urdf.q0 = np.array([ 0.085858,  0.000065,  0.570089,  0.      ,  0.      ,  1.      ,  0.      , -0.      , -0.00009 , -0.208644, -0.043389,  0.252034, -0.00009 ,  0.      , -0.00009 ,  0.208644, -0.043389,  0.252034, -0.00009 ])
+urdf.q0 = np.array([ 0.177111, -0.117173,  0.692838,  0.      ,  0.      , -0.      ,  1.      ,  0.      , -0.000377,  1.203784,  0.807122, -0.396662,  0.000377,  0.      , -0.000377, -1.204769, -0.81081 ,  0.39396 ,  0.000377])
 
 urdf.model.referenceConfigurations['half_sitting'] = urdf.q0.copy()
 # robot = sobec.wwt.RobotWrapper(urdf.model, contactKey="ankle_x")
@@ -68,7 +69,7 @@ except (KeyError, FileNotFoundError):
     contactPattern = (
         []
         + [[1, 1]] * walkParams.Tstart
-        + (cycle * 1)
+        + (cycle * 2)
         + [[1, 1]] * walkParams.Tend
         + [[1, 1]]
     )
@@ -133,13 +134,13 @@ forceRef = [np.concatenate(fs) for fs in zip(*forceRef)]
 
 plotter.plotBasis(target)
 plotter.plotTimeCop()
-plotter.plotCopAndFeet(walkParams.footSize, 0.6)
+plotter.plotCopAndFeet(walkParams.footSize, [0,1.2,-.3,.3])
 plotter.plotForces(forceRef)
 plotter.plotCom(robot.com0)
 plotter.plotFeet()
 plotter.plotFootCollision(walkParams.footMinimalDistance)
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
-plt.show()
+plt.ion(); plt.show()
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
@@ -150,9 +151,10 @@ np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 viz.play(np.array(ddp.xs)[:, : robot.model.nq], walkParams.DT)
 
 '''
+ims = []
 for x in ddp.xs:
     viz.display(x[:robot.model.nq])
     ims.append( viz.viewer.get_image())
 import imageio # pip install imageio[ffmpeg]
-imageio.mimsave("/tmp/battobot.mp4", imgs, 1//walkParams.DT)
+imageio.mimsave("/tmp/battobot.mp4", [np.array(i) for i in ims],fps=int(1//walkParams.DT))
 '''

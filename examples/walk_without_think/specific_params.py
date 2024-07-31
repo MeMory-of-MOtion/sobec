@@ -59,12 +59,12 @@ class WalkBattobotParams(swparams.WalkParams):
     Specialization for Virigle proto
     '''
     mainJointIds = [
-        'right_hip_z',
-        'right_hip_y',
-        'right_free_knee',
-        'left_hip_z',
-        'left_hip_y',
-        'left_free_knee',
+        'hipz_right',
+        'hipy_right',
+        'knee_right',
+        'hipz_left',
+        'hipy_left',
+        'knee_left',
     ]
 
     DT = 0.015
@@ -74,7 +74,7 @@ class WalkBattobotParams(swparams.WalkParams):
     Tend = int(0.3 / DT)
     transitionDuration = (Tdouble - 1) // 2
 
-    vcomRef = np.r_[ 0.1, 0,0 ]
+    vcomRef = np.r_[ 0.2, 0,0 ]
     
     centerOfFrictionWeight = 0
     comWeight = 0

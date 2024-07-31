@@ -36,13 +36,13 @@ print(f'\n-----\nCOM ... \t',data.com[0])
 root_id = i=model.getFrameId('root_joint')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parent]})',
       data.oMf[i].translation)
-rhip_id = i=model.getFrameId('right_hip_z')
+rhip_id = i=model.getFrameId('hipz_right')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parent]})',
       data.oMf[i].translation)
 rf_id = i=model.getFrameId('right_foot_frame')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parent]})',
       data.oMf[i].translation)
-lhip_id = i=model.getFrameId('left_hip_z')
+lhip_id = i=model.getFrameId('hipz_left')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parent]})',
       data.oMf[i].translation)
 lf_id = i=model.getFrameId('left_foot_frame')
@@ -80,7 +80,7 @@ opti.subject_to(drf(var_q)==0)
 opti.subject_to(dlf(var_q)==0)
 opti.subject_to(var_q[3:7] == [0,0,0,1] )
 cost = casadi.sumsqr( var_q-q0 )
-
+cost += 1000*(com(var_q)[2]-0.46)**2
 opti.minimize(cost)
 opti.solver("ipopt")
 opti.solve()
@@ -94,13 +94,13 @@ print(f'\n-----\nCOM ... \t',data.com[0])
 root_id = i=model.getFrameId('root_joint')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parentJoint]})',
       data.oMf[i].translation)
-rhip_id = i=model.getFrameId('right_hip_z')
+rhip_id = i=model.getFrameId('hipz_right')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parentJoint]})',
       data.oMf[i].translation)
 rf_id = i=model.getFrameId('right_foot_frame')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parentJoint]})',
       data.oMf[i].translation)
-lhip_id = i=model.getFrameId('left_hip_z')
+lhip_id = i=model.getFrameId('hipz_left')
 print(f'\n-----\n{model.frames[i].name} ... ({model.names[model.frames[i].parentJoint]})',
       data.oMf[i].translation)
 lf_id = i=model.getFrameId('left_foot_frame')
