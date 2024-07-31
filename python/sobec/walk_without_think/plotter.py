@@ -106,10 +106,12 @@ class WalkPlotter:
         ).T
         for ifig, cid in enumerate(self.contactIds):
             plt.subplot(1, len(self.contactIds), ifig + 1)
-            ARENA_SIZE = 0.6
-            plt.axis(
-                [-ARENA_SIZE / 4, ARENA_SIZE * 3 / 4, -ARENA_SIZE / 2, ARENA_SIZE / 2]
-            )
+            if isinstance(ARENA_SIZE,float):
+                plt.axis(
+                    [-ARENA_SIZE / 4, ARENA_SIZE * 3 / 4, -ARENA_SIZE / 2, ARENA_SIZE / 2]
+                )
+            else:
+                plt.axis(ARENA_SIZE)
             plt.xlabel(self.model.frames[cid].name)
             for t, pattern in enumerate(self.contactPattern[:-1]):
                 # if cid not in patternToId(pattern): continue
