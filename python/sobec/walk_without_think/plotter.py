@@ -25,6 +25,7 @@ class WalkPlotter:
     def computeFootTraj(self):
         self.foottraj = []
         self.footvtraj = []
+        self.Mfoottraj = []
         for x in self.xs:
             pin.forwardKinematics(
                 self.model, self.data, x[: self.model.nq], x[self.model.nq :]
@@ -34,6 +35,9 @@ class WalkPlotter:
                 np.concatenate(
                     [self.data.oMf[cid].translation for cid in self.contactIds]
                 )
+            )
+            self.Mfoottraj.append(
+                { cid: self.data.oMf[cid].copy() for cid in self.contactIds }
             )
             self.footvtraj.append(
                 np.concatenate(
@@ -74,6 +78,39 @@ class WalkPlotter:
             cop = [[t, [f[4] / f[2], -f[3] / f[2]]] for (t, f) in ftraj]
             plt.plot([t for t, p in cop], [p for t, p in cop], ".")
 
+    def plotComAndCopInXY(self):
+        plt.figure('COM and COP in XY plane')
+        complot = []
+        for x in self.xs:
+            pin.centerOfMass(
+                self.model, self.data, x[: self.model.nq], x[self.model.nq :]
+            )
+            complot.append(self.data.com[0].copy())
+        complot = np.array(complot)
+
+        plt.plot(complot[:,0],complot[:,1], label='com')
+        
+        colors = 'byrm'
+        cops = []
+        for ic,cid in enumerate(self.contactIds):
+            ftraj = [
+                [t, (M[cid]*pin.Force(f[6 * ic : 6 * ic + 6])).vector]
+                for t, (f, M, p) in enumerate(zip(self.fs, self.Mfoottraj, self.contactPattern))
+                if p[ic]
+            ]
+            cop = np.array([[t, -f[4] / f[2], f[3] / f[2] ] for (t, f) in ftraj])
+            cops.append( cop )
+            plt.plot(cop[:,1],cop[:,2],'.',color=colors[ic],
+                     label=f'cop_{self.model.frames[cid].name.split("_")[0]}')
+
+        ftraj = [
+            sum([ (M[cid]*pin.Force(f[6*ic:6*ic+6])).vector
+                  for ic,cid in enumerate(self.contactIds) ])
+            for M,f in zip(self.Mfoottraj,self.fs) ]
+        coptraj = np.array([ [-f[4]/f[2], f[3]/f[2] ] for f in ftraj ])
+        plt.plot(coptraj[:,0],coptraj[:,1],'k:',label='cop')
+        plt.legend()
+        
     def plotTimeCof(self):
         plt.figure("cof time local")
         for ifig, cid in enumerate(self.contactIds):
