@@ -18,7 +18,7 @@ import specific_params
 # When setting them to >0, take care to uncomment the corresponding line.
 # All these lines are marked with the tag ##0##.
 
-walkParams = specific_params.WalkBattobotParams()
+walkParams = specific_params.JumpBattobotParams()
 
 # #####################################################################################
 # ### LOAD ROBOT ######################################################################
@@ -51,28 +51,23 @@ assert len(walkParams.stateImportance) == robot.model.nv * 2
 # #####################################################################################
 # ### CONTACT PATTERN #################################################################
 # #####################################################################################
-try:
-    # If possible, the initial state and contact pattern are taken from a file.
-    ocpConfig = sobec.wwt.loadProblemConfig()
-    contactPattern = ocpConfig["contactPattern"]
-    robot.x0 = ocpConfig["x0"]
-    stateTerminalTarget = ocpConfig["stateTerminalTarget"]
-except (KeyError, FileNotFoundError):
-    # When the config file is not found ...
-    # Initial config, also used for warm start, both taken from robot wrapper.
-    # Contact are specified with the order chosen in <contactIds>.
-    cycle = ( [[1, 0]] * walkParams.Tsingle
-              + [[1, 1]] * walkParams.Tdouble
-              + [[0, 1]] * walkParams.Tsingle
-              + [[1, 1]] * walkParams.Tdouble
-             )
-    contactPattern = (
-        []
-        + [[1, 1]] * walkParams.Tstart
-        + (cycle * 4)
-        + [[1, 1]] * walkParams.Tend
-        + [[1, 1]]
-    )
+
+Tpush = 25
+Tflight = 28
+Tland = 25
+
+
+cycle = ( [[1, 1]] * Tpush
+          + [[0, 0]] * Tflight
+          + [[1, 1]] * Tland
+         )
+contactPattern = (
+    []
+    + [[1, 1]] * walkParams.Tstart
+    + (cycle * 1)
+    + [[1, 1]] * walkParams.Tend
+    + [[1, 1]]
+)
 
 # #####################################################################################
 # ### VIZ #############################################################################
@@ -84,6 +79,7 @@ try:
     server = meshcat.Visualizer(zmq_url="tcp://127.0.0.1:6000")
     # server = None
     viz.initViewer(loadModel=True, viewer=server)
+    viz.display(robot.x0[:robot.model.nq])
 except (ImportError, AttributeError):
     print("No viewer")
 
@@ -105,9 +101,53 @@ problem = ddp.problem
 x0s, u0s = sobec.wwt.buildInitialGuess(ddp.problem, walkParams)
 ddp.setCallbacks([croc.CallbackVerbose(), croc.CallbackLogger()])
 
-with open("/tmp/virgile-repr.ascii", "w") as f:
+
+# #####################################################################################
+# TWEAK
+# #####################################################################################
+
+Tmid = walkParams.Tstart+Tpush+Tflight//2
+# href = .5 # elevation reference
+# vref = 4*href/Tflight # take off vel reference
+# alpha = 1+vref/(9.8*Tpush)
+DT=walkParams.DT
+v0 = 9.81*Tflight/2*DT # velocity to arrive at Tmid with 0 vel
+href = v0*Tflight*DT/4 # gain in elevation with v0 at take off
+alpha = 1+v0/(9.81*Tpush*DT)
+
+cost = problem.runningModels[Tmid].differential.costs.costs['stateReg'].cost
+w = np.array(cost.activation.weights)
+w[2] = 10000
+cost.activation.weights = w
+r =np.array(cost.residual.reference)
+#r[2] = 3.5
+r[2] += href
+cost.residual.reference = r
+
+
+for t in range(walkParams.Tstart,walkParams.Tstart+Tpush):
+    for n in ['left_foot_frame_forceref', 'right_foot_frame_forceref']:
+        problem.runningModels[t].differential.costs.costs[n].weight *= 20
+        cost = problem.runningModels[t].differential.costs.costs[n].cost
+        mg = cost.residual.reference.linear[2]*2
+        cost.residual.reference.linear[2] = alpha/2*mg
+        
+alpha = 1+v0/(9.81*Tland*DT)
+for t in range(walkParams.Tstart+Tpush+Tflight,walkParams.Tstart+Tpush+Tflight+Tland):
+    for n in ['left_foot_frame_forceref', 'right_foot_frame_forceref']:
+        problem.runningModels[t].differential.costs.costs[n].weight *= 10
+        cost = problem.runningModels[t].differential.costs.costs[n].cost
+        mg = cost.residual.reference.linear[2]*2
+        cost.residual.reference.linear[2] = alpha/2*mg
+    
+
+# #####################################################################################
+# SOLVE
+# #####################################################################################
+
+with open("/tmp/jump-virgile-repr.ascii", "w") as f:
     f.write(sobec.reprProblem(ddp.problem))
-    print("OCP described in /tmp/virgile-repr.ascii")
+    print("OCP described in /tmp/jump-virgile-repr.ascii")
 
 croc.enable_profiler()
 ddp.solve(x0s, u0s, 200)
@@ -132,17 +172,18 @@ forceRef = [
 ]
 forceRef = [np.concatenate(fs) for fs in zip(*forceRef)]
 
-plotter.plotBasis(target)
-plotter.plotTimeCop()
-plotter.plotCopAndFeet(walkParams.footSize, [0,1.2,-.3,.3])
+# plotter.plotBasis(target)
+# plotter.plotTimeCop()
+# plotter.plotCopAndFeet(walkParams.footSize, [0,1.2,-.3,.3])
 plotter.plotForces(forceRef)
-plotter.plotCom(robot.com0)
-plotter.plotFeet()
-plotter.plotFootCollision(walkParams.footMinimalDistance)
-plotter.plotJointTorques()
-plotter.plotComAndCopInXY()
+# plotter.plotCom(robot.com0)
+# plotter.plotFeet()
+# plotter.plotFootCollision(walkParams.footMinimalDistance)
+# plotter.plotJointTorques()
+# plotter.plotComAndCopInXY()
 print("Run ```plt.ion(); plt.show()``` to display the plots.")
-
+#plt.ion(); plt.show()
+plt.show()
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
 # ## DEBUG ######################################################################
@@ -160,5 +201,5 @@ def recordVideo():
         viz.display(x[:robot.model.nq])
         ims.append( viz.viewer.get_image())
         import imageio # pip install imageio[ffmpeg]
-        imageio.mimsave(f"/tmp/battobot_DS{int(walkParams.Tdouble*walkParams.DT*1000)}_SS{int(walkParams.Tsingle*walkParams.DT*1000)}.mp4", [np.array(i) for i in ims],fps=int(1//walkParams.DT))
+        imageio.mimsave(f"/tmp/jump_battobot.mp4", [np.array(i) for i in ims],fps=int(1//walkParams.DT))
 

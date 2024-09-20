@@ -69,8 +69,8 @@ class WalkBattobotParams(swparams.WalkParams):
 
     DT = 0.015
     Tstart = int(0.3 / DT)
-    Tsingle = int(0.7 / DT)  # 60
-    Tdouble = roundToOdd(0.11 / DT)  # 11
+    Tsingle = int(0.3 / DT)  # 60
+    Tdouble = roundToOdd(0.03 / DT)  # 11
     Tend = int(0.3 / DT)
     transitionDuration = (Tdouble - 1) // 2
 
@@ -81,7 +81,7 @@ class WalkBattobotParams(swparams.WalkParams):
     coneAxisWeight =  0.0002
     conePenaltyWeight = 0
     copWeight = 2
-    feetCollisionWeight = 0 # 1000
+    feetCollisionWeight = 100 # 1000
     flyHighWeight =  200
     groundColWeight = 200
     impactAltitudeWeight = 20000
@@ -106,6 +106,46 @@ class WalkBattobotParams(swparams.WalkParams):
         #   1. ,  1. ,  1. ,  1. ,  1. ,  1. ,
         #   1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1.
         #     ])
+
+class JumpBattobotParams(WalkBattobotParams):
+    DT = 0.015
+    Tstart = int(0.3 / DT)
+    Tsingle = int(0.3 / DT)  # 60
+    Tdouble = roundToOdd(0.03 / DT)  # 11
+    Tend = int(0.3 / DT)
+    transitionDuration = (Tdouble - 1) // 2
+    vcomWeight = 0
+
+    centerOfFrictionWeight = 0
+    comWeight = 0
+    coneAxisWeight =  0###0.0002
+    conePenaltyWeight = 0
+    copWeight = 5###2
+    feetCollisionWeight = 0###100 # 1000
+    flyHighWeight =  0###200
+    groundColWeight = 0###200
+    impactAltitudeWeight = 10000###20000
+    impactRotationWeight = 100###200
+    impactVelocityWeight = 20###10000
+    refForceWeight = 10
+    refMainJointsAtImpactWeight = 0
+    refStateWeight = 0.5
+    refTorqueWeight = 0
+    stateTerminalWeight = 1000###1000 # 20
+    verticalFootVelWeight = 0 # 20
+
+
+
+    def __init__(self):
+        swparams.WalkParams.__init__(self, "talos_legs")
+        # self.stateTerminalImportance = np.array(
+        #     [
+        #   3. ,  3. ,  0. ,  0. ,  0. , 30. ,
+        #   0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1,
+        #   1. ,  1. ,  1. ,  1. ,  1. ,  1. ,
+        #   1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1. ,  1.
+        #     ])
+        self.stateTerminalImportance=np.array([0, 0, 10, 0, 0, 30] + [0] * 12 + [1] * 18)
     
 class WalkParams(swparams.WalkParams):
     """
