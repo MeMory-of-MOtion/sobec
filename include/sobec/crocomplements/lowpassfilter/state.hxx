@@ -102,19 +102,19 @@ void StateLPFTpl<Scalar>::diff(const Eigen::Ref<const VectorXs>& y0,
                                const Eigen::Ref<const VectorXs>& y1,
                                Eigen::Ref<VectorXs> dyout) const {
   if (static_cast<std::size_t>(y0.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y0 has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y0 has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
   if (static_cast<std::size_t>(y1.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y1 has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y1 has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
   if (static_cast<std::size_t>(dyout.size()) != ndy_) {
-    throw_pretty("Invalid argument: "
-                 << "dyout has wrong dimension (it should be " +
-                        std::to_string(ndy_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "dyout has wrong dimension (it should be " +
+                                    std::to_string(ndy_) + ")");
   }
 
   pinocchio::difference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
@@ -128,19 +128,19 @@ void StateLPFTpl<Scalar>::integrate(const Eigen::Ref<const VectorXs>& y,
                                     const Eigen::Ref<const VectorXs>& dy,
                                     Eigen::Ref<VectorXs> yout) const {
   if (static_cast<std::size_t>(y.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
   if (static_cast<std::size_t>(dy.size()) != ndy_) {
-    throw_pretty("Invalid argument: "
-                 << "dy has wrong dimension (it should be " +
-                        std::to_string(ndy_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "dy has wrong dimension (it should be " +
+                                    std::to_string(ndy_) + ")");
   }
   if (static_cast<std::size_t>(yout.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "yout has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "yout has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
 
   pinocchio::integrate(*pinocchio_.get(), y.head(nq_), dy.head(nv_),
@@ -159,23 +159,23 @@ void StateLPFTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
       is_a_Jcomponent(firstsecond),
       ("firstsecond must be one of the Jcomponent {both, first, second}"));
   if (static_cast<std::size_t>(y0.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y0 has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y0 has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
   if (static_cast<std::size_t>(y1.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y1 has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y1 has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
 
   if (firstsecond == first) {
     if (static_cast<std::size_t>(Jfirst.rows()) != ndy_ ||
         static_cast<std::size_t>(Jfirst.cols()) != ndy_) {
-      throw_pretty("Invalid argument: "
-                   << "Jfirst has wrong dimension (it should be " +
-                          std::to_string(ndy_) + "," + std::to_string(ndy_) +
-                          ")");
+      throw_pretty(
+          "Invalid argument: " << "Jfirst has wrong dimension (it should be " +
+                                      std::to_string(ndy_) + "," +
+                                      std::to_string(ndy_) + ")");
     }
 
     pinocchio::dDifference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
@@ -185,10 +185,10 @@ void StateLPFTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
   } else if (firstsecond == second) {
     if (static_cast<std::size_t>(Jsecond.rows()) != ndy_ ||
         static_cast<std::size_t>(Jsecond.cols()) != ndy_) {
-      throw_pretty("Invalid argument: "
-                   << "Jsecond has wrong dimension (it should be " +
-                          std::to_string(ndy_) + "," + std::to_string(ndy_) +
-                          ")");
+      throw_pretty(
+          "Invalid argument: " << "Jsecond has wrong dimension (it should be " +
+                                      std::to_string(ndy_) + "," +
+                                      std::to_string(ndy_) + ")");
     }
     pinocchio::dDifference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
                            Jsecond.topLeftCorner(nv_, nv_), pinocchio::ARG1);
@@ -197,17 +197,17 @@ void StateLPFTpl<Scalar>::Jdiff(const Eigen::Ref<const VectorXs>& y0,
   } else {  // computing both
     if (static_cast<std::size_t>(Jfirst.rows()) != ndy_ ||
         static_cast<std::size_t>(Jfirst.cols()) != ndy_) {
-      throw_pretty("Invalid argument: "
-                   << "Jfirst has wrong dimension (it should be " +
-                          std::to_string(ndy_) + "," + std::to_string(ndy_) +
-                          ")");
+      throw_pretty(
+          "Invalid argument: " << "Jfirst has wrong dimension (it should be " +
+                                      std::to_string(ndy_) + "," +
+                                      std::to_string(ndy_) + ")");
     }
     if (static_cast<std::size_t>(Jsecond.rows()) != ndy_ ||
         static_cast<std::size_t>(Jsecond.cols()) != ndy_) {
-      throw_pretty("Invalid argument: "
-                   << "Jsecond has wrong dimension (it should be " +
-                          std::to_string(ndy_) + "," + std::to_string(ndy_) +
-                          ")");
+      throw_pretty(
+          "Invalid argument: " << "Jsecond has wrong dimension (it should be " +
+                                      std::to_string(ndy_) + "," +
+                                      std::to_string(ndy_) + ")");
     }
     pinocchio::dDifference(*pinocchio_.get(), y0.head(nq_), y1.head(nq_),
                            Jfirst.topLeftCorner(nv_, nv_), pinocchio::ARG0);
@@ -235,10 +235,10 @@ void StateLPFTpl<Scalar>::Jintegrate(const Eigen::Ref<const VectorXs>& y,
   if (firstsecond == first || firstsecond == both) {
     if (static_cast<std::size_t>(Jfirst.rows()) != ndy_ ||
         static_cast<std::size_t>(Jfirst.cols()) != ndy_) {
-      throw_pretty("Invalid argument: "
-                   << "Jfirst has wrong dimension (it should be " +
-                          std::to_string(ndy_) + "," + std::to_string(ndy_) +
-                          ")");
+      throw_pretty(
+          "Invalid argument: " << "Jfirst has wrong dimension (it should be " +
+                                      std::to_string(ndy_) + "," +
+                                      std::to_string(ndy_) + ")");
     }
     switch (op) {
       case setto:
@@ -271,10 +271,10 @@ void StateLPFTpl<Scalar>::Jintegrate(const Eigen::Ref<const VectorXs>& y,
   if (firstsecond == second || firstsecond == both) {
     if (static_cast<std::size_t>(Jsecond.rows()) != ndy_ ||
         static_cast<std::size_t>(Jsecond.cols()) != ndy_) {
-      throw_pretty("Invalid argument: "
-                   << "Jsecond has wrong dimension (it should be " +
-                          std::to_string(ndy_) + "," + std::to_string(ndy_) +
-                          ")");
+      throw_pretty(
+          "Invalid argument: " << "Jsecond has wrong dimension (it should be " +
+                                      std::to_string(ndy_) + "," +
+                                      std::to_string(ndy_) + ")");
     }
     switch (op) {
       case setto:

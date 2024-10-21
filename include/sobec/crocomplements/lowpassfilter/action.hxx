@@ -131,14 +131,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   const std::size_t& nx = differential_->get_state()->get_nx();
 
   if (static_cast<std::size_t>(y.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
   if (static_cast<std::size_t>(w.size()) != nw_) {
-    throw_pretty("Invalid argument: "
-                 << "w has wrong dimension (it should be " +
-                        std::to_string(nw_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "w has wrong dimension (it should be " +
+                                    std::to_string(nw_) + ")");
   }
 
   // Static casting the data
@@ -162,14 +162,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   const Eigen::Ref<const VectorXs>& tau = d->tau_tmp;
   // std::cout << "[lpf.calc] tau = " << tau << std::endl;
   if (static_cast<std::size_t>(x.size()) != nx) {
-    throw_pretty("Invalid argument: "
-                 << "x has wrong dimension (it should be " +
-                        std::to_string(nx) + ")");
+    throw_pretty(
+        "Invalid argument: " << "x has wrong dimension (it should be " +
+                                    std::to_string(nx) + ")");
   }
   if (static_cast<std::size_t>(tau.size()) != nw_) {
-    throw_pretty("Invalid argument: "
-                 << "tau has wrong dimension (it should be " +
-                        std::to_string(nw_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "tau has wrong dimension (it should be " +
+                                    std::to_string(nw_) + ")");
   }
   if (static_cast<std::size_t>(d->Fy.rows()) !=
       boost::static_pointer_cast<StateLPF>(state_)->get_ndy()) {
@@ -190,9 +190,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
                ")");
   }
   if (static_cast<std::size_t>(d->Fw.cols()) != nw_) {
-    throw_pretty("Invalid argument: "
-                 << "Fw.cols() has wrong dimension (it should be " +
-                        std::to_string(nw_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "Fw.cols() has wrong dimension (it should be " +
+                                    std::to_string(nw_) + ")");
   }
   if (static_cast<std::size_t>(d->r.size()) !=
       differential_->get_nr() + 2 * ntau_) {
@@ -211,9 +211,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
                ")");
   }
   if (static_cast<std::size_t>(d->Lw.size()) != nw_) {
-    throw_pretty("Invalid argument: "
-                 << "Lw has wrong dimension (it should be " +
-                        std::to_string(nw_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "Lw has wrong dimension (it should be " +
+                                    std::to_string(nw_) + ")");
   }
 
   // Compute acceleration and cost (DAM, i.e. CT model)
@@ -305,9 +305,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calc(
   const std::size_t& nx = differential_->get_state()->get_nx();
 
   if (static_cast<std::size_t>(y.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
 
   // Static casting the data
@@ -335,14 +335,14 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
   const std::size_t& ndx = differential_->get_state()->get_ndx();
 
   if (static_cast<std::size_t>(y.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
   if (static_cast<std::size_t>(w.size()) != nw_) {
-    throw_pretty("Invalid argument: "
-                 << "w has wrong dimension (it should be " +
-                        std::to_string(nw_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "w has wrong dimension (it should be " +
+                                    std::to_string(nw_) + ")");
   }
 
   // Static casting the data
@@ -541,7 +541,7 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
       }
 #endif
     }  // tauLim !=0
-  }    // tau integration
+  }  // tau integration
 
   //   // TAU PLUS INTEGRATION
   //   else {
@@ -741,9 +741,9 @@ void IntegratedActionModelLPFTpl<Scalar>::calcDiff(
   const std::size_t& ndx = differential_->get_state()->get_ndx();
 
   if (static_cast<std::size_t>(y.size()) != ny_) {
-    throw_pretty("Invalid argument: "
-                 << "y has wrong dimension (it should be " +
-                        std::to_string(ny_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "y has wrong dimension (it should be " +
+                                    std::to_string(ny_) + ")");
   }
   // Static casting the data
   boost::shared_ptr<Data> d = boost::static_pointer_cast<Data>(data);
@@ -820,8 +820,7 @@ const Scalar& IntegratedActionModelLPFTpl<Scalar>::get_fc() const {
 template <typename Scalar>
 void IntegratedActionModelLPFTpl<Scalar>::set_dt(const Scalar& dt) {
   if (dt < 0.) {
-    throw_pretty("Invalid argument: "
-                 << "dt has positive value");
+    throw_pretty("Invalid argument: " << "dt has positive value");
   }
   time_step_ = dt;
   time_step2_ = dt * dt;
@@ -831,8 +830,7 @@ template <typename Scalar>
 void IntegratedActionModelLPFTpl<Scalar>::set_fc(const Scalar& fc) {
   // Set the cut-off frequency
   if (fc <= 0.) {
-    throw_pretty("Invalid argument: "
-                 << "fc must be positive");
+    throw_pretty("Invalid argument: " << "fc must be positive");
   } else {
     fc_ = fc;
   }
@@ -842,8 +840,7 @@ template <typename Scalar>
 void IntegratedActionModelLPFTpl<Scalar>::set_alpha(const Scalar& alpha) {
   // Set the cut-off frequency
   if (alpha < 0. || alpha > 1) {
-    throw_pretty("Invalid argument: "
-                 << "alpha must be in [0,1]");
+    throw_pretty("Invalid argument: " << "alpha must be in [0,1]");
   } else {
     alpha_ = alpha;
   }
@@ -917,14 +914,14 @@ void IntegratedActionModelLPFTpl<Scalar>::quasiStatic(
     const Eigen::Ref<const VectorXs>& x, const std::size_t maxiter,
     const Scalar tol) {
   if (static_cast<std::size_t>(u.size()) != nu_) {
-    throw_pretty("Invalid argument: "
-                 << "u has wrong dimension (it should be " +
-                        std::to_string(nu_) + ")");
+    throw_pretty(
+        "Invalid argument: " << "u has wrong dimension (it should be " +
+                                    std::to_string(nu_) + ")");
   }
   if (static_cast<std::size_t>(x.size()) != state_->get_nx()) {
-    throw_pretty("Invalid argument: "
-                 << "x has wrong dimension (it should be " +
-                        std::to_string(state_->get_nx()) + ")");
+    throw_pretty(
+        "Invalid argument: " << "x has wrong dimension (it should be " +
+                                    std::to_string(state_->get_nx()) + ")");
   }
 
   // Static casting the data

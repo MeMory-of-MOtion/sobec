@@ -49,9 +49,9 @@ void DifferentialActionModelContactFwdDynamicsTpl<Scalar>::calcDiff(
                         std::to_string(this->get_state()->get_nx()) + ")");
   }
   if (static_cast<std::size_t>(u.size()) != this->get_nu()) {
-    throw_pretty("Invalid argument: "
-                 << "u has wrong dimension (it should be " +
-                        std::to_string(this->get_nu()) + ")");
+    throw_pretty(
+        "Invalid argument: " << "u has wrong dimension (it should be " +
+                                    std::to_string(this->get_nu()) + ")");
   }
 
   const std::size_t nv = this->get_state()->get_nv();

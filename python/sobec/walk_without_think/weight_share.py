@@ -5,9 +5,7 @@ def switch_tanh(x, **kwargs):
     return (
         0
         if x <= 0
-        else 1
-        if x >= 1
-        else (np.tanh(-1.0 / x + 1.0 / (1.0 - x)) + 1.0) / 2.0
+        else 1 if x >= 1 else (np.tanh(-1.0 / x + 1.0 / (1.0 - x)) + 1.0) / 2.0
     )
 
 
