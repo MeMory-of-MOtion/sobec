@@ -37,9 +37,9 @@ ResidualModelVelCollisionTpl<Scalar>::~ResidualModelVelCollisionTpl() {}
 
 template <typename Scalar>
 void ResidualModelVelCollisionTpl<Scalar>::calc(
-    const boost::shared_ptr<ResidualDataAbstract> &data,
-    const Eigen::Ref<const VectorXs> &x, const Eigen::Ref<const VectorXs> &) {
-  Data *d = static_cast<Data *>(data.get());
+    const boost::shared_ptr<ResidualDataAbstract>& data,
+    const Eigen::Ref<const VectorXs>& x, const Eigen::Ref<const VectorXs>&) {
+  Data* d = static_cast<Data*>(data.get());
 
   const Eigen::VectorBlock<const Eigen::Ref<const VectorXs>, Eigen::Dynamic> q =
       x.head(state_->get_nq());
@@ -60,9 +60,9 @@ void ResidualModelVelCollisionTpl<Scalar>::calc(
 
 template <typename Scalar>
 void ResidualModelVelCollisionTpl<Scalar>::calcDiff(
-    const boost::shared_ptr<ResidualDataAbstract> &data,
-    const Eigen::Ref<const VectorXs> &, const Eigen::Ref<const VectorXs> &) {
-  Data *d = static_cast<Data *>(data.get());
+    const boost::shared_ptr<ResidualDataAbstract>& data,
+    const Eigen::Ref<const VectorXs>&, const Eigen::Ref<const VectorXs>&) {
+  Data* d = static_cast<Data*>(data.get());
 
   const std::size_t nv = state_->get_nv();
 
@@ -95,13 +95,13 @@ void ResidualModelVelCollisionTpl<Scalar>::calcDiff(
 template <typename Scalar>
 boost::shared_ptr<ResidualDataAbstractTpl<Scalar> >
 ResidualModelVelCollisionTpl<Scalar>::createData(
-    DataCollectorAbstract *const data) {
+    DataCollectorAbstract* const data) {
   return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this,
                                       data);
 }
 
 template <typename Scalar>
-const pinocchio::GeometryModel &
+const pinocchio::GeometryModel&
 ResidualModelVelCollisionTpl<Scalar>::get_geometry() const {
   return *geom_model_.get();
 }

@@ -20,13 +20,13 @@ namespace python {
 namespace bp = boost::python;
 
 template <typename T>
-inline void py_list_to_std_vector(const bp::object &iterable,
-                                  std::vector<T> &out) {
+inline void py_list_to_std_vector(const bp::object& iterable,
+                                  std::vector<T>& out) {
   out = std::vector<T>(boost::python::stl_input_iterator<T>(iterable),
                        boost::python::stl_input_iterator<T>());
 }
 
-void initialize(sobec::RobotDesigner &self, bp::dict settings) {
+void initialize(sobec::RobotDesigner& self, bp::dict settings) {
   RobotDesignerSettings conf;
   conf.urdfPath = bp::extract<std::string>(settings["urdfPath"]);
   conf.srdfPath = bp::extract<std::string>(settings["srdfPath"]);
@@ -40,7 +40,7 @@ void initialize(sobec::RobotDesigner &self, bp::dict settings) {
   self.initialize(conf);
 }
 
-bp::dict get_settings(RobotDesigner &self) {
+bp::dict get_settings(RobotDesigner& self) {
   RobotDesignerSettings conf = self.get_settings();
   bp::dict settings;
   settings["urdfPath"] = conf.urdfPath;
@@ -52,16 +52,16 @@ bp::dict get_settings(RobotDesigner &self) {
   return settings;
 }
 
-pinocchio::Model get_rModelComplete(RobotDesigner &self) {
+pinocchio::Model get_rModelComplete(RobotDesigner& self) {
   return self.get_rModelComplete();
 }
 
 // pinocchio::Model get_rModel(RobotDesigner &self) { return self.get_rModel();
 // }
 
-pinocchio::Data get_rData(RobotDesigner &self) { return self.get_rData(); }
+pinocchio::Data get_rData(RobotDesigner& self) { return self.get_rData(); }
 
-pinocchio::Data get_rDataComplete(RobotDesigner &self) {
+pinocchio::Data get_rDataComplete(RobotDesigner& self) {
   return self.get_rDataComplete();
 }
 

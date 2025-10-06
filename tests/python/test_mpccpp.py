@@ -3,7 +3,6 @@ Test the complete implementation of the OCP+MPC in C++.
 
 """
 
-
 import numpy as np
 
 # from numpy.linalg import norm

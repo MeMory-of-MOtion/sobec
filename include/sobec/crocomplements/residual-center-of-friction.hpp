@@ -80,9 +80,9 @@ class ResidualModelCenterOfFrictionTpl
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ResidualDataAbstract> &data,
-                    const Eigen::Ref<const VectorXs> &x,
-                    const Eigen::Ref<const VectorXs> &u);
+  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data,
+                    const Eigen::Ref<const VectorXs>& x,
+                    const Eigen::Ref<const VectorXs>& u);
 
   /**
    * @brief Compute the derivatives of residual
@@ -91,12 +91,12 @@ class ResidualModelCenterOfFrictionTpl
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract> &data,
-                        const Eigen::Ref<const VectorXs> &x,
-                        const Eigen::Ref<const VectorXs> &u);
+  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
+                        const Eigen::Ref<const VectorXs>& x,
+                        const Eigen::Ref<const VectorXs>& u);
 
   virtual boost::shared_ptr<ResidualDataAbstract> createData(
-      DataCollectorAbstract *const data);
+      DataCollectorAbstract* const data);
 
   /**
    * @brief Return the reference contact id
@@ -128,26 +128,26 @@ struct ResidualDataCenterOfFrictionTpl
   typedef typename MathBase::Matrix6xs Matrix6xs;
 
   template <template <typename Scalar> class Model>
-  ResidualDataCenterOfFrictionTpl(Model<Scalar> *const model,
-                                  DataCollectorAbstract *const data)
+  ResidualDataCenterOfFrictionTpl(Model<Scalar>* const model,
+                                  DataCollectorAbstract* const data)
       : Base(model, data) {
     // Check that proper shared data has been passed
-    DataCollectorContactTpl<Scalar> *d =
-        dynamic_cast<DataCollectorContactTpl<Scalar> *>(this->shared);
+    DataCollectorContactTpl<Scalar>* d =
+        dynamic_cast<DataCollectorContactTpl<Scalar>*>(this->shared);
     if (d == NULL) {
       throw_pretty(
           "Invalid argument: the shared data should be derived from "
           "DataCollectorContact");
     }
     const pinocchio::FrameIndex id = model->get_contact_id();
-    const boost::shared_ptr<StateMultibody> &state =
+    const boost::shared_ptr<StateMultibody>& state =
         boost::static_pointer_cast<StateMultibody>(model->get_state());
     std::string frame_name = state->get_pinocchio()->frames[id].name;
     bool found_contact = false;
-    for (auto &it : d->contacts->contacts) {
+    for (auto& it : d->contacts->contacts) {
       if (it.second->frame == id) {
-        ContactData6DTpl<Scalar> *d6d =
-            dynamic_cast<ContactData6DTpl<Scalar> *>(it.second.get());
+        ContactData6DTpl<Scalar>* d6d =
+            dynamic_cast<ContactData6DTpl<Scalar>*>(it.second.get());
         if (d6d != NULL) {
           found_contact = true;
           this->contact = it.second;

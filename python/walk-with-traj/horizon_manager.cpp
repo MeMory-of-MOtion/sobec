@@ -18,15 +18,15 @@ namespace python {
 namespace bp = boost::python;
 
 template <typename T>
-inline void py_list_to_std_vector(const bp::object &iterable,
-                                  std::vector<T> &out) {
+inline void py_list_to_std_vector(const bp::object& iterable,
+                                  std::vector<T>& out) {
   out = std::vector<T>(boost::python::stl_input_iterator<T>(iterable),
                        boost::python::stl_input_iterator<T>());
 }
 
-void initialize(HorizonManager &self, const bp::dict &settings,
-                const Eigen::VectorXd &x0, const bp::list runningModels,
-                const AMA &terminalModel) {
+void initialize(HorizonManager& self, const bp::dict& settings,
+                const Eigen::VectorXd& x0, const bp::list runningModels,
+                const AMA& terminalModel) {
   HorizonManagerSettings conf;
   conf.leftFootName = bp::extract<std::string>(settings["leftFootName"]);
   conf.rightFootName = bp::extract<std::string>(settings["rightFootName"]);
@@ -36,7 +36,7 @@ void initialize(HorizonManager &self, const bp::dict &settings,
   self.initialize(conf, x0, horizonModels, terminalModel);
 }
 
-bp::dict get_contacts(HorizonManager &self, const unsigned long time) {
+bp::dict get_contacts(HorizonManager& self, const unsigned long time) {
   bp::dict contacts;
   for (std::string frame : self.contacts(time)->get_active_set())
     contacts[frame] = self.contacts(time)->get_active_set().find(frame) !=
@@ -117,9 +117,9 @@ void exposeHorizonManager() {
            bp::make_function(
                &HorizonManager::getTerminalFootPoseReference,
                bp::return_value_policy<bp::reference_existing_object>()))
-      .def<void (HorizonManager::*)(const AMA &, const ADA &)>(
+      .def<void (HorizonManager::*)(const AMA&, const ADA&)>(
           "recede", &HorizonManager::recede, bp::args("self", "IAM", "IAD"))
-      .def<void (HorizonManager::*)(const AMA &)>(
+      .def<void (HorizonManager::*)(const AMA&)>(
           "recede", &HorizonManager::recede, bp::args("self", "IAM"))
       .def<void (HorizonManager::*)()>("recede", &HorizonManager::recede,
                                        bp::args("self"))
@@ -131,12 +131,12 @@ void exposeHorizonManager() {
       .def("solve", &HorizonManager::solve,
            (bp::arg("self"), bp::arg("x_measured"), bp::arg("ddpIteration"),
             bp::arg("is_feasible") = false))
-      .def<void (HorizonManager::*)(const unsigned long, const std::string &,
-                                    const std::string &)>(
+      .def<void (HorizonManager::*)(const unsigned long, const std::string&,
+                                    const std::string&)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time"))
-      .def<void (HorizonManager::*)(const unsigned long, const std::string &,
-                                    const Eigen::VectorXd &)>(
+      .def<void (HorizonManager::*)(const unsigned long, const std::string&,
+                                    const Eigen::VectorXd&)>(
           "setBalancingTorque", &HorizonManager::setBalancingTorque,
           bp::args("self", "time", "x"))
       .def("size", &HorizonManager::size, (bp::arg("self")))

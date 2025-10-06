@@ -28,10 +28,10 @@ ResidualModelCenterOfFrictionTpl<Scalar>::~ResidualModelCenterOfFrictionTpl() {}
 
 template <typename Scalar>
 void ResidualModelCenterOfFrictionTpl<Scalar>::calc(
-    const boost::shared_ptr<ResidualDataAbstract> &data,
-    const Eigen::Ref<const VectorXs> & /*x*/,
-    const Eigen::Ref<const VectorXs> &) {
-  Data *d = static_cast<Data *>(data.get());
+    const boost::shared_ptr<ResidualDataAbstract>& data,
+    const Eigen::Ref<const VectorXs>& /*x*/,
+    const Eigen::Ref<const VectorXs>&) {
+  Data* d = static_cast<Data*>(data.get());
   Force f = d->contact->jMf.actInv(d->contact->f);
 
   data->r[0] = f.linear()[1] / f.linear()[2];
@@ -40,12 +40,12 @@ void ResidualModelCenterOfFrictionTpl<Scalar>::calc(
 
 template <typename Scalar>
 void ResidualModelCenterOfFrictionTpl<Scalar>::calcDiff(
-    const boost::shared_ptr<ResidualDataAbstract> &data,
-    const Eigen::Ref<const VectorXs> &, const Eigen::Ref<const VectorXs> &) {
-  Data *d = static_cast<Data *>(data.get());
+    const boost::shared_ptr<ResidualDataAbstract>& data,
+    const Eigen::Ref<const VectorXs>&, const Eigen::Ref<const VectorXs>&) {
+  Data* d = static_cast<Data*>(data.get());
   Force f = d->contact->jMf.actInv(d->contact->f);
-  const MatrixXs &df_dx = d->contact->df_dx;
-  const MatrixXs &df_du = d->contact->df_du;
+  const MatrixXs& df_dx = d->contact->df_dx;
+  const MatrixXs& df_du = d->contact->df_du;
 
   // r = tau/f
   // r'= tau'/f - tau/f^2 f' = (tau'-cop.f')/f
@@ -65,7 +65,7 @@ void ResidualModelCenterOfFrictionTpl<Scalar>::calcDiff(
 template <typename Scalar>
 boost::shared_ptr<ResidualDataAbstractTpl<Scalar> >
 ResidualModelCenterOfFrictionTpl<Scalar>::createData(
-    DataCollectorAbstract *const data) {
+    DataCollectorAbstract* const data) {
   return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this,
                                       data);
 }

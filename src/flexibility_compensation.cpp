@@ -6,17 +6,17 @@ Flex::Flex() {
   // default settigs
 }
 
-Flex::Flex(const FlexSettings &settings) { initialize(settings); }
+Flex::Flex(const FlexSettings& settings) { initialize(settings); }
 
-void Flex::initialize(const FlexSettings &settings) {
+void Flex::initialize(const FlexSettings& settings) {
   settings_ = settings;
   MA_samples_ = (int)round(settings.MA_duration / settings.dt);
 }
 
-const eVector2 &Flex::computeDeflection(const eArray2 &torques,
-                                        const eArray2 &delta0,
-                                        const eArray2 &stiffness,
-                                        const eArray2 &damping,
+const eVector2& Flex::computeDeflection(const eArray2& torques,
+                                        const eArray2& delta0,
+                                        const eArray2& stiffness,
+                                        const eArray2& damping,
                                         const double dt) {
   /** Computes the deflection expected for certain flexing torque
    * according to:
@@ -35,7 +35,7 @@ const eVector2 &Flex::computeDeflection(const eArray2 &torques,
   return computed_deflection_;
 }
 
-const eVector3 &Flex::equivalentAngles(const eMatrixRot &fullRotation) {
+const eVector3& Flex::equivalentAngles(const eMatrixRot& fullRotation) {
   /**
    * Computes three angles with the order "z-x-y" such that their
    * combined rotation is equivalent to the "fullRotation".
@@ -48,9 +48,9 @@ const eVector3 &Flex::equivalentAngles(const eMatrixRot &fullRotation) {
   return resulting_angles_;
 }
 
-void Flex::correctHip(const eVector2 &delta, const eVector2 &deltaDot,
-                      eVectorX &q, eVectorX &dq,
-                      const Eigen::Array3i &hipIndices) {
+void Flex::correctHip(const eVector2& delta, const eVector2& deltaDot,
+                      eVectorX& q, eVectorX& dq,
+                      const Eigen::Array3i& hipIndices) {
   rotationA_ = Eigen::AngleAxisd(delta(0), eVector3::UnitY());
   rotationB_ = rotationA_ * Eigen::AngleAxisd(delta(1), eVector3::UnitX());
   rotationC_ =
@@ -78,9 +78,9 @@ void Flex::correctHip(const eVector2 &delta, const eVector2 &deltaDot,
   dq.segment(hipIndices(0), 3) = M_.inverse() * legAngularVelocity_;
 }
 
-void Flex::correctDeflections(const eVector2 &leftFlexingTorque,
-                              const eVector2 &rightFlexingTorque, eVectorX &q,
-                              eVectorX &dq) {
+void Flex::correctDeflections(const eVector2& leftFlexingTorque,
+                              const eVector2& rightFlexingTorque, eVectorX& q,
+                              eVectorX& dq) {
   /**
    * Arguments:
    *
@@ -115,8 +115,8 @@ void Flex::correctDeflections(const eVector2 &leftFlexingTorque,
   correctHip(rightFlex_, rightFlexRate_, q, dq, settings_.right_hip_indices);
 }
 
-void Flex::correctEstimatedDeflections(const eVectorX &desiredTorque,
-                                       eVectorX &q, eVectorX &dq) {
+void Flex::correctEstimatedDeflections(const eVectorX& desiredTorque,
+                                       eVectorX& q, eVectorX& dq) {
   /**
    * Arguments:
    *
@@ -160,8 +160,8 @@ void Flex::correctEstimatedDeflections(const eVectorX &desiredTorque,
 //   return average_;
 // }
 
-const eArray2 &Flex::movingAverage(const eArray2 &x, std::deque<eArray2> &queue,
-                                   eArray2 &summation) {
+const eArray2& Flex::movingAverage(const eArray2& x, std::deque<eArray2>& queue,
+                                   eArray2& summation) {
   /// @todo: Compare the results and choose one. This function has the adventage
   /// of not
   // reading the full queue.

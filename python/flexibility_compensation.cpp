@@ -9,7 +9,7 @@ namespace sobec {
 namespace python {
 namespace bp = boost::python;
 
-void initialize(Flex &self, const bp::dict &settings) {
+void initialize(Flex& self, const bp::dict& settings) {
   FlexSettings conf;
 
   conf.left_stiffness = bp::extract<eVector2>(settings["left_stiffness"]);
@@ -29,7 +29,7 @@ void initialize(Flex &self, const bp::dict &settings) {
   self.initialize(conf);
 }
 
-bp::dict get_settings(Flex &self) {
+bp::dict get_settings(Flex& self) {
   bp::dict settings;
   FlexSettings conf = self.getSettings();
   settings["left_stiffness"] = conf.left_stiffness;
@@ -49,8 +49,8 @@ bp::dict get_settings(Flex &self) {
   return settings;
 }
 
-bp::tuple correctEstimatedDeflections(Flex &self, const eVectorX &desiredTorque,
-                                      const eVectorX &q, const eVectorX &dq) {
+bp::tuple correctEstimatedDeflections(Flex& self, const eVectorX& desiredTorque,
+                                      const eVectorX& q, const eVectorX& dq) {
   eVectorX correct_q(q.size()), correct_dq(dq.size());
   correct_q << q;
   correct_dq << dq;

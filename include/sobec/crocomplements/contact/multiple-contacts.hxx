@@ -30,17 +30,17 @@ void ContactModelMultipleTpl<Scalar>::updateForceDiff(
   const std::size_t ndx = this->get_state()->get_ndx();
   if (static_cast<std::size_t>(df_dx->rows()) != this->get_nc() ||
       static_cast<std::size_t>(df_dx->cols()) != ndx) {
-    throw_pretty("Invalid argument: "
-                 << "df_dx has wrong dimension (it should be " +
-                        std::to_string(this->get_nc()) + "," +
-                        std::to_string(ndx) + ")");
+    throw_pretty(
+        "Invalid argument: " << "df_dx has wrong dimension (it should be " +
+                                    std::to_string(this->get_nc()) + "," +
+                                    std::to_string(ndx) + ")");
   }
   if (static_cast<std::size_t>(df_du->rows()) != this->get_nc() ||
       static_cast<std::size_t>(df_du->cols()) != this->get_nu()) {
-    throw_pretty("Invalid argument: "
-                 << "df_du has wrong dimension (it should be " +
-                        std::to_string(this->get_nc()) + "," +
-                        std::to_string(this->get_nu()) + ")");
+    throw_pretty(
+        "Invalid argument: " << "df_du has wrong dimension (it should be " +
+                                    std::to_string(this->get_nc()) + "," +
+                                    std::to_string(this->get_nu()) + ")");
   }
   if (static_cast<std::size_t>(data->contacts.size()) !=
       this->get_contacts().size()) {

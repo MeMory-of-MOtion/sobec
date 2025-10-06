@@ -4,20 +4,20 @@ namespace sobec {
 
 WBCHorizon::WBCHorizon() {}
 
-WBCHorizon::WBCHorizon(const WBCHorizonSettings &settings,
-                       const RobotDesigner &design,
-                       const HorizonManager &horizon, const Eigen::VectorXd &q0,
-                       const Eigen::VectorXd &v0,
-                       const std::string &actuationCostName) {
+WBCHorizon::WBCHorizon(const WBCHorizonSettings& settings,
+                       const RobotDesigner& design,
+                       const HorizonManager& horizon, const Eigen::VectorXd& q0,
+                       const Eigen::VectorXd& v0,
+                       const std::string& actuationCostName) {
   initialize(settings, design, horizon, q0, v0, actuationCostName);
 }
 
-void WBCHorizon::initialize(const WBCHorizonSettings &settings,
-                            const RobotDesigner &design,
-                            const HorizonManager &horizon,
-                            const Eigen::VectorXd &q0,
-                            const Eigen::VectorXd &v0,
-                            const std::string &actuationCostName) {
+void WBCHorizon::initialize(const WBCHorizonSettings& settings,
+                            const RobotDesigner& design,
+                            const HorizonManager& horizon,
+                            const Eigen::VectorXd& q0,
+                            const Eigen::VectorXd& v0,
+                            const std::string& actuationCostName) {
   /** The posture required here is the full robot posture in the order of
    * pinicchio*/
   if (!design.initialized_ || !horizon.initialized_) {
@@ -157,8 +157,8 @@ std::vector<Support> WBCHorizon::generateSupportCycle() {
   return cycle;
 }
 
-void WBCHorizon::generateFullHorizon(ModelMaker &mm,
-                                     const Experiment &experiment) {
+void WBCHorizon::generateFullHorizon(ModelMaker& mm,
+                                     const Experiment& experiment) {
   std::vector<Support> cycle = generateSupportCycle();
   std::vector<AMA> cyclicModels;
   cyclicModels = mm.formulateHorizon(cycle, experiment);
@@ -173,8 +173,8 @@ bool WBCHorizon::timeToSolveDDP(int iteration) {
   return time_to_solve_ddp_;
 }
 
-void WBCHorizon::iterate(const Eigen::VectorXd &q_current,
-                         const Eigen::VectorXd &v_current, bool is_feasible) {
+void WBCHorizon::iterate(const Eigen::VectorXd& q_current,
+                         const Eigen::VectorXd& v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
 
   // ~~TIMING~~ //
@@ -190,16 +190,16 @@ void WBCHorizon::iterate(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBCHorizon::iterate(int iteration, const Eigen::VectorXd &q_current,
-                         const Eigen::VectorXd &v_current, bool is_feasible) {
+void WBCHorizon::iterate(int iteration, const Eigen::VectorXd& q_current,
+                         const Eigen::VectorXd& v_current, bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterate(q_current, v_current, is_feasible);
   } else
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBCHorizon::iterateNoThinking(const Eigen::VectorXd &q_current,
-                                   const Eigen::VectorXd &v_current,
+void WBCHorizon::iterateNoThinking(const Eigen::VectorXd& q_current,
+                                   const Eigen::VectorXd& v_current,
                                    bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
 
@@ -216,8 +216,8 @@ void WBCHorizon::iterateNoThinking(const Eigen::VectorXd &q_current,
 }
 
 void WBCHorizon::iterateNoThinking(int iteration,
-                                   const Eigen::VectorXd &q_current,
-                                   const Eigen::VectorXd &v_current,
+                                   const Eigen::VectorXd& q_current,
+                                   const Eigen::VectorXd& v_current,
                                    bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterateNoThinking(q_current, v_current, is_feasible);
@@ -225,8 +225,8 @@ void WBCHorizon::iterateNoThinking(int iteration,
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd &q_current,
-                                            const Eigen::VectorXd &v_current,
+void WBCHorizon::iterateNoThinkingWithDelay(const Eigen::VectorXd& q_current,
+                                            const Eigen::VectorXd& v_current,
                                             bool contact_left,
                                             bool contact_right,
                                             bool is_feasible) {
@@ -376,8 +376,8 @@ void WBCHorizon::goToNextDoubleSupport() {
   updateSupportTiming();
 }
 
-const Eigen::VectorXd &WBCHorizon::shapeState(const Eigen::VectorXd &q,
-                                              const Eigen::VectorXd &v) {
+const Eigen::VectorXd& WBCHorizon::shapeState(const Eigen::VectorXd& q,
+                                              const Eigen::VectorXd& v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();

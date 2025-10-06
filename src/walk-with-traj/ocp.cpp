@@ -4,16 +4,16 @@ namespace sobec {
 
 OCP::OCP() {}
 
-OCP::OCP(const OCPSettings &settings, const ModelMakerSettings &model_settings,
-         const RobotDesignerSettings &design, const Eigen::VectorXd &q0,
-         const Eigen::VectorXd &v0) {
+OCP::OCP(const OCPSettings& settings, const ModelMakerSettings& model_settings,
+         const RobotDesignerSettings& design, const Eigen::VectorXd& q0,
+         const Eigen::VectorXd& v0) {
   initialize(settings, model_settings, design, q0, v0);
 }
 
-void OCP::initialize(const OCPSettings &settings,
-                     const ModelMakerSettings &model_settings,
-                     const RobotDesignerSettings &design,
-                     const Eigen::VectorXd &q0, const Eigen::VectorXd &v0) {
+void OCP::initialize(const OCPSettings& settings,
+                     const ModelMakerSettings& model_settings,
+                     const RobotDesignerSettings& design,
+                     const Eigen::VectorXd& q0, const Eigen::VectorXd& v0) {
   OCP_settings_ = settings;
   designer_ = sobec::RobotDesigner(design);
   modelMaker_ = sobec::ModelMaker(model_settings, designer_);
@@ -151,7 +151,7 @@ void OCP::updateEndPhase() {
   }
 }
 
-void OCP::updateOCP(const Eigen::VectorXd &qc, const Eigen::VectorXd &vc) {
+void OCP::updateOCP(const Eigen::VectorXd& qc, const Eigen::VectorXd& vc) {
   designer_.updateReducedModel(qc);
   xc_ << qc, vc;
   if (!contacts_sequence_.empty()) {

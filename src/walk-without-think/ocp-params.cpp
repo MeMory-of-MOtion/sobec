@@ -11,7 +11,7 @@
 
 namespace sobec {
 
-void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {
+void OCPWalkParams::readParamsFromYamlStr(std::string& StringToParse) {
   YAML::Node root = YAML::Load(StringToParse);
   YAML::Node config = root["walk"];
 
@@ -21,7 +21,7 @@ void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {
   }
 
   // Local lambda function to read vectorX
-  auto read_double = [&config](double &aref_d, std::string fieldname) {
+  auto read_double = [&config](double& aref_d, std::string fieldname) {
     YAML::Node yn_ad = config[fieldname];
     if (yn_ad) {
       aref_d = yn_ad.as<double>();
@@ -52,7 +52,7 @@ void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {
   }
 
   // Local lambda function to read vectorX
-  auto read_vxd = [&config](Eigen::VectorXd &aref_vxd, std::string fieldname) {
+  auto read_vxd = [&config](Eigen::VectorXd& aref_vxd, std::string fieldname) {
     YAML::Node yn_avxd = config[fieldname];
     if (yn_avxd) {
       aref_vxd.resize(yn_avxd.size());
@@ -116,7 +116,7 @@ void OCPWalkParams::readParamsFromYamlStr(std::string &StringToParse) {
   }
 }
 
-void OCPWalkParams::readParamsFromYamlFile(const std::string &Filename) {
+void OCPWalkParams::readParamsFromYamlFile(const std::string& Filename) {
   std::ifstream t(Filename);
   std::stringstream buffer;
   buffer << t.rdbuf();

@@ -11,22 +11,22 @@ namespace python {
 namespace bp = boost::python;
 
 template <typename T>
-inline void py_list_to_std_vector(const bp::object &iterable,
-                                  std::vector<T> &out) {
+inline void py_list_to_std_vector(const bp::object& iterable,
+                                  std::vector<T>& out) {
   out = std::vector<T>(boost::python::stl_input_iterator<T>(iterable),
                        boost::python::stl_input_iterator<T>());
 }
 
 template <class T>
-bp::list std_vector_to_py_list(const std::vector<T> &v) {
+bp::list std_vector_to_py_list(const std::vector<T>& v) {
   bp::object get_iter = bp::iterator<std::vector<T> >();
   bp::object iter = get_iter(v);
   bp::list l(iter);
   return l;
 }
 
-void initialize(ModelMaker &self, const bp::dict &settings,
-                const RobotDesigner &designer) {
+void initialize(ModelMaker& self, const bp::dict& settings,
+                const RobotDesigner& designer) {
   ModelMakerSettings conf;
 
   // timing
@@ -77,7 +77,7 @@ void initialize(ModelMaker &self, const bp::dict &settings,
   self.initialize(conf, designer);
 }
 
-bp::dict get_settings(ModelMaker &self) {
+bp::dict get_settings(ModelMaker& self) {
   ModelMakerSettings conf = self.get_settings();
   bp::dict settings;
   settings["timeStep"] = conf.timeStep;
@@ -116,10 +116,10 @@ bp::dict get_settings(ModelMaker &self) {
   return settings;
 }
 
-bp::list formulateHorizon(ModelMaker &self,
-                          const bp::list &supports = bp::list(),
-                          const Experiment &experiment = Experiment::WALK,
-                          const int &length = 0) {
+bp::list formulateHorizon(ModelMaker& self,
+                          const bp::list& supports = bp::list(),
+                          const Experiment& experiment = Experiment::WALK,
+                          const int& length = 0) {
   if (bp::len(supports) > 0) {
     std::vector<Support> contacts;
     py_list_to_std_vector(supports, contacts);
@@ -136,134 +136,134 @@ bp::list formulateHorizon(ModelMaker &self,
   }
 }
 
-void defineFeetContact(ModelMaker &self,
-                       crocoddyl::ContactModelMultiple &contactCollector,
-                       const Support &supports = Support::DOUBLE) {
+void defineFeetContact(ModelMaker& self,
+                       crocoddyl::ContactModelMultiple& contactCollector,
+                       const Support& supports = Support::DOUBLE) {
   Contact contacts =
       boost::make_shared<crocoddyl::ContactModelMultiple>(contactCollector);
   self.defineFeetContact(contacts, supports);
   contactCollector = *contacts;
 }
 
-void defineFeetWrenchCost(ModelMaker &self,
-                          crocoddyl::CostModelSum &costCollector,
-                          const Support &supports = Support::DOUBLE) {
+void defineFeetWrenchCost(ModelMaker& self,
+                          crocoddyl::CostModelSum& costCollector,
+                          const Support& supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetWrenchCost(costs, supports);
   costCollector = *costs;
 }
 
-void defineFeetForceTask(ModelMaker &self,
-                         crocoddyl::CostModelSum &costCollector,
-                         const Support &supports = Support::DOUBLE) {
+void defineFeetForceTask(ModelMaker& self,
+                         crocoddyl::CostModelSum& costCollector,
+                         const Support& supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetForceTask(costs, supports);
   costCollector = *costs;
 }
 
-void defineFeetTracking(ModelMaker &self,
-                        crocoddyl::CostModelSum &costCollector,
-                        const Support &supports = Support::DOUBLE) {
+void defineFeetTracking(ModelMaker& self,
+                        crocoddyl::CostModelSum& costCollector,
+                        const Support& supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetTracking(costs, supports);
   costCollector = *costs;
 }
 
-void defineFeetTranslation(ModelMaker &self,
-                           crocoddyl::CostModelSum &costCollector,
-                           const Support &supports = Support::DOUBLE,
-                           const bool &stairs = false) {
+void defineFeetTranslation(ModelMaker& self,
+                           crocoddyl::CostModelSum& costCollector,
+                           const Support& supports = Support::DOUBLE,
+                           const bool& stairs = false) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetTranslation(costs, supports, stairs);
   costCollector = *costs;
 }
 
-void defineDCMTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
-                   const Support &supports = Support::DOUBLE) {
+void defineDCMTask(ModelMaker& self, crocoddyl::CostModelSum& costCollector,
+                   const Support& supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineDCMTask(costs, supports);
   costCollector = *costs;
 }
 
-void definePostureTask(ModelMaker &self,
-                       crocoddyl::CostModelSum &costCollector) {
+void definePostureTask(ModelMaker& self,
+                       crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.definePostureTask(costs);
   costCollector = *costs;
 }
 
-void defineRotationBase(ModelMaker &self,
-                        crocoddyl::CostModelSum &costCollector) {
+void defineRotationBase(ModelMaker& self,
+                        crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineRotationBase(costs);
   costCollector = *costs;
 }
 
-void defineActuationTask(ModelMaker &self,
-                         crocoddyl::CostModelSum &costCollector) {
+void defineActuationTask(ModelMaker& self,
+                         crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineActuationTask(costs);
   costCollector = *costs;
 }
 
-void defineJointLimits(ModelMaker &self,
-                       crocoddyl::CostModelSum &costCollector) {
+void defineJointLimits(ModelMaker& self,
+                       crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineJointLimits(costs);
   costCollector = *costs;
 }
 
-void defineCoPTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
-                   const Support &supports = Support::DOUBLE) {
+void defineCoPTask(ModelMaker& self, crocoddyl::CostModelSum& costCollector,
+                   const Support& supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineCoPTask(costs, supports);
   costCollector = *costs;
 }
 
-void defineFeetRotation(ModelMaker &self,
-                        crocoddyl::CostModelSum &costCollector) {
+void defineFeetRotation(ModelMaker& self,
+                        crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetRotation(costs);
   costCollector = *costs;
 }
 
-void defineFeetZRotation(ModelMaker &self,
-                         crocoddyl::CostModelSum &costCollector) {
+void defineFeetZRotation(ModelMaker& self,
+                         crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFeetZRotation(costs);
   costCollector = *costs;
 }
 
-void defineCoMPosition(ModelMaker &self,
-                       crocoddyl::CostModelSum &costCollector) {
+void defineCoMPosition(ModelMaker& self,
+                       crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineCoMPosition(costs);
   costCollector = *costs;
 }
 
-void defineCoMVelocity(ModelMaker &self,
-                       crocoddyl::CostModelSum &costCollector) {
+void defineCoMVelocity(ModelMaker& self,
+                       crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineCoMVelocity(costs);
   costCollector = *costs;
 }
 
-void defineVelFootTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
-                       const Support &supports = Support::DOUBLE) {
+void defineVelFootTask(ModelMaker& self, crocoddyl::CostModelSum& costCollector,
+                       const Support& supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineVelFootTask(costs, supports);
   costCollector = *costs;
 }
 
-void defineFootCollisionTask(ModelMaker &self,
-                             crocoddyl::CostModelSum &costCollector) {
+void defineFootCollisionTask(ModelMaker& self,
+                             crocoddyl::CostModelSum& costCollector) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFootCollisionTask(costs);
   costCollector = *costs;
 }
 
-void defineFlyHighTask(ModelMaker &self, crocoddyl::CostModelSum &costCollector,
-                       const Support &supports = Support::DOUBLE) {
+void defineFlyHighTask(ModelMaker& self, crocoddyl::CostModelSum& costCollector,
+                       const Support& supports = Support::DOUBLE) {
   Cost costs = boost::make_shared<crocoddyl::CostModelSum>(costCollector);
   self.defineFlyHighTask(costs, supports);
   costCollector = *costs;

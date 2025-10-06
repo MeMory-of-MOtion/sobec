@@ -11,7 +11,7 @@
 
 namespace sobec {
 
-void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
+void MPCWalkParams::readParamsFromYamlString(std::string& StringToParse) {
   YAML::Node root = YAML::Load(StringToParse);
   YAML::Node config = root["walk"];
 
@@ -21,7 +21,7 @@ void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
   }
 
   // Local lambda function to read double
-  auto read_double = [&config](double &aref_d, std::string fieldname) {
+  auto read_double = [&config](double& aref_d, std::string fieldname) {
     YAML::Node yn_ad = config[fieldname];
     if (yn_ad) {
       aref_d = yn_ad.as<double>();
@@ -31,7 +31,7 @@ void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
   };
 
   // Local lambda function to read int
-  auto read_int = [&config](int &aref_d, std::string fieldname) {
+  auto read_int = [&config](int& aref_d, std::string fieldname) {
     YAML::Node yn_ad = config[fieldname];
     if (yn_ad) {
       aref_d = yn_ad.as<int>();
@@ -41,7 +41,7 @@ void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
   };
 
   // Local lambda function to read vectorX
-  auto read_vxd = [&config](Eigen::VectorXd &aref_vxd, std::string fieldname) {
+  auto read_vxd = [&config](Eigen::VectorXd& aref_vxd, std::string fieldname) {
     YAML::Node yn_avxd = config[fieldname];
     if (yn_avxd) {
       aref_vxd.resize(yn_avxd.size());
@@ -54,7 +54,7 @@ void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
   };
 
   // Local lambda function to read vector3
-  auto read_v3d = [&config](Eigen::Vector3d &aref_v3d, std::string fieldname) {
+  auto read_v3d = [&config](Eigen::Vector3d& aref_v3d, std::string fieldname) {
     YAML::Node yn_av3d = config[fieldname];
     if (yn_av3d) {
       aref_v3d.resize(3);
@@ -79,7 +79,7 @@ void MPCWalkParams::readParamsFromYamlString(std::string &StringToParse) {
   read_int(solver_maxiter, "solver_maxiter");
 }
 
-void MPCWalkParams::readParamsFromYamlFile(const std::string &Filename) {
+void MPCWalkParams::readParamsFromYamlFile(const std::string& Filename) {
   std::ifstream t(Filename);
   std::stringstream buffer;
   buffer << t.rdbuf();

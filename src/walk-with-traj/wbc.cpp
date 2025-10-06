@@ -4,16 +4,16 @@ namespace sobec {
 
 WBC::WBC() {}
 
-WBC::WBC(const WBCSettings &settings, const RobotDesigner &design,
-         const HorizonManager &horizon, const Eigen::VectorXd &q0,
-         const Eigen::VectorXd &v0, const std::string &actuationCostName) {
+WBC::WBC(const WBCSettings& settings, const RobotDesigner& design,
+         const HorizonManager& horizon, const Eigen::VectorXd& q0,
+         const Eigen::VectorXd& v0, const std::string& actuationCostName) {
   initialize(settings, design, horizon, q0, v0, actuationCostName);
 }
 
-void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
-                     const HorizonManager &horizon, const Eigen::VectorXd &q0,
-                     const Eigen::VectorXd &v0,
-                     const std::string &actuationCostName) {
+void WBC::initialize(const WBCSettings& settings, const RobotDesigner& design,
+                     const HorizonManager& horizon, const Eigen::VectorXd& q0,
+                     const Eigen::VectorXd& v0,
+                     const std::string& actuationCostName) {
   /** The posture required here is the full robot posture in the order of
    * pinicchio*/
   if (!design.initialized_ || !horizon.initialized_) {
@@ -63,7 +63,7 @@ void WBC::initialize(const WBCSettings &settings, const RobotDesigner &design,
   initialized_ = true;
 }
 
-void WBC::generateWalkingCycle(ModelMaker &mm) {
+void WBC::generateWalkingCycle(ModelMaker& mm) {
   std::vector<Support> cycle;
 
   takeoff_RF_cycle_ = settings_.TdoubleSupport;
@@ -90,7 +90,7 @@ void WBC::generateWalkingCycle(ModelMaker &mm) {
   walkingCycle_ = HorizonManager(names, x0_, cyclicModels, cyclicModels.back());
 }
 
-void WBC::generateWalkingCycleNoThinking(ModelMaker &mm) {
+void WBC::generateWalkingCycleNoThinking(ModelMaker& mm) {
   std::vector<Support> cycle;
 
   takeoff_RF_cycle_ = settings_.TdoubleSupport;
@@ -117,7 +117,7 @@ void WBC::generateWalkingCycleNoThinking(ModelMaker &mm) {
   walkingCycle_ = HorizonManager(names, x0_, cyclicModels, cyclicModels.back());
 }
 
-void WBC::generateStandingCycle(ModelMaker &mm) {
+void WBC::generateStandingCycle(ModelMaker& mm) {
   ///@todo: bind it
   std::vector<Support> cycle(settings_.T, DOUBLE);
   std::vector<AMA> cyclicModels;
@@ -128,7 +128,7 @@ void WBC::generateStandingCycle(ModelMaker &mm) {
       HorizonManager(names, x0_, cyclicModels, cyclicModels.back());
 }
 
-void WBC::generateStandingCycleNoThinking(ModelMaker &mm) {
+void WBC::generateStandingCycleNoThinking(ModelMaker& mm) {
   ///@todo: bind it
   std::vector<Support> cycle(settings_.T, DOUBLE);
   std::vector<AMA> cyclicModels;
@@ -144,8 +144,8 @@ bool WBC::timeToSolveDDP(int iteration) {
   return time_to_solve_ddp_;
 }
 
-void WBC::iterate(const Eigen::VectorXd &q_current,
-                  const Eigen::VectorXd &v_current, bool is_feasible) {
+void WBC::iterate(const Eigen::VectorXd& q_current,
+                  const Eigen::VectorXd& v_current, bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
 
   // ~~TIMING~~ //
@@ -161,16 +161,16 @@ void WBC::iterate(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBC::iterate(int iteration, const Eigen::VectorXd &q_current,
-                  const Eigen::VectorXd &v_current, bool is_feasible) {
+void WBC::iterate(int iteration, const Eigen::VectorXd& q_current,
+                  const Eigen::VectorXd& v_current, bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterate(q_current, v_current, is_feasible);
   } else
     x0_ = shapeState(q_current, v_current);
 }
 
-void WBC::iterateNoThinking(const Eigen::VectorXd &q_current,
-                            const Eigen::VectorXd &v_current,
+void WBC::iterateNoThinking(const Eigen::VectorXd& q_current,
+                            const Eigen::VectorXd& v_current,
                             bool is_feasible) {
   x0_ = shapeState(q_current, v_current);
 
@@ -186,8 +186,8 @@ void WBC::iterateNoThinking(const Eigen::VectorXd &q_current,
   horizon_.solve(x0_, settings_.ddpIteration, is_feasible);
 }
 
-void WBC::iterateNoThinking(int iteration, const Eigen::VectorXd &q_current,
-                            const Eigen::VectorXd &v_current,
+void WBC::iterateNoThinking(int iteration, const Eigen::VectorXd& q_current,
+                            const Eigen::VectorXd& v_current,
                             bool is_feasible) {
   if (timeToSolveDDP(iteration)) {
     iterateNoThinking(q_current, v_current, is_feasible);
@@ -295,7 +295,7 @@ void WBC::recedeWithCycle() {
   return;
 }
 
-void WBC::recedeWithCycle(HorizonManager &cycle) {
+void WBC::recedeWithCycle(HorizonManager& cycle) {
   horizon_.recede(cycle.ama(0), cycle.ada(0));
   cycle.recede();
   return;
@@ -322,8 +322,8 @@ void WBC::goToNextDoubleSupport() {
   }
 }
 
-const Eigen::VectorXd &WBC::shapeState(const Eigen::VectorXd &q,
-                                       const Eigen::VectorXd &v) {
+const Eigen::VectorXd& WBC::shapeState(const Eigen::VectorXd& q,
+                                       const Eigen::VectorXd& v) {
   if (q.size() == designer_.get_rModelComplete().nq &&
       v.size() == designer_.get_rModelComplete().nv) {
     x_internal_.head<7>() = q.head<7>();
@@ -397,7 +397,7 @@ void WBC::updateSupportTiming() {
     takeoff_RF_.push_back(horizon_end_ - 1);
 }
 
-const supportSwitch &WBC::getSwitches(const unsigned long before,
+const supportSwitch& WBC::getSwitches(const unsigned long before,
                                       const unsigned long after) {
   contacts_before_ = horizon_.get_contacts(before);
   contacts_after_ = horizon_.get_contacts(after);
