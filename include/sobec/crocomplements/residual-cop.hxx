@@ -28,10 +28,10 @@ ResidualModelCenterOfPressureTpl<Scalar>::~ResidualModelCenterOfPressureTpl() {}
 
 template <typename Scalar>
 void ResidualModelCenterOfPressureTpl<Scalar>::calc(
-    const boost::shared_ptr<ResidualDataAbstract> &data,
-    const Eigen::Ref<const VectorXs> & /*x*/,
-    const Eigen::Ref<const VectorXs> &) {
-  Data *d = static_cast<Data *>(data.get());
+    const boost::shared_ptr<ResidualDataAbstract>& data,
+    const Eigen::Ref<const VectorXs>& /*x*/,
+    const Eigen::Ref<const VectorXs>&) {
+  Data* d = static_cast<Data*>(data.get());
   Force f = d->contact->jMf.actInv(d->contact->f);
 
   if (f.linear()[2] != 0.0) {
@@ -45,12 +45,12 @@ void ResidualModelCenterOfPressureTpl<Scalar>::calc(
 
 template <typename Scalar>
 void ResidualModelCenterOfPressureTpl<Scalar>::calcDiff(
-    const boost::shared_ptr<ResidualDataAbstract> &data,
-    const Eigen::Ref<const VectorXs> &, const Eigen::Ref<const VectorXs> &) {
-  Data *d = static_cast<Data *>(data.get());
+    const boost::shared_ptr<ResidualDataAbstract>& data,
+    const Eigen::Ref<const VectorXs>&, const Eigen::Ref<const VectorXs>&) {
+  Data* d = static_cast<Data*>(data.get());
   Force f = d->contact->jMf.actInv(d->contact->f);
-  const MatrixXs &df_dx = d->contact->df_dx;
-  const MatrixXs &df_du = d->contact->df_du;
+  const MatrixXs& df_dx = d->contact->df_dx;
+  const MatrixXs& df_du = d->contact->df_du;
 
   // r = tau/f
   // r'= tau'/f - tau/f^2 f' = (tau'-cop.f')/f
@@ -75,7 +75,7 @@ void ResidualModelCenterOfPressureTpl<Scalar>::calcDiff(
 template <typename Scalar>
 boost::shared_ptr<ResidualDataAbstractTpl<Scalar> >
 ResidualModelCenterOfPressureTpl<Scalar>::createData(
-    DataCollectorAbstract *const data) {
+    DataCollectorAbstract* const data) {
   return boost::allocate_shared<Data>(Eigen::aligned_allocator<Data>(), this,
                                       data);
 }

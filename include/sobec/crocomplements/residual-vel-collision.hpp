@@ -91,9 +91,9 @@ class ResidualModelVelCollisionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calc(const boost::shared_ptr<ResidualDataAbstract> &data,
-                    const Eigen::Ref<const VectorXs> &x,
-                    const Eigen::Ref<const VectorXs> &u);
+  virtual void calc(const boost::shared_ptr<ResidualDataAbstract>& data,
+                    const Eigen::Ref<const VectorXs>& x,
+                    const Eigen::Ref<const VectorXs>& u);
 
   /**
    * @brief Compute the derivatives of the pair collision residual
@@ -102,17 +102,17 @@ class ResidualModelVelCollisionTpl : public ResidualModelAbstractTpl<_Scalar> {
    * @param[in] x     State point \f$\mathbf{x}\in\mathbb{R}^{ndx}\f$
    * @param[in] u     Control input \f$\mathbf{u}\in\mathbb{R}^{nu}\f$
    */
-  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract> &data,
-                        const Eigen::Ref<const VectorXs> &x,
-                        const Eigen::Ref<const VectorXs> &u);
+  virtual void calcDiff(const boost::shared_ptr<ResidualDataAbstract>& data,
+                        const Eigen::Ref<const VectorXs>& x,
+                        const Eigen::Ref<const VectorXs>& u);
 
   virtual boost::shared_ptr<ResidualDataAbstract> createData(
-      DataCollectorAbstract *const data);
+      DataCollectorAbstract* const data);
 
   /**
    * @brief Return the Pinocchio geometry model
    */
-  const pinocchio::GeometryModel &get_geometry() const;
+  const pinocchio::GeometryModel& get_geometry() const;
 
   /**
    * @brief Return the reference collision pair id
@@ -159,15 +159,15 @@ struct ResidualDataVelCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
   typedef typename MathBase::Vector2s Vector2s;
 
   template <template <typename Scalar> class Model>
-  ResidualDataVelCollisionTpl(Model<Scalar> *const model,
-                              DataCollectorAbstract *const data)
+  ResidualDataVelCollisionTpl(Model<Scalar>* const model,
+                              DataCollectorAbstract* const data)
       : Base(model, data),
         geometry(pinocchio::GeometryData(model->get_geometry())),
         J(Matrix6xs::Zero(6, model->get_state()->get_nv())),
         Vx(Matrix6xs::Zero(6, 2 * model->get_state()->get_nv())) {
     // Check that proper shared data has been passed
-    DataCollectorMultibodyTpl<Scalar> *d =
-        dynamic_cast<DataCollectorMultibodyTpl<Scalar> *>(shared);
+    DataCollectorMultibodyTpl<Scalar>* d =
+        dynamic_cast<DataCollectorMultibodyTpl<Scalar>*>(shared);
     if (d == NULL) {
       throw_pretty(
           "Invalid argument: the shared data should be derived from "
@@ -177,7 +177,7 @@ struct ResidualDataVelCollisionTpl : public ResidualDataAbstractTpl<_Scalar> {
     pinocchio = d->pinocchio;
   }
   pinocchio::GeometryData geometry;       //!< Pinocchio geometry data
-  pinocchio::DataTpl<Scalar> *pinocchio;  //!< Pinocchio data
+  pinocchio::DataTpl<Scalar>* pinocchio;  //!< Pinocchio data
   Matrix6xs J;                            //!< Jacobian at the collision joint
   Vector3s d;  //!< Vector from joint joint_id to collision point in world frame
   Vector3s e;  //!< Distance between collision pair

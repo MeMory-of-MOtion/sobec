@@ -10,15 +10,15 @@ namespace sobec {
 namespace python {
 namespace bp = boost::python;
 template <typename T>
-inline void py_list_to_std_vector(const bp::object &iterable,
-                                  std::vector<T> &out) {
+inline void py_list_to_std_vector(const bp::object& iterable,
+                                  std::vector<T>& out) {
   out = std::vector<T>(boost::python::stl_input_iterator<T>(iterable),
                        boost::python::stl_input_iterator<T>());
 }
 
-void initialize(OCP &self, const bp::dict &settings,
-                const bp::dict &model_settings, const bp::dict &design,
-                const Eigen::VectorXd &q0, const Eigen::VectorXd &v0) {
+void initialize(OCP& self, const bp::dict& settings,
+                const bp::dict& model_settings, const bp::dict& design,
+                const Eigen::VectorXd& q0, const Eigen::VectorXd& v0) {
   OCPSettings conf;
 
   conf.totalSteps = bp::extract<int>(settings["totalSteps"]);
@@ -80,7 +80,7 @@ void initialize(OCP &self, const bp::dict &settings,
 
   self.initialize(conf, model_conf, robot_conf, q0, v0);
 }
-HorizonManager get_horizon(OCP &self) { return self.get_horizon(); }
+HorizonManager get_horizon(OCP& self) { return self.get_horizon(); }
 
 void exposeOCP() {
   bp::class_<OCP>("OCP", bp::init<>())

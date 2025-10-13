@@ -81,9 +81,11 @@ except (ImportError, AttributeError):
 q0 = robot.x0[: robot.model.nq]
 print(
     "Start from q0=",
-    "half_sitting"
-    if norm(q0 - robot.model.referenceConfigurations["half_sitting"]) < 1e-9
-    else q0,
+    (
+        "half_sitting"
+        if norm(q0 - robot.model.referenceConfigurations["half_sitting"]) < 1e-9
+        else q0
+    ),
 )
 
 # #####################################################################################

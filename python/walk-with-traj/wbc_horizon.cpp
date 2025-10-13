@@ -14,10 +14,10 @@ namespace sobec {
 namespace python {
 namespace bp = boost::python;
 
-void initialize(WBCHorizon &self, const bp::dict &settings,
-                const RobotDesigner &designer, const HorizonManager &horizon,
-                const Eigen::VectorXd &q0, const Eigen::VectorXd &v0,
-                const std::string &actuationCostName) {
+void initialize(WBCHorizon& self, const bp::dict& settings,
+                const RobotDesigner& designer, const HorizonManager& horizon,
+                const Eigen::VectorXd& q0, const Eigen::VectorXd& v0,
+                const std::string& actuationCostName) {
   WBCHorizonSettings conf;
 
   conf.totalSteps = bp::extract<int>(settings["totalSteps"]);
@@ -36,7 +36,7 @@ void initialize(WBCHorizon &self, const bp::dict &settings,
 }
 
 template <typename T>
-boost::shared_ptr<std::vector<T>> constructVectorFromList(const bp::list &in) {
+boost::shared_ptr<std::vector<T>> constructVectorFromList(const bp::list& in) {
   boost::shared_ptr<std::vector<T>> ptr = boost::make_shared<std::vector<T>>();
   ptr->resize((std::size_t)bp::len(in));
   for (long i = 0; i < bp::len(in); ++i) {
@@ -46,7 +46,7 @@ boost::shared_ptr<std::vector<T>> constructVectorFromList(const bp::list &in) {
 }
 
 template <typename T>
-std::string displayVector(std::vector<T> &self) {
+std::string displayVector(std::vector<T>& self) {
   std::ostringstream oss;
   oss << "[";
   for (std::size_t i = 0; i < self.size(); ++i) {
@@ -56,7 +56,7 @@ std::string displayVector(std::vector<T> &self) {
   return oss.str();
 }
 
-bool timeToSolveDDP(WBCHorizon &self, const int iteration) {
+bool timeToSolveDDP(WBCHorizon& self, const int iteration) {
   return self.timeToSolveDDP(iteration);
 }
 
@@ -82,34 +82,36 @@ void exposeWBCHorizon() {
       .def("generateFullHorizon", &WBCHorizon::generateFullHorizon,
            (bp::args("self"), bp::arg("modelMaker"), bp::arg("experiment")))
       .def("timeToSolveDDP", &timeToSolveDDP, bp::args("self", "iteration"))
-      .def("iterate",
-           static_cast<void (WBCHorizon::*)(const int, const Eigen::VectorXd &,
-                                            const Eigen::VectorXd &,
-                                            const bool)>(&WBCHorizon::iterate),
-           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
-            bp::arg("v_current"), bp::arg("is_feasible") = false))
+      .def(
+          "iterate",
+          static_cast<void (WBCHorizon::*)(const int, const Eigen::VectorXd&,
+                                           const Eigen::VectorXd&, const bool)>(
+              &WBCHorizon::iterate),
+          (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
+           bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterate",
            static_cast<void (WBCHorizon::*)(
-               const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
+               const Eigen::VectorXd&, const Eigen::VectorXd&, const bool)>(
                &WBCHorizon::iterate),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
+      .def(
+          "iterateNoThinking",
+          static_cast<void (WBCHorizon::*)(const int, const Eigen::VectorXd&,
+                                           const Eigen::VectorXd&, const bool)>(
+              &WBCHorizon::iterateNoThinking),
+          (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
+           bp::arg("v_current"), bp::arg("is_feasible") = false))
       .def("iterateNoThinking",
            static_cast<void (WBCHorizon::*)(
-               const int, const Eigen::VectorXd &, const Eigen::VectorXd &,
-               const bool)>(&WBCHorizon::iterateNoThinking),
-           (bp::arg("self"), bp::arg("iteration"), bp::arg("q_current"),
-            bp::arg("v_current"), bp::arg("is_feasible") = false))
-      .def("iterateNoThinking",
-           static_cast<void (WBCHorizon::*)(
-               const Eigen::VectorXd &, const Eigen::VectorXd &, const bool)>(
+               const Eigen::VectorXd&, const Eigen::VectorXd&, const bool)>(
                &WBCHorizon::iterateNoThinking),
            (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
             bp::arg("is_feasible") = false))
       .def(
           "iterateNoThinkingWithDelay",
           static_cast<void (WBCHorizon::*)(
-              const Eigen::VectorXd &, const Eigen::VectorXd &, const bool,
+              const Eigen::VectorXd&, const Eigen::VectorXd&, const bool,
               const bool, const bool)>(&WBCHorizon::iterateNoThinkingWithDelay),
           (bp::arg("self"), bp::arg("q_current"), bp::arg("v_current"),
            bp::arg("contact_left"), bp::arg("contact_right"),
@@ -148,15 +150,15 @@ void exposeWBCHorizon() {
           bp::make_function(
               &WBCHorizon::ref_LF_poses,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBCHorizon::*)(
-              const std::vector<pinocchio::SE3> &)>(&WBCHorizon::setPoseRef_LF))
+          static_cast<void (WBCHorizon::*)(const std::vector<pinocchio::SE3>&)>(
+              &WBCHorizon::setPoseRef_LF))
       .add_property(
           "ref_RF_poses",
           bp::make_function(
               &WBCHorizon::ref_RF_poses,
               bp::return_value_policy<bp::reference_existing_object>()),
-          static_cast<void (WBCHorizon::*)(
-              const std::vector<pinocchio::SE3> &)>(&WBCHorizon::setPoseRef_RF))
+          static_cast<void (WBCHorizon::*)(const std::vector<pinocchio::SE3>&)>(
+              &WBCHorizon::setPoseRef_RF))
       .add_property(
           "ref_com",
           bp::make_function(

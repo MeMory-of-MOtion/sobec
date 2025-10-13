@@ -9,11 +9,11 @@ namespace sobec {
 
 RobotDesigner::RobotDesigner() {}
 
-RobotDesigner::RobotDesigner(const RobotDesignerSettings &settings) {
+RobotDesigner::RobotDesigner(const RobotDesignerSettings& settings) {
   initialize(settings);
 }
 
-void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
+void RobotDesigner::initialize(const RobotDesignerSettings& settings) {
   settings_ = settings;
 
   // COMPLETE MODEL //
@@ -51,7 +51,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   for (std::vector<std::string>::const_iterator it =
            settings_.controlledJointsNames.begin();
        it != settings_.controlledJointsNames.end(); ++it) {
-    const std::string &joint_name = *it;
+    const std::string& joint_name = *it;
     std::cout << joint_name << std::endl;
     std::cout << rModelComplete_.getJointId(joint_name) << std::endl;
     if (not(rModelComplete_.existJointName(joint_name))) {
@@ -65,7 +65,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   for (std::vector<std::string>::const_iterator it =
            rModelComplete_.names.begin() + 1;
        it != rModelComplete_.names.end(); ++it) {
-    const std::string &joint_name = *it;
+    const std::string& joint_name = *it;
     if (std::find(settings_.controlledJointsNames.begin(),
                   settings_.controlledJointsNames.end(),
                   joint_name) == settings_.controlledJointsNames.end()) {
@@ -91,7 +91,7 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   // Generating list of indices for controlled joints //
   for (std::vector<std::string>::const_iterator it = rModel_.names.begin() + 1;
        it != rModel_.names.end(); ++it) {
-    const std::string &joint_name = *it;
+    const std::string& joint_name = *it;
     if (std::find(settings_.controlledJointsNames.begin(),
                   settings_.controlledJointsNames.end(),
                   joint_name) != settings_.controlledJointsNames.end()) {
@@ -103,8 +103,8 @@ void RobotDesigner::initialize(const RobotDesignerSettings &settings) {
   initialized_ = true;
 }
 
-void RobotDesigner::addToeAndHeel(const double &heel_translation,
-                                  const double &toe_translation) {
+void RobotDesigner::addToeAndHeel(const double& heel_translation,
+                                  const double& toe_translation) {
   pinocchio::SE3 toePlacement = pinocchio::SE3::Identity();
   toePlacement.translation()[0] = toe_translation;
   pinocchio::Frame toeFrameLeft(
@@ -140,13 +140,13 @@ void RobotDesigner::addToeAndHeel(const double &heel_translation,
   heelRightId_ = rModel_.addFrame(heelFrameRight);
 }
 
-void RobotDesigner::set_q0(const Eigen::VectorXd &q0) {
+void RobotDesigner::set_q0(const Eigen::VectorXd& q0) {
   q0_ = q0;
   x0_ << q0_, v0_;
   updateReducedModel(q0_);
 }
 
-void RobotDesigner::updateReducedModel(const Eigen::VectorXd &x) {
+void RobotDesigner::updateReducedModel(const Eigen::VectorXd& x) {
   /** x is the reduced posture, or contains the reduced posture in the first
    * elements */
   pinocchio::forwardKinematics(rModel_, rData_, x.head(rModel_.nq));
@@ -157,7 +157,7 @@ void RobotDesigner::updateReducedModel(const Eigen::VectorXd &x) {
   RF_position_ = rData_.oMf[rightFootId_].translation();
 }
 
-void RobotDesigner::updateCompleteModel(const Eigen::VectorXd &x) {
+void RobotDesigner::updateCompleteModel(const Eigen::VectorXd& x) {
   /** x is the complete posture, or contains the complete posture in the first
    * elements */
   pinocchio::forwardKinematics(rModelComplete_, rDataComplete_,
@@ -183,29 +183,29 @@ void RobotDesigner::addEndEffectorFrame(std::string endEffectorName,
   rData_ = pinocchio::Data(rModel_);
 }
 
-const pinocchio::SE3 &RobotDesigner::get_LF_frame() {
+const pinocchio::SE3& RobotDesigner::get_LF_frame() {
   return rData_.oMf[leftFootId_];
 }
 
-const pinocchio::SE3 &RobotDesigner::get_RF_frame() {
+const pinocchio::SE3& RobotDesigner::get_RF_frame() {
   return rData_.oMf[rightFootId_];
 }
 
-const pinocchio::SE3 &RobotDesigner::get_root_frame() {
+const pinocchio::SE3& RobotDesigner::get_root_frame() {
   return rData_.oMf[rootId_];
 }
-const pinocchio::SE3 &RobotDesigner::get_EndEff_frame() {
+const pinocchio::SE3& RobotDesigner::get_EndEff_frame() {
   return rData_.oMf[EndEffectorId_];
 }
 
 double RobotDesigner::getRobotMass() {
   mass_ = 0;
-  for (pinocchio::Inertia &I : rModel_.inertias) mass_ += I.mass();
+  for (pinocchio::Inertia& I : rModel_.inertias) mass_ += I.mass();
   return mass_;
 }
 
-void RobotDesigner::changeInertia(const size_t &inertia_id,
-                                  const double &offset) {
+void RobotDesigner::changeInertia(const size_t& inertia_id,
+                                  const double& offset) {
   Eigen::Vector3d lever = rModel_.inertias[inertia_id].lever();
   double mass = rModel_.inertias[inertia_id].mass();
   Eigen::Matrix3d rot_inertia = rModel_.inertias[inertia_id].inertia();

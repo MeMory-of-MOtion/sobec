@@ -59,17 +59,17 @@ class OCP {
 
  public:
   OCP();
-  OCP(const OCPSettings &settings, const ModelMakerSettings &model_settings,
-      const RobotDesignerSettings &design, const Eigen::VectorXd &q0,
-      const Eigen::VectorXd &v0);
+  OCP(const OCPSettings& settings, const ModelMakerSettings& model_settings,
+      const RobotDesignerSettings& design, const Eigen::VectorXd& q0,
+      const Eigen::VectorXd& v0);
 
-  void initialize(const OCPSettings &settings,
-                  const ModelMakerSettings &model_settings,
-                  const RobotDesignerSettings &design,
-                  const Eigen::VectorXd &q0, const Eigen::VectorXd &v0);
+  void initialize(const OCPSettings& settings,
+                  const ModelMakerSettings& model_settings,
+                  const RobotDesignerSettings& design,
+                  const Eigen::VectorXd& q0, const Eigen::VectorXd& v0);
 
   void updateEndPhase();
-  void updateOCP(const Eigen::VectorXd &qc, const Eigen::VectorXd &vc);
+  void updateOCP(const Eigen::VectorXd& qc, const Eigen::VectorXd& vc);
   HorizonManager get_horizon() { return horizon_; }
 
   eVector3 get_LF_position() { return designer_.get_LF_position(); }

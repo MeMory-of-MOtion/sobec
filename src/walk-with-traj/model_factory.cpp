@@ -9,13 +9,13 @@ namespace sobec {
 
 ModelMaker::ModelMaker() {}
 
-ModelMaker::ModelMaker(const ModelMakerSettings &settings,
-                       const RobotDesigner &designer) {
+ModelMaker::ModelMaker(const ModelMakerSettings& settings,
+                       const RobotDesigner& designer) {
   initialize(settings, designer);
 }
 
-void ModelMaker::initialize(const ModelMakerSettings &settings,
-                            const RobotDesigner &designer) {
+void ModelMaker::initialize(const ModelMakerSettings& settings,
+                            const RobotDesigner& designer) {
   settings_ = settings;
   designer_ = designer;
 
@@ -40,8 +40,8 @@ void ModelMaker::initialize(const ModelMakerSettings &settings,
   initialized_ = true;
 }
 
-void ModelMaker::defineFeetContact(Contact &contactCollector,
-                                   const Support &support) {
+void ModelMaker::defineFeetContact(Contact& contactCollector,
+                                   const Support& support) {
   boost::shared_ptr<crocoddyl::ContactModelAbstract> ContactModelLeft =
       boost::make_shared<crocoddyl::ContactModel6D>(
           state_, designer_.get_LF_id(), designer_.get_LF_frame(),
@@ -64,8 +64,8 @@ void ModelMaker::defineFeetContact(Contact &contactCollector,
     contactCollector->changeContactStatus(designer_.get_RF_name(), true);
 }
 
-void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
-                                      const Support &support) {
+void ModelMaker::defineFeetWrenchCost(Cost& costCollector,
+                                      const Support& support) {
   double Mg = -designer_.getRobotMass() * settings_.gravity(2);
   double Fz_ref;
   support == Support::DOUBLE ? Fz_ref = Mg / 2 : Fz_ref = Mg;
@@ -125,8 +125,8 @@ void ModelMaker::defineFeetWrenchCost(Cost &costCollector,
     costCollector.get()->changeCostStatus("wrench_RF", true);
 }
 
-void ModelMaker::defineFeetTracking(Cost &costCollector,
-                                    const Support &support) {
+void ModelMaker::defineFeetTracking(Cost& costCollector,
+                                    const Support& support) {
   boost::shared_ptr<crocoddyl::ActivationModelQuadFlatLog> activationQF =
       boost::make_shared<crocoddyl::ActivationModelQuadFlatLog>(6, 0.01);
 
@@ -159,9 +159,9 @@ void ModelMaker::defineFeetTracking(Cost &costCollector,
     costCollector.get()->changeCostStatus("placement_LF", true);
 }
 
-void ModelMaker::defineFeetTranslation(Cost &costCollector,
-                                       const Support &support,
-                                       const bool &stairs) {
+void ModelMaker::defineFeetTranslation(Cost& costCollector,
+                                       const Support& support,
+                                       const bool& stairs) {
   boost::shared_ptr<crocoddyl::ResidualModelFrameTranslation>
       residual_LF_Tracking =
           boost::make_shared<crocoddyl::ResidualModelFrameTranslation>(
@@ -210,8 +210,8 @@ void ModelMaker::defineFeetTranslation(Cost &costCollector,
   }
 }
 
-void ModelMaker::defineFeetForceTask(Cost &costCollector,
-                                     const Support &support) {
+void ModelMaker::defineFeetForceTask(Cost& costCollector,
+                                     const Support& support) {
   double Mg = -designer_.getRobotMass() * settings_.gravity(2);
   double Fz_ref;
   support == Support::DOUBLE ? Fz_ref = Mg / 2 : Fz_ref = Mg;
@@ -255,7 +255,7 @@ void ModelMaker::defineFeetForceTask(Cost &costCollector,
     costCollector.get()->changeCostStatus("force_LF", true);
 }
 
-void ModelMaker::definePostureTask(Cost &costCollector) {
+void ModelMaker::definePostureTask(Cost& costCollector) {
   if (settings_.stateWeights.size() != designer_.get_rModel().nv * 2) {
     throw std::invalid_argument("State weight size is wrong ");
   }
@@ -273,7 +273,7 @@ void ModelMaker::definePostureTask(Cost &costCollector) {
                                true);
 }
 
-void ModelMaker::defineRotationBase(Cost &costCollector) {
+void ModelMaker::defineRotationBase(Cost& costCollector) {
   boost::shared_ptr<crocoddyl::ResidualModelFrameRotation> residual_Rotation =
       boost::make_shared<crocoddyl::ResidualModelFrameRotation>(
           state_, designer_.get_root_id(),
@@ -287,7 +287,7 @@ void ModelMaker::defineRotationBase(Cost &costCollector) {
                                settings_.wBaseRot, true);
 }
 
-void ModelMaker::defineActuationTask(Cost &costCollector) {
+void ModelMaker::defineActuationTask(Cost& costCollector) {
   if (settings_.controlWeights.size() != (int)actuation_->get_nu()) {
     throw std::invalid_argument("Control weight size is wrong ");
   }
@@ -304,7 +304,7 @@ void ModelMaker::defineActuationTask(Cost &costCollector) {
                                settings_.wControlReg, true);
 }
 
-void ModelMaker::defineJointLimits(Cost &costCollector) {
+void ModelMaker::defineJointLimits(Cost& costCollector) {
   Eigen::VectorXd lower_bound(2 * state_->get_nv()),
       upper_bound(2 * state_->get_nv());
 
@@ -330,7 +330,7 @@ void ModelMaker::defineJointLimits(Cost &costCollector) {
                                true);
 }
 
-void ModelMaker::defineDCMTask(Cost &costCollector, const Support &support) {
+void ModelMaker::defineDCMTask(Cost& costCollector, const Support& support) {
   Eigen::Vector3d ref_position = Eigen::VectorXd::Zero(3);
   if (support == Support::LEFT) {
     ref_position = designer_.get_LF_frame().translation();
@@ -353,7 +353,7 @@ void ModelMaker::defineDCMTask(Cost &costCollector, const Support &support) {
   costCollector.get()->addCost("DCM", DCM_model, settings_.wDCM, true);
 }
 
-void ModelMaker::defineCoPTask(Cost &costCollector, const Support &support) {
+void ModelMaker::defineCoPTask(Cost& costCollector, const Support& support) {
   Eigen::Vector2d w_cop;
   double value = 1.0 / (settings_.footSize * settings_.footSize);
   w_cop << value, value;
@@ -387,7 +387,7 @@ void ModelMaker::defineCoPTask(Cost &costCollector, const Support &support) {
                                           true);
 }
 
-void ModelMaker::defineFeetRotation(Cost &costCollector) {
+void ModelMaker::defineFeetRotation(Cost& costCollector) {
   eVector3 FootRotationVec;
   FootRotationVec << 1, 1, 1;
   // boost::shared_ptr<sobec::ActivationModelWeightedLog> activationRot =
@@ -421,7 +421,7 @@ void ModelMaker::defineFeetRotation(Cost &costCollector) {
                                settings_.wFootRot, true);
 }
 
-void ModelMaker::defineFeetZRotation(Cost &costCollector) {
+void ModelMaker::defineFeetZRotation(Cost& costCollector) {
   eVector3 FootRotationVec;
   FootRotationVec << 0, 0, 1;
   boost::shared_ptr<sobec::ActivationModelWeightedQuad> activationRot =
@@ -452,7 +452,7 @@ void ModelMaker::defineFeetZRotation(Cost &costCollector) {
                                settings_.wBaseRot, true);
 }
 
-void ModelMaker::defineCoMPosition(Cost &costCollector) {
+void ModelMaker::defineCoMPosition(Cost& costCollector) {
   boost::shared_ptr<sobec::ActivationModelSmooth1Norm> activation =
       boost::make_shared<sobec::ActivationModelSmooth1Norm>(3, 0.01);
   boost::shared_ptr<crocoddyl::CostModelAbstract> comCost =
@@ -463,7 +463,7 @@ void ModelMaker::defineCoMPosition(Cost &costCollector) {
   costCollector.get()->addCost("comTask", comCost, settings_.wPCoM, true);
 }
 
-void ModelMaker::defineCoMVelocity(Cost &costCollector) {
+void ModelMaker::defineCoMVelocity(Cost& costCollector) {
   eVector3 refVelocity = eVector3::Zero();
   boost::shared_ptr<crocoddyl::CostModelAbstract> CoMVelocityCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
@@ -474,8 +474,8 @@ void ModelMaker::defineCoMVelocity(Cost &costCollector) {
                                true);
 }
 
-void ModelMaker::defineFlyHighTask(Cost &costCollector,
-                                   const Support &support) {
+void ModelMaker::defineFlyHighTask(Cost& costCollector,
+                                   const Support& support) {
   boost::shared_ptr<ResidualModelFlyAngle> flyHighResidualRight =
       boost::make_shared<ResidualModelFlyAngle>(
           state_, designer_.get_RF_toe_id(), settings_.flyHighSlope / 2.0,
@@ -504,8 +504,8 @@ void ModelMaker::defineFlyHighTask(Cost &costCollector,
     costCollector.get()->changeCostStatus("flyHigh_LF", true);
 }
 
-void ModelMaker::defineVelFootTask(Cost &costCollector,
-                                   const Support &support) {
+void ModelMaker::defineVelFootTask(Cost& costCollector,
+                                   const Support& support) {
   boost::shared_ptr<crocoddyl::ResidualModelFrameVelocity>
       verticalFootVelResidualLeft =
           boost::make_shared<crocoddyl::ResidualModelFrameVelocity>(
@@ -538,7 +538,7 @@ void ModelMaker::defineVelFootTask(Cost &costCollector,
     costCollector.get()->changeCostStatus("velFoot_LF", true);
 }
 
-void ModelMaker::defineFootCollisionTask(Cost &costCollector) {
+void ModelMaker::defineFootCollisionTask(Cost& costCollector) {
   std::list<pinocchio::FrameIndex> leftIds = {designer_.get_LF_id(),
                                               designer_.get_LF_toe_id(),
                                               designer_.get_LF_heel_id()};
@@ -569,7 +569,7 @@ void ModelMaker::defineFootCollisionTask(Cost &costCollector) {
   }
 }
 
-void ModelMaker::defineGripperPlacement(Cost &costCollector) {
+void ModelMaker::defineGripperPlacement(Cost& costCollector) {
   pinocchio::SE3 goalPlacement = pinocchio::SE3::Identity();
 
   // Position
@@ -595,7 +595,7 @@ void ModelMaker::defineGripperPlacement(Cost &costCollector) {
                                settings_.wGripperRot, true);
 }
 
-void ModelMaker::defineGripperVelocity(Cost &costCollector) {
+void ModelMaker::defineGripperVelocity(Cost& costCollector) {
   pinocchio::Motion goalMotion = pinocchio::Motion(Eigen::VectorXd::Zero(6));
   boost::shared_ptr<crocoddyl::CostModelAbstract> gripperVelocityCost =
       boost::make_shared<crocoddyl::CostModelResidual>(
@@ -607,7 +607,7 @@ void ModelMaker::defineGripperVelocity(Cost &costCollector) {
                                settings_.wGripperVel, true);
 }
 
-AMA ModelMaker::formulateStepTracker(const Support &support) {
+AMA ModelMaker::formulateStepTracker(const Support& support) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
       state_, actuation_->get_nu());
   Cost costs =
@@ -632,7 +632,7 @@ AMA ModelMaker::formulateStepTracker(const Support &support) {
   return runningModel;
 }
 
-AMA ModelMaker::formulateTerminalStepTracker(const Support &support) {
+AMA ModelMaker::formulateTerminalStepTracker(const Support& support) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
       state_, actuation_->get_nu());
   Cost costs =
@@ -653,7 +653,7 @@ AMA ModelMaker::formulateTerminalStepTracker(const Support &support) {
   return terminalModel;
 }
 
-AMA ModelMaker::formulateWWT(const Support &support, const bool &stairs) {
+AMA ModelMaker::formulateWWT(const Support& support, const bool& stairs) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
       state_, actuation_->get_nu());
   Cost costs =
@@ -682,8 +682,8 @@ AMA ModelMaker::formulateWWT(const Support &support, const bool &stairs) {
   return runningModel;
 }
 
-AMA ModelMaker::formulateTerminalWWT(const Support &support,
-                                     const bool &stairs) {
+AMA ModelMaker::formulateTerminalWWT(const Support& support,
+                                     const bool& stairs) {
   Contact contacts = boost::make_shared<crocoddyl::ContactModelMultiple>(
       state_, actuation_->get_nu());
   Cost costs =
@@ -737,7 +737,7 @@ AMA ModelMaker::formulatePointingTask() {
 }
 
 std::vector<AMA> ModelMaker::formulateHorizon(
-    const std::vector<Support> &supports, const Experiment &experiment) {
+    const std::vector<Support>& supports, const Experiment& experiment) {
   // for loop to generate a vector of IAMs
   std::vector<AMA> models;
   if (experiment == Experiment::WALK) {
@@ -757,7 +757,7 @@ std::vector<AMA> ModelMaker::formulateHorizon(
   return models;
 }
 
-std::vector<AMA> ModelMaker::formulateHorizon(const int &T) {
+std::vector<AMA> ModelMaker::formulateHorizon(const int& T) {
   std::vector<Support> supports(T, DOUBLE);
   return formulateHorizon(supports, Experiment::WALK);
 }
