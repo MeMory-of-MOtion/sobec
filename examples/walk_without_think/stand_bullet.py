@@ -416,9 +416,7 @@ np.set_printoptions(precision=2, linewidth=300, suppress=True, threshold=10000)
 print("Run ```play()``` to visualize the motion.")
 
 print("Run the following line to save the config:")
-print(
-    """
+print("""
 with open('autogen/stand12-autogen.hpp','w') as f:
   f.write(sobec.walk_without_think.params.generateParamFileForTheRobot(walkParams,robot))
-"""
-)
+""")

@@ -4,6 +4,7 @@ Created on Mon May  9 17:15:22 2022
 
 @author: nvilla
 """
+
 import example_robot_data
 import numpy as np
 

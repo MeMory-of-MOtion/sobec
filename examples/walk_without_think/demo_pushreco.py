@@ -12,7 +12,6 @@ from sobec.pinbullet import SimuProxy
 import specific_params
 import random
 
-
 # from sobec.walk_without_think.talos_collections import jointToLockCollection
 
 q_init = np.array(

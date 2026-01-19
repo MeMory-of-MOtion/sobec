@@ -4,11 +4,9 @@ import pinocchio as pin
 import crocoddyl as croc
 import numpy as np
 
-
 # Local imports
 import sobec
 from .weight_share import computeReferenceForces
-
 
 # workaround python 2
 if sys.version_info.major < 3:

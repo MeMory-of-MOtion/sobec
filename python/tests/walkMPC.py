@@ -4,6 +4,7 @@ Created on Sat Jun 11 17:42:39 2022
 
 @author: nvilla
 """
+
 import matplotlib.pyplot as plt
 
 import configuration as conf
