@@ -4,6 +4,7 @@ Created on Wed May 25 11:51:23 2022
 
 @author: nvilla
 """
+
 import crocoddyl
 import numpy as np
 
